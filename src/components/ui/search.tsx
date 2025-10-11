@@ -1,10 +1,6 @@
 "use client";
-import { useState } from "react";
-
-type SearchTab = "stays" | "experiences";
 
 export default function Search() {
-    const [activeTab, setActiveTab] = useState<SearchTab>("stays");
 
     return (
         <div className="w-full max-w-4xl mx-auto">

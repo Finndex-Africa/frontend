@@ -128,7 +128,7 @@ export default function About() {
             <section className="bg-blue-600 py-16 text-white text-center">
                 <h2 className="text-3xl md:text-4xl font-bold mb-4">Join Us on Our Journey</h2>
                 <p className="text-lg md:text-xl max-w-2xl mx-auto mb-6">
-                    Whether you're looking for services or want to provide your expertise, we welcome you to be part of our growing community.
+                    Whether you&apos;re looking for services or want to provide your expertise, we welcome you to be part of our growing community.
                 </p>
                 <a
                     href="/signup"

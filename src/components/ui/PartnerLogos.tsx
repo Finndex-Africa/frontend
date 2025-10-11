@@ -12,7 +12,6 @@ type PartnerLogosProps = {
 
 export default function PartnerLogos({
     partners,
-    grayscale = true,
 }: PartnerLogosProps) {
     return (
         <div className="flex justify-center">

@@ -135,8 +135,8 @@ export default function ServiceDetail({ service }: { service?: Service }) {
                         <div className="flex items-center gap-4 bg-white shadow-sm p-4 rounded-xl">
                             <div className="relative w-16 h-16 rounded-full overflow-hidden">
                                 <Image
-                                    src={s.provider?.avatar!}
-                                    alt={s.provider?.name!}
+                                    src={s.provider?.avatar || "/images/providers/default-avatar.jpg"}
+                                    alt={s.provider?.name || "Service Provider"}
                                     fill
                                     className="object-cover"
                                 />
