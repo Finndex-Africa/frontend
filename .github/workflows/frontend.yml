@@ -1,0 +1,42 @@
+name: Frontend CI/CD
+
+on:
+    push:
+        branches:
+            - main
+
+env:
+    IMAGE_NAME: finndex-frontend
+
+jobs:
+    build-test:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 20
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Run tests
+              run: npm test
+
+    deploy-staging:
+        runs-on: ubuntu-latest
+        needs: build-test
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Deploy Frontend to Staging
+              run: |
+                  ssh user@staging-server "
+                    cd /var/www/finndex-frontend &&
+                    git pull origin main &&
+                    npm install &&
+                    npm run build &&
+                    npm run start:staging
+                  "
