@@ -3,11 +3,18 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Mail, Lock, Phone } from 'lucide-react';
+import { useAuth } from '@/providers';
+import type { Role } from '@/providers';
 
 type UserType = 'HomeSeeker' | 'Landlord' | 'ServiceProvider';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+
 export default function AuthPage() {
+    const router = useRouter();
+    const { setRole } = useAuth();
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -15,17 +22,85 @@ export default function AuthPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
     const [userType, setUserType] = useState<UserType>('HomeSeeker');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log({
-            action: isLogin ? 'Login' : 'Sign-Up',
-            email,
-            password,
-            phone,
-            userType,
-            rememberMe,
-        });
+        setError('');
+        setLoading(true);
+
+        try {
+            if (isLogin) {
+                // Login
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Login failed');
+                }
+
+                // Store token
+                const storage = rememberMe ? localStorage : sessionStorage;
+                storage.setItem('authToken', data.data.token);
+                storage.setItem('user', JSON.stringify(data.data.user));
+
+                // Map backend role to frontend role
+                const roleMap: Record<string, Role> = {
+                    admin: 'admin',
+                    agent: 'admin',
+                    landlord: 'landlord',
+                    service_provider: 'provider',
+                    home_seeker: 'seeker',
+                };
+                setRole(roleMap[data.data.user.userType] || 'guest');
+
+                // Redirect based on role
+                if (data.data.user.userType === 'admin' || data.data.user.userType === 'agent') {
+                    router.push('/routes/management-dashboard');
+                } else {
+                    router.push('/routes/dashboard');
+                }
+            } else {
+                // Sign up
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, phone, userType: userType.toLowerCase() }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Registration failed');
+                }
+
+                // Auto login after signup
+                const storage = rememberMe ? localStorage : sessionStorage;
+                storage.setItem('authToken', data.data.token);
+                storage.setItem('user', JSON.stringify(data.data.user));
+
+                const roleMap: Record<string, Role> = {
+                    admin: 'admin',
+                    agent: 'admin',
+                    landlord: 'landlord',
+                    service_provider: 'provider',
+                    home_seeker: 'seeker',
+                };
+                setRole(roleMap[data.data.user.userType] || 'guest');
+
+                router.push('/routes/dashboard');
+            }
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'An error occurred');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -71,6 +146,11 @@ export default function AuthPage() {
                     transition={{ duration: 0.6, delay: 0.2 }}
                     className="bg-white rounded-lg shadow-lg p-8"
                 >
+                    {error && (
+                        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                            {error}
+                        </div>
+                    )}
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {!isLogin && (
                             <div>
@@ -184,12 +264,13 @@ export default function AuthPage() {
 
                         {/* Submit */}
                         <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
+                            whileHover={{ scale: loading ? 1 : 1.02 }}
+                            whileTap={{ scale: loading ? 1 : 0.98 }}
                             type="submit"
-                            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium text-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                            disabled={loading}
+                            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium text-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {isLogin ? 'Sign In' : 'Sign Up'}
+                            {loading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Sign Up')}
                         </motion.button>
                     </form>
                 </motion.div>

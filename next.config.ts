@@ -6,8 +6,11 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "plus.unsplash.com" },
       { protocol: "https", hostname: "randomuser.me" },
+      { protocol: "https", hostname: "i.pravatar.cc" },
     ],
   },
+  // Suppress hydration warnings caused by browser extensions in development
+  reactStrictMode: true,
 };
 
 export default nextConfig;

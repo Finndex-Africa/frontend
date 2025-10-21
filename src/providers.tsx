@@ -3,7 +3,7 @@ import React, { createContext, useContext, useMemo, useState } from "react";
 import { ToastProvider } from "./components/ui/Toast";
 
 // Simple role/auth context for Navbar links and conditional UI
-type Role = "guest" | "seeker" | "landlord" | "provider" | "admin";
+export type Role = "guest" | "seeker" | "landlord" | "provider" | "admin";
 type AuthContextType = { role: Role; setRole: (r: Role) => void };
 const AuthContext = createContext<AuthContextType | null>(null);
 export function useAuth() {

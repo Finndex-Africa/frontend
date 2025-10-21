@@ -1,15 +1,17 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 
 type Message = { id: string; from: "me" | "other"; text: string; at: string };
 
 export default function MessageThread({ initial = [] as Message[] }: { initial?: Message[] }) {
     const [messages, setMessages] = useState<Message[]>(initial);
     const [text, setText] = useState("");
+    const idCounter = useRef(0);
 
     const send = () => {
         if (!text.trim()) return;
-        setMessages((m) => [...m, { id: Math.random().toString(36).slice(2), from: "me", text, at: new Date().toISOString() }]);
+        const timestamp = new Date().toISOString();
+        setMessages((m) => [...m, { id: `msg-${++idCounter.current}`, from: "me", text, at: timestamp }]);
         setText("");
     };
 

@@ -18,9 +18,18 @@
 body {
   background: #ffffff; /* fixed light background */
   color: #222222; /* Airbnb text color */
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure Ant Design components use their own font-family */
+.ant-layout,
+.ant-menu,
+.ant-btn,
+.ant-card,
+.ant-table,
+.ant-typography {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
 /* Airbnb-style scrollbar hide */

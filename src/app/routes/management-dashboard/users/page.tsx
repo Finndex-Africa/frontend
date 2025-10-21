@@ -1,19 +1,18 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ConfigProvider, App, Row, Col, Typography, Spin, Card, Statistic, Table, Input, Select, Space, Button, Tag } from 'antd';
+import { ConfigProvider, App, Row, Col, Typography, Spin, Card, Statistic, Table, Input, Select, Space, Button, Tag, Avatar } from 'antd';
 import {
-  ShopOutlined,
+  UserOutlined,
+  TeamOutlined,
   CheckCircleOutlined,
-  ClockCircleOutlined,
-  DollarOutlined,
   SearchOutlined,
   ReloadOutlined,
 } from '@ant-design/icons';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import type { UserRole } from '@/types/dashboard';
 import type { TableProps } from 'antd';
-import { servicesApi, isApiError } from '@/services/api';
+import { usersApi, isApiError } from '@/services/api';
 import { antdTheme, designTokens } from '@/config/theme';
 import { useAuth } from '@/providers';
 
@@ -21,33 +20,32 @@ const { Title } = Typography;
 const { Search } = Input;
 const { Option } = Select;
 
-interface ServiceStats {
+interface UserStats {
   total: number;
   active: number;
-  pending: number;
-  totalRevenue: number;
+  landlords: number;
+  seekers: number;
+  providers: number;
 }
 
-interface Service {
+interface User {
   _id: string;
-  title: string;
-  category: string;
-  provider: {
-    name: string;
-  };
-  price: number;
-  status: 'active' | 'pending' | 'inactive';
-  rating: number;
-  bookings: number;
+  name: string;
+  email: string;
+  role: string;
+  status: 'active' | 'inactive' | 'suspended';
+  verified: boolean;
+  properties?: number;
+  services?: number;
   createdAt: string;
 }
 
-function ServicesContent() {
+function UsersContent() {
   const { role, setRole } = useAuth();
   const { message } = App.useApp();
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState<ServiceStats | null>(null);
-  const [data, setData] = useState<Service[]>([]);
+  const [stats, setStats] = useState<UserStats | null>(null);
+  const [data, setData] = useState<User[]>([]);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -59,40 +57,52 @@ function ServicesContent() {
     setRole('admin');
   }, [setRole]);
 
-  // Fetch service statistics from API
+  // Fetch user statistics from API
   useEffect(() => {
     const fetchStats = async () => {
       setLoading(true);
       try {
-        // Fetch services from API
-        const response = await servicesApi.getServices({ limit: 1000 });
-        const services = response.data || [];
+        // Fetch users from API
+        const response = await usersApi.getUsers({ limit: 1000 });
+        const users = (response as any).data || [];
 
         // Calculate statistics from actual data
-        const total = services.length;
-        const active = services.filter((s: any) => s.status === 'active').length;
-        const pending = services.filter((s: any) => s.status === 'pending').length;
-        const totalRevenue = services.reduce((sum: number, s: any) => {
-          return sum + (s.price || 0) * (s.bookings || 0);
-        }, 0);
+        const total = users.length;
+        const active = users.filter((u: any) => u.status === 'active').length;
+        const landlords = users.filter((u: any) => u.userType === 'landlord').length;
+        const seekers = users.filter((u: any) => u.userType === 'home_seeker').length;
+        const providers = users.filter((u: any) => u.userType === 'service_provider').length;
 
         setStats({
           total,
           active,
-          pending,
-          totalRevenue,
+          landlords,
+          seekers,
+          providers,
         });
 
-        // Set table data (first page)
-        setData(services.slice(0, pagination.pageSize));
+        // Transform users data for table
+        const transformedUsers = users.map((user: any) => ({
+          _id: user._id,
+          name: user.name || 'N/A',
+          email: user.email,
+          role: user.userType,
+          status: user.status || 'active',
+          verified: user.verified || false,
+          properties: user.properties?.length || 0,
+          services: user.services?.length || 0,
+          createdAt: user.createdAt,
+        }));
+
+        setData(transformedUsers.slice(0, pagination.pageSize));
         setPagination((prev) => ({ ...prev, total }));
       } catch (error) {
         if (isApiError(error)) {
-          message.error(`Failed to load services: ${error.message}`);
+          message.error(`Failed to load users: ${error.message}`);
         } else {
-          message.error('Failed to load service statistics');
+          message.error('Failed to load user statistics');
         }
-        console.error('Services fetch error:', error);
+        console.error('Users fetch error:', error);
       } finally {
         setLoading(false);
       }
@@ -101,38 +111,32 @@ function ServicesContent() {
     fetchStats();
   }, [message, pagination.pageSize]);
 
-  const columns: TableProps<Service>['columns'] = [
+  const columns: TableProps<User>['columns'] = [
     {
-      title: 'Service',
-      dataIndex: 'title',
-      key: 'title',
+      title: 'User',
+      key: 'user',
       width: 250,
-      ellipsis: true,
-      render: (text) => (
-        <span style={{ fontWeight: designTokens.fontWeight.medium }}>{text}</span>
+      render: (_, record) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <Avatar icon={<UserOutlined />} style={{ backgroundColor: designTokens.colors.brand }} />
+          <div>
+            <div style={{ fontWeight: designTokens.fontWeight.medium }}>{record.name}</div>
+            <div style={{ color: designTokens.colors.muted, fontSize: designTokens.fontSize.sm }}>
+              {record.email}
+            </div>
+          </div>
+        </div>
       ),
     },
     {
-      title: 'Category',
-      dataIndex: 'category',
-      key: 'category',
-      width: 150,
-    },
-    {
-      title: 'Provider',
-      key: 'provider',
-      width: 180,
-      render: (_, record) => record.provider?.name || 'N/A',
-    },
-    {
-      title: 'Price',
-      dataIndex: 'price',
-      key: 'price',
+      title: 'Role',
+      dataIndex: 'role',
+      key: 'role',
       width: 120,
-      render: (price) => (
-        <span style={{ fontWeight: designTokens.fontWeight.semibold }}>
-          ₦{price.toLocaleString()}
-        </span>
+      render: (role) => (
+        <Tag color={designTokens.colors.brand} style={{ textTransform: 'capitalize' }}>
+          {role}
+        </Tag>
       ),
     },
     {
@@ -143,8 +147,8 @@ function ServicesContent() {
       render: (status) => {
         const colors: Record<string, string> = {
           active: designTokens.colors.success,
-          pending: designTokens.colors.warning,
           inactive: designTokens.colors.muted,
+          suspended: designTokens.colors.error,
         };
         return (
           <Tag
@@ -157,20 +161,32 @@ function ServicesContent() {
       },
     },
     {
-      title: 'Rating',
-      dataIndex: 'rating',
-      key: 'rating',
+      title: 'Verified',
+      dataIndex: 'verified',
+      key: 'verified',
       width: 100,
-      render: (rating) => `⭐ ${rating}`,
+      render: (verified) => (
+        <Tag color={verified ? designTokens.colors.success : designTokens.colors.warning}>
+          {verified ? 'Yes' : 'No'}
+        </Tag>
+      ),
     },
     {
-      title: 'Bookings',
-      dataIndex: 'bookings',
-      key: 'bookings',
+      title: 'Properties',
+      dataIndex: 'properties',
+      key: 'properties',
       width: 100,
+      render: (properties) => properties || '-',
     },
     {
-      title: 'Created',
+      title: 'Services',
+      dataIndex: 'services',
+      key: 'services',
+      width: 100,
+      render: (services) => services || '-',
+    },
+    {
+      title: 'Joined',
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 120,
@@ -182,7 +198,7 @@ function ServicesContent() {
     <DashboardLayout userRole={role as UserRole} userName="Admin User">
       <div style={{ marginBottom: designTokens.spacing.xl }}>
         <Title level={2} style={{ margin: 0, color: designTokens.colors.text }}>
-          Services Management
+          Users Management
         </Title>
         <p
           style={{
@@ -190,7 +206,7 @@ function ServicesContent() {
             marginTop: designTokens.spacing.sm,
           }}
         >
-          Manage all services and service providers
+          Manage all users, roles, and permissions
         </p>
       </div>
 
@@ -209,51 +225,62 @@ function ServicesContent() {
         <>
           {/* Statistics Cards */}
           <Row gutter={[24, 24]} style={{ marginBottom: designTokens.spacing.xl }}>
-            <Col xs={24} sm={12} lg={6}>
+            <Col xs={24} sm={12} lg={8}>
               <Card variant="borderless" style={{ boxShadow: designTokens.shadows.base }}>
                 <Statistic
-                  title="Total Services"
+                  title="Total Users"
                   value={stats?.total || 0}
-                  prefix={<ShopOutlined />}
+                  prefix={<TeamOutlined />}
                   valueStyle={{ color: designTokens.colors.brand }}
                 />
               </Card>
             </Col>
-            <Col xs={24} sm={12} lg={6}>
+            <Col xs={24} sm={12} lg={8}>
               <Card variant="borderless" style={{ boxShadow: designTokens.shadows.base }}>
                 <Statistic
-                  title="Active"
+                  title="Active Users"
                   value={stats?.active || 0}
                   prefix={<CheckCircleOutlined />}
                   valueStyle={{ color: designTokens.colors.success }}
                 />
               </Card>
             </Col>
-            <Col xs={24} sm={12} lg={6}>
+            <Col xs={24} sm={12} lg={8}>
               <Card variant="borderless" style={{ boxShadow: designTokens.shadows.base }}>
                 <Statistic
-                  title="Pending"
-                  value={stats?.pending || 0}
-                  prefix={<ClockCircleOutlined />}
-                  valueStyle={{ color: designTokens.colors.warning }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} lg={6}>
-              <Card variant="borderless" style={{ boxShadow: designTokens.shadows.base }}>
-                <Statistic
-                  title="Total Revenue"
-                  value={stats?.totalRevenue || 0}
-                  prefix="₦"
-                  suffix={<DollarOutlined />}
-                  valueStyle={{ color: designTokens.colors.accent }}
-                  formatter={(value) => `${Number(value).toLocaleString()}`}
+                  title="Landlords"
+                  value={stats?.landlords || 0}
+                  prefix={<UserOutlined />}
+                  valueStyle={{ color: designTokens.colors.info }}
                 />
               </Card>
             </Col>
           </Row>
 
-          {/* Services Table */}
+          <Row gutter={[24, 24]} style={{ marginBottom: designTokens.spacing.xl }}>
+            <Col xs={24} sm={12}>
+              <Card variant="borderless" style={{ boxShadow: designTokens.shadows.base }}>
+                <Statistic
+                  title="Home Seekers"
+                  value={stats?.seekers || 0}
+                  prefix={<UserOutlined />}
+                  valueStyle={{ color: designTokens.colors.accent }}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} sm={12}>
+              <Card variant="borderless" style={{ boxShadow: designTokens.shadows.base }}>
+                <Statistic
+                  title="Service Providers"
+                  value={stats?.providers || 0}
+                  prefix={<UserOutlined />}
+                  valueStyle={{ color: designTokens.colors.warning }}
+                />
+              </Card>
+            </Col>
+          </Row>
+
+          {/* Users Table */}
           <div style={{ marginTop: designTokens.spacing.xl }}>
             <Title
               level={3}
@@ -262,7 +289,7 @@ function ServicesContent() {
                 color: designTokens.colors.text,
               }}
             >
-              All Services
+              All Users
             </Title>
 
             <div>
@@ -276,23 +303,28 @@ function ServicesContent() {
               >
                 <Space wrap>
                   <Search
-                    placeholder="Search services..."
+                    placeholder="Search users..."
                     allowClear
                     style={{ width: 300 }}
                     prefix={<SearchOutlined style={{ color: designTokens.colors.muted }} />}
                   />
 
-                  <Select placeholder="Category" allowClear style={{ width: 150 }}>
-                    <Option value="cleaning">Cleaning</Option>
-                    <Option value="maintenance">Maintenance</Option>
-                    <Option value="moving">Moving</Option>
-                    <Option value="security">Security</Option>
+                  <Select placeholder="Role" allowClear style={{ width: 150 }}>
+                    <Option value="landlord">Landlord</Option>
+                    <Option value="seeker">Home Seeker</Option>
+                    <Option value="provider">Service Provider</Option>
+                    <Option value="admin">Admin</Option>
                   </Select>
 
                   <Select placeholder="Status" allowClear style={{ width: 150 }}>
                     <Option value="active">Active</Option>
-                    <Option value="pending">Pending</Option>
                     <Option value="inactive">Inactive</Option>
+                    <Option value="suspended">Suspended</Option>
+                  </Select>
+
+                  <Select placeholder="Verified" allowClear style={{ width: 150 }}>
+                    <Option value="true">Verified</Option>
+                    <Option value="false">Not Verified</Option>
                   </Select>
                 </Space>
 
@@ -309,7 +341,7 @@ function ServicesContent() {
                 pagination={{
                   ...pagination,
                   showSizeChanger: true,
-                  showTotal: (total) => `Total ${total} services`,
+                  showTotal: (total) => `Total ${total} users`,
                   pageSizeOptions: ['10', '20', '50', '100'],
                 }}
                 scroll={{ x: 1200 }}
@@ -326,11 +358,11 @@ function ServicesContent() {
   );
 }
 
-export default function ServicesPage() {
+export default function UsersPage() {
   return (
     <ConfigProvider theme={antdTheme}>
       <App>
-        <ServicesContent />
+        <UsersContent />
       </App>
     </ConfigProvider>
   );

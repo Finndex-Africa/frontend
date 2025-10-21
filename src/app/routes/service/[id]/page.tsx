@@ -38,8 +38,9 @@ export type Service = {
     availability?: string;
 };
 
-export default function ServiceDetail({ service }: { service?: Service }) {
+export default function ServiceDetail() {
     const [showAllReviews, setShowAllReviews] = useState(false);
+    const service: Service | undefined = undefined;
 
     const defaultService: Service = {
         title: "Professional Plumbing Service",
