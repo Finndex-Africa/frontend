@@ -5,6 +5,7 @@ import "./globals.css";
 import Navbar from "../components/global/Navbar";
 import Footer from "../components/global/Footer";
 import { Providers } from "../providers";
+import SentryInit from "./sentry-client-init";
 import { usePathname } from "next/navigation";
 
 const geistSans = Geist({
@@ -26,8 +27,8 @@ export default function RootLayout({
 
   // Hide navbar and footer for dashboard routes
   const isDashboardRoute = pathname?.startsWith('/routes/management-dashboard') ||
-                           pathname?.startsWith('/routes/properties') ||
-                           pathname?.startsWith('/routes/services');
+    pathname?.startsWith('/routes/properties') ||
+    pathname?.startsWith('/routes/services');
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -36,11 +37,13 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <Providers>
-          {!isDashboardRoute && <Navbar />}
-          <main className="min-h-screen">
-            {children}
-          </main>
-          {!isDashboardRoute && <Footer />}
+          <SentryInit>
+            {!isDashboardRoute && <Navbar />}
+            <main className="min-h-screen">
+              {children}
+            </main>
+            {!isDashboardRoute && <Footer />}
+          </SentryInit>
         </Providers>
       </body>
     </html>
