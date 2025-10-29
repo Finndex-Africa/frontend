@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Mail, Lock, Phone } from 'lucide-react';
 import { useAuth } from '@/providers';
 import type { Role } from '@/providers';
@@ -11,9 +10,16 @@ import type { Role } from '@/providers';
 type UserType = 'HomeSeeker' | 'Landlord' | 'ServiceProvider';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const DASHBOARD_URL = process.env.NEXT_PUBLIC_DASHBOARD_URL || 'http://localhost:3030';
+
+// Debug logging
+console.log('🔍 Environment check:', {
+    API_URL,
+    DASHBOARD_URL,
+    envVar: process.env.NEXT_PUBLIC_DASHBOARD_URL
+});
 
 export default function AuthPage() {
-    const router = useRouter();
     const { setRole } = useAuth();
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
@@ -45,10 +51,11 @@ export default function AuthPage() {
                     throw new Error(data.message || 'Login failed');
                 }
 
-                // Store token
+                // Store token locally for frontend use
                 const storage = rememberMe ? localStorage : sessionStorage;
                 storage.setItem('authToken', data.data.token);
                 storage.setItem('user', JSON.stringify(data.data.user));
+                console.log('✅ Login successful - Token stored:', data.data.token.substring(0, 20) + '...');
 
                 // Map backend role to frontend role
                 const roleMap: Record<string, Role> = {
@@ -59,13 +66,12 @@ export default function AuthPage() {
                     home_seeker: 'seeker',
                 };
                 setRole(roleMap[data.data.user.userType] || 'guest');
+                console.log('✅ Role set:', roleMap[data.data.user.userType] || 'guest');
 
-                // Redirect based on role
-                if (data.data.user.userType === 'admin' || data.data.user.userType === 'agent') {
-                    router.push('/routes/management-dashboard');
-                } else {
-                    router.push('/routes/dashboard');
-                }
+                // Redirect to dashboard auth transfer page
+                console.log('🚀 Redirecting to dashboard');
+                const redirectUrl = `${DASHBOARD_URL}/auth-transfer?token=${encodeURIComponent(data.data.token)}`;
+                window.location.href = redirectUrl;
             } else {
                 // Sign up
                 const response = await fetch(`${API_URL}/auth/register`, {
@@ -84,6 +90,7 @@ export default function AuthPage() {
                 const storage = rememberMe ? localStorage : sessionStorage;
                 storage.setItem('authToken', data.data.token);
                 storage.setItem('user', JSON.stringify(data.data.user));
+                console.log('✅ Signup successful - Token stored:', data.data.token.substring(0, 20) + '...');
 
                 const roleMap: Record<string, Role> = {
                     admin: 'admin',
@@ -93,8 +100,12 @@ export default function AuthPage() {
                     home_seeker: 'seeker',
                 };
                 setRole(roleMap[data.data.user.userType] || 'guest');
+                console.log('✅ Role set:', roleMap[data.data.user.userType] || 'guest');
 
-                router.push('/routes/dashboard');
+                // Redirect to dashboard auth transfer page
+                console.log('🚀 Redirecting to dashboard');
+                const redirectUrl = `${DASHBOARD_URL}/auth-transfer?token=${encodeURIComponent(data.data.token)}`;
+                window.location.href = redirectUrl;
             }
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'An error occurred');
