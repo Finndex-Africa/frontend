@@ -31,6 +31,7 @@ function PropertiesContent() {
   const { message } = App.useApp();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<PropertyStats | null>(null);
+  const [properties, setProperties] = useState<any[]>([]);
 
   // Set role to admin for dashboard access (temporary - replace with actual auth)
   useEffect(() => {
@@ -43,16 +44,19 @@ function PropertiesContent() {
       setLoading(true);
       try {
         // Fetch properties from API
-        const response = await propertiesApi.getProperties({ limit: 1000 });
-        const properties = response.data || [];
+        const response = await propertiesApi.getAll({ limit: 1000 });
+        const propertiesData = response.data?.data || [];
+
+        // Store properties in state
+        setProperties(propertiesData);
 
         // Calculate statistics from actual data
-        const total = properties.length;
-        const available = properties.filter((p: any) => p.status === 'available').length;
-        const rented = properties.filter((p: any) => p.status === 'rented').length;
-        const pending = properties.filter((p: any) => p.status === 'pending').length;
-        const verified = properties.filter((p: any) => p.verified === true).length;
-        const totalValue = properties.reduce((sum: number, p: any) => sum + (p.price || 0), 0);
+        const total = propertiesData.length;
+        const available = propertiesData.filter((p: any) => p.status === 'available').length;
+        const rented = propertiesData.filter((p: any) => p.status === 'rented').length;
+        const pending = propertiesData.filter((p: any) => p.status === 'pending').length;
+        const verified = propertiesData.filter((p: any) => p.verified === true).length;
+        const totalValue = propertiesData.reduce((sum: number, p: any) => sum + (p.price || 0), 0);
 
         setStats({
           total,
@@ -164,7 +168,12 @@ function PropertiesContent() {
               All Properties
             </Title>
             <PropertiesTable
-              userRole={role}
+              properties={properties}
+              loading={loading}
+              onView={(property) => {
+                message.info(`View property: ${property.title}`);
+                // Navigate to view page or open modal
+              }}
               onEdit={(property) => {
                 message.info(`Edit property: ${property.title}`);
                 // Navigate to edit page or open modal
@@ -173,16 +182,13 @@ function PropertiesContent() {
                 message.warning(`Delete property: ${property.title}`);
                 // Show confirmation modal
               }}
-              onVerify={async () => {
-                try {
-                  message.loading('Verifying property...');
-                  // await propertiesApi.verifyProperty(property._id);
-                  message.success('Property verified successfully');
-                } catch (error) {
-                  if (isApiError(error)) {
-                    message.error(error.message);
-                  }
-                }
+              onApprove={(property) => {
+                message.success(`Approved property: ${property.title}`);
+                // Call approve API
+              }}
+              onReject={(property) => {
+                message.error(`Rejected property: ${property.title}`);
+                // Call reject API
               }}
             />
           </div>

@@ -65,8 +65,8 @@ function ServicesContent() {
       setLoading(true);
       try {
         // Fetch services from API
-        const response = await servicesApi.getServices({ limit: 1000 });
-        const services = response.data || [];
+        const response = await servicesApi.getAll({ limit: 1000 });
+        const services = response.data?.data || [];
 
         // Calculate statistics from actual data
         const total = services.length;
@@ -84,7 +84,7 @@ function ServicesContent() {
         });
 
         // Set table data (first page)
-        setData(services.slice(0, pagination.pageSize));
+        setData(services.slice(0, pagination.pageSize) as any);
         setPagination((prev) => ({ ...prev, total }));
       } catch (error) {
         if (isApiError(error)) {
@@ -109,7 +109,7 @@ function ServicesContent() {
       width: 250,
       ellipsis: true,
       render: (text) => (
-        <span style={{ fontWeight: designTokens.fontWeight.medium }}>{text}</span>
+        <span style={{ fontWeight: designTokens.fontWeights.medium }}>{text}</span>
       ),
     },
     {
@@ -130,7 +130,7 @@ function ServicesContent() {
       key: 'price',
       width: 120,
       render: (price) => (
-        <span style={{ fontWeight: designTokens.fontWeight.semibold }}>
+        <span style={{ fontWeight: designTokens.fontWeights.semibold }}>
           ₦{price.toLocaleString()}
         </span>
       ),
@@ -314,7 +314,7 @@ function ServicesContent() {
                 }}
                 scroll={{ x: 1200 }}
                 style={{
-                  backgroundColor: designTokens.colors.white,
+                  backgroundColor: '#FFFFFF',
                   boxShadow: designTokens.shadows.base,
                 }}
               />
