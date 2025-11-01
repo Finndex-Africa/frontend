@@ -25,11 +25,14 @@ export default function AuthPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [phone, setPhone] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
     const [userType, setUserType] = useState<UserType>('HomeSeeker');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -73,11 +76,24 @@ export default function AuthPage() {
                 const redirectUrl = `${DASHBOARD_URL}/auth-transfer?token=${encodeURIComponent(data.data.token)}`;
                 window.location.href = redirectUrl;
             } else {
-                // Sign up
+                // Sign up - Map userType to backend enum
+                const userTypeMap: Record<UserType, string> = {
+                    'HomeSeeker': 'home_seeker',
+                    'Landlord': 'landlord',
+                    'ServiceProvider': 'service_provider',
+                };
+
                 const response = await fetch(`${API_URL}/auth/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password, phone, userType: userType.toLowerCase() }),
+                    body: JSON.stringify({
+                        email,
+                        password,
+                        phone,
+                        firstName,
+                        lastName,
+                        userType: userTypeMap[userType],
+                    }),
                 });
 
                 const data = await response.json();
@@ -86,26 +102,22 @@ export default function AuthPage() {
                     throw new Error(data.message || 'Registration failed');
                 }
 
-                // Auto login after signup
-                const storage = rememberMe ? localStorage : sessionStorage;
-                storage.setItem('authToken', data.data.token);
-                storage.setItem('user', JSON.stringify(data.data.user));
-                console.log('✅ Signup successful - Token stored:', data.data.token.substring(0, 20) + '...');
+                // Show success message - email verification required
+                setSuccessMessage('Registration successful! Please check your email to verify your account.');
+                setLoading(false);
 
-                const roleMap: Record<string, Role> = {
-                    admin: 'admin',
-                    agent: 'admin',
-                    landlord: 'landlord',
-                    service_provider: 'provider',
-                    home_seeker: 'seeker',
-                };
-                setRole(roleMap[data.data.user.userType] || 'guest');
-                console.log('✅ Role set:', roleMap[data.data.user.userType] || 'guest');
+                // Reset form
+                setEmail('');
+                setPassword('');
+                setPhone('');
+                setFirstName('');
+                setLastName('');
 
-                // Redirect to dashboard auth transfer page
-                console.log('🚀 Redirecting to dashboard');
-                const redirectUrl = `${DASHBOARD_URL}/auth-transfer?token=${encodeURIComponent(data.data.token)}`;
-                window.location.href = redirectUrl;
+                // Auto-switch to login form after 3 seconds
+                setTimeout(() => {
+                    setIsLogin(true);
+                    setSuccessMessage('');
+                }, 3000);
             }
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'An error occurred');
@@ -162,6 +174,11 @@ export default function AuthPage() {
                             {error}
                         </div>
                     )}
+                    {successMessage && (
+                        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+                            {successMessage}
+                        </div>
+                    )}
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {!isLogin && (
                             <div>
@@ -177,6 +194,42 @@ export default function AuthPage() {
                                     <option value="Landlord">Landlord / Agent</option>
                                     <option value="ServiceProvider">Service Provider</option>
                                 </select>
+                            </div>
+                        )}
+
+                        {/* First Name & Last Name (only for sign-up) */}
+                        {!isLogin && (
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
+                                        First Name
+                                    </label>
+                                    <input
+                                        id="firstName"
+                                        name="firstName"
+                                        type="text"
+                                        required
+                                        value={firstName}
+                                        onChange={(e) => setFirstName(e.target.value)}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                        placeholder="First name"
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
+                                        Last Name
+                                    </label>
+                                    <input
+                                        id="lastName"
+                                        name="lastName"
+                                        type="text"
+                                        required
+                                        value={lastName}
+                                        onChange={(e) => setLastName(e.target.value)}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                        placeholder="Last name"
+                                    />
+                                </div>
                             </div>
                         )}
 
@@ -211,13 +264,15 @@ export default function AuthPage() {
                                         id="phone"
                                         name="phone"
                                         type="tel"
+                                        required
                                         value={phone}
                                         onChange={(e) => setPhone(e.target.value)}
                                         className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                                        placeholder="Enter your phone"
+                                        placeholder="+250788123456"
                                     />
                                     <Phone className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
                                 </div>
+                                <p className="mt-1 text-xs text-gray-500">Enter phone in international format (e.g., +250788123456)</p>
                             </div>
                         )}
 
