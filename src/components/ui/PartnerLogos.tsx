@@ -19,14 +19,15 @@ export default function PartnerLogos({
                 {partners.map((partner, index) => (
                     <div
                         key={index}
-                        className="flex items-center justify-center h-26 w-40"
+                        className="flex items-center justify-center h-24 w-40"
                     >
-                        <div className="relative w-full h-full flex items-center justify-center">
+                        <div className="relative w-full h-full">
                             <Image
                                 src={partner.logoUrl}
                                 alt={partner.name}
                                 fill
-                                className='object-contain'
+                                className="object-contain"
+                                unoptimized
                             />
                         </div>
                     </div>
