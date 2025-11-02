@@ -26,7 +26,7 @@ export default function StatsSection({
         <section className="relative my-8">
             <div className="container-app">
                 <div className={`relative ${height} w-full overflow-hidden rounded-2xl`}>
-                    <Image src={imageUrl} alt={imageAlt} fill className="object-cover" />
+                    <Image src={imageUrl} alt={imageAlt} fill className="object-cover" unoptimized />
                     <div className="absolute inset-0 bg-black/40" />
                     <div className="relative z-10 h-full flex items-center justify-between px-6 md:px-12 text-white">
                         <div className="max-w-lg">
