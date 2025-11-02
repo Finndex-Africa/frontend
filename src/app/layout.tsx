@@ -20,8 +20,12 @@ export const metadata: Metadata = {
   title: "Finndex Africa",
   description: "Find your perfect home in Africa",
   icons: {
-    icon: "/favicon.ico",
-    apple: "/favicon.ico",
+    icon: [
+      { url: '/images/logos/logo1.png' },
+      { url: '/favicon.ico' },
+    ],
+    apple: '/images/logos/logo1.png',
+    shortcut: '/images/logos/logo1.png',
   },
 };
 
