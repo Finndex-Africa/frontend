@@ -10,6 +10,7 @@ export interface ServiceFilters {
     maxPrice?: number;
     location?: string;
     verified?: boolean;
+    sort?: string;
 }
 
 export interface CreateServiceDto {
@@ -43,6 +44,7 @@ export const servicesApi = {
         if (filters?.maxPrice) params.append('maxPrice', filters.maxPrice.toString());
         if (filters?.location) params.append('location', filters.location);
         if (filters?.verified !== undefined) params.append('verified', filters.verified.toString());
+        if (filters?.sort) params.append('sort', filters.sort);
 
         return apiClient.get<PaginatedResponse<Service>>(`/services?${params.toString()}`);
     },

@@ -9,6 +9,7 @@ export interface PropertyFilters {
     minPrice?: number;
     maxPrice?: number;
     location?: string;
+    sort?: string;
 }
 
 export interface CreatePropertyDto {
@@ -41,6 +42,7 @@ export const propertiesApi = {
         if (filters?.minPrice) params.append('minPrice', filters.minPrice.toString());
         if (filters?.maxPrice) params.append('maxPrice', filters.maxPrice.toString());
         if (filters?.location) params.append('location', filters.location);
+        if (filters?.sort) params.append('sort', filters.sort);
 
         return apiClient.get<PaginatedResponse<Property>>(`/properties?${params.toString()}`);
     },

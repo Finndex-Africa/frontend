@@ -3,13 +3,28 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Brand Colors - Finndex Africa */
+  --primary-blue: #0000FF;
+  --primary-blue-rgb: 0, 0, 255;
+
+  /* Brand Fonts */
+  --font-primary: var(--font-montserrat);
+  --font-secondary: var(--font-poppins);
 }
 
 @theme inline {
+  /* Colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-primary: var(--primary-blue);
+  --color-brand-blue: var(--primary-blue);
+
+  /* Fonts */
+  --font-sans: var(--font-poppins);
+  --font-display: var(--font-montserrat);
+  --font-body: var(--font-poppins);
+  --font-heading: var(--font-montserrat);
 }
 
 /* Force light theme for now to avoid unintended dark backgrounds */
@@ -17,19 +32,63 @@
 
 body {
   background: #ffffff; /* fixed light background */
-  color: #222222; /* Airbnb text color */
+  color: #222222;
+  font-family: var(--font-poppins), -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Ensure Ant Design components use their own font-family */
+/* Brand Typography Classes */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-montserrat), sans-serif;
+  font-weight: 800; /* ExtraBold */
+}
+
+.font-primary {
+  font-family: var(--font-montserrat), sans-serif;
+  font-weight: 800;
+}
+
+.font-secondary {
+  font-family: var(--font-poppins), sans-serif;
+}
+
+.font-secondary-bold {
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 700;
+}
+
+.font-secondary-medium {
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 500;
+}
+
+.font-secondary-regular {
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 400;
+}
+
+/* Brand Color Classes */
+.text-primary-blue {
+  color: var(--primary-blue);
+}
+
+.bg-primary-blue {
+  background-color: var(--primary-blue);
+}
+
+.border-primary-blue {
+  border-color: var(--primary-blue);
+}
+
+/* Ensure Ant Design components use Poppins */
 .ant-layout,
 .ant-menu,
 .ant-btn,
 .ant-card,
 .ant-table,
 .ant-typography {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-poppins), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
 /* Airbnb-style scrollbar hide */
@@ -87,10 +146,12 @@ body {
   cursor: not-allowed;
 }
 .btn-primary {
-  background-color: #2563eb;
+  background-color: var(--primary-blue);
   color: #ffffff;
 }
-.btn-primary:hover { background-color: #1d4ed8; }
+.btn-primary:hover {
+  background-color: rgba(var(--primary-blue-rgb), 0.9);
+}
 
 .btn-secondary {
   background-color: #f3f4f6;
@@ -108,7 +169,7 @@ body {
 }
 .input:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 0 0 2px rgba(var(--primary-blue-rgb), 0.4);
 }
 
 .label { font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.25rem; display: block; }

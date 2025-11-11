@@ -2,6 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useBookmarks } from "@/providers";
+import { useState } from "react";
 
 export type Property = {
     id: string;
@@ -15,18 +16,23 @@ export type Property = {
     dates?: string;
 };
 
+// Default fallback image
+const DEFAULT_PROPERTY_IMAGE = 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c';
+
 export default function PropertyCard({ p, badge }: { p: Property; badge?: string }) {
     const { toggle, has } = useBookmarks();
     const saved = has(p.id);
+    const [imgSrc, setImgSrc] = useState(p.imageUrl || DEFAULT_PROPERTY_IMAGE);
 
     return (
         <Link href={`/routes/property/${p.id}`} className="group cursor-pointer block">
             <div className="relative aspect-square w-full rounded-xl overflow-hidden mb-3">
                 <Image
-                    src={p.imageUrl}
+                    src={imgSrc}
                     alt={p.title}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={() => setImgSrc(DEFAULT_PROPERTY_IMAGE)}
                 />
                 {badge && (
                     <div className="absolute top-3 left-3 bg-white px-3 py-1 rounded-lg text-xs font-semibold text-gray-700 shadow-sm">

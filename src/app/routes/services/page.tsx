@@ -1,337 +1,289 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { ConfigProvider, App, Row, Col, Typography, Spin, Card, Statistic, Table, Input, Select, Space, Button, Tag } from 'antd';
-import {
-  ShopOutlined,
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  DollarOutlined,
-  SearchOutlined,
-  ReloadOutlined,
-} from '@ant-design/icons';
-import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
-import type { UserRole } from '@/types/dashboard';
-import type { TableProps } from 'antd';
-import { servicesApi, isApiError } from '@/services/api';
-import { antdTheme, designTokens } from '@/config/theme';
-import { useAuth } from '@/providers';
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import Image from "next/image";
+import ServiceCard, { Service } from "../../../components/domain/ServiceCard";
+import { servicesApi } from "@/services/api";
+import { Service as ApiService } from "@/types/dashboard";
 
-const { Title } = Typography;
-const { Search } = Input;
-const { Option } = Select;
+// Adapter function to convert API data to component types
+const adaptServiceToCard = (apiService: ApiService): Service => {
+    // Extract tags from category and description
+    const tags = [apiService.category.replace(/_/g, ' ')];
 
-interface ServiceStats {
-  total: number;
-  active: number;
-  pending: number;
-  totalRevenue: number;
-}
-
-interface Service {
-  _id: string;
-  title: string;
-  category: string;
-  provider: {
-    name: string;
-  };
-  price: number;
-  status: 'active' | 'pending' | 'inactive';
-  rating: number;
-  bookings: number;
-  createdAt: string;
-}
-
-function ServicesContent() {
-  const { role, setRole } = useAuth();
-  const { message } = App.useApp();
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState<ServiceStats | null>(null);
-  const [data, setData] = useState<Service[]>([]);
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 10,
-    total: 0,
-  });
-
-  // Set role to admin for dashboard access (temporary - replace with actual auth)
-  useEffect(() => {
-    setRole('admin');
-  }, [setRole]);
-
-  // Fetch service statistics from API
-  useEffect(() => {
-    const fetchStats = async () => {
-      setLoading(true);
-      try {
-        // Fetch services from API
-        const response = await servicesApi.getAll({ limit: 1000 });
-        const services = response.data?.data || [];
-
-        // Calculate statistics from actual data
-        const total = services.length;
-        const active = services.filter((s: any) => s.status === 'active').length;
-        const pending = services.filter((s: any) => s.status === 'pending').length;
-        const totalRevenue = services.reduce((sum: number, s: any) => {
-          return sum + (s.price || 0) * (s.bookings || 0);
-        }, 0);
-
-        setStats({
-          total,
-          active,
-          pending,
-          totalRevenue,
-        });
-
-        // Set table data (first page)
-        setData(services.slice(0, pagination.pageSize) as any);
-        setPagination((prev) => ({ ...prev, total }));
-      } catch (error) {
-        if (isApiError(error)) {
-          message.error(`Failed to load services: ${error.message}`);
-        } else {
-          message.error('Failed to load service statistics');
-        }
-        console.error('Services fetch error:', error);
-      } finally {
-        setLoading(false);
-      }
+    // Default placeholder images for different service categories
+    const defaultServiceImages: Record<string, string> = {
+        'electrical': 'https://images.unsplash.com/photo-1621905251918-48416bd8575a',
+        'plumbing': 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39',
+        'cleaning': 'https://images.unsplash.com/photo-1581578731548-c64695cc6952',
+        'painting_decoration': 'https://images.unsplash.com/photo-1562259949-e8e7689d7828',
+        'carpentry_furniture': 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7',
+        'moving_logistics': 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf',
+        'security_services': 'https://images.unsplash.com/photo-1557597774-9d273605dfa9',
+        'sanitation_services': 'https://images.unsplash.com/photo-1628177142898-93e36e4e3a50',
+        'maintenance': 'https://images.unsplash.com/photo-1504309092620-4d0ec726efa4',
+        'other': 'https://images.unsplash.com/photo-1581578731548-c64695cc6952'
     };
 
-    fetchStats();
-  }, [message, pagination.pageSize]);
+    const defaultImage = defaultServiceImages[apiService.category] || defaultServiceImages['other'];
 
-  const columns: TableProps<Service>['columns'] = [
-    {
-      title: 'Service',
-      dataIndex: 'title',
-      key: 'title',
-      width: 250,
-      ellipsis: true,
-      render: (text) => (
-        <span style={{ fontWeight: designTokens.fontWeights.medium }}>{text}</span>
-      ),
-    },
-    {
-      title: 'Category',
-      dataIndex: 'category',
-      key: 'category',
-      width: 150,
-    },
-    {
-      title: 'Provider',
-      key: 'provider',
-      width: 180,
-      render: (_, record) => record.provider?.name || 'N/A',
-    },
-    {
-      title: 'Price',
-      dataIndex: 'price',
-      key: 'price',
-      width: 120,
-      render: (price) => (
-        <span style={{ fontWeight: designTokens.fontWeights.semibold }}>
-          ₦{price.toLocaleString()}
-        </span>
-      ),
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      width: 100,
-      render: (status) => {
-        const colors: Record<string, string> = {
-          active: designTokens.colors.success,
-          pending: designTokens.colors.warning,
-          inactive: designTokens.colors.muted,
-        };
-        return (
-          <Tag
-            color={colors[status]}
-            style={{ textTransform: 'capitalize', border: 'none' }}
-          >
-            {status}
-          </Tag>
-        );
-      },
-    },
-    {
-      title: 'Rating',
-      dataIndex: 'rating',
-      key: 'rating',
-      width: 100,
-      render: (rating) => `⭐ ${rating}`,
-    },
-    {
-      title: 'Bookings',
-      dataIndex: 'bookings',
-      key: 'bookings',
-      width: 100,
-    },
-    {
-      title: 'Created',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      width: 120,
-      render: (date) => new Date(date).toLocaleDateString(),
-    },
-  ];
-
-  return (
-    <DashboardLayout userRole={role as UserRole} userName="Admin User">
-      <div style={{ marginBottom: designTokens.spacing.xl }}>
-        <Title level={2} style={{ margin: 0, color: designTokens.colors.text }}>
-          Services Management
-        </Title>
-        <p
-          style={{
-            color: designTokens.colors.muted,
-            marginTop: designTokens.spacing.sm,
-          }}
-        >
-          Manage all services and service providers
-        </p>
-      </div>
-
-      {loading && !stats ? (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: 400,
-          }}
-        >
-          <Spin size="large" />
-        </div>
-      ) : (
-        <>
-          {/* Statistics Cards */}
-          <Row gutter={[24, 24]} style={{ marginBottom: designTokens.spacing.xl }}>
-            <Col xs={24} sm={12} lg={6}>
-              <Card variant="borderless" style={{ boxShadow: designTokens.shadows.base }}>
-                <Statistic
-                  title="Total Services"
-                  value={stats?.total || 0}
-                  prefix={<ShopOutlined />}
-                  valueStyle={{ color: designTokens.colors.brand }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} lg={6}>
-              <Card variant="borderless" style={{ boxShadow: designTokens.shadows.base }}>
-                <Statistic
-                  title="Active"
-                  value={stats?.active || 0}
-                  prefix={<CheckCircleOutlined />}
-                  valueStyle={{ color: designTokens.colors.success }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} lg={6}>
-              <Card variant="borderless" style={{ boxShadow: designTokens.shadows.base }}>
-                <Statistic
-                  title="Pending"
-                  value={stats?.pending || 0}
-                  prefix={<ClockCircleOutlined />}
-                  valueStyle={{ color: designTokens.colors.warning }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} lg={6}>
-              <Card variant="borderless" style={{ boxShadow: designTokens.shadows.base }}>
-                <Statistic
-                  title="Total Revenue"
-                  value={stats?.totalRevenue || 0}
-                  prefix="₦"
-                  suffix={<DollarOutlined />}
-                  valueStyle={{ color: designTokens.colors.accent }}
-                  formatter={(value) => `${Number(value).toLocaleString()}`}
-                />
-              </Card>
-            </Col>
-          </Row>
-
-          {/* Services Table */}
-          <div style={{ marginTop: designTokens.spacing.xl }}>
-            <Title
-              level={3}
-              style={{
-                marginBottom: designTokens.spacing.lg,
-                color: designTokens.colors.text,
-              }}
-            >
-              All Services
-            </Title>
-
-            <div>
-              <Space
-                style={{
-                  marginBottom: designTokens.spacing.lg,
-                  width: '100%',
-                  justifyContent: 'space-between',
-                }}
-                wrap
-              >
-                <Space wrap>
-                  <Search
-                    placeholder="Search services..."
-                    allowClear
-                    style={{ width: 300 }}
-                    prefix={<SearchOutlined style={{ color: designTokens.colors.muted }} />}
-                  />
-
-                  <Select placeholder="Category" allowClear style={{ width: 150 }}>
-                    <Option value="cleaning">Cleaning</Option>
-                    <Option value="maintenance">Maintenance</Option>
-                    <Option value="moving">Moving</Option>
-                    <Option value="security">Security</Option>
-                  </Select>
-
-                  <Select placeholder="Status" allowClear style={{ width: 150 }}>
-                    <Option value="active">Active</Option>
-                    <Option value="pending">Pending</Option>
-                    <Option value="inactive">Inactive</Option>
-                  </Select>
-                </Space>
-
-                <Button icon={<ReloadOutlined />} loading={loading}>
-                  Refresh
-                </Button>
-              </Space>
-
-              <Table
-                columns={columns}
-                dataSource={data}
-                rowKey="_id"
-                loading={loading}
-                pagination={{
-                  ...pagination,
-                  showSizeChanger: true,
-                  showTotal: (total) => `Total ${total} services`,
-                  pageSizeOptions: ['10', '20', '50', '100'],
-                }}
-                scroll={{ x: 1200 }}
-                style={{
-                  backgroundColor: '#FFFFFF',
-                  boxShadow: designTokens.shadows.base,
-                }}
-              />
-            </div>
-          </div>
-        </>
-      )}
-    </DashboardLayout>
-  );
-}
+    return {
+        id: apiService._id,
+        name: apiService.title,
+        location: apiService.location,
+        rating: apiService.rating ? Number(apiService.rating.toFixed(2)) : 0,
+        reviews: 0, // API doesn't provide review count yet
+        imageUrl: apiService.images?.[0] || defaultImage,
+        tags,
+        badge: apiService.status === 'active' ? 'VERIFIED' : undefined
+    };
+};
 
 export default function ServicesPage() {
-  return (
-    <ConfigProvider theme={antdTheme}>
-      <App>
-        <ServicesContent />
-      </App>
-    </ConfigProvider>
-  );
+    const searchParams = useSearchParams();
+    const [services, setServices] = useState<Service[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const limit = 20;
+
+    // Get search parameters
+    const locationParam = searchParams.get('location');
+    const dateParam = searchParams.get('date');
+    const queryParam = searchParams.get('q');
+
+    useEffect(() => {
+        fetchServices();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [page, locationParam, dateParam, queryParam]);
+
+    const fetchServices = async () => {
+        try {
+            setLoading(true);
+
+            // Build filters object with search params
+            const filters: any = {
+                page,
+                limit,
+                status: 'active',
+                sort: '-createdAt'  // Sort by most recent first
+            };
+
+            // Add search parameters if they exist
+            if (locationParam) filters.location = locationParam;
+            if (queryParam) {
+                // Use the search query as a general search term
+                filters.location = filters.location || queryParam;
+            }
+
+            const response = await servicesApi.getAll(filters);
+
+            // Handle both response structures
+            const servicesData = response.data?.data || response.data;
+            const paginationData = response.data?.pagination;
+
+            const adaptedServices = servicesData.map(adaptServiceToCard);
+
+            if (page === 1) {
+                setServices(adaptedServices);
+            } else {
+                setServices(prev => [...prev, ...adaptedServices]);
+            }
+
+            // Check if there are more pages
+            if (paginationData) {
+                setHasMore(paginationData.currentPage < paginationData.totalPages);
+            } else {
+                setHasMore(false);
+            }
+            setError(null);
+        } catch (error) {
+            console.error('Error fetching services:', error);
+            setError('Failed to load services. Please try again later.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const loadMore = () => {
+        if (!loading && hasMore) {
+            setPage(prev => prev + 1);
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-white">
+            {/* Hero Section with Search Overlay */}
+            <section className="relative h-[400px] w-full overflow-visible">
+                <div className="absolute inset-0 overflow-hidden">
+                    <Image
+                        src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1600"
+                        alt="Services Hero"
+                        fill
+                        className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/40" />
+                </div>
+                <div className="relative z-[5] h-full flex flex-col items-center justify-center text-center text-white px-4">
+                    <h1 className="text-3xl md:text-5xl font-extrabold max-w-4xl leading-tight mb-4">
+                        Find Trusted Services
+                    </h1>
+                    <p className="text-xl text-white/90 mb-8">
+                        Connect with verified service providers for all your needs
+                    </p>
+                </div>
+
+                {/* Search Bar Overlay - positioned to overlap */}
+                <div className="absolute bottom-0 left-0 right-0 translate-y-1/2 z-[10] px-4">
+                    <div className="container-app max-w-5xl mx-auto">
+                        <div className="bg-gray-50 rounded-2xl shadow-xl p-6">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                                {/* Location */}
+                                <div>
+                                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        Location
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="Search location"
+                                        className="w-full h-12 px-4 border border-gray-300 rounded-lg text-gray-600 bg-white placeholder-gray-400 hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                    />
+                                </div>
+
+                                {/* Service Type */}
+                                <div>
+                                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                        </svg>
+                                        Service Type
+                                    </label>
+                                    <select className="w-full h-12 px-4 pr-10 border border-gray-300 rounded-lg text-gray-600 bg-white appearance-none cursor-pointer hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+                                        <option value="">Select type</option>
+                                        <option>Electrical</option>
+                                        <option>Plumbing</option>
+                                        <option>Cleaning</option>
+                                        <option>Painting</option>
+                                        <option>Carpentry</option>
+                                        <option>Moving</option>
+                                        <option>Security</option>
+                                        <option>Maintenance</option>
+                                    </select>
+                                </div>
+
+                                {/* Budget */}
+                                <div>
+                                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Budget
+                                    </label>
+                                    <input
+                                        type="number"
+                                        placeholder="Determine Your Budget"
+                                        className="w-full h-12 px-4 border border-gray-300 rounded-lg text-gray-600 bg-white placeholder-gray-400 hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                    />
+                                </div>
+
+                                {/* Search Button */}
+                                <div>
+                                    <button className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg">
+                                        Search
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Services Grid */}
+            <div className="container-app pt-32 pb-12">
+                {/* Show active filters */}
+                {(locationParam || queryParam) && (
+                    <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h3 className="font-semibold text-gray-900 mb-2">Active Filters:</h3>
+                        <div className="flex flex-wrap gap-2">
+                            {locationParam && (
+                                <span className="bg-white px-3 py-1 rounded-full text-sm border border-blue-300">
+                                    Location: {locationParam}
+                                </span>
+                            )}
+                            {queryParam && (
+                                <span className="bg-white px-3 py-1 rounded-full text-sm border border-blue-300">
+                                    Search: {queryParam}
+                                </span>
+                            )}
+                            {dateParam && (
+                                <span className="bg-white px-3 py-1 rounded-full text-sm border border-blue-300">
+                                    Date: {new Date(dateParam).toLocaleDateString()}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {loading && page === 1 ? (
+                    <div className="flex justify-center items-center py-20">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                    </div>
+                ) : error ? (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                        <p className="text-red-600 mb-4">{error}</p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                        >
+                            Retry
+                        </button>
+                    </div>
+                ) : services.length === 0 ? (
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-12 text-center">
+                        <p className="text-gray-600 text-lg">No services available at the moment. Check back soon!</p>
+                    </div>
+                ) : (
+                    <>
+                        <div className="mb-6">
+                            <p className="text-gray-600">
+                                Showing {services.length} services
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-10">
+                            {services.map((service) => (
+                                <ServiceCard key={service.id} service={service} />
+                            ))}
+                        </div>
+
+                        {/* Load More Button */}
+                        {hasMore && (
+                            <div className="flex justify-center mt-12">
+                                <button
+                                    onClick={loadMore}
+                                    disabled={loading}
+                                    className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                >
+                                    {loading ? (
+                                        <span className="flex items-center gap-2">
+                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                            Loading...
+                                        </span>
+                                    ) : (
+                                        'Load More'
+                                    )}
+                                </button>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
+        </div>
+    );
 }

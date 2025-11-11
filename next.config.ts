@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "plus.unsplash.com" },
       { protocol: "https", hostname: "randomuser.me" },
       { protocol: "https", hostname: "i.pravatar.cc" },
+      { protocol: "https", hostname: "res.cloudinary.com" },
+      { protocol: "https", hostname: "finndexafrica.nyc3.cdn.digitaloceanspaces.com" },
     ],
   },
   // Suppress hydration warnings caused by browser extensions in development

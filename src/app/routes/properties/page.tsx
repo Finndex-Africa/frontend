@@ -1,209 +1,297 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { ConfigProvider, App, Row, Col, Typography, Spin, Card, Statistic } from 'antd';
-import {
-  HomeOutlined,
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  DollarOutlined,
-} from '@ant-design/icons';
-import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
-import { PropertiesTable } from '@/components/dashboard/PropertiesTable';
-import type { UserRole } from '@/types/dashboard';
-import { propertiesApi, isApiError } from '@/services/api';
-import { antdTheme, designTokens } from '@/config/theme';
-import { useAuth } from '@/providers';
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import Image from "next/image";
+import PropertyCard, { Property } from "../../../components/domain/PropertyCard";
+import { propertiesApi } from "@/services/api";
+import { Property as ApiProperty } from "@/types/dashboard";
 
-const { Title } = Typography;
+// Adapter function to convert API data to component types
+const adaptPropertyToCard = (apiProperty: ApiProperty): Property => {
+    const amenities = [];
 
-interface PropertyStats {
-  total: number;
-  available: number;
-  rented: number;
-  pending: number;
-  totalValue: number;
-  verified: number;
-}
+    // Build amenities array from property data
+    if (apiProperty.bedrooms) {
+        amenities.push(`${apiProperty.bedrooms} bedroom${apiProperty.bedrooms > 1 ? 's' : ''}`);
+    }
+    if (apiProperty.bathrooms) {
+        amenities.push(`${apiProperty.bathrooms} bathroom${apiProperty.bathrooms > 1 ? 's' : ''}`);
+    }
+    if (apiProperty.area) {
+        amenities.push(`${apiProperty.area} sqm`);
+    }
 
-function PropertiesContent() {
-  const { role, setRole } = useAuth();
-  const { message } = App.useApp();
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState<PropertyStats | null>(null);
-  const [properties, setProperties] = useState<any[]>([]);
+    // Fallback to a default if no amenities
+    if (amenities.length === 0) {
+        amenities.push(apiProperty.type);
+    }
 
-  // Set role to admin for dashboard access (temporary - replace with actual auth)
-  useEffect(() => {
-    setRole('admin');
-  }, [setRole]);
-
-  // Fetch property statistics from API
-  useEffect(() => {
-    const fetchStats = async () => {
-      setLoading(true);
-      try {
-        // Fetch properties from API
-        const response = await propertiesApi.getAll({ limit: 1000 });
-        const propertiesData = response.data?.data || [];
-
-        // Store properties in state
-        setProperties(propertiesData);
-
-        // Calculate statistics from actual data
-        const total = propertiesData.length;
-        const available = propertiesData.filter((p: any) => p.status === 'available').length;
-        const rented = propertiesData.filter((p: any) => p.status === 'rented').length;
-        const pending = propertiesData.filter((p: any) => p.status === 'pending').length;
-        const verified = propertiesData.filter((p: any) => p.verified === true).length;
-        const totalValue = propertiesData.reduce((sum: number, p: any) => sum + (p.price || 0), 0);
-
-        setStats({
-          total,
-          available,
-          rented,
-          pending,
-          totalValue,
-          verified,
-        });
-      } catch (error) {
-        if (isApiError(error)) {
-          message.error(`Failed to load properties: ${error.message}`);
-        } else {
-          message.error('Failed to load property statistics');
-        }
-        console.error('Properties fetch error:', error);
-      } finally {
-        setLoading(false);
-      }
+    // Default placeholder image based on property type
+    const defaultImages: Record<string, string> = {
+        'Apartment': 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267',
+        'House': 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9',
+        'Commercial': 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab',
+        'Land': 'https://images.unsplash.com/photo-1500382017468-9049fed747ef',
+        'Other': 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c'
     };
 
-    fetchStats();
-  }, [message]);
+    const defaultImage = defaultImages[apiProperty.type] || defaultImages['Other'];
 
-  return (
-    <DashboardLayout userRole={role as UserRole} userName="Admin User">
-      <div style={{ marginBottom: designTokens.spacing.xl }}>
-        <Title level={2} style={{ margin: 0, color: designTokens.colors.text }}>
-          Properties Management
-        </Title>
-        <p
-          style={{
-            color: designTokens.colors.muted,
-            marginTop: designTokens.spacing.sm,
-          }}
-        >
-          Manage all properties, listings, and verifications
-        </p>
-      </div>
-
-      {loading && !stats ? (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: 400,
-          }}
-        >
-          <Spin size="large" />
-        </div>
-      ) : (
-        <>
-          {/* Statistics Cards */}
-          <Row gutter={[24, 24]} style={{ marginBottom: designTokens.spacing.xl }}>
-            <Col xs={24} sm={12} lg={6}>
-              <Card variant="borderless" style={{ boxShadow: designTokens.shadows.base }}>
-                <Statistic
-                  title="Total Properties"
-                  value={stats?.total || 0}
-                  prefix={<HomeOutlined />}
-                  valueStyle={{ color: designTokens.colors.brand }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} lg={6}>
-              <Card variant="borderless" style={{ boxShadow: designTokens.shadows.base }}>
-                <Statistic
-                  title="Available"
-                  value={stats?.available || 0}
-                  prefix={<CheckCircleOutlined />}
-                  valueStyle={{ color: designTokens.colors.success }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} lg={6}>
-              <Card variant="borderless" style={{ boxShadow: designTokens.shadows.base }}>
-                <Statistic
-                  title="Rented"
-                  value={stats?.rented || 0}
-                  prefix={<ClockCircleOutlined />}
-                  valueStyle={{ color: designTokens.colors.info }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} lg={6}>
-              <Card variant="borderless" style={{ boxShadow: designTokens.shadows.base }}>
-                <Statistic
-                  title="Total Value"
-                  value={stats?.totalValue || 0}
-                  prefix="₦"
-                  suffix={<DollarOutlined />}
-                  valueStyle={{ color: designTokens.colors.accent }}
-                  formatter={(value) => `${Number(value).toLocaleString()}`}
-                />
-              </Card>
-            </Col>
-          </Row>
-
-          {/* Properties Table */}
-          <div style={{ marginTop: designTokens.spacing.xl }}>
-            <Title
-              level={3}
-              style={{
-                marginBottom: designTokens.spacing.lg,
-                color: designTokens.colors.text,
-              }}
-            >
-              All Properties
-            </Title>
-            <PropertiesTable
-              properties={properties}
-              loading={loading}
-              onView={(property) => {
-                message.info(`View property: ${property.title}`);
-                // Navigate to view page or open modal
-              }}
-              onEdit={(property) => {
-                message.info(`Edit property: ${property.title}`);
-                // Navigate to edit page or open modal
-              }}
-              onDelete={(property) => {
-                message.warning(`Delete property: ${property.title}`);
-                // Show confirmation modal
-              }}
-              onApprove={(property) => {
-                message.success(`Approved property: ${property.title}`);
-                // Call approve API
-              }}
-              onReject={(property) => {
-                message.error(`Rejected property: ${property.title}`);
-                // Call reject API
-              }}
-            />
-          </div>
-        </>
-      )}
-    </DashboardLayout>
-  );
-}
+    return {
+        id: apiProperty._id,
+        title: apiProperty.title,
+        location: apiProperty.location,
+        price: `$${apiProperty.price}`,
+        imageUrl: apiProperty.images?.[0] || defaultImage,
+        amenities,
+        rating: apiProperty.rating ? Number(apiProperty.rating.toFixed(2)) : undefined,
+        distance: undefined,
+        dates: apiProperty.availableFrom ? `Available from ${new Date(apiProperty.availableFrom).toLocaleDateString()}` : undefined
+    };
+};
 
 export default function PropertiesPage() {
-  return (
-    <ConfigProvider theme={antdTheme}>
-      <App>
-        <PropertiesContent />
-      </App>
-    </ConfigProvider>
-  );
+    const searchParams = useSearchParams();
+    const [properties, setProperties] = useState<Property[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const limit = 20;
+
+    // Get search parameters
+    const locationParam = searchParams.get('location');
+    const dateParam = searchParams.get('date');
+    const queryParam = searchParams.get('q');
+
+    useEffect(() => {
+        fetchProperties();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [page, locationParam, dateParam, queryParam]);
+
+    const fetchProperties = async () => {
+        try {
+            setLoading(true);
+
+            // Build filters object with search params
+            const filters: any = {
+                page,
+                limit,
+                status: 'approved',
+                sort: '-createdAt'  // Sort by most recent first
+            };
+
+            // Add search parameters if they exist
+            if (locationParam) filters.location = locationParam;
+            if (queryParam) {
+                // Use the search query as a general search term
+                // You can adjust this based on your API's search capabilities
+                filters.location = filters.location || queryParam;
+            }
+
+            const response = await propertiesApi.getAll(filters);
+
+            // Handle both response structures
+            const propertiesData = response.data?.data || response.data;
+            const paginationData = response.data?.pagination;
+
+            const adaptedProperties = propertiesData.map(adaptPropertyToCard);
+
+            if (page === 1) {
+                setProperties(adaptedProperties);
+            } else {
+                setProperties(prev => [...prev, ...adaptedProperties]);
+            }
+
+            // Check if there are more pages
+            if (paginationData) {
+                setHasMore(paginationData.currentPage < paginationData.totalPages);
+            } else {
+                setHasMore(false);
+            }
+            setError(null);
+        } catch (error) {
+            console.error('Error fetching properties:', error);
+            setError('Failed to load properties. Please try again later.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const loadMore = () => {
+        if (!loading && hasMore) {
+            setPage(prev => prev + 1);
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-white">
+            {/* Hero Section with Search Overlay */}
+            <section className="relative h-[400px] w-full overflow-visible">
+                <div className="absolute inset-0 overflow-hidden">
+                    <Image
+                        src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1600"
+                        alt="Properties Hero"
+                        fill
+                        className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/40" />
+                </div>
+                <div className="relative z-[5] h-full flex flex-col items-center justify-center text-center text-white px-4">
+                    <h1 className="text-3xl md:text-5xl font-extrabold max-w-4xl leading-tight mb-4">
+                        Find Verified Homes
+                    </h1>
+                    <p className="text-xl text-white/90 mb-8">
+                        Discover your perfect home from our collection of verified properties
+                    </p>
+                </div>
+
+                {/* Search Bar Overlay - positioned to overlap */}
+                <div className="absolute bottom-0 left-0 right-0 translate-y-1/2 z-[10] px-4">
+                    <div className="container-app max-w-5xl mx-auto">
+                        <div className="bg-gray-50 rounded-2xl shadow-xl p-6">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                                {/* Location */}
+                                <div>
+                                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        Location
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="Search location"
+                                        className="w-full h-12 px-4 border border-gray-300 rounded-lg text-gray-600 bg-white placeholder-gray-400 hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                    />
+                                </div>
+
+                                {/* Property Type */}
+                                <div>
+                                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                        </svg>
+                                        Property Type
+                                    </label>
+                                    <select className="w-full h-12 px-4 pr-10 border border-gray-300 rounded-lg text-gray-600 bg-white appearance-none cursor-pointer hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+                                        <option value="">Select type</option>
+                                        <option>Apartment</option>
+                                        <option>House</option>
+                                        <option>Commercial</option>
+                                        <option>Land</option>
+                                    </select>
+                                </div>
+
+                                {/* Budget */}
+                                <div>
+                                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Budget
+                                    </label>
+                                    <input
+                                        type="number"
+                                        placeholder="Determine Your Budget"
+                                        className="w-full h-12 px-4 border border-gray-300 rounded-lg text-gray-600 bg-white placeholder-gray-400 hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                    />
+                                </div>
+
+                                {/* Search Button */}
+                                <div>
+                                    <button className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg">
+                                        Search
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Properties Grid */}
+            <div className="container-app pt-32 pb-12">
+                {/* Show active filters */}
+                {(locationParam || queryParam) && (
+                    <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h3 className="font-semibold text-gray-900 mb-2">Active Filters:</h3>
+                        <div className="flex flex-wrap gap-2">
+                            {locationParam && (
+                                <span className="bg-white px-3 py-1 rounded-full text-sm border border-blue-300">
+                                    Location: {locationParam}
+                                </span>
+                            )}
+                            {queryParam && (
+                                <span className="bg-white px-3 py-1 rounded-full text-sm border border-blue-300">
+                                    Search: {queryParam}
+                                </span>
+                            )}
+                            {dateParam && (
+                                <span className="bg-white px-3 py-1 rounded-full text-sm border border-blue-300">
+                                    Date: {new Date(dateParam).toLocaleDateString()}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {loading && page === 1 ? (
+                    <div className="flex justify-center items-center py-20">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                    </div>
+                ) : error ? (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                        <p className="text-red-600 mb-4">{error}</p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                        >
+                            Retry
+                        </button>
+                    </div>
+                ) : properties.length === 0 ? (
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-12 text-center">
+                        <p className="text-gray-600 text-lg">No properties available at the moment. Check back soon!</p>
+                    </div>
+                ) : (
+                    <>
+                        <div className="mb-6">
+                            <p className="text-gray-600">
+                                Showing {properties.length} properties
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-10">
+                            {properties.map((property) => (
+                                <PropertyCard key={property.id} p={property} />
+                            ))}
+                        </div>
+
+                        {/* Load More Button */}
+                        {hasMore && (
+                            <div className="flex justify-center mt-12">
+                                <button
+                                    onClick={loadMore}
+                                    disabled={loading}
+                                    className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                >
+                                    {loading ? (
+                                        <span className="flex items-center gap-2">
+                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                            Loading...
+                                        </span>
+                                    ) : (
+                                        'Load More'
+                                    )}
+                                </button>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
+        </div>
+    );
 }

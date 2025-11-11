@@ -1,8 +1,26 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SearchBar() {
+    const router = useRouter();
     const [activeTab, setActiveTab] = useState<"homes" | "services">("homes");
+    const [location, setLocation] = useState("");
+    const [date, setDate] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const handleSearch = () => {
+        const params = new URLSearchParams();
+
+        if (location) params.append('location', location);
+        if (date) params.append('date', date);
+        if (searchQuery) params.append('q', searchQuery);
+
+        // Navigate to appropriate page with search params
+        const targetPath = activeTab === "homes" ? "/routes/properties" : "/routes/services";
+        const queryString = params.toString();
+        router.push(`${targetPath}${queryString ? `?${queryString}` : ''}`);
+    };
 
     return (
         <div className="w-full max-w-5xl mx-auto">
@@ -43,12 +61,16 @@ export default function SearchBar() {
                             Where
                         </label>
                         <div className="relative">
-                            <select className="w-full h-12 px-4 pr-10 border border-gray-300 rounded-lg text-gray-600 bg-white appearance-none cursor-pointer hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+                            <select
+                                value={location}
+                                onChange={(e) => setLocation(e.target.value)}
+                                className="w-full h-12 px-4 pr-10 border border-gray-300 rounded-lg text-gray-600 bg-white appearance-none cursor-pointer hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            >
                                 <option value="">Select location</option>
-                                <option>Monrovia, Liberia</option>
-                                <option>Accra, Ghana</option>
-                                <option>Lagos, Nigeria</option>
-                                <option>Nairobi, Kenya</option>
+                                <option value="Monrovia, Liberia">Monrovia, Liberia</option>
+                                <option value="Accra, Ghana">Accra, Ghana</option>
+                                <option value="Lagos, Nigeria">Lagos, Nigeria</option>
+                                <option value="Nairobi, Kenya">Nairobi, Kenya</option>
                             </select>
                             <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -66,6 +88,8 @@ export default function SearchBar() {
                         </label>
                         <input
                             type="date"
+                            value={date}
+                            onChange={(e) => setDate(e.target.value)}
                             className="w-full h-12 px-4 border border-gray-300 rounded-lg text-gray-600 bg-white cursor-pointer hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                             placeholder="mm/dd/yy"
                         />
@@ -82,7 +106,9 @@ export default function SearchBar() {
                         <div className="relative">
                             <input
                                 type="text"
-                                placeholder="Search Services"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder={activeTab === "homes" ? "Search Properties" : "Search Services"}
                                 className="w-full h-12 px-4 border border-gray-300 rounded-lg text-gray-600 bg-white placeholder-gray-400 hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                             />
                         </div>
@@ -90,7 +116,10 @@ export default function SearchBar() {
 
                     {/* Search Button */}
                     <div>
-                        <button className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg">
+                        <button
+                            onClick={handleSearch}
+                            className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg"
+                        >
                             Search
                         </button>
                     </div>
