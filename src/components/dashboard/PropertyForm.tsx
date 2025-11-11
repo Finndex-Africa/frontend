@@ -9,7 +9,6 @@ import Button from 'antd/es/button';
 import Row from 'antd/es/row';
 import Col from 'antd/es/col';
 import Divider from 'antd/es/divider';
-import Space from 'antd/es/space';
 import Typography from 'antd/es/typography';
 import Upload from 'antd/es/upload';
 import { PlusOutlined } from '@ant-design/icons';

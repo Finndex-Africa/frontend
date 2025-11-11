@@ -5,8 +5,6 @@ import {
     UserOutlined,
     TeamOutlined,
     SettingOutlined,
-    FileTextOutlined,
-    CheckCircleOutlined,
     ShopOutlined,
     MessageOutlined,
     BellOutlined,

@@ -183,7 +183,7 @@ export default function PropertyDetail() {
 
                     {/* MAP SECTION */}
                     <section>
-                        <h2 className="text-2xl font-semibold text-gray-900 mb-4">Where you'll be</h2>
+                        <h2 className="text-2xl font-semibold text-gray-900 mb-4">Where you&apos;ll be</h2>
                         <div className="w-full h-64 rounded-xl overflow-hidden shadow-sm">
                             <iframe
                                 src={`https://www.google.com/maps?q=${encodeURIComponent(property.location)}&output=embed`}

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import Image from "next/image";
 import Button from "@/components/ui/Button";
 import MediaCarousel from "@/components/domain/MediaCarousel";
 import { servicesApi } from "@/services/api";

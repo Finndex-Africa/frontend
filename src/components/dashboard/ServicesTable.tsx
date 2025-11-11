@@ -6,7 +6,7 @@ import Button from 'antd/es/button';
 import Space from 'antd/es/space';
 import Tooltip from 'antd/es/tooltip';
 import Rate from 'antd/es/rate';
-import { EyeOutlined, EditOutlined, DeleteOutlined, DownloadOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import { EyeOutlined, EditOutlined, DeleteOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import type { Service } from '@/types/dashboard';
 import type { ColumnsType } from 'antd/es/table';
 

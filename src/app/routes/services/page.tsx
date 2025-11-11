@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import ServiceCard, { Service } from "../../../components/domain/ServiceCard";
@@ -40,7 +40,7 @@ const adaptServiceToCard = (apiService: ApiService): Service => {
     };
 };
 
-export default function ServicesPage() {
+function ServicesContent() {
     const searchParams = useSearchParams();
     const [services, setServices] = useState<Service[]>([]);
     const [loading, setLoading] = useState(true);
@@ -48,6 +48,11 @@ export default function ServicesPage() {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const limit = 20;
+
+    // Search form state
+    const [searchLocation, setSearchLocation] = useState('');
+    const [searchType, setSearchType] = useState('');
+    const [searchBudget, setSearchBudget] = useState('');
 
     // Get search parameters
     const locationParam = searchParams.get('location');
@@ -57,7 +62,7 @@ export default function ServicesPage() {
     useEffect(() => {
         fetchServices();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, locationParam, dateParam, queryParam]);
+    }, [page, searchLocation, searchType, searchBudget, locationParam, dateParam, queryParam]);
 
     const fetchServices = async () => {
         try {
@@ -71,7 +76,18 @@ export default function ServicesPage() {
                 sort: '-createdAt'  // Sort by most recent first
             };
 
-            // Add search parameters if they exist
+            // Add search form filters
+            if (searchLocation.trim()) {
+                filters.location = searchLocation.trim();
+            }
+            if (searchType) {
+                filters.category = searchType;
+            }
+            if (searchBudget) {
+                filters.maxPrice = parseInt(searchBudget);
+            }
+
+            // Add URL search parameters if they exist
             if (locationParam) filters.location = locationParam;
             if (queryParam) {
                 // Use the search query as a general search term
@@ -113,6 +129,27 @@ export default function ServicesPage() {
         }
     };
 
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        setPage(1); // Reset to first page when searching
+        fetchServices();
+    };
+
+    const handleLocationChange = (value: string) => {
+        setSearchLocation(value);
+        setPage(1); // Reset to first page
+    };
+
+    const handleTypeChange = (value: string) => {
+        setSearchType(value);
+        setPage(1); // Reset to first page
+    };
+
+    const handleBudgetChange = (value: string) => {
+        setSearchBudget(value);
+        setPage(1); // Reset to first page
+    };
+
     return (
         <div className="min-h-screen bg-white">
             {/* Hero Section with Search Overlay */}
@@ -138,7 +175,7 @@ export default function ServicesPage() {
                 {/* Search Bar Overlay - positioned to overlap */}
                 <div className="absolute bottom-0 left-0 right-0 translate-y-1/2 z-[10] px-4">
                     <div className="container-app max-w-5xl mx-auto">
-                        <div className="bg-gray-50 rounded-2xl shadow-xl p-6">
+                        <form onSubmit={handleSearch} className="bg-gray-50 rounded-2xl shadow-xl p-6">
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                                 {/* Location */}
                                 <div>
@@ -151,6 +188,8 @@ export default function ServicesPage() {
                                     </label>
                                     <input
                                         type="text"
+                                        value={searchLocation}
+                                        onChange={(e) => handleLocationChange(e.target.value)}
                                         placeholder="Search location"
                                         className="w-full h-12 px-4 border border-gray-300 rounded-lg text-gray-600 bg-white placeholder-gray-400 hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                                     />
@@ -164,16 +203,20 @@ export default function ServicesPage() {
                                         </svg>
                                         Service Type
                                     </label>
-                                    <select className="w-full h-12 px-4 pr-10 border border-gray-300 rounded-lg text-gray-600 bg-white appearance-none cursor-pointer hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+                                    <select
+                                        value={searchType}
+                                        onChange={(e) => handleTypeChange(e.target.value)}
+                                        className="w-full h-12 px-4 pr-10 border border-gray-300 rounded-lg text-gray-600 bg-white appearance-none cursor-pointer hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                    >
                                         <option value="">Select type</option>
-                                        <option>Electrical</option>
-                                        <option>Plumbing</option>
-                                        <option>Cleaning</option>
-                                        <option>Painting</option>
-                                        <option>Carpentry</option>
-                                        <option>Moving</option>
-                                        <option>Security</option>
-                                        <option>Maintenance</option>
+                                        <option value="electrical">Electrical</option>
+                                        <option value="plumbing">Plumbing</option>
+                                        <option value="cleaning">Cleaning</option>
+                                        <option value="painting_decoration">Painting</option>
+                                        <option value="carpentry_furniture">Carpentry</option>
+                                        <option value="moving_logistics">Moving</option>
+                                        <option value="security_services">Security</option>
+                                        <option value="maintenance">Maintenance</option>
                                     </select>
                                 </div>
 
@@ -187,6 +230,8 @@ export default function ServicesPage() {
                                     </label>
                                     <input
                                         type="number"
+                                        value={searchBudget}
+                                        onChange={(e) => handleBudgetChange(e.target.value)}
                                         placeholder="Determine Your Budget"
                                         className="w-full h-12 px-4 border border-gray-300 rounded-lg text-gray-600 bg-white placeholder-gray-400 hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                                     />
@@ -194,12 +239,12 @@ export default function ServicesPage() {
 
                                 {/* Search Button */}
                                 <div>
-                                    <button className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg">
+                                    <button type="submit" className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg">
                                         Search
                                     </button>
                                 </div>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </section>
@@ -285,5 +330,19 @@ export default function ServicesPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function ServicesPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-white">
+                <div className="flex justify-center items-center py-20">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                </div>
+            </div>
+        }>
+            <ServicesContent />
+        </Suspense>
     );
 }

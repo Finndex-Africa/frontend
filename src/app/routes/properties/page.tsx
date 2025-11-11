@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import PropertyCard, { Property } from "../../../components/domain/PropertyCard";
@@ -51,7 +51,7 @@ const adaptPropertyToCard = (apiProperty: ApiProperty): Property => {
     };
 };
 
-export default function PropertiesPage() {
+function PropertiesContent() {
     const searchParams = useSearchParams();
     const [properties, setProperties] = useState<Property[]>([]);
     const [loading, setLoading] = useState(true);
@@ -59,6 +59,11 @@ export default function PropertiesPage() {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const limit = 20;
+
+    // Search form state
+    const [searchLocation, setSearchLocation] = useState('');
+    const [searchType, setSearchType] = useState('');
+    const [searchBudget, setSearchBudget] = useState('');
 
     // Get search parameters
     const locationParam = searchParams.get('location');
@@ -68,7 +73,7 @@ export default function PropertiesPage() {
     useEffect(() => {
         fetchProperties();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, locationParam, dateParam, queryParam]);
+    }, [page, searchLocation, searchType, searchBudget, locationParam, dateParam, queryParam]);
 
     const fetchProperties = async () => {
         try {
@@ -82,11 +87,21 @@ export default function PropertiesPage() {
                 sort: '-createdAt'  // Sort by most recent first
             };
 
-            // Add search parameters if they exist
+            // Add search form filters
+            if (searchLocation.trim()) {
+                filters.location = searchLocation.trim();
+            }
+            if (searchType) {
+                filters.type = searchType;
+            }
+            if (searchBudget) {
+                filters.maxPrice = parseInt(searchBudget);
+            }
+
+            // Add URL search parameters if they exist
             if (locationParam) filters.location = locationParam;
             if (queryParam) {
                 // Use the search query as a general search term
-                // You can adjust this based on your API's search capabilities
                 filters.location = filters.location || queryParam;
             }
 
@@ -125,6 +140,27 @@ export default function PropertiesPage() {
         }
     };
 
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        setPage(1); // Reset to first page when searching
+        fetchProperties();
+    };
+
+    const handleLocationChange = (value: string) => {
+        setSearchLocation(value);
+        setPage(1); // Reset to first page
+    };
+
+    const handleTypeChange = (value: string) => {
+        setSearchType(value);
+        setPage(1); // Reset to first page
+    };
+
+    const handleBudgetChange = (value: string) => {
+        setSearchBudget(value);
+        setPage(1); // Reset to first page
+    };
+
     return (
         <div className="min-h-screen bg-white">
             {/* Hero Section with Search Overlay */}
@@ -150,7 +186,7 @@ export default function PropertiesPage() {
                 {/* Search Bar Overlay - positioned to overlap */}
                 <div className="absolute bottom-0 left-0 right-0 translate-y-1/2 z-[10] px-4">
                     <div className="container-app max-w-5xl mx-auto">
-                        <div className="bg-gray-50 rounded-2xl shadow-xl p-6">
+                        <form onSubmit={handleSearch} className="bg-gray-50 rounded-2xl shadow-xl p-6">
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                                 {/* Location */}
                                 <div>
@@ -163,6 +199,8 @@ export default function PropertiesPage() {
                                     </label>
                                     <input
                                         type="text"
+                                        value={searchLocation}
+                                        onChange={(e) => handleLocationChange(e.target.value)}
                                         placeholder="Search location"
                                         className="w-full h-12 px-4 border border-gray-300 rounded-lg text-gray-600 bg-white placeholder-gray-400 hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                                     />
@@ -176,12 +214,16 @@ export default function PropertiesPage() {
                                         </svg>
                                         Property Type
                                     </label>
-                                    <select className="w-full h-12 px-4 pr-10 border border-gray-300 rounded-lg text-gray-600 bg-white appearance-none cursor-pointer hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+                                    <select
+                                        value={searchType}
+                                        onChange={(e) => handleTypeChange(e.target.value)}
+                                        className="w-full h-12 px-4 pr-10 border border-gray-300 rounded-lg text-gray-600 bg-white appearance-none cursor-pointer hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                    >
                                         <option value="">Select type</option>
-                                        <option>Apartment</option>
-                                        <option>House</option>
-                                        <option>Commercial</option>
-                                        <option>Land</option>
+                                        <option value="Apartment">Apartment</option>
+                                        <option value="House">House</option>
+                                        <option value="Commercial">Commercial</option>
+                                        <option value="Land">Land</option>
                                     </select>
                                 </div>
 
@@ -195,6 +237,8 @@ export default function PropertiesPage() {
                                     </label>
                                     <input
                                         type="number"
+                                        value={searchBudget}
+                                        onChange={(e) => handleBudgetChange(e.target.value)}
                                         placeholder="Determine Your Budget"
                                         className="w-full h-12 px-4 border border-gray-300 rounded-lg text-gray-600 bg-white placeholder-gray-400 hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                                     />
@@ -202,12 +246,12 @@ export default function PropertiesPage() {
 
                                 {/* Search Button */}
                                 <div>
-                                    <button className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg">
+                                    <button type="submit" className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg">
                                         Search
                                     </button>
                                 </div>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </section>
@@ -293,5 +337,19 @@ export default function PropertiesPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function PropertiesPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-white">
+                <div className="flex justify-center items-center py-20">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                </div>
+            </div>
+        }>
+            <PropertiesContent />
+        </Suspense>
     );
 }
