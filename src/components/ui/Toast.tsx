@@ -25,7 +25,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     return (
         <ToastContext.Provider value={{ toasts, push, remove }}>
             {children}
-            <div className="fixed bottom-4 right-4 space-y-2 z-50">
+            <div className="fixed top-4 right-4 space-y-2 z-50">
                 {toasts.map((t) => (
                     <div key={t.id} className={`card px-4 py-3 min-w-[240px] ${t.variant === "success" ? "border-green-200" : t.variant === "error" ? "border-red-200" : ""
                         }`}>

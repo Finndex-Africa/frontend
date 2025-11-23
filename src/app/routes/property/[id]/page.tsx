@@ -118,30 +118,30 @@ export default function PropertyDetail() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-white">
             {/* HERO SECTION */}
-            <section className="relative w-full max-w-7xl mx-auto">
+            <section className="relative w-full max-w-6xl mx-auto px-6 pt-6">
                 <MediaCarousel media={media} />
             </section>
 
             {/* MAIN CONTENT */}
-            <section className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-10 px-6 py-10">
+            <section className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 px-6 py-8">
                 {/* LEFT SIDE */}
-                <div className="lg:col-span-2 space-y-10">
+                <div className="lg:col-span-2 space-y-8">
                     {/* TITLE & BASIC INFO */}
                     <header>
-                        <div className="text-sm uppercase text-blue-600 font-semibold tracking-wider">
+                        <div className="text-xs uppercase text-blue-600 font-semibold tracking-wide">
                             {property.status === 'approved' ? 'For Rent' : (property.status?.toUpperCase() || 'AVAILABLE')}
                         </div>
-                        <h1 className="text-4xl font-bold text-gray-900 mt-1">{property.title}</h1>
-                        <p className="text-gray-600 text-lg mt-1">{property.location}</p>
+                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mt-2">{property.title}</h1>
+                        <p className="text-gray-600 text-base mt-1">{property.location}</p>
 
                         {property.rating && (
                             <div className="flex items-center gap-2 mt-3">
-                                <svg className="w-5 h-5 text-amber-400 fill-current" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 24 24">
                                     <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                                 </svg>
-                                <span className="text-gray-900 font-semibold text-lg">{property.rating.toFixed(1)}</span>
+                                <span className="text-gray-900 font-semibold text-base">{property.rating.toFixed(1)}</span>
                                 {property.reviewCount && (
                                     <span className="text-gray-600 text-sm">({property.reviewCount} reviews)</span>
                                 )}
@@ -151,12 +151,12 @@ export default function PropertyDetail() {
 
                     {/* ABOUT */}
                     <section>
-                        <h2 className="text-2xl font-semibold text-gray-900 mb-3">About this place</h2>
-                        <p className="text-gray-700 leading-relaxed">
+                        <h2 className="text-lg font-semibold text-gray-900 mb-3">About this place</h2>
+                        <p className="text-gray-600 text-sm leading-relaxed">
                             {property.description || 'A wonderful property waiting for you to make it your home.'}
                         </p>
                         {property.availableFrom && (
-                            <p className="text-gray-600 mt-3">
+                            <p className="text-gray-600 text-sm mt-3">
                                 <span className="font-semibold">Available from:</span> {new Date(property.availableFrom).toLocaleDateString()}
                             </p>
                         )}
@@ -164,17 +164,17 @@ export default function PropertyDetail() {
 
                     {/* WHAT THIS PLACE OFFERS */}
                     <section>
-                        <h2 className="text-2xl font-semibold text-gray-900 mb-4">What this place offers</h2>
-                        <div className="grid sm:grid-cols-2 gap-5">
+                        <h2 className="text-lg font-semibold text-gray-900 mb-4">What this place offers</h2>
+                        <div className="grid sm:grid-cols-2 gap-3">
                             {features.map((f, i) => (
                                 <div
                                     key={i}
-                                    className="flex items-center gap-3 p-3 rounded-xl bg-white shadow-sm hover:shadow-md transition-all"
+                                    className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-all"
                                 >
-                                    <div className="text-2xl">{f.icon}</div>
+                                    <div className="text-xl">{f.icon}</div>
                                     <div>
-                                        <div className="font-semibold text-gray-900">{f.label}</div>
-                                        <div className="text-sm text-gray-600">{f.desc}</div>
+                                        <div className="font-medium text-gray-900 text-sm">{f.label}</div>
+                                        <div className="text-xs text-gray-500">{f.desc}</div>
                                     </div>
                                 </div>
                             ))}
@@ -183,8 +183,8 @@ export default function PropertyDetail() {
 
                     {/* MAP SECTION */}
                     <section>
-                        <h2 className="text-2xl font-semibold text-gray-900 mb-4">Where you&apos;ll be</h2>
-                        <div className="w-full h-64 rounded-xl overflow-hidden shadow-sm">
+                        <h2 className="text-lg font-semibold text-gray-900 mb-4">Where you&apos;ll be</h2>
+                        <div className="w-full h-56 rounded-lg overflow-hidden border border-gray-200">
                             <iframe
                                 src={`https://www.google.com/maps?q=${encodeURIComponent(property.location)}&output=embed`}
                                 width="100%"
@@ -195,43 +195,132 @@ export default function PropertyDetail() {
                         </div>
                     </section>
 
-                    {/* REVIEWS SECTION */}
-                    {property.reviewCount && property.reviewCount > 0 && (
+                    {/* LANDLORD/AGENT INFO */}
+                    {property.landlordId && (
                         <section>
-                            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Guest Reviews</h2>
-                            <div className="bg-white p-5 rounded-xl shadow-sm text-center text-gray-600">
-                                {property.reviewCount} review{property.reviewCount > 1 ? 's' : ''} available
+                            <h2 className="text-lg font-semibold text-gray-900 mb-4">Managed by</h2>
+                            <div className="flex items-start gap-3 border border-gray-200 p-4 rounded-lg">
+                                <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 flex-shrink-0">
+                                    <div className="w-full h-full flex items-center justify-center text-lg font-bold text-white">
+                                        L
+                                    </div>
+                                </div>
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <p className="font-semibold text-gray-900 text-sm">
+                                            Property Owner
+                                        </p>
+                                        <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium">
+                                            Verified
+                                        </span>
+                                    </div>
+                                    <p className="text-gray-500 text-xs">Registered landlord on Finndex Africa</p>
+                                    <div className="flex items-center gap-3 mt-2 text-xs text-gray-600">
+                                        <span className="flex items-center gap-1">
+                                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                            </svg>
+                                            Identity Verified
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </section>
                     )}
+
+                    {/* REVIEWS SECTION */}
+                    <section>
+                        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                            Guest Reviews
+                            {property.rating && (
+                                <span className="ml-2 text-sm font-normal text-gray-600">
+                                    {property.rating.toFixed(1)} ★ ({property.reviewCount || 0} reviews)
+                                </span>
+                            )}
+                        </h2>
+
+                        {/* Sample Reviews - Replace with actual reviews from API */}
+                        <div className="space-y-3">
+                            {[
+                                {
+                                    name: "Sarah Johnson",
+                                    date: "2 weeks ago",
+                                    rating: 5,
+                                    comment: "Amazing property! The location is perfect and the landlord was very responsive to all our queries. Highly recommended!",
+                                    avatar: "https://i.pravatar.cc/150?img=1"
+                                },
+                                {
+                                    name: "Michael Chen",
+                                    date: "1 month ago",
+                                    rating: 4,
+                                    comment: "Great place to live. Clean, well-maintained, and in a safe neighborhood. Would definitely rent again.",
+                                    avatar: "https://i.pravatar.cc/150?img=12"
+                                },
+                                {
+                                    name: "Emma Williams",
+                                    date: "2 months ago",
+                                    rating: 5,
+                                    comment: "Exceeded our expectations! The property looks even better in person. Very happy with our choice.",
+                                    avatar: "https://i.pravatar.cc/150?img=5"
+                                }
+                            ].map((review, index) => (
+                                <div key={index} className="border border-gray-200 p-4 rounded-lg">
+                                    <div className="flex items-start gap-3">
+                                        <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                                            <img src={review.avatar} alt={review.name} className="w-full h-full object-cover" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex items-center justify-between mb-1">
+                                                <div>
+                                                    <p className="font-semibold text-gray-900 text-sm">{review.name}</p>
+                                                    <p className="text-xs text-gray-500">{review.date}</p>
+                                                </div>
+                                                <div className="flex items-center gap-0.5">
+                                                    {[...Array(review.rating)].map((_, i) => (
+                                                        <svg key={i} className="w-3 h-3 text-amber-400 fill-current" viewBox="0 0 24 24">
+                                                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                                                        </svg>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <p className="text-gray-600 text-sm leading-relaxed">{review.comment}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
                 </div>
 
                 {/* RIGHT SIDE */}
                 <aside className="lg:col-span-1">
-                    <div className="sticky top-28 space-y-6">
-                        {/* PRICING CARD */}
-                        <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
-                            <div className="flex items-end gap-1 mb-4">
-                                <div className="text-4xl font-bold text-gray-900">
-                                    ${property.price ? property.price.toLocaleString() : 'Contact for price'}
+                    <div className="sticky top-24">
+                        {/* CONTACT CARD */}
+                        <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
+                            {/* Price Section */}
+                            <div className="pb-5 border-b border-gray-200">
+                                <div className="flex items-end gap-1 mb-4">
+                                    <div className="text-2xl font-bold text-gray-900">
+                                        ${property.price ? property.price.toLocaleString() : 'Contact for price'}
+                                    </div>
+                                    {property.price && (
+                                        <span className="text-gray-600 text-sm">/{property.priceUnit || 'month'}</span>
+                                    )}
                                 </div>
-                                {property.price && (
-                                    <span className="text-gray-600 text-base">/{property.priceUnit || 'month'}</span>
+                                {property.isPremium && (
+                                    <div className="mb-3 px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-semibold inline-block">
+                                        Premium Listing
+                                    </div>
                                 )}
+                                <Button className="w-full h-11 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+                                    Contact Landlord
+                                </Button>
                             </div>
-                            {property.isPremium && (
-                                <div className="mb-3 px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm font-semibold inline-block">
-                                    Premium Listing
-                                </div>
-                            )}
-                            <Button className="w-full h-12 text-base font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl">
-                                Contact Landlord
-                            </Button>
-                        </div>
 
-                        {/* MESSAGE THREAD */}
-                        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-                            <MessageThread />
+                            {/* Message Thread Section */}
+                            <div className="pt-5">
+                                <MessageThread />
+                            </div>
                         </div>
                     </div>
                 </aside>

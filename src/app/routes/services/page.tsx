@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import ServiceCard, { Service } from "../../../components/domain/ServiceCard";
+import Pagination from "../../../components/ui/Pagination";
 import { servicesApi } from "@/services/api";
 import { Service as ApiService } from "@/types/dashboard";
 
@@ -46,7 +47,7 @@ function ServicesContent() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true);
+    const [totalPages, setTotalPages] = useState(1);
     const limit = 20;
 
     // Search form state
@@ -101,18 +102,14 @@ function ServicesContent() {
             const paginationData = response.data?.pagination;
 
             const adaptedServices = servicesData.map(adaptServiceToCard);
+            setServices(adaptedServices);
 
-            if (page === 1) {
-                setServices(adaptedServices);
-            } else {
-                setServices(prev => [...prev, ...adaptedServices]);
-            }
-
-            // Check if there are more pages
+            // Set total pages from pagination data
             if (paginationData) {
-                setHasMore(paginationData.currentPage < paginationData.totalPages);
-            } else {
-                setHasMore(false);
+                setTotalPages(paginationData.totalPages || 1);
+            }
+            if (!paginationData) {
+                setTotalPages(1);
             }
             setError(null);
         } catch (error) {
@@ -123,16 +120,14 @@ function ServicesContent() {
         }
     };
 
-    const loadMore = () => {
-        if (!loading && hasMore) {
-            setPage(prev => prev + 1);
-        }
+    const handlePageChange = (newPage: number) => {
+        setPage(newPage);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         setPage(1); // Reset to first page when searching
-        fetchServices();
     };
 
     const handleLocationChange = (value: string) => {
@@ -307,25 +302,12 @@ function ServicesContent() {
                             ))}
                         </div>
 
-                        {/* Load More Button */}
-                        {hasMore && (
-                            <div className="flex justify-center mt-12">
-                                <button
-                                    onClick={loadMore}
-                                    disabled={loading}
-                                    className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                                >
-                                    {loading ? (
-                                        <span className="flex items-center gap-2">
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                            Loading...
-                                        </span>
-                                    ) : (
-                                        'Load More'
-                                    )}
-                                </button>
-                            </div>
-                        )}
+                        {/* Pagination */}
+                        <Pagination
+                            currentPage={page}
+                            totalPages={totalPages}
+                            onPageChange={handlePageChange}
+                        />
                     </>
                 )}
             </div>

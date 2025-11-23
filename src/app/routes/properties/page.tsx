@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import PropertyCard, { Property } from "../../../components/domain/PropertyCard";
+import Pagination from "../../../components/ui/Pagination";
 import { propertiesApi } from "@/services/api";
 import { Property as ApiProperty } from "@/types/dashboard";
 
@@ -57,7 +58,7 @@ function PropertiesContent() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true);
+    const [totalPages, setTotalPages] = useState(1);
     const limit = 20;
 
     // Search form state
@@ -112,18 +113,14 @@ function PropertiesContent() {
             const paginationData = response.data?.pagination;
 
             const adaptedProperties = propertiesData.map(adaptPropertyToCard);
+            setProperties(adaptedProperties);
 
-            if (page === 1) {
-                setProperties(adaptedProperties);
-            } else {
-                setProperties(prev => [...prev, ...adaptedProperties]);
-            }
-
-            // Check if there are more pages
+            // Set total pages from pagination data
             if (paginationData) {
-                setHasMore(paginationData.currentPage < paginationData.totalPages);
-            } else {
-                setHasMore(false);
+                setTotalPages(paginationData.totalPages || 1);
+            }
+            if (!paginationData) {
+                setTotalPages(1);
             }
             setError(null);
         } catch (error) {
@@ -134,16 +131,14 @@ function PropertiesContent() {
         }
     };
 
-    const loadMore = () => {
-        if (!loading && hasMore) {
-            setPage(prev => prev + 1);
-        }
+    const handlePageChange = (newPage: number) => {
+        setPage(newPage);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         setPage(1); // Reset to first page when searching
-        fetchProperties();
     };
 
     const handleLocationChange = (value: string) => {
@@ -314,25 +309,12 @@ function PropertiesContent() {
                             ))}
                         </div>
 
-                        {/* Load More Button */}
-                        {hasMore && (
-                            <div className="flex justify-center mt-12">
-                                <button
-                                    onClick={loadMore}
-                                    disabled={loading}
-                                    className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                                >
-                                    {loading ? (
-                                        <span className="flex items-center gap-2">
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                            Loading...
-                                        </span>
-                                    ) : (
-                                        'Load More'
-                                    )}
-                                </button>
-                            </div>
-                        )}
+                        {/* Pagination */}
+                        <Pagination
+                            currentPage={page}
+                            totalPages={totalPages}
+                            onPageChange={handlePageChange}
+                        />
                     </>
                 )}
             </div>

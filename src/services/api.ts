@@ -6,6 +6,7 @@ export * from './api/users.api';
 export * from './api/notifications.api';
 export * from './api/dashboard.api';
 export * from './api/media.api';
+export * from './api/advertisements.api';
 
 export interface ApiError {
   message: string;

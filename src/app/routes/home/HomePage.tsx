@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import PropertyCard, { Property } from "../../../components/domain/PropertyCard";
 import ServiceCard, { Service } from "../../../components/domain/ServiceCard";
 import SearchBar from "../../../components/ui/SearchBar";
-import StatsSection from "../../../components/ui/StatsSection";
+import AdvertisementBanner from "../../../components/ui/AdvertisementBanner";
+import TestimonialsSection from "../../../components/ui/TestimonialsSection";
 import PartnerLogos from "../../../components/ui/PartnerLogos";
 import Image from "next/image";
 import { useRouter } from 'next/navigation';
@@ -109,7 +110,7 @@ export default function HomePage() {
                 setLoadingProperties(true);
                 const response = await propertiesApi.getAll({
                     page: 1,
-                    limit: 12,
+                    limit: 15,
                     status: 'approved',
                     sort: '-createdAt'  // Sort by most recent first
                 });
@@ -135,7 +136,7 @@ export default function HomePage() {
                 setLoadingServices(true);
                 const response = await servicesApi.getAll({
                     page: 1,
-                    limit: 5,
+                    limit: 10,
                     status: 'active',
                     sort: '-createdAt'  // Sort by most recent first
                 });
@@ -185,9 +186,9 @@ export default function HomePage() {
             </section>
 
             {/* Trusted Partners Section */}
-            <section className="container-app pt-32 pb-12 border-b border-gray-200">
+            <section className="container-app pt-32 pb-12">
                 <h2 className="text-2xl font-bold text-center mb-8">
-                    Trusted <span className="text-blue-600">Partners</span>
+                    Trusted <span className="text-blue-500">Partners</span>
                 </h2>
                 <PartnerLogos partners={partnerLogos} />
             </section>
@@ -199,7 +200,7 @@ export default function HomePage() {
                 </h2>
                 {loadingProperties ? (
                     <div className="flex justify-center items-center py-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 "></div>
                     </div>
                 ) : propertiesError ? (
                     <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
@@ -225,12 +226,12 @@ export default function HomePage() {
             </div>
 
             {/* Continue exploring section */}
-            <div className="border-t border-gray-200">
+            <div>
                 <div className="container-app py-12">
                     <h2 className="text-2xl font-semibold text-gray-900 mb-8">
                         Continue exploring homes
                     </h2>
-                    <button className="border cursor-pointer border-gray-900 text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                    <button className="cursor-pointer bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors"
                         onClick={() => router.push('/routes/properties')}
                     >
                         Show more
@@ -238,15 +239,8 @@ export default function HomePage() {
                 </div>
             </div>
 
-            {/* Full-Width Stats Divider */}
-            <StatsSection
-                imageUrl="/images/SectionSeparator.jpeg"
-                title="We are Here For You."
-                stats={[
-                    { value: "20,000+", label: "Homes Available" },
-                    { value: "10,000+", label: "Services Available" }
-                ]}
-            />
+            {/* Advertisement Banner */}
+            <AdvertisementBanner />
 
             {/* Services Section */}
             <div className="container-app py-12">
@@ -255,14 +249,14 @@ export default function HomePage() {
                 </h2>
                 {loadingServices ? (
                     <div className="flex justify-center items-center py-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
                     </div>
                 ) : servicesError ? (
                     <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
                         <p className="text-red-600 mb-4">{servicesError}</p>
                         <button
                             onClick={() => window.location.reload()}
-                            className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                            className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors shadow-md"
                         >
                             Retry
                         </button>
@@ -281,18 +275,21 @@ export default function HomePage() {
             </div>
 
             {/* Continue exploring services */}
-            <div className="border-t border-gray-200">
+            <div>
                 <div className="container-app py-12">
                     <h2 className="text-2xl font-semibold text-gray-900 mb-8">
                         More services to explore
                     </h2>
-                    <button className="border cursor-pointer border-gray-900 text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                    <button className="cursor-pointer bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors"
                         onClick={() => router.push('/routes/services')}
                     >
                         Show more services
                     </button>
                 </div>
             </div>
+
+            {/* Testimonials Section */}
+            <TestimonialsSection />
         </div>
     );
 }

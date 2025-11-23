@@ -3,8 +3,11 @@ import Link from "next/link";
 import Button from "../ui/Button";
 import Image from "next/image";
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import AdvertiseModal from '../modals/AdvertiseModal';
 
 export default function Navbar() {
+    const [showAdvertiseModal, setShowAdvertiseModal] = useState(false);
     const links = [
         { href: "/", label: "Discover" },
         { href: "/routes/properties", label: "Homes" },
@@ -13,6 +16,7 @@ export default function Navbar() {
     const router = useRouter();
 
     return (
+        <>
         <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/80 backdrop-blur">
             <div className="container-app flex items-center justify-between h-16">
                 <Link href="/" className="font-extrabold text-xl flex items-center gap-2">
@@ -33,7 +37,13 @@ export default function Navbar() {
                     ))}
                 </nav>
                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" className="px-4">Advertise</Button>
+                    <Button
+                        variant="ghost"
+                        className="px-4"
+                        onClick={() => setShowAdvertiseModal(true)}
+                    >
+                        Advertise
+                    </Button>
                     <Button
                         variant="primary"
                         className="px-4"
@@ -44,6 +54,12 @@ export default function Navbar() {
                 </div>
             </div>
         </header>
+
+        <AdvertiseModal
+            open={showAdvertiseModal}
+            onClose={() => setShowAdvertiseModal(false)}
+        />
+        </>
     );
 }
 

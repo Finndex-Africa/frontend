@@ -88,10 +88,6 @@ export default function PropertyCard({ p, badge }: { p: Property; badge?: string
                     {p.amenities.slice(0, 3).join(" · ")}
                 </div>
 
-                {p.dates && (
-                    <div className="text-[12px] text-gray-500">{p.dates}</div>
-                )}
-
                 <div className="pt-0.5">
                     <span className="font-semibold text-gray-900 text-[15px]">{formatPrice(p.price)}</span>
                     <span className="text-gray-500 text-[13px] font-normal"> / month</span>

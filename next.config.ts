@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "i.pravatar.cc" },
       { protocol: "https", hostname: "finndexafrica.nyc3.cdn.digitaloceanspaces.com" },
       { protocol: "https", hostname: "finndexafrica.sfo3.digitaloceanspaces.com" },
+      { protocol: "https", hostname: "finndexafrica.sfo3.cdn.digitaloceanspaces.com" },
       { protocol: "https", hostname: "res.cloudinary.com" }, // Legacy support for existing images
     ],
   },
