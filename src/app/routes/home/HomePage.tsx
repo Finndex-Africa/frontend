@@ -7,9 +7,10 @@ import AdvertisementBanner from "../../../components/ui/AdvertisementBanner";
 import TestimonialsSection from "../../../components/ui/TestimonialsSection";
 import PartnerLogos from "../../../components/ui/PartnerLogos";
 import Image from "next/image";
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { propertiesApi, servicesApi } from "@/services/api";
 import { Property as ApiProperty, Service as ApiService } from "@/types/dashboard";
+import { useAuth } from "@/providers";
 
 const partnerLogos = [
     { name: "Orange Foundation", logoUrl: "/images/partners/55e811dd-e77f-415c-bd80-073b2fa9b71c.png" },
@@ -96,12 +97,32 @@ const adaptServiceToCard = (apiService: ApiService): Service => {
 
 export default function HomePage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const { setRole } = useAuth();
     const [properties, setProperties] = useState<Property[]>([]);
     const [services, setServices] = useState<Service[]>([]);
     const [loadingProperties, setLoadingProperties] = useState(true);
     const [loadingServices, setLoadingServices] = useState(true);
     const [propertiesError, setPropertiesError] = useState<string | null>(null);
     const [servicesError, setServicesError] = useState<string | null>(null);
+
+    // Handle logout from dashboard
+    useEffect(() => {
+        const isLogout = searchParams.get('logout') === 'true';
+        if (isLogout) {
+            console.log('🚪 Logout request from dashboard');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('user');
+            sessionStorage.removeItem('authToken');
+            sessionStorage.removeItem('user');
+            setRole('guest');
+
+            // Remove logout parameter from URL
+            const url = new URL(window.location.href);
+            url.searchParams.delete('logout');
+            window.history.replaceState({}, '', url.toString());
+        }
+    }, [searchParams, setRole]);
 
     useEffect(() => {
         // Fetch properties from API

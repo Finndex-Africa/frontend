@@ -42,7 +42,8 @@ class ApiClient {
         this.client.interceptors.request.use(
             (config) => {
                 if (typeof window !== 'undefined') {
-                    const token = localStorage.getItem('token');
+                    // Check both 'authToken' (frontend) and 'token' (legacy) keys
+                    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken') || localStorage.getItem('token');
                     if (token) {
                         config.headers.Authorization = `Bearer ${token}`;
                     }
@@ -61,8 +62,11 @@ class ApiClient {
                 if (error.response?.status === 401) {
                     // Unauthorized - clear auth and redirect to website
                     if (typeof window !== 'undefined') {
+                        localStorage.removeItem('authToken');
                         localStorage.removeItem('token');
                         localStorage.removeItem('user');
+                        sessionStorage.removeItem('authToken');
+                        sessionStorage.removeItem('user');
                         // Clear the cookie
                         document.cookie = 'token=; path=/; max-age=0';
                         // Redirect to website instead of login to avoid middleware loop

@@ -71,10 +71,9 @@ export default function AuthPage() {
                 setRole(roleMap[data.data.user.userType] || 'guest');
                 console.log('✅ Role set:', roleMap[data.data.user.userType] || 'guest');
 
-                // Redirect to dashboard auth transfer page
-                console.log('🚀 Redirecting to dashboard');
-                const redirectUrl = `${DASHBOARD_URL}/auth-transfer?token=${encodeURIComponent(data.data.token)}`;
-                window.location.href = redirectUrl;
+                // Redirect to discover page (home)
+                console.log('🚀 Redirecting to discover page');
+                window.location.href = '/';
             } else {
                 // Sign up - Map userType to backend enum
                 const userTypeMap: Record<UserType, string> = {

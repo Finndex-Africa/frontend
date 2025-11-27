@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useMemo, useState } from "react";
+import React, { createContext, useContext, useMemo, useState, useEffect } from "react";
 import { ToastProvider } from "./components/ui/Toast";
 
 // Simple role/auth context for Navbar links and conditional UI
@@ -22,8 +22,41 @@ export function useBookmarks() {
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {
-    const [role, setRole] = useState<Role>("guest");
+    const [role, setRoleState] = useState<Role>("guest");
     const [bookmarks, setBookmarks] = useState<string[]>([]);
+
+    // Restore role from localStorage on mount
+    useEffect(() => {
+        const user = localStorage.getItem('user') || sessionStorage.getItem('user');
+        if (user) {
+            try {
+                const userData = JSON.parse(user);
+                const roleMap: Record<string, Role> = {
+                    admin: 'admin',
+                    agent: 'admin',
+                    landlord: 'landlord',
+                    service_provider: 'provider',
+                    home_seeker: 'seeker',
+                };
+                setRoleState(roleMap[userData.userType] || 'guest');
+            } catch (e) {
+                console.error('Failed to parse user data:', e);
+            }
+        }
+    }, []);
+
+    // Wrapper to persist role when it changes
+    const setRole = (r: Role) => {
+        setRoleState(r);
+        // If role is guest, clear storage
+        if (r === 'guest') {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('user');
+            sessionStorage.removeItem('authToken');
+            sessionStorage.removeItem('user');
+        }
+    };
+
     const bookmarkApi = useMemo<BookmarkContextType>(() => ({
         bookmarks,
         toggle: (id) => setBookmarks((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id])),
