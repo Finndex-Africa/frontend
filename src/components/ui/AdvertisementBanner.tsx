@@ -1,6 +1,6 @@
 "use client";
-import Image from "next/image";
 import { useState, useEffect } from "react";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { advertisementsApi } from "@/services/api";
 
 interface Advertisement {
@@ -121,7 +121,7 @@ export default function AdvertisementBanner() {
 
                         {/* Right Image/Graphic */}
                         <div className="relative h-80 md:h-96 rounded-2xl overflow-hidden shadow-2xl">
-                            <Image
+                            <SafeImage
                                 src="https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800"
                                 alt="Advertise with us"
                                 fill
@@ -187,7 +187,7 @@ export default function AdvertisementBanner() {
                         className={`relative h-80 md:h-96 rounded-2xl overflow-hidden shadow-2xl ${currentAd.linkUrl ? 'cursor-pointer' : ''}`}
                         onClick={() => currentAd.linkUrl && handleAdClick(currentAd)}
                     >
-                        <Image
+                        <SafeImage
                             src={currentAd.imageUrl || "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800"}
                             alt={currentAd.title}
                             fill

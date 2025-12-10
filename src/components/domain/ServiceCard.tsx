@@ -1,8 +1,7 @@
 "use client";
-import Image from "next/image";
 import Link from "next/link";
 import { useBookmarks } from "@/providers";
-import { useState } from "react";
+import { SafeImage } from "@/components/ui/SafeImage";
 
 export type Service = {
     id: string;
@@ -13,27 +12,26 @@ export type Service = {
     imageUrl: string;
     tags: string[];
     badge?: string;
+    provider?: {
+        name: string;
+        photo?: string;
+    };
 };
-
-// Default fallback image for services
-const DEFAULT_SERVICE_IMAGE = 'https://images.unsplash.com/photo-1581578731548-c64695cc6952';
 
 export default function ServiceCard({ service }: { service: Service }) {
     const { toggle, has } = useBookmarks();
     const saved = has(service.id);
-    const [imgSrc, setImgSrc] = useState(service.imageUrl || DEFAULT_SERVICE_IMAGE);
 
     return (
         <Link href={`/routes/service/${service.id}`} className="group cursor-pointer block">
             <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 h-full flex flex-col">
                 {/* IMAGE */}
                 <div className="relative aspect-[4/3] w-full flex-shrink-0 overflow-hidden">
-                    <Image
-                        src={imgSrc}
+                    <SafeImage
+                        src={service.imageUrl}
                         alt={service.name}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        onError={() => setImgSrc(DEFAULT_SERVICE_IMAGE)}
                     />
                     {service.badge && (
                         <div className="absolute top-3 left-3 bg-blue-600/90 backdrop-blur-sm text-white px-2.5 py-1 rounded-md text-[11px] font-medium shadow-sm">
@@ -76,6 +74,28 @@ export default function ServiceCard({ service }: { service: Service }) {
                                 </svg>
                                 <span className="truncate">{service.location}</span>
                             </p>
+                            {/* Provider Info */}
+                            {service.provider && (
+                                <div className="flex items-center gap-2 mt-2">
+                                    {service.provider.photo ? (
+                                        <div className="relative w-6 h-6 rounded-full overflow-hidden border border-gray-200">
+                                            <SafeImage
+                                                src={service.provider.photo}
+                                                alt={service.provider.name}
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
+                                            <svg className="w-3.5 h-3.5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    )}
+                                    <span className="text-[12px] text-gray-600 truncate">by {service.provider.name}</span>
+                                </div>
+                            )}
                         </div>
 
                         <div className="flex flex-wrap gap-1.5">

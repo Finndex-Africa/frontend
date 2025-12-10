@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 
 type TestimonialCardProps = {
     name: string;
@@ -20,7 +20,7 @@ export default function TestimonialCard({
             <div className="flex items-center gap-3">
                 <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 overflow-hidden flex-shrink-0">
                     {avatarUrl ? (
-                        <Image src={avatarUrl} alt={name} fill className="object-cover" />
+                        <SafeImage src={avatarUrl} alt={name} fill className="object-cover" />
                     ) : (
                         <div className="w-full h-full flex items-center justify-center text-white font-semibold text-lg">
                             {name.charAt(0)}

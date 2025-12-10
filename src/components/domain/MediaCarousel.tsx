@@ -1,6 +1,6 @@
 "use client";
-import Image from "next/image";
 import React, { useState } from "react";
+import { SafeImage } from "@/components/ui/SafeImage";
 
 type MediaCarouselProps = { media: { type: "image" | "video"; src: string }[] };
 
@@ -18,13 +18,12 @@ export default function MediaCarousel({ media }: MediaCarouselProps) {
                 <div className="col-span-2 row-span-2 relative bg-gray-100 cursor-pointer" onClick={() => setShowAllPhotos(true)}>
                     {displayImages[0] && (
                         displayImages[0].type === "image" ? (
-                            <Image
+                            <SafeImage
                                 src={displayImages[0].src}
                                 alt="Main image"
                                 fill
                                 className="object-cover hover:brightness-95 transition-all"
                                 priority
-                                quality={90}
                             />
                         ) : (
                             <video className="w-full h-full object-cover" controls src={displayImages[0].src} />
@@ -35,12 +34,11 @@ export default function MediaCarousel({ media }: MediaCarouselProps) {
                 {/* Top right image */}
                 {displayImages[1] && (
                     <div className="col-span-2 relative bg-gray-100 cursor-pointer" onClick={() => setShowAllPhotos(true)}>
-                        <Image
+                        <SafeImage
                             src={displayImages[1].src}
                             alt="Image 2"
                             fill
                             className="object-cover hover:brightness-95 transition-all"
-                            quality={85}
                         />
                     </div>
                 )}
@@ -48,12 +46,11 @@ export default function MediaCarousel({ media }: MediaCarouselProps) {
                 {/* Bottom right - 2 images */}
                 <div className="col-span-1 relative bg-gray-100 cursor-pointer" onClick={() => setShowAllPhotos(true)}>
                     {displayImages[2] && (
-                        <Image
+                        <SafeImage
                             src={displayImages[2].src}
                             alt="Image 3"
                             fill
                             className="object-cover hover:brightness-95 transition-all"
-                            quality={85}
                         />
                     )}
                 </div>
@@ -61,12 +58,11 @@ export default function MediaCarousel({ media }: MediaCarouselProps) {
                 <div className="col-span-1 relative bg-gray-100">
                     {displayImages[3] && (
                         <div className="relative w-full h-full cursor-pointer" onClick={() => setShowAllPhotos(true)}>
-                            <Image
+                            <SafeImage
                                 src={displayImages[3].src}
                                 alt="Image 4"
                                 fill
                                 className="object-cover hover:brightness-95 transition-all"
-                                quality={85}
                             />
                             {/* Show all photos button */}
                             {media.length > 4 && (

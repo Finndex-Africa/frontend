@@ -1,5 +1,5 @@
 import Card, { CardContent } from "../../components/ui/Card";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 
 export type ServiceProvider = {
     id: string;
@@ -16,7 +16,7 @@ export default function ServiceProviderCard({ sp }: { sp: ServiceProvider }) {
     return (
         <Card interactive>
             <div className="relative h-36 w-full">
-                <Image
+                <SafeImage
                     src={sp.imageUrl || sp.logoUrl || "https://images.unsplash.com/photo-1581091215367-59ab6b11b3d6"}
                     alt={sp.name}
                     fill

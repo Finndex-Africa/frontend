@@ -29,6 +29,14 @@ const adaptServiceToCard = (apiService: ApiService): Service => {
 
     const defaultImage = defaultServiceImages[apiService.category] || defaultServiceImages['other'];
 
+    // Extract provider info if available
+    const provider = typeof apiService.provider === 'object' && apiService.provider
+        ? {
+            name: apiService.provider.name || 'Service Provider',
+            photo: undefined // Backend would need to provide this
+        }
+        : undefined;
+
     return {
         id: apiService._id,
         name: apiService.title,
@@ -37,7 +45,8 @@ const adaptServiceToCard = (apiService: ApiService): Service => {
         reviews: 0, // API doesn't provide review count yet
         imageUrl: apiService.images?.[0] || defaultImage,
         tags,
-        badge: apiService.status === 'active' ? 'VERIFIED' : undefined
+        badge: apiService.status === 'active' ? 'VERIFIED' : undefined,
+        provider
     };
 };
 

@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import TestimonialsSection from '../../../components/ui/TestimonialsSection';
 
 export default function About() {
     return (
@@ -66,62 +67,8 @@ export default function About() {
             </section>
 
 
-            {/* TEAM */}
-            <section className="flex flex-col items-center py-16 px-4 bg-gray-50">
-                <h2 className="text-3xl font-bold text-center mb-12">Meet the Team</h2>
-
-                <div className="flex flex-wrap justify-center gap-8">
-                    {[
-                        {
-                            name: 'Levi Singbeh',
-                            role: 'CEO',
-                            bio: "Passionate about transforming Africa's rental housing ecosystem through technology.",
-                            img: '/images/team/levi.jpg',
-                            linkedin: 'https://www.linkedin.com/in/levi-singbeh'
-                        },
-                        {
-                            name: 'Linda Dorcas Y. Kawala',
-                            role: 'CTO',
-                            bio: "Leads the tech team, ensuring innovative and reliable solutions for our platform.",
-                            img: '/images/team/linda.jpg',
-                            linkedin: 'https://www.linkedin.com/in/linda-dorcas-y-kawala'
-                        },
-                        {
-                            name: 'Mo Kerkulah',
-                            role: 'CFO',
-                            bio: "Oversees financial strategy, ensuring sustainable growth and operational excellence.",
-                            img: '/images/team/mo.png',
-                            linkedin: 'https://www.linkedin.com/in/mo-kerkulah'
-                        },
-                    ].map((member) => (
-                        <div
-                            key={member.name}
-                            className="bg-white rounded-xl shadow-lg overflow-hidden text-center p-6 flex flex-col justify-between w-92 h-96"
-                        >
-                            <div>
-                                <Image
-                                    src={member.img}
-                                    width={120}
-                                    height={120}
-                                    alt={member.name}
-                                    className="mx-auto rounded-full mb-4"
-                                />
-                                <h3 className="text-xl font-semibold mb-1">{member.name}</h3>
-                                <p className="text-gray-500 mb-2">{member.role}</p>
-                                <p className="text-gray-600 text-sm">{member.bio}</p>
-                            </div>
-                            <a
-                                href={member.linkedin}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="mt-4 inline-flex justify-center text-blue-600 hover:underline"
-                            >
-                                LinkedIn
-                            </a>
-                        </div>
-                    ))}
-                </div>
-            </section>
+            {/* USER TESTIMONIALS */}
+            <TestimonialsSection />
 
 
             {/* CTA */}

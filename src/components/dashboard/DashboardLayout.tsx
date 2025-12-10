@@ -108,7 +108,13 @@ export function DashboardLayout({ children, userRole, userName }: DashboardLayou
     ];
 
     const handleLogout = () => {
-        localStorage.clear();
+        // Remove auth-related keys from both storages
+        localStorage.removeItem('token');
+        localStorage.removeItem('authToken'); // legacy cleanup
+        localStorage.removeItem('user');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('authToken'); // legacy cleanup
+        sessionStorage.removeItem('user');
         document.cookie = 'token=; path=/; max-age=0';
         window.location.href = `${process.env.NEXT_PUBLIC_WEBSITE_URL || '/'}/`;
     };
