@@ -1,8 +1,7 @@
 "use client";
-import Image from "next/image";
 import Link from "next/link";
 import { useBookmarks } from "@/providers";
-import { useState } from "react";
+import { SafeImage } from "@/components/ui/SafeImage";
 
 export type Property = {
     id: string;
@@ -16,13 +15,9 @@ export type Property = {
     dates?: string;
 };
 
-// Default fallback image
-const DEFAULT_PROPERTY_IMAGE = 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c';
-
 export default function PropertyCard({ p, badge }: { p: Property; badge?: string }) {
     const { toggle, has } = useBookmarks();
     const saved = has(p.id);
-    const [imgSrc, setImgSrc] = useState(p.imageUrl || DEFAULT_PROPERTY_IMAGE);
 
     // Format price with thousand separators
     const formatPrice = (price: string) => {
@@ -33,12 +28,11 @@ export default function PropertyCard({ p, badge }: { p: Property; badge?: string
     return (
         <Link href={`/routes/property/${p.id}`} className="group cursor-pointer block">
             <div className="relative aspect-square w-full rounded-2xl overflow-hidden mb-3 shadow-sm">
-                <Image
-                    src={imgSrc}
+                <SafeImage
+                    src={p.imageUrl}
                     alt={p.title}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    onError={() => setImgSrc(DEFAULT_PROPERTY_IMAGE)}
                 />
                 {badge && (
                     <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-md text-[11px] font-medium text-gray-700 shadow-sm">

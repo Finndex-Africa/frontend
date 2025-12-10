@@ -9,15 +9,7 @@ import type { Role } from '@/providers';
 
 type UserType = 'HomeSeeker' | 'Landlord' | 'ServiceProvider';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-const DASHBOARD_URL = process.env.NEXT_PUBLIC_DASHBOARD_URL || 'http://localhost:3030';
-
-// Debug logging
-console.log('🔍 Environment check:', {
-    API_URL,
-    DASHBOARD_URL,
-    envVar: process.env.NEXT_PUBLIC_DASHBOARD_URL
-});
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export default function AuthPage() {
     const { setRole } = useAuth();
@@ -41,11 +33,11 @@ export default function AuthPage() {
 
         try {
             if (isLogin) {
-                // Login
+                // Login - include rememberMe in request
                 const response = await fetch(`${API_URL}/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password }),
+                    body: JSON.stringify({ email, password, rememberMe }),
                 });
 
                 const data = await response.json();
@@ -54,16 +46,28 @@ export default function AuthPage() {
                     throw new Error(data.message || 'Login failed');
                 }
 
-                // Store token locally for frontend use
+                // Store token using consistent storage strategy
                 const storage = rememberMe ? localStorage : sessionStorage;
-                storage.setItem('authToken', data.data.token);
+                storage.setItem('token', data.data.token);
                 storage.setItem('user', JSON.stringify(data.data.user));
+
+                // Clean up legacy authToken keys from both storages
+                localStorage.removeItem('authToken');
+                sessionStorage.removeItem('authToken');
+
                 console.log('✅ Login successful - Token stored:', data.data.token.substring(0, 20) + '...');
+                try {
+                    // Also persist a debug entry so reloads don't lose this important info
+                    const { logDebug } = await import('@/utils/persistentLogger');
+                    logDebug('Login successful - token stored', { tokenPreview: data.data.token.substring(0, 20), rememberMe });
+                } catch (err) {
+                    // ignore
+                }
 
                 // Map backend role to frontend role
                 const roleMap: Record<string, Role> = {
                     admin: 'admin',
-                    agent: 'admin',
+                    agent: 'landlord',
                     landlord: 'landlord',
                     service_provider: 'provider',
                     home_seeker: 'seeker',
@@ -78,7 +82,8 @@ export default function AuthPage() {
                 // Sign up - Map userType to backend enum
                 const userTypeMap: Record<UserType, string> = {
                     'HomeSeeker': 'home_seeker',
-                    'Landlord': 'landlord',
+                    // Backend uses 'agent' role for property owners/landlords
+                    'Landlord': 'agent',
                     'ServiceProvider': 'service_provider',
                 };
 

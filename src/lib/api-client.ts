@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { logError } from '@/utils/persistentLogger';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
@@ -42,8 +43,8 @@ class ApiClient {
         this.client.interceptors.request.use(
             (config) => {
                 if (typeof window !== 'undefined') {
-                    // Check both 'authToken' (frontend) and 'token' (legacy) keys
-                    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken') || localStorage.getItem('token');
+                    // Use consistent 'token' key from localStorage or sessionStorage
+                    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
                     if (token) {
                         config.headers.Authorization = `Bearer ${token}`;
                     }
@@ -56,23 +57,15 @@ class ApiClient {
         );
 
         // Response interceptor for error handling
+        // Note: 401 handling is done by AuthService interceptors to avoid duplicate logout
         this.client.interceptors.response.use(
             (response) => response,
             (error) => {
-                if (error.response?.status === 401) {
-                    // Unauthorized - clear auth and redirect to website
-                    if (typeof window !== 'undefined') {
-                        localStorage.removeItem('authToken');
-                        localStorage.removeItem('token');
-                        localStorage.removeItem('user');
-                        sessionStorage.removeItem('authToken');
-                        sessionStorage.removeItem('user');
-                        // Clear the cookie
-                        document.cookie = 'token=; path=/; max-age=0';
-                        // Redirect to website instead of login to avoid middleware loop
-                        const websiteUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000';
-                        window.location.href = websiteUrl;
-                    }
+                // Log errors but don't handle 401 here - AuthService handles it
+                if (error.response?.status) {
+                    const status = error.response.status;
+                    const url = error.config?.url;
+                    logError('ApiClient: HTTP error', { status, url, message: error.message });
                 }
                 return Promise.reject(error);
             }

@@ -1,5 +1,7 @@
 "use client";
 import React, { createContext, useContext, useMemo, useState, useEffect } from "react";
+import { AuthService } from '@/services/auth.service';
+import { logDebug } from '@/utils/persistentLogger';
 import { ToastProvider } from "./components/ui/Toast";
 
 // Simple role/auth context for Navbar links and conditional UI
@@ -27,13 +29,24 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
     // Restore role from localStorage on mount
     useEffect(() => {
+        // Ensure axios interceptors are set early if a token exists
+        try {
+            const auth = AuthService.getInstance();
+            if (auth.getToken()) {
+                auth.setupAxiosInterceptors();
+                logDebug('Providers: axios interceptors setup from Providers on mount');
+            }
+        } catch (err) {
+            // ignore
+        }
+
         const user = localStorage.getItem('user') || sessionStorage.getItem('user');
         if (user) {
             try {
                 const userData = JSON.parse(user);
                 const roleMap: Record<string, Role> = {
                     admin: 'admin',
-                    agent: 'admin',
+                    agent: 'landlord',
                     landlord: 'landlord',
                     service_provider: 'provider',
                     home_seeker: 'seeker',
@@ -48,11 +61,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
     // Wrapper to persist role when it changes
     const setRole = (r: Role) => {
         setRoleState(r);
-        // If role is guest, clear storage
+        // If role is guest, clear all auth storage
         if (r === 'guest') {
-            localStorage.removeItem('authToken');
+            localStorage.removeItem('token');
+            localStorage.removeItem('authToken'); // legacy cleanup
             localStorage.removeItem('user');
-            sessionStorage.removeItem('authToken');
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('authToken'); // legacy cleanup
             sessionStorage.removeItem('user');
         }
     };

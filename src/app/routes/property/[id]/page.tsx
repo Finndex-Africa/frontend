@@ -473,98 +473,180 @@ export default function PropertyDetail() {
 
             {/* Booking Modal */}
             {showBookingModal && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
-                        <div className="flex items-center justify-between mb-6">
-                            <div>
-                                <h3 className="text-2xl font-bold text-gray-900">Book This Property</h3>
-                                <p className="text-sm text-gray-600 mt-1">Submit your booking request</p>
-                            </div>
-                            <button
-                                onClick={() => setShowBookingModal(false)}
-                                className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1 transition-colors"
-                                disabled={submitting}
-                            >
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                    📅 Preferred Move-in Date *
-                                </label>
-                                <input
-                                    type="date"
-                                    value={bookingData.moveInDate}
-                                    onChange={(e) => setBookingData({...bookingData, moveInDate: e.target.value})}
-                                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                                    min={new Date().toISOString().split('T')[0]}
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                    ⏱️ Desired Rental Period
-                                </label>
-                                <select
-                                    value={bookingData.rentalPeriod}
-                                    onChange={(e) => setBookingData({...bookingData, rentalPeriod: e.target.value})}
-                                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+                    <div className="bg-white rounded-xl sm:rounded-2xl max-w-lg w-full shadow-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+                        {/* Header with gradient */}
+                        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 px-4 sm:px-6 py-4 sm:py-5 rounded-t-xl sm:rounded-t-2xl">
+                            <div className="flex items-center justify-between">
+                                <div className="flex-1 min-w-0 pr-2">
+                                    <h3 className="text-lg sm:text-2xl font-bold text-white truncate">Book This Property</h3>
+                                    <p className="text-xs sm:text-sm text-blue-100 mt-1">Complete the form to submit your request</p>
+                                </div>
+                                <button
+                                    onClick={() => setShowBookingModal(false)}
+                                    className="text-white/80 hover:text-white hover:bg-white/10 rounded-full p-2 transition-all ml-4"
+                                    disabled={submitting}
+                                    aria-label="Close modal"
                                 >
-                                    <option value="1">1 month</option>
-                                    <option value="3">3 months</option>
-                                    <option value="6">6 months</option>
-                                    <option value="12">12 months (1 year)</option>
-                                    <option value="24">24 months (2 years)</option>
-                                </select>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
                             </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                    📱 Contact Phone *
-                                </label>
-                                <input
-                                    type="tel"
-                                    value={bookingData.contactPhone}
-                                    onChange={(e) => setBookingData({...bookingData, contactPhone: e.target.value})}
-                                    placeholder="+231 886 149 219"
-                                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                                    required
-                                />
+                        </div>
+
+                        {/* Form Content */}
+                        <div className="p-4 sm:p-6 space-y-4 sm:space-y-5">
+                            {/* Property Summary Card */}
+                            <div className="bg-gradient-to-br from-gray-50 to-blue-50 border border-blue-100 rounded-xl p-3 sm:p-4">
+                                <div className="flex items-start gap-2 sm:gap-3">
+                                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-lg flex items-center justify-center shrink-0">
+                                        <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                        </svg>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="font-semibold text-gray-900 text-sm truncate">{property?.title}</h4>
+                                        <p className="text-xs text-gray-600 mt-1 truncate">{property?.location}</p>
+                                        <div className="flex items-center gap-2 mt-2">
+                                            <span className="text-base sm:text-lg font-bold text-blue-600">
+                                                ${property?.price?.toLocaleString()}
+                                            </span>
+                                            <span className="text-xs text-gray-500">/{property?.priceUnit || 'month'}</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                    💭 Additional Message (Optional)
-                                </label>
-                                <textarea
-                                    rows={4}
-                                    value={bookingData.message}
-                                    onChange={(e) => setBookingData({...bookingData, message: e.target.value})}
-                                    placeholder="Any questions or special requests..."
-                                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
-                                />
+
+                            {/* Form Fields */}
+                            <div className="space-y-4">
+                                {/* Move-in Date */}
+                                <div>
+                                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-2">
+                                        <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        Preferred Move-in Date
+                                        <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={bookingData.moveInDate}
+                                        onChange={(e) => setBookingData({...bookingData, moveInDate: e.target.value})}
+                                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:border-gray-300"
+                                        min={new Date().toISOString().split('T')[0]}
+                                        required
+                                    />
+                                </div>
+
+                                {/* Rental Period */}
+                                <div>
+                                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-2">
+                                        <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Desired Rental Period
+                                    </label>
+                                    <select
+                                        value={bookingData.rentalPeriod}
+                                        onChange={(e) => setBookingData({...bookingData, rentalPeriod: e.target.value})}
+                                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:border-gray-300 cursor-pointer"
+                                    >
+                                        <option value="1">1 month</option>
+                                        <option value="3">3 months</option>
+                                        <option value="6">6 months</option>
+                                        <option value="12">12 months (1 year)</option>
+                                        <option value="24">24 months (2 years)</option>
+                                    </select>
+                                </div>
+
+                                {/* Contact Phone */}
+                                <div>
+                                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-2">
+                                        <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                        </svg>
+                                        Contact Phone
+                                        <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="tel"
+                                        value={bookingData.contactPhone}
+                                        onChange={(e) => setBookingData({...bookingData, contactPhone: e.target.value})}
+                                        placeholder="+231 886 149 219"
+                                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:border-gray-300"
+                                        required
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1.5">We&apos;ll use this number to confirm your booking</p>
+                                </div>
+
+                                {/* Additional Message */}
+                                <div>
+                                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-2">
+                                        <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                                        </svg>
+                                        Additional Message
+                                        <span className="text-xs font-normal text-gray-500">(Optional)</span>
+                                    </label>
+                                    <textarea
+                                        rows={4}
+                                        value={bookingData.message}
+                                        onChange={(e) => setBookingData({...bookingData, message: e.target.value})}
+                                        placeholder="Share any questions, special requests, or additional information..."
+                                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:border-gray-300 resize-none"
+                                    />
+                                </div>
                             </div>
-                            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mt-4">
-                                <p className="text-sm text-blue-900">
-                                    💡 <span className="font-semibold">Note:</span> The landlord will receive your booking request and contact you to confirm the details.
-                                </p>
+
+                            {/* Info Alert */}
+                            <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4">
+                                <div className="flex items-start gap-3">
+                                    <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                    </svg>
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-blue-900">What happens next?</p>
+                                        <p className="text-sm text-blue-800 mt-1">
+                                            The property owner will receive your request and contact you within 24-48 hours to confirm the viewing details.
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="flex gap-3 pt-4">
-                                <Button
-                                    className="flex-1 h-12 text-sm font-semibold bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-xl transition-all"
+                        </div>
+
+                        {/* Footer Actions */}
+                        <div className="sticky bottom-0 bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 rounded-b-xl sm:rounded-b-2xl border-t border-gray-200">
+                            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                                <button
+                                    className="w-full sm:flex-1 h-11 sm:h-12 text-sm font-semibold bg-white hover:bg-gray-100 text-gray-700 rounded-lg sm:rounded-xl border-2 border-gray-300 transition-all order-2 sm:order-1"
                                     onClick={() => setShowBookingModal(false)}
                                     disabled={submitting}
                                 >
                                     Cancel
-                                </Button>
-                                <Button
-                                    className="flex-1 h-12 text-sm font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl shadow-lg transition-all disabled:opacity-50"
+                                </button>
+                                <button
+                                    className="w-full sm:flex-[2] h-11 sm:h-12 text-sm font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg sm:rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 order-1 sm:order-2"
                                     onClick={handleSubmitBooking}
                                     disabled={submitting}
                                 >
-                                    {submitting ? 'Submitting...' : 'Submit Booking 📨'}
-                                </Button>
+                                    {submitting ? (
+                                        <>
+                                            <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            <span>Submitting...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            <span>Submit Booking Request</span>
+                                        </>
+                                    )}
+                                </button>
                             </div>
                         </div>
                     </div>
