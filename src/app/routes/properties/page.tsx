@@ -68,13 +68,13 @@ function PropertiesContent() {
 
     // Get search parameters
     const locationParam = searchParams.get('location');
-    const dateParam = searchParams.get('date');
-    const queryParam = searchParams.get('q');
+    const typeParam = searchParams.get('type');
+    const maxPriceParam = searchParams.get('maxPrice');
 
     useEffect(() => {
         fetchProperties();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, searchLocation, searchType, searchBudget, locationParam, dateParam, queryParam]);
+    }, [page, searchLocation, searchType, searchBudget, locationParam, typeParam, maxPriceParam]);
 
     const fetchProperties = async () => {
         try {
@@ -99,12 +99,10 @@ function PropertiesContent() {
                 filters.maxPrice = parseInt(searchBudget);
             }
 
-            // Add URL search parameters if they exist
+            // Add URL search parameters if they exist (these override form filters)
             if (locationParam) filters.location = locationParam;
-            if (queryParam) {
-                // Use the search query as a general search term
-                filters.location = filters.location || queryParam;
-            }
+            if (typeParam) filters.type = typeParam;
+            if (maxPriceParam) filters.maxPrice = parseInt(maxPriceParam);
 
             const response = await propertiesApi.getAll(filters);
 
@@ -254,7 +252,7 @@ function PropertiesContent() {
             {/* Properties Grid */}
             <div className="container-app pt-32 pb-12">
                 {/* Show active filters */}
-                {(locationParam || queryParam) && (
+                {(locationParam || typeParam || maxPriceParam) && (
                     <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
                         <h3 className="font-semibold text-gray-900 mb-2">Active Filters:</h3>
                         <div className="flex flex-wrap gap-2">
@@ -263,14 +261,14 @@ function PropertiesContent() {
                                     Location: {locationParam}
                                 </span>
                             )}
-                            {queryParam && (
+                            {typeParam && (
                                 <span className="bg-white px-3 py-1 rounded-full text-sm border border-blue-300">
-                                    Search: {queryParam}
+                                    Type: {typeParam}
                                 </span>
                             )}
-                            {dateParam && (
+                            {maxPriceParam && (
                                 <span className="bg-white px-3 py-1 rounded-full text-sm border border-blue-300">
-                                    Date: {new Date(dateParam).toLocaleDateString()}
+                                    Max Budget: ${maxPriceParam}
                                 </span>
                             )}
                         </div>

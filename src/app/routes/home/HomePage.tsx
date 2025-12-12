@@ -242,7 +242,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Search Bar Overlay - positioned to overlap */}
-                <div className="absolute bottom-0 left-0 right-0 translate-y-1/2 z-[10] px-4">
+                <div className="absolute bottom-0 left-0 right-0 translate-y-1/3 z-[10] px-4">
                     <div className="w-full max-w-5xl mx-auto">
                         <SearchBar />
                     </div>

@@ -66,13 +66,13 @@ function ServicesContent() {
 
     // Get search parameters
     const locationParam = searchParams.get('location');
-    const dateParam = searchParams.get('date');
-    const queryParam = searchParams.get('q');
+    const categoryParam = searchParams.get('category');
+    const maxPriceParam = searchParams.get('maxPrice');
 
     useEffect(() => {
         fetchServices();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, searchLocation, searchType, searchBudget, locationParam, dateParam, queryParam]);
+    }, [page, searchLocation, searchType, searchBudget, locationParam, categoryParam, maxPriceParam]);
 
     const fetchServices = async () => {
         try {
@@ -97,12 +97,10 @@ function ServicesContent() {
                 filters.maxPrice = parseInt(searchBudget);
             }
 
-            // Add URL search parameters if they exist
+            // Add URL search parameters if they exist (these override form filters)
             if (locationParam) filters.location = locationParam;
-            if (queryParam) {
-                // Use the search query as a general search term
-                filters.location = filters.location || queryParam;
-            }
+            if (categoryParam) filters.category = categoryParam;
+            if (maxPriceParam) filters.maxPrice = parseInt(maxPriceParam);
 
             const response = await servicesApi.getAll(filters);
 
@@ -256,7 +254,7 @@ function ServicesContent() {
             {/* Services Grid */}
             <div className="container-app pt-32 pb-12">
                 {/* Show active filters */}
-                {(locationParam || queryParam) && (
+                {(locationParam || categoryParam || maxPriceParam) && (
                     <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
                         <h3 className="font-semibold text-gray-900 mb-2">Active Filters:</h3>
                         <div className="flex flex-wrap gap-2">
@@ -265,14 +263,14 @@ function ServicesContent() {
                                     Location: {locationParam}
                                 </span>
                             )}
-                            {queryParam && (
+                            {categoryParam && (
                                 <span className="bg-white px-3 py-1 rounded-full text-sm border border-blue-300">
-                                    Search: {queryParam}
+                                    Category: {categoryParam.replace(/_/g, ' ')}
                                 </span>
                             )}
-                            {dateParam && (
+                            {maxPriceParam && (
                                 <span className="bg-white px-3 py-1 rounded-full text-sm border border-blue-300">
-                                    Date: {new Date(dateParam).toLocaleDateString()}
+                                    Max Budget: ${maxPriceParam}
                                 </span>
                             )}
                         </div>
