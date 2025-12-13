@@ -223,22 +223,9 @@ export default function HomePage() {
                     <div className="absolute inset-0 bg-black/50" />
                 </div>
                 <div className="relative z-[5] h-full flex flex-col items-center justify-center text-center text-white px-4 pb-32">
-                    {/* Logo */}
-                    <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 mb-4 sm:mb-6">
-                        <Image
-                            src="/images/logos/logo1.png"
-                            alt="Finndex Africa"
-                            fill
-                            className="object-contain drop-shadow-2xl"
-                            priority
-                        />
-                    </div>
                     <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold max-w-4xl leading-tight mb-3 sm:mb-4 drop-shadow-lg">
-                        Discover the Perfect Homes and Services
+                        Discover the Perfect Homes and Services Tailored to your lifestyle
                     </h1>
-                    <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/95 max-w-3xl drop-shadow-md mb-16 sm:mb-20">
-                        Tailored to your lifestyle
-                    </p>
                 </div>
 
                 {/* Search Bar Overlay - positioned to overlap */}
@@ -354,28 +341,6 @@ export default function HomePage() {
 
             {/* Testimonials Section */}
             <TestimonialsSection />
-
-            {/* Footer with Logo */}
-            <footer className="bg-gray-50 border-t border-gray-200 py-12">
-                <div className="container-app">
-                    <div className="flex flex-col items-center justify-center">
-                        <div className="relative w-40 h-40 mb-4">
-                            <Image
-                                src="/images/logos/logo1.png"
-                                alt="Finndex Africa"
-                                fill
-                                className="object-contain"
-                            />
-                        </div>
-                        <p className="text-gray-600 text-center max-w-2xl">
-                            Discover the perfect homes and services tailored to your lifestyle
-                        </p>
-                        <p className="text-gray-500 text-sm mt-4">
-                            © {new Date().getFullYear()} Finndex Africa. All rights reserved.
-                        </p>
-                    </div>
-                </div>
-            </footer>
         </div>
     );
 }

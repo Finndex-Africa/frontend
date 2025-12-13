@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import toast, { Toaster } from 'react-hot-toast';
 import MediaCarousel from "@/components/domain/MediaCarousel";
 import Button from "@/components/ui/Button";
-import ChatBox from "@/components/dashboard/ChatBox";
+import { MessageCircle, Calendar, Mail, ChevronDown, Lock } from 'lucide-react';
 import { propertiesApi } from "@/services/api";
 import { Property as ApiProperty } from "@/types/dashboard";
 import { apiClient } from "@/lib/api-client";
@@ -56,7 +56,7 @@ export default function PropertyDetail() {
     const [submitting, setSubmitting] = useState(false);
     const [bookingData, setBookingData] = useState({
         moveInDate: '',
-        rentalPeriod: '6',
+        rentalPeriod: '',
         contactPhone: '',
         message: ''
     });
@@ -200,7 +200,12 @@ export default function PropertyDetail() {
             setSubmitting(false);
         }
     };
-
+    const statusConfig = {
+        pending: { icon: '⏳', text: 'Pending Approval', bg: 'bg-amber-50', border: 'border-amber-200', text_color: 'text-amber-800' },
+        rejected: { icon: '❌', text: 'Not Available', bg: 'bg-red-50', border: 'border-red-200', text_color: 'text-red-800' },
+        rented: { icon: '🏠', text: 'Currently Rented', bg: 'bg-gray-50', border: 'border-gray-200', text_color: 'text-gray-800' },
+        archived: { icon: '📦', text: 'Archived', bg: 'bg-gray-50', border: 'border-gray-200', text_color: 'text-gray-800' }
+    };
     const handleSendMessage = async (subject: string, message: string) => {
         if (!currentUser || !property || submitting) return;
 
@@ -389,117 +394,118 @@ export default function PropertyDetail() {
                 </div>
 
                 {/* RIGHT SIDE */}
-                <aside className="lg:col-span-1">
-                    <div className="sticky top-24">
-                        {/* CONTACT CARD */}
-                        <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
-                            {/* Price Section */}
-                            <div className="pb-5 border-b border-gray-200">
-                                <div className="flex items-end gap-1 mb-4">
-                                    <div className="text-2xl font-bold text-gray-900">
-                                        ${property.price ? property.price.toLocaleString() : 'Contact for price'}
-                                    </div>
-                                    {property.price && (
-                                        <span className="text-gray-600 text-sm">/{property.priceUnit || 'month'}</span>
-                                    )}
-                                </div>
-                                {property.isPremium && (
-                                    <div className="mb-3 px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-semibold inline-block">
-                                        Premium Listing
-                                    </div>
-                                )}
+                <div className="min-h-screen">
+                    <div className="max-w-sm mx-auto">
+                        <aside>
+                            <div className="sticky top-24">
+                                {/* CONTACT CARD */}
+                                <div className="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
+                                    {/* Price Section */}
+                                    <div className="p-6 bg-gradient-to-br from-blue-50 to-white">
+                                        {property.isPremium && (
+                                            <div className="mb-3 inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-amber-500 text-white rounded-full text-xs font-bold shadow-sm">
+                                                <span>⭐</span>
+                                                <span>Premium Listing</span>
+                                            </div>
+                                        )}
 
-                                {/* Show availability status */}
-                                {property.status !== 'approved' && (
-                                    <div className="mb-3 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
-                                        <p className="text-xs font-medium text-amber-800">
-                                            {property.status === 'pending' && '⏳ Pending Approval'}
-                                            {property.status === 'rejected' && '❌ Not Available'}
-                                            {property.status === 'rented' && '🏠 Currently Rented'}
-                                            {property.status === 'archived' && '📦 Archived'}
-                                        </p>
-                                    </div>
-                                )}
+                                        <div className="flex items-baseline gap-1.5">
+                                            <div className="text-4xl font-bold text-gray-900">
+                                                ${property.price ? property.price.toLocaleString() : 'Contact'}
+                                            </div>
+                                            {property.price && (
+                                                <span className="text-gray-500 text-base font-medium">/month</span>
+                                            )}
+                                        </div>
 
-                                <div className="space-y-2">
-                                    {/* Only show Book Now if property is approved */}
-                                    {property.status === 'approved' ? (
-                                        <Button
-                                            className="w-full h-11 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm"
-                                            onClick={handleRequestViewing}
-                                            disabled={submitting}
+                                        {/* Status Badge */}
+                                        {property.status !== 'approved' && statusConfig[property.status] && (
+                                            <div className={`mt-4 px-3 py-2.5 ${statusConfig[property.status].bg} border ${statusConfig[property.status].border} rounded-lg`}>
+                                                <p className={`text-xs font-semibold ${statusConfig[property.status].text_color} flex items-center gap-2`}>
+                                                    <span className="text-base">{statusConfig[property.status].icon}</span>
+                                                    {statusConfig[property.status].text}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Action Buttons */}
+                                    <div className="p-6 space-y-3 border-t border-gray-100">
+                                        {property.status === 'approved' ? (
+                                            <button className="w-full group relative overflow-hidden h-12 text-sm font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
+                                                onClick={() => handleRequestViewing()}
+                                            >
+                                                <Calendar className="w-4 h-4" />
+                                                <span>{currentUser ? 'Book Viewing Now' : 'Sign in to Book'}</span>
+                                                {!currentUser && <Lock className="w-3.5 h-3.5" />}
+                                            </button>
+                                        ) : (
+                                            <div className="w-full h-12 flex items-center justify-center text-sm font-medium text-gray-500 bg-gray-100 rounded-lg border border-gray-200">
+                                                Booking Not Available
+                                            </div>
+                                        )}
+
+                                        <button className="w-full h-12 text-sm font-semibold bg-white hover:bg-gray-50 text-gray-900 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-all duration-200 flex items-center justify-center gap-2 shadow-sm"
+                                            onClick={() => handleContactLandlord()}
                                         >
-                                            {currentUser ? '📅 Book Now' : '🔒 Sign in to Book'}
-                                        </Button>
+                                            <Mail className="w-4 h-4" />
+                                            <span>{currentUser ? 'Contact Landlord' : 'Sign in to Contact'}</span>
+                                            {!currentUser && <Lock className="w-3.5 h-3.5" />}
+                                        </button>
+                                    </div>
+
+                                    {/* Message Section */}
+                                    {currentUser ? (
+                                        <div className="border-t border-gray-100">
+                                            <button
+                                                onClick={() => setShowChat(!showChat)}
+                                                className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors group"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                                                        <MessageCircle className="w-4.5 h-4.5 text-blue-600" />
+                                                    </div>
+                                                    <span className="text-sm font-semibold text-gray-900">
+                                                        {showChat ? 'Hide Messages' : 'Send Message'}
+                                                    </span>
+                                                </div>
+                                                <ChevronDown
+                                                    className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${showChat ? 'rotate-180' : ''}`}
+                                                />
+                                            </button>
+
+                                            {showChat && (
+                                                <div className="px-5 pb-5">
+                                                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                                        <p className="text-sm text-gray-600 text-center">Chat interface would appear here</p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
                                     ) : (
-                                        <div className="w-full h-11 flex items-center justify-center text-sm font-medium text-gray-500 bg-gray-100 rounded-lg border border-gray-200">
-                                            Booking Not Available
+                                        <div className="border-t border-gray-100 p-6 text-center bg-gray-50">
+                                            <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                                                <MessageCircle className="w-7 h-7 text-gray-500" />
+                                            </div>
+                                            <p className="text-sm font-medium text-gray-900 mb-2">Message the Landlord</p>
+                                            <p className="text-xs text-gray-500 mb-4">Sign in to start a conversation</p>
+                                            <button className="w-full h-10 text-sm font-semibold bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-colors shadow-sm">
+                                                Sign In to Chat
+                                            </button>
                                         </div>
                                     )}
+                                </div>
 
-                                    <Button
-                                        className="w-full h-11 text-sm font-semibold bg-white hover:bg-gray-50 text-gray-900 rounded-lg border-2 border-gray-200"
-                                        onClick={handleContactLandlord}
-                                        disabled={submitting}
-                                    >
-                                        {currentUser ? '✉️ Contact Landlord' : '🔒 Sign in to Contact'}
-                                    </Button>
+                                {/* Info Card */}
+                                <div className="mt-4 bg-blue-50 border border-blue-200 rounded-xl p-4">
+                                    <p className="text-xs text-blue-900 font-medium">
+                                        💡 <span className="font-semibold">Tip:</span> Book a viewing to see this property in person. Response time is usually within 24 hours.
+                                    </p>
                                 </div>
                             </div>
-
-                            {/* Message Thread Section */}
-                            {currentUser ? (
-                                <div className="pt-5 border-t border-gray-200">
-                                    <button
-                                        onClick={() => setShowChat(!showChat)}
-                                        className="w-full flex items-center justify-between py-3 text-left hover:bg-gray-50 rounded-lg px-3 transition-colors"
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                            </svg>
-                                            <span className="text-sm font-semibold text-gray-900">
-                                                {showChat ? 'Hide Messages' : 'Send Message to Landlord'}
-                                            </span>
-                                        </div>
-                                        <svg
-                                            className={`w-5 h-5 text-gray-400 transition-transform ${showChat ? 'rotate-180' : ''}`}
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                    </button>
-                                    {showChat && (
-                                        <div className="mt-3">
-                                            <ChatBox
-                                                userId={currentUser.id}
-                                                landlordId={typeof property.landlordId === 'object' ? property.landlordId._id : property.landlordId}
-                                                propertyId={property._id}
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="pt-5 border-t border-gray-200 text-center mt-5">
-                                    <div className="py-4">
-                                        <svg className="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                        </svg>
-                                        <p className="text-sm text-gray-600 mb-3">Sign in to message the landlord</p>
-                                        <Button
-                                            className="w-full h-9 text-sm font-semibold bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-lg"
-                                            onClick={() => window.location.href = '/routes/login'}
-                                        >
-                                            Sign In to Chat
-                                        </Button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
+                        </aside>
                     </div>
-                </aside>
+                </div>
             </section>
 
             {/* Booking Modal */}
@@ -563,7 +569,7 @@ export default function PropertyDetail() {
                                     <input
                                         type="date"
                                         value={bookingData.moveInDate}
-                                        onChange={(e) => setBookingData({...bookingData, moveInDate: e.target.value})}
+                                        onChange={(e) => setBookingData({ ...bookingData, moveInDate: e.target.value })}
                                         className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:border-gray-300"
                                         min={new Date().toISOString().split('T')[0]}
                                         required
@@ -580,7 +586,7 @@ export default function PropertyDetail() {
                                     </label>
                                     <select
                                         value={bookingData.rentalPeriod}
-                                        onChange={(e) => setBookingData({...bookingData, rentalPeriod: e.target.value})}
+                                        onChange={(e) => setBookingData({ ...bookingData, rentalPeriod: e.target.value })}
                                         className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:border-gray-300 cursor-pointer"
                                     >
                                         <option value="1">1 month</option>
@@ -603,7 +609,7 @@ export default function PropertyDetail() {
                                     <input
                                         type="tel"
                                         value={bookingData.contactPhone}
-                                        onChange={(e) => setBookingData({...bookingData, contactPhone: e.target.value})}
+                                        onChange={(e) => setBookingData({ ...bookingData, contactPhone: e.target.value })}
                                         placeholder="+231 886 149 219"
                                         className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:border-gray-300"
                                         required
@@ -623,7 +629,7 @@ export default function PropertyDetail() {
                                     <textarea
                                         rows={4}
                                         value={bookingData.message}
-                                        onChange={(e) => setBookingData({...bookingData, message: e.target.value})}
+                                        onChange={(e) => setBookingData({ ...bookingData, message: e.target.value })}
                                         placeholder="Share any questions, special requests, or additional information..."
                                         className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:border-gray-300 resize-none"
                                     />

@@ -106,8 +106,6 @@ export default function SearchBar() {
                                     <>
                                         <option value="Apartment">Apartment</option>
                                         <option value="House">House</option>
-                                        <option value="Commercial">Commercial</option>
-                                        <option value="Land">Land</option>
                                     </>
                                 ) : (
                                     <>

@@ -31,7 +31,7 @@ export interface Service {
 export interface Property {
     _id: string;
     title: string;
-    type: 'Apartment' | 'House' | 'Commercial' | 'Land' | 'Other';
+    type: 'Apartment' | 'House' ;
     propertyType: string;
     location: string;
     price: number;
