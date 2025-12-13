@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import Button from "../ui/Button";
-import Image from "next/image";
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import AdvertiseModal from '../modals/AdvertiseModal';
@@ -72,12 +71,10 @@ export default function Navbar() {
         try {
             const response = await notificationsApi.getAll({
                 limit: 5,
-                page: 1,
-                sortBy: 'createdAt',
-                sortOrder: 'desc'
+                page: 1
             });
-            setNotifications(response.data);
-            setUnreadCount(response.data.filter(n => !n.read).length);
+            setNotifications(response.data.data);
+            setUnreadCount(response.data.data.filter(n => !n.read).length);
         } catch (error) {
             console.error('Failed to fetch notifications:', error);
         }
@@ -168,14 +165,14 @@ export default function Navbar() {
             <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/80 backdrop-blur">
                 <div className="container-app flex items-center justify-between h-16 px-4">
                     <Link href="/" className="font-extrabold text-xl flex items-center gap-2">
-                        <div className="relative w-32 h-32 sm:w-40 sm:h-40 flex items-center justify-center">
-                            <Image
-                                src="/images/logos/logo1.png"
-                                alt="Hero"
-                                fill
-                                className="object-contain"
-                            />
-                        </div>
+                        <img
+                            src="/images/logos/logo1.png"
+                            alt="Finndex Africa Logo"
+                            width={48}
+                            height={48}
+                            className="object-contain"
+                            style={{ width: 'auto', height: '48px' }}
+                        />
                     </Link>
 
                     {/* Desktop Navigation */}

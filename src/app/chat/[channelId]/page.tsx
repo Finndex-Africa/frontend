@@ -4,13 +4,19 @@ import { useEffect, useState } from "react";
 import {
     Chat, Channel, Window, MessageList, MessageInput, Thread
 } from "stream-chat-react";
+import type { Channel as ChannelType } from "stream-chat";
 
 import { getStreamClient } from "@/lib/streamClient";
+import { use } from "react";
 
-export default function ChatPage({ params }) {
-    const { channelId } = params;
+interface ChatPageProps {
+    params: Promise<{ channelId: string }>;
+}
+
+export default function ChatPage({ params }: ChatPageProps) {
+    const { channelId } = use(params);
     const client = getStreamClient();
-    const [channel, setChannel] = useState(null);
+    const [channel, setChannel] = useState<ChannelType | null>(null);
 
     useEffect(() => {
         async function init() {

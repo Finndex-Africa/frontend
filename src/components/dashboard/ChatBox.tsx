@@ -11,17 +11,24 @@ import {
     Thread,
     Window,
 } from "stream-chat-react";
+import type { StreamChat, Channel as ChannelType } from "stream-chat";
 import "stream-chat-react/dist/css/v2/index.css";
 
-export default function ChatBox({ userId, landlordId, propertyId }) {
-    const [client, setClient] = useState(null);
-    const [channel, setChannel] = useState(null);
-    const [error, setError] = useState(null);
+interface ChatBoxProps {
+    userId: string;
+    landlordId: string;
+    propertyId: string;
+}
+
+export default function ChatBox({ userId, landlordId, propertyId }: ChatBoxProps) {
+    const [client, setClient] = useState<StreamChat | null>(null);
+    const [channel, setChannel] = useState<ChannelType | null>(null);
+    const [error, setError] = useState<string | null>(null);
     const [retryCount, setRetryCount] = useState(0);
 
     useEffect(() => {
         let mounted = true;
-        let channelInstance = null;
+        let channelInstance: ChannelType | null = null;
 
         const setup = async () => {
             try {
@@ -58,7 +65,7 @@ export default function ChatBox({ userId, landlordId, propertyId }) {
             } catch (err) {
                 console.error('Chat initialization error:', err);
                 if (mounted) {
-                    setError(err.message || 'Failed to load chat');
+                    setError(err instanceof Error ? err.message : 'Failed to load chat');
                 }
             }
         };
