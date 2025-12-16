@@ -7,6 +7,7 @@ export interface ApiSuccessResponse<T = any> {
     success: true;
     data: T;
     message?: string;
+    pagination?: PaginationMeta;  // Pagination can be at root level for paginated endpoints
 }
 
 export interface ApiErrorResponse {

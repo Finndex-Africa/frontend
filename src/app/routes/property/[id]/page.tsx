@@ -5,10 +5,11 @@ import { useParams } from "next/navigation";
 import toast, { Toaster } from 'react-hot-toast';
 import MediaCarousel from "@/components/domain/MediaCarousel";
 import Button from "@/components/ui/Button";
-import { MessageCircle, Calendar, Mail, ChevronDown, Lock } from 'lucide-react';
+import { MessageCircle, Calendar, Mail, Lock } from 'lucide-react';
 import { propertiesApi } from "@/services/api";
 import { Property as ApiProperty } from "@/types/dashboard";
 import { apiClient } from "@/lib/api-client";
+import ChatBox from "@/components/dashboard/ChatBox";
 
 // Default images based on property type
 const getDefaultImages = (type: string) => {
@@ -52,7 +53,6 @@ export default function PropertyDetail() {
     const [currentUser, setCurrentUser] = useState<{ id: string; firstName?: string; email?: string; phone?: string } | null>(null);
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [showContactModal, setShowContactModal] = useState(false);
-    const [showChat, setShowChat] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [bookingData, setBookingData] = useState({
         moveInDate: '',
@@ -92,6 +92,9 @@ export default function PropertyDetail() {
         try {
             setLoading(true);
             const { data } = await propertiesApi.getById(propertyId);
+            console.log('=== FULL PROPERTY DATA ===');
+            console.log('Property:', data);
+            console.log('=========================');
             setProperty(data);
             setError(null);
         } catch (error) {
@@ -391,6 +394,63 @@ export default function PropertyDetail() {
                             </div>
                         </section>
                     )}
+
+                    <section>
+                        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                            Customer Reviews
+                        </h2>
+
+                        {/* Sample Reviews - Replace with actual reviews from API */}
+                        <div className="space-y-3">
+                            {[
+                                {
+                                    name: "David Martinez",
+                                    date: "1 week ago",
+                                    rating: 5,
+                                    comment: "Excellent service! Very professional and completed the work on time. Highly recommended for anyone looking for quality service.",
+                                    avatar: "https://i.pravatar.cc/150?img=8"
+                                },
+                                {
+                                    name: "Lisa Anderson",
+                                    date: "3 weeks ago",
+                                    rating: 5,
+                                    comment: "Outstanding work! The service provider was knowledgeable, courteous, and went above and beyond. Will definitely use again.",
+                                    avatar: "https://i.pravatar.cc/150?img=9"
+                                },
+                                {
+                                    name: "James Wilson",
+                                    date: "1 month ago",
+                                    rating: 4,
+                                    comment: "Great service overall. Very satisfied with the results and the pricing was fair. Minor delay but communicated well.",
+                                    avatar: "https://i.pravatar.cc/150?img=13"
+                                }
+                            ].map((review, index) => (
+                                <div key={index} className="border border-gray-200 p-4 rounded-lg">
+                                    <div className="flex items-start gap-3">
+                                        <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                                            <img src={review.avatar} alt={review.name} className="w-full h-full object-cover" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex items-center justify-between mb-1">
+                                                <div>
+                                                    <p className="font-semibold text-gray-900 text-sm">{review.name}</p>
+                                                    <p className="text-xs text-gray-500">{review.date}</p>
+                                                </div>
+                                                <div className="flex items-center gap-0.5">
+                                                    {[...Array(review.rating)].map((_, i) => (
+                                                        <svg key={i} className="w-3 h-3 text-amber-400 fill-current" viewBox="0 0 24 24">
+                                                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                                                        </svg>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <p className="text-gray-600 text-sm leading-relaxed">{review.comment}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
                 </div>
 
                 {/* RIGHT SIDE */}
@@ -454,35 +514,8 @@ export default function PropertyDetail() {
                                         </button>
                                     </div>
 
-                                    {/* Message Section */}
-                                    {currentUser ? (
-                                        <div className="border-t border-gray-100">
-                                            <button
-                                                onClick={() => setShowChat(!showChat)}
-                                                className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors group"
-                                            >
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                                                        <MessageCircle className="w-4.5 h-4.5 text-blue-600" />
-                                                    </div>
-                                                    <span className="text-sm font-semibold text-gray-900">
-                                                        {showChat ? 'Hide Messages' : 'Send Message'}
-                                                    </span>
-                                                </div>
-                                                <ChevronDown
-                                                    className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${showChat ? 'rotate-180' : ''}`}
-                                                />
-                                            </button>
-
-                                            {showChat && (
-                                                <div className="px-5 pb-5">
-                                                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                                                        <p className="text-sm text-gray-600 text-center">Chat interface would appear here</p>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ) : (
+                                    {/* Message Section - Only show if user is not the landlord */}
+                                    {!currentUser ? (
                                         <div className="border-t border-gray-100 p-6 text-center bg-gray-50">
                                             <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
                                                 <MessageCircle className="w-7 h-7 text-gray-500" />
@@ -493,7 +526,62 @@ export default function PropertyDetail() {
                                                 Sign In to Chat
                                             </button>
                                         </div>
-                                    )}
+                                    ) : currentUser ? (
+                                        (() => {
+                                            // Use landlordId if available, otherwise fall back to agentId
+                                            // Handle both populated objects (with _id) and direct string IDs
+                                            let landlordIdValue = '';
+                                            if (typeof property.landlordId === 'string') {
+                                                landlordIdValue = property.landlordId;
+                                            } else if (property.landlordId && typeof property.landlordId === 'object' && (property.landlordId as any)._id) {
+                                                landlordIdValue = String((property.landlordId as any)._id);
+                                            }
+
+                                            let agentIdValue = '';
+                                            if (typeof property.agentId === 'string') {
+                                                agentIdValue = property.agentId;
+                                            } else if (property.agentId && typeof property.agentId === 'object' && (property.agentId as any)._id) {
+                                                agentIdValue = String((property.agentId as any)._id);
+                                            }
+
+                                            const landlordId = landlordIdValue || agentIdValue;
+                                            const isOwnProperty = landlordId === currentUser.id;
+
+                                            console.log('Chat Debug:', {
+                                                currentUserId: currentUser.id,
+                                                rawLandlordId: property.landlordId,
+                                                rawAgentId: property.agentId,
+                                                landlordIdValue,
+                                                agentIdValue,
+                                                landlordId: landlordId,
+                                                isOwnProperty: isOwnProperty,
+                                                propertyId: propertyId
+                                            });
+
+                                            // Don't show chat if it's the user's own property
+                                            if (isOwnProperty || !landlordId) {
+                                                return null;
+                                            }
+
+                                            return (
+                                                <div className="border-t border-gray-100 p-5">
+                                                    <div className="flex items-center gap-3 mb-4">
+                                                        <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center">
+                                                            <MessageCircle className="w-4.5 h-4.5 text-blue-600" />
+                                                        </div>
+                                                        <span className="text-sm font-semibold text-gray-900">
+                                                            Message Landlord
+                                                        </span>
+                                                    </div>
+                                                    <ChatBox
+                                                        userId={currentUser.id}
+                                                        landlordId={landlordId}
+                                                        propertyId={propertyId}
+                                                    />
+                                                </div>
+                                            );
+                                        })()
+                                    ) : null}
                                 </div>
 
                                 {/* Info Card */}

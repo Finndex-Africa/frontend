@@ -2,7 +2,7 @@ import { StreamChat } from "stream-chat";
 
 let client: StreamChat | null = null;
 
-export async function initChat(userId: string) {
+export async function initChat(userId: string, userName?: string, userImage?: string) {
     if (!client) {
         // Get the API key from environment
         const apiKey = process.env.NEXT_PUBLIC_STREAM_KEY;
@@ -18,7 +18,7 @@ export async function initChat(userId: string) {
         const response = await fetch('/api/chat/token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId }),
+            body: JSON.stringify({ userId, userName, userImage }),
         });
 
         if (!response.ok) {
@@ -27,11 +27,12 @@ export async function initChat(userId: string) {
 
         const { token } = await response.json();
 
-        // Connect the user
+        // Connect the user with proper name and image
         await client.connectUser(
             {
                 id: userId,
-                name: userId, // You can update this with actual user name if available
+                name: userName || userId,
+                image: userImage,
             },
             token
         );

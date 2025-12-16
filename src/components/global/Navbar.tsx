@@ -73,10 +73,22 @@ export default function Navbar() {
                 limit: 5,
                 page: 1
             });
-            setNotifications(response.data.data);
-            setUnreadCount(response.data.data.filter(n => !n.read).length);
+
+            const notificationsData = response?.data?.data || response?.data || [];
+
+            if (!Array.isArray(notificationsData)) {
+                console.error('Invalid notifications data format:', notificationsData);
+                setNotifications([]);
+                setUnreadCount(0);
+                return;
+            }
+
+            setNotifications(notificationsData);
+            setUnreadCount(notificationsData.filter(n => !n.read).length);
         } catch (error) {
             console.error('Failed to fetch notifications:', error);
+            setNotifications([]);
+            setUnreadCount(0);
         }
     };
 
@@ -222,7 +234,7 @@ export default function Navbar() {
                                         <div className="px-4 py-2 border-b border-gray-200">
                                             <h3 className="font-semibold text-gray-900">Notifications</h3>
                                         </div>
-                                        {notifications.length === 0 ? (
+                                        {!notifications || notifications.length === 0 ? (
                                             <div className="px-4 py-8 text-center text-gray-500">
                                                 <svg
                                                     className="w-12 h-12 mx-auto mb-2 text-gray-300"
@@ -464,7 +476,7 @@ export default function Navbar() {
                                 </svg>
                             </button>
                         </div>
-                        {notifications.length === 0 ? (
+                        {!notifications || notifications.length === 0 ? (
                             <div className="px-4 py-8 text-center text-gray-500">
                                 <svg className="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />

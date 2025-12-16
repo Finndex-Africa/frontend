@@ -165,7 +165,6 @@ export default function HomePage() {
                     status: 'approved',
                     sort: '-createdAt'  // Sort by most recent first
                 });
-                console.log('Properties API full response:', response);
                 // Handle both response structures: response.data.data or response.data
                 const propertiesData = response.data?.data || response.data;
                 const adaptedProperties = propertiesData.map(adaptPropertyToCard);
@@ -191,7 +190,6 @@ export default function HomePage() {
                     status: 'active',
                     sort: '-createdAt'  // Sort by most recent first
                 });
-                console.log('Services API full response:', response);
                 // Handle both response structures: response.data.data or response.data
                 const servicesData = response.data?.data || response.data;
                 const adaptedServices = servicesData.map(adaptServiceToCard);

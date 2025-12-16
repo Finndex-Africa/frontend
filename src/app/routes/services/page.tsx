@@ -57,7 +57,7 @@ function ServicesContent() {
     const [error, setError] = useState<string | null>(null);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const limit = 20;
+    const limit = 8;
 
     // Search form state
     const [searchLocation, setSearchLocation] = useState('');
@@ -104,18 +104,19 @@ function ServicesContent() {
 
             const response = await servicesApi.getAll(filters);
 
-            // Handle both response structures
+            // Handle both response structures:
+            // New: { success, data: [...], pagination: {...} }
+            // Old: { success, data: { data: [...], pagination: {...} } }
             const servicesData = response.data?.data || response.data;
-            const paginationData = response.data?.pagination;
+            const paginationData = response.pagination || response.data?.pagination;
 
             const adaptedServices = servicesData.map(adaptServiceToCard);
             setServices(adaptedServices);
 
             // Set total pages from pagination data
-            if (paginationData) {
-                setTotalPages(paginationData.totalPages || 1);
-            }
-            if (!paginationData) {
+            if (paginationData && paginationData.totalPages) {
+                setTotalPages(paginationData.totalPages);
+            } else {
                 setTotalPages(1);
             }
             setError(null);

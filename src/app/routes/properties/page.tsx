@@ -59,7 +59,7 @@ function PropertiesContent() {
     const [error, setError] = useState<string | null>(null);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const limit = 20;
+    const limit = 8;
 
     // Search form state
     const [searchLocation, setSearchLocation] = useState('');
@@ -106,18 +106,19 @@ function PropertiesContent() {
 
             const response = await propertiesApi.getAll(filters);
 
-            // Handle both response structures
+            // Handle both response structures:
+            // New: { success, data: [...], pagination: {...} }
+            // Old: { success, data: { data: [...], pagination: {...} } }
             const propertiesData = response.data?.data || response.data;
-            const paginationData = response.data?.pagination;
+            const paginationData = response.pagination || response.data?.pagination;
 
             const adaptedProperties = propertiesData.map(adaptPropertyToCard);
             setProperties(adaptedProperties);
 
             // Set total pages from pagination data
-            if (paginationData) {
-                setTotalPages(paginationData.totalPages || 1);
-            }
-            if (!paginationData) {
+            if (paginationData && paginationData.totalPages) {
+                setTotalPages(paginationData.totalPages);
+            } else {
                 setTotalPages(1);
             }
             setError(null);

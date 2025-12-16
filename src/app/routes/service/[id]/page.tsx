@@ -9,6 +9,8 @@ import MessageThread from "@/components/domain/MessageThread";
 import { servicesApi } from "@/services/api";
 import { Service as ApiService } from "@/types/dashboard";
 import { apiClient } from "@/lib/api-client";
+import { MessageCircle, Calendar, Mail, Lock } from 'lucide-react';
+import ChatBox from "@/components/dashboard/ChatBox";
 
 // Default images based on service category
 const getDefaultImages = (category: string) => {
@@ -211,7 +213,7 @@ export default function ServiceDetail() {
         : getDefaultImages(service.category);
 
     const media = images.map(src => ({ type: "image" as const, src }));
-
+    console.log(">>>>>service", service)
     return (
         <div className="min-h-screen bg-white">
             <Toaster position="top-center" />
@@ -231,22 +233,19 @@ export default function ServiceDetail() {
                         </div>
                         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mt-2">{service.title}</h1>
                         <p className="text-gray-600 text-base mt-1">{service.location}</p>
-
-                        <div className="flex items-center gap-2 mt-3">
-                            {service.rating && (
-                                <>
-                                    <svg className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 24 24">
-                                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                                    </svg>
-                                    <span className="text-gray-900 font-semibold text-base">{service.rating.toFixed(1)}</span>
-                                </>
-                            )}
-                            {service.status === 'active' && (
-                                <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full font-medium">
-                                    Active
-                                </span>
-                            )}
-                        </div>
+                        {service.rating && (
+                            <div className="flex items-center gap-2 mt-3">
+                                <svg className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 24 24">
+                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                                </svg>
+                                <span className="text-gray-900 font-semibold text-base">{service.rating.toFixed(1)}</span>
+                                {service.status === 'active' && (
+                                    <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full font-medium">
+                                        Active
+                                    </span>
+                                )}
+                            </div>
+                        )}
                     </header>
 
                     {/* ABOUT SERVICE */}
@@ -258,27 +257,34 @@ export default function ServiceDetail() {
                     </section>
 
                     {/* SERVICE PROVIDER INFO */}
+
                     {typeof service.provider === 'object' && service.provider && (
                         <section>
-                            <h2 className="text-lg font-semibold text-gray-900 mb-4">Provided by</h2>
-                            <div className="flex items-center gap-3 border border-gray-200 p-4 rounded-lg">
-                                <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gray-200">
-                                    <div className="w-full h-full flex items-center justify-center text-lg font-bold text-gray-600">
-                                        {service.provider.name?.charAt(0).toUpperCase() || 'P'}
+                            <h2 className="text-lg font-semibold text-gray-900 mb-4">Managed by</h2>
+                            <div className="flex items-start gap-3 border border-gray-200 p-4 rounded-lg">
+                                <div className="relative w-12 h-12 rounded-full overflow-hidden bg-linear-to-br from-blue-500 to-blue-600 shrink-0">
+                                    <div className="w-full h-full flex items-center justify-center text-lg font-bold text-white">
+                                        L
                                     </div>
                                 </div>
-                                <div>
-                                    <div className="flex items-center gap-2">
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
                                         <p className="font-semibold text-gray-900 text-sm">
-                                            {service.provider.name || 'Service Provider'}
+                                            Property Owner
                                         </p>
-                                        <span className="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full font-medium">
+                                        <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium">
                                             Verified
                                         </span>
                                     </div>
-                                    <p className="text-gray-500 text-xs mt-1">
-                                        {service.provider.email}
-                                    </p>
+                                    <p className="text-gray-500 text-xs">Registered landlord on Finndex Africa</p>
+                                    <div className="flex items-center gap-3 mt-2 text-xs text-gray-600">
+                                        <span className="flex items-center gap-1">
+                                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                                            </svg>
+                                            Identity Verified
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </section>
@@ -302,11 +308,6 @@ export default function ServiceDetail() {
                     <section>
                         <h2 className="text-lg font-semibold text-gray-900 mb-4">
                             Customer Reviews
-                            {service.rating && (
-                                <span className="ml-2 text-sm font-normal text-gray-600">
-                                    {service.rating.toFixed(1)} ★
-                                </span>
-                            )}
                         </h2>
 
                         {/* Sample Reviews - Replace with actual reviews from API */}
@@ -363,45 +364,138 @@ export default function ServiceDetail() {
                 </div>
 
                 {/* RIGHT SIDE */}
-                <aside className="lg:col-span-1">
-                    <div className="sticky top-24">
-                        {/* BOOKING CARD */}
-                        <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
-                            {/* Price Section */}
-                            <div className="pb-5 border-b border-gray-200">
-                                <div className="flex items-end gap-1 mb-4">
-                                    <div className="text-2xl font-bold text-gray-900">
-                                        ${service.price ? service.price.toLocaleString() : 'Contact for price'}
+                <div className="min-h-screen">
+                    <div className="max-w-sm mx-auto">
+                        <aside>
+                            <div className="sticky top-24">
+                                {/* CONTACT CARD */}
+                                <div className="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
+                                    {/* Price Section */}
+                                    <div className="p-6 bg-linear-to-br from-blue-50 to-white">
+                                        <div className="flex items-baseline gap-1.5">
+                                            <div className="text-4xl font-bold text-gray-900">
+                                                ${service.price ? service.price.toLocaleString() : 'Contact'}
+                                            </div>
+                                            {service.price && (
+                                                <span className="text-gray-500 text-base font-medium">/month</span>
+                                            )}
+                                        </div>
                                     </div>
-                                    {service.price && (
-                                        <span className="text-gray-600 text-sm">/service</span>
-                                    )}
-                                </div>
-                                {service.status === 'active' ? (
-                                    <Button
-                                        className="w-full h-11 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm"
-                                        onClick={handleBookService}
-                                        disabled={submitting}
-                                    >
-                                        {currentUser ? '📅 Book Service' : '🔒 Sign in to Book'}
-                                    </Button>
-                                ) : (
-                                    <div className="w-full h-11 flex items-center justify-center text-sm font-medium text-gray-500 bg-gray-100 rounded-lg border border-gray-200">
-                                        Service Not Available
-                                    </div>
-                                )}
-                                <Button className="w-full h-11 text-sm font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg mt-2 border border-gray-200">
-                                    {currentUser ? '✉️ Chat with Provider' : '🔒 Sign in to Chat'}
-                                </Button>
-                            </div>
 
-                            {/* Message Thread Section */}
-                            <div className="pt-5">
-                                <MessageThread />
+                                    {/* Action Buttons */}
+                                    <div className="p-6 space-y-3 border-t border-gray-100">
+                                        {service.status === 'active' ? (
+                                            <button className="w-full group relative overflow-hidden h-12 text-sm font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
+                                                onClick={() => handleBookService()}
+                                            >
+                                                <Calendar className="w-4 h-4" />
+                                                <span>{currentUser ? 'Book Viewing Now' : 'Sign in to Book'}</span>
+                                                {!currentUser && <Lock className="w-3.5 h-3.5" />}
+                                            </button>
+                                        ) : (
+                                            <div className="w-full h-12 flex items-center justify-center text-sm font-medium text-gray-500 bg-gray-100 rounded-lg border border-gray-200">
+                                                Service Not Available
+                                            </div>
+                                        )}
+
+                                        <button className="w-full h-12 text-sm font-semibold bg-white hover:bg-gray-50 text-gray-900 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-all duration-200 flex items-center justify-center gap-2 shadow-sm"
+                                            onClick={() => handleBookService()}
+                                        >
+                                            <Mail className="w-4 h-4" />
+                                            <span>{currentUser ? 'Contact Landlord' : 'Sign in to Contact'}</span>
+                                            {!currentUser && <Lock className="w-3.5 h-3.5" />}
+                                        </button>
+                                    </div>
+
+                                    {/* Message Section - Only show if user is not the service provider */}
+                                    {!currentUser ? (
+                                        <div className="border-t border-gray-100 p-6 text-center bg-gray-50">
+                                            <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                                                <MessageCircle className="w-7 h-7 text-gray-500" />
+                                            </div>
+                                            <p className="text-sm font-medium text-gray-900 mb-2">Message the Service Provider</p>
+                                            <p className="text-xs text-gray-500 mb-4">Sign in to start a conversation</p>
+                                            <button className="w-full h-10 text-sm font-semibold bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-colors shadow-sm">
+                                                Sign In to Chat
+                                            </button>
+                                        </div>
+                                    ) : currentUser ? (
+                                        (() => {
+                                            // Use provider if available, otherwise fall back to agentId or landlordId
+                                            // Handle both populated objects (with _id) and direct string IDs
+                                            let providerIdValue = '';
+                                            if (typeof service.provider === 'string') {
+                                                providerIdValue = service.provider;
+                                            } else if (service.provider && typeof service.provider === 'object' && (service.provider as any)._id) {
+                                                providerIdValue = String((service.provider as any)._id);
+                                            }
+
+                                            let agentIdValue = '';
+                                            if (typeof service.agentId === 'string') {
+                                                agentIdValue = service.agentId;
+                                            } else if (service.agentId && typeof service.agentId === 'object' && (service.agentId as any)._id) {
+                                                agentIdValue = String((service.agentId as any)._id);
+                                            }
+
+                                            let landlordIdValue = '';
+                                            if (typeof service.landlordId === 'string') {
+                                                landlordIdValue = service.landlordId;
+                                            } else if (service.landlordId && typeof service.landlordId === 'object' && (service.landlordId as any)._id) {
+                                                landlordIdValue = String((service.landlordId as any)._id);
+                                            }
+
+                                            const providerId = providerIdValue || agentIdValue || landlordIdValue;
+                                            const isOwnService = providerId === currentUser.id;
+
+                                            console.log('Service Chat Debug:', {
+                                                currentUserId: currentUser.id,
+                                                rawProvider: service.provider,
+                                                rawAgentId: service.agentId,
+                                                rawLandlordId: service.landlordId,
+                                                providerIdValue,
+                                                agentIdValue,
+                                                landlordIdValue,
+                                                providerId,
+                                                isOwnService,
+                                                serviceId
+                                            });
+
+                                            // Don't show chat if it's the user's own service
+                                            if (isOwnService || !providerId) {
+                                                return null;
+                                            }
+
+                                            return (
+                                                <div className="border-t border-gray-100 p-5">
+                                                    <div className="flex items-center gap-3 mb-4">
+                                                        <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center">
+                                                            <MessageCircle className="w-4.5 h-4.5 text-blue-600" />
+                                                        </div>
+                                                        <span className="text-sm font-semibold text-gray-900">
+                                                            Message Provider
+                                                        </span>
+                                                    </div>
+                                                    <ChatBox
+                                                        userId={currentUser.id}
+                                                        landlordId={providerId}
+                                                        propertyId={serviceId}
+                                                    />
+                                                </div>
+                                            );
+                                        })()
+                                    ) : null}
+                                </div>
+
+                                {/* Info Card */}
+                                <div className="mt-4 bg-blue-50 border border-blue-200 rounded-xl p-4">
+                                    <p className="text-xs text-blue-900 font-medium">
+                                        💡 <span className="font-semibold">Tip:</span> Book a viewing to see this property in person. Response time is usually within 24 hours.
+                                    </p>
+                                </div>
                             </div>
-                        </div>
+                        </aside>
                     </div>
-                </aside>
+                </div>
             </section>
 
             {/* Booking Modal */}
@@ -465,7 +559,7 @@ export default function ServiceDetail() {
                                     <input
                                         type="datetime-local"
                                         value={bookingData.scheduledDate}
-                                        onChange={(e) => setBookingData({...bookingData, scheduledDate: e.target.value})}
+                                        onChange={(e) => setBookingData({ ...bookingData, scheduledDate: e.target.value })}
                                         className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all hover:border-gray-300"
                                         min={new Date().toISOString().slice(0, 16)}
                                         required
@@ -482,7 +576,7 @@ export default function ServiceDetail() {
                                     </label>
                                     <select
                                         value={bookingData.duration}
-                                        onChange={(e) => setBookingData({...bookingData, duration: e.target.value})}
+                                        onChange={(e) => setBookingData({ ...bookingData, duration: e.target.value })}
                                         className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all hover:border-gray-300 cursor-pointer"
                                     >
                                         <option value="1">1 hour</option>
@@ -507,7 +601,7 @@ export default function ServiceDetail() {
                                     <input
                                         type="text"
                                         value={bookingData.serviceLocation}
-                                        onChange={(e) => setBookingData({...bookingData, serviceLocation: e.target.value})}
+                                        onChange={(e) => setBookingData({ ...bookingData, serviceLocation: e.target.value })}
                                         placeholder="Enter complete address where service is needed"
                                         className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all hover:border-gray-300"
                                         required
@@ -527,7 +621,7 @@ export default function ServiceDetail() {
                                     <input
                                         type="tel"
                                         value={bookingData.contactPhone}
-                                        onChange={(e) => setBookingData({...bookingData, contactPhone: e.target.value})}
+                                        onChange={(e) => setBookingData({ ...bookingData, contactPhone: e.target.value })}
                                         placeholder="+231 886 149 219"
                                         className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all hover:border-gray-300"
                                         required
@@ -547,7 +641,7 @@ export default function ServiceDetail() {
                                     <textarea
                                         rows={4}
                                         value={bookingData.notes}
-                                        onChange={(e) => setBookingData({...bookingData, notes: e.target.value})}
+                                        onChange={(e) => setBookingData({ ...bookingData, notes: e.target.value })}
                                         placeholder="Describe your requirements, any special instructions, or questions..."
                                         className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all hover:border-gray-300 resize-none"
                                     />
