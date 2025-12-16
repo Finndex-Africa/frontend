@@ -1,17 +1,16 @@
-import Image from "next/image";
-
 export default function Footer() {
     return (
         <footer className="bg-gray-100">
             <div className="container-app py-12 grid grid-cols-1 md:grid-cols-4 gap-8 text-sm">
                 <div>
                     <div className="mb-4">
-                        <Image
+                        <img
                             src="/images/logos/logo1.png"
                             alt="Finndex Africa"
                             width={150}
                             height={40}
                             className="object-contain"
+                            style={{ width: 'auto', height: '40px' }}
                         />
                     </div>
                     <p className="text-gray-600 mt-2">A digital real estate and services platform connecting seekers with trusted providers.</p>
