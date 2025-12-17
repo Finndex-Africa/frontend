@@ -48,9 +48,6 @@ export default function ChatBox({ userId, landlordId, propertyId }: ChatBoxProps
                 if (userId === landlordId) {
                     throw new Error('You cannot chat with yourself.');
                 }
-
-                console.log('Initializing chat with:', { userId, landlordId, propertyId });
-
                 // Initialize chat client
                 const chat = await initChat(userId);
 
@@ -68,12 +65,8 @@ export default function ChatBox({ userId, landlordId, propertyId }: ChatBoxProps
 
                 const { channelId } = await res.json();
 
-                console.log('Channel created/found:', channelId);
-
                 // Get the channel instance
-                channelInstance = chat.channel("messaging", channelId, {
-                    name: `Property Discussion`,
-                });
+                channelInstance = chat.channel("messaging", channelId);
                 await channelInstance.watch();
 
                 if (mounted) {

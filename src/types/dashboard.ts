@@ -24,6 +24,8 @@ export interface Service {
     rating?: number;
     images?: string[];
     provider?: string | { _id: string; name: string; email: string };
+    agentId?: string | { _id: string; name: string; email: string };
+    landlordId?: string | { _id: string; name: string; email: string };
     createdAt: string;
     updatedAt: string;
 }

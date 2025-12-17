@@ -10,6 +10,7 @@ import { propertiesApi } from "@/services/api";
 import { Property as ApiProperty } from "@/types/dashboard";
 import { apiClient } from "@/lib/api-client";
 import ChatBox from "@/components/dashboard/ChatBox";
+import ReviewsList from "@/components/reviews/ReviewsList";
 
 // Default images based on property type
 const getDefaultImages = (type: string) => {
@@ -92,9 +93,6 @@ export default function PropertyDetail() {
         try {
             setLoading(true);
             const { data } = await propertiesApi.getById(propertyId);
-            console.log('=== FULL PROPERTY DATA ===');
-            console.log('Property:', data);
-            console.log('=========================');
             setProperty(data);
             setError(null);
         } catch (error) {
@@ -396,60 +394,11 @@ export default function PropertyDetail() {
                     )}
 
                     <section>
-                        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                            Customer Reviews
-                        </h2>
-
-                        {/* Sample Reviews - Replace with actual reviews from API */}
-                        <div className="space-y-3">
-                            {[
-                                {
-                                    name: "David Martinez",
-                                    date: "1 week ago",
-                                    rating: 5,
-                                    comment: "Excellent service! Very professional and completed the work on time. Highly recommended for anyone looking for quality service.",
-                                    avatar: "https://i.pravatar.cc/150?img=8"
-                                },
-                                {
-                                    name: "Lisa Anderson",
-                                    date: "3 weeks ago",
-                                    rating: 5,
-                                    comment: "Outstanding work! The service provider was knowledgeable, courteous, and went above and beyond. Will definitely use again.",
-                                    avatar: "https://i.pravatar.cc/150?img=9"
-                                },
-                                {
-                                    name: "James Wilson",
-                                    date: "1 month ago",
-                                    rating: 4,
-                                    comment: "Great service overall. Very satisfied with the results and the pricing was fair. Minor delay but communicated well.",
-                                    avatar: "https://i.pravatar.cc/150?img=13"
-                                }
-                            ].map((review, index) => (
-                                <div key={index} className="border border-gray-200 p-4 rounded-lg">
-                                    <div className="flex items-start gap-3">
-                                        <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
-                                            <img src={review.avatar} alt={review.name} className="w-full h-full object-cover" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <div className="flex items-center justify-between mb-1">
-                                                <div>
-                                                    <p className="font-semibold text-gray-900 text-sm">{review.name}</p>
-                                                    <p className="text-xs text-gray-500">{review.date}</p>
-                                                </div>
-                                                <div className="flex items-center gap-0.5">
-                                                    {[...Array(review.rating)].map((_, i) => (
-                                                        <svg key={i} className="w-3 h-3 text-amber-400 fill-current" viewBox="0 0 24 24">
-                                                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                                                        </svg>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                            <p className="text-gray-600 text-sm leading-relaxed">{review.comment}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                        <ReviewsList
+                            itemType="property"
+                            itemId={propertyId}
+                            itemTitle={property?.title}
+                        />
                     </section>
                 </div>
 
@@ -546,18 +495,6 @@ export default function PropertyDetail() {
 
                                             const landlordId = landlordIdValue || agentIdValue;
                                             const isOwnProperty = landlordId === currentUser.id;
-
-                                            console.log('Chat Debug:', {
-                                                currentUserId: currentUser.id,
-                                                rawLandlordId: property.landlordId,
-                                                rawAgentId: property.agentId,
-                                                landlordIdValue,
-                                                agentIdValue,
-                                                landlordId: landlordId,
-                                                isOwnProperty: isOwnProperty,
-                                                propertyId: propertyId
-                                            });
-
                                             // Don't show chat if it's the user's own property
                                             if (isOwnProperty || !landlordId) {
                                                 return null;
