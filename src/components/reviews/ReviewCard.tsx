@@ -103,7 +103,7 @@ export default function ReviewCard({ review, onUpdate, showOwnerReply = true }: 
                 <div className="flex gap-4">
                     {/* Avatar */}
                     <div className="flex-shrink-0">
-                        <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center overflow-hidden">
+                        <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
                             {review.userId.avatar ? (
                                 <img
                                     src={review.userId.avatar}
@@ -111,7 +111,7 @@ export default function ReviewCard({ review, onUpdate, showOwnerReply = true }: 
                                     className="w-full h-full object-cover"
                                 />
                             ) : (
-                                <span className="text-purple-600 font-semibold text-lg">
+                                <span className="text-blue-600 font-semibold text-lg">
                                     {review.userId.firstName?.charAt(0) || ''}
                                     {review.userId.lastName?.charAt(0) || 'U'}
                                 </span>
@@ -164,7 +164,7 @@ export default function ReviewCard({ review, onUpdate, showOwnerReply = true }: 
                             <button
                                 onClick={handleMarkHelpful}
                                 className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${
-                                    isHelpful ? 'text-purple-600' : 'text-gray-600 hover:text-purple-600'
+                                    isHelpful ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'
                                 }`}
                             >
                                 <ThumbsUp className={`w-4 h-4 ${isHelpful ? 'fill-current' : ''}`} />
@@ -194,9 +194,9 @@ export default function ReviewCard({ review, onUpdate, showOwnerReply = true }: 
 
                         {/* Owner Reply */}
                         {showOwnerReply && review.ownerReply && (
-                            <div className="mt-4 bg-gray-50 p-4 rounded-lg border-l-4 border-purple-500">
+                            <div className="mt-4 bg-gray-50 p-4 rounded-lg border-l-4 border-blue-500">
                                 <div className="flex items-center gap-2 mb-2">
-                                    <MessageSquare className="w-4 h-4 text-purple-600" />
+                                    <MessageSquare className="w-4 h-4 text-blue-600" />
                                     <p className="font-semibold text-gray-900">Owner&apos;s Response</p>
                                 </div>
                                 <p className="text-gray-700">{review.ownerReply}</p>
@@ -224,7 +224,7 @@ export default function ReviewCard({ review, onUpdate, showOwnerReply = true }: 
                         onChange={(e) => setReportReason(e.target.value)}
                         placeholder="e.g., Inappropriate content, spam, false information..."
                         rows={4}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                     />
                     <div className="flex gap-3 justify-end">
                         <button

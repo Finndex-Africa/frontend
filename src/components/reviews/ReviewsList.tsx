@@ -147,7 +147,7 @@ export default function ReviewsList({ itemType, itemId, itemTitle }: ReviewsList
                     <select
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest' | 'highest' | 'lowest' | 'helpful')}
-                        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                         <option value="newest">Most Recent</option>
                         <option value="helpful">Most Helpful</option>
@@ -162,7 +162,7 @@ export default function ReviewsList({ itemType, itemId, itemTitle }: ReviewsList
                     <select
                         value={filterRating || ''}
                         onChange={(e) => setFilterRating(e.target.value ? Number(e.target.value) : undefined)}
-                        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                         <option value="">All Ratings</option>
                         <option value="5">5 Stars</option>
@@ -177,7 +177,7 @@ export default function ReviewsList({ itemType, itemId, itemTitle }: ReviewsList
             {/* Reviews List */}
             {loading ? (
                 <div className="text-center py-12">
-                    <div className="inline-block w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin" />
+                    <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
                     <p className="mt-4 text-gray-600">Loading reviews...</p>
                 </div>
             ) : reviews.length === 0 ? (
@@ -220,7 +220,7 @@ export default function ReviewsList({ itemType, itemId, itemTitle }: ReviewsList
                                                 key={page}
                                                 onClick={() => setCurrentPage(page)}
                                                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${page === currentPage
-                                                    ? 'bg-purple-600 text-white'
+                                                    ? 'bg-blue-600 text-white'
                                                     : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
                                                     }`}
                                             >

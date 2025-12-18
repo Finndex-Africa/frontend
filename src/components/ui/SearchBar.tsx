@@ -37,13 +37,13 @@ export default function SearchBar() {
     };
 
     return (
-        <div className="w-full max-w-5xl mx-auto">
+        <div className="w-full max-w-5xl mx-auto px-2 sm:px-0">
             {/* Tabs */}
             <div className="flex justify-center mb-4">
                 <div className="bg-blue-600 rounded-full p-1 inline-flex gap-1">
                     <button
                         onClick={() => handleTabChange("homes")}
-                        className={`px-8 py-2 rounded-full text-sm font-semibold transition-colors ${activeTab === "homes"
+                        className={`px-4 sm:px-8 py-2 rounded-full text-sm font-semibold transition-colors ${activeTab === "homes"
                             ? "bg-white text-blue-600"
                             : "bg-blue-600 text-white"
                             }`}
@@ -52,7 +52,7 @@ export default function SearchBar() {
                     </button>
                     <button
                         onClick={() => handleTabChange("services")}
-                        className={`px-8 py-2 rounded-full text-sm font-semibold transition-colors ${activeTab === "services"
+                        className={`px-4 sm:px-8 py-2 rounded-full text-sm font-semibold transition-colors ${activeTab === "services"
                             ? "bg-white text-blue-600"
                             : "bg-blue-600 text-white"
                             }`}
@@ -63,9 +63,9 @@ export default function SearchBar() {
             </div>
 
             {/* Search Bar */}
-            <div className="bg-white rounded-2xl shadow-xl p-6">
+            <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6">
                 <form onSubmit={handleSearch}>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                         {/* Location */}
                         <div>
                             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">

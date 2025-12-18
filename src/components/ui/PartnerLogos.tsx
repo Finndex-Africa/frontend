@@ -12,18 +12,18 @@ export default function PartnerLogos({
     partners,
 }: PartnerLogosProps) {
     return (
-        <div className="w-full overflow-hidden py-4">
-            <div className="flex items-center gap-12 animate-scroll">
+        <div className="w-full overflow-hidden py-2 sm:py-4">
+            <div className="flex items-center gap-4 sm:gap-8 md:gap-12 animate-scroll">
                 {/* First set of logos */}
                 {partners.map((partner, index) => (
                     <div
                         key={index}
-                        className="flex items-center justify-center h-12 min-w-[100px] flex-shrink-0"
+                        className="flex items-center justify-center min-w-[110px] sm:min-w-[100px] flex-shrink-0"
                     >
                         <img
                             src={partner.logoUrl}
                             alt={partner.name}
-                            className="h-full w-auto object-contain opacity-40 hover:opacity-100 transition-opacity duration-300"
+                            className="w-[110px] sm:w-auto sm:h-10 md:h-12 object-contain opacity-50 hover:opacity-100 transition-opacity duration-300"
                         />
                     </div>
                 ))}
@@ -31,12 +31,12 @@ export default function PartnerLogos({
                 {partners.map((partner, index) => (
                     <div
                         key={`duplicate-${index}`}
-                        className="flex items-center justify-center h-12 min-w-[100px] flex-shrink-0"
+                        className="flex items-center justify-center min-w-[110px] sm:min-w-[100px] flex-shrink-0"
                     >
                         <img
                             src={partner.logoUrl}
                             alt={partner.name}
-                            className="h-full w-auto object-contain opacity-40 hover:opacity-100 transition-opacity duration-300"
+                            className="w-[110px] sm:w-auto sm:h-10 md:h-12 object-contain opacity-50 hover:opacity-100 transition-opacity duration-300"
                         />
                     </div>
                 ))}
