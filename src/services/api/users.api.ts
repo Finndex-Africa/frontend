@@ -50,4 +50,14 @@ export const usersApi = {
     getMe: async () => {
         return apiClient.get<User>('/auth/me');
     },
+
+    // Update current user profile
+    updateProfile: async (data: { firstName?: string; lastName?: string; phone?: string; avatar?: string }) => {
+        return apiClient.put<User>('/users/profile', data);
+    },
+
+    // Change password
+    changePassword: async (data: { currentPassword: string; newPassword: string }) => {
+        return apiClient.post<{ message: string }>('/auth/change-password', data);
+    },
 };

@@ -161,7 +161,7 @@ export default function HomePage() {
                 setLoadingProperties(true);
                 const response = await propertiesApi.getAll({
                     page: 1,
-                    limit: 15,
+                    limit: 20,
                     status: 'approved',
                     sort: '-createdAt'  // Sort by most recent first
                 });
@@ -186,7 +186,7 @@ export default function HomePage() {
                 setLoadingServices(true);
                 const response = await servicesApi.getAll({
                     page: 1,
-                    limit: 10,
+                    limit: 20,
                     status: 'active',
                     sort: '-createdAt'  // Sort by most recent first
                 });

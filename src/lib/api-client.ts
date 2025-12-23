@@ -83,6 +83,11 @@ class ApiClient {
         return response.data;
     }
 
+    async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiSuccessResponse<T>> {
+        const response: AxiosResponse<ApiSuccessResponse<T>> = await this.client.put(url, data, config);
+        return response.data;
+    }
+
     async patch<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiSuccessResponse<T>> {
         const response: AxiosResponse<ApiSuccessResponse<T>> = await this.client.patch(url, data, config);
         return response.data;

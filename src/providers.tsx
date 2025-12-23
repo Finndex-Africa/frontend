@@ -5,7 +5,7 @@ import { logDebug } from '@/utils/persistentLogger';
 import { ToastProvider } from "./components/ui/Toast";
 
 // Simple role/auth context for Navbar links and conditional UI
-export type Role = "guest" | "seeker" | "landlord" | "provider" | "admin";
+export type Role = "guest" | "seeker" | "home_seeker" | "landlord" | "provider" | "admin";
 type AuthContextType = { role: Role; setRole: (r: Role) => void };
 const AuthContext = createContext<AuthContextType | null>(null);
 export function useAuth() {
@@ -49,9 +49,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
                     agent: 'landlord',
                     landlord: 'landlord',
                     service_provider: 'provider',
-                    home_seeker: 'seeker',
+                    home_seeker: 'home_seeker',
                 };
-                setRoleState(roleMap[userData.userType] || 'guest');
+                // Check both userType and role fields for compatibility
+                const userRole = userData.userType || userData.role;
+                setRoleState(roleMap[userRole] || 'guest');
             } catch (e) {
                 console.error('Failed to parse user data:', e);
             }

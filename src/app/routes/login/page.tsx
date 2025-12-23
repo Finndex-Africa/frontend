@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Eye, EyeOff, Mail, Lock, Phone } from 'lucide-react';
@@ -12,7 +13,8 @@ type UserType = 'HomeSeeker' | 'Landlord' | 'ServiceProvider';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export default function AuthPage() {
-    const { setRole } = useAuth();
+    const router = useRouter();
+    const { setRole, role } = useAuth();
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -25,6 +27,14 @@ export default function AuthPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+
+    // Redirect to home if already logged in
+    useEffect(() => {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        if (token && role !== 'guest') {
+            router.push('/');
+        }
+    }, [role, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -70,7 +80,7 @@ export default function AuthPage() {
                     agent: 'landlord',
                     landlord: 'landlord',
                     service_provider: 'provider',
-                    home_seeker: 'seeker',
+                    home_seeker: 'home_seeker',
                 };
                 setRole(roleMap[data.data.user.userType] || 'guest');
                 console.log('✅ Role set:', roleMap[data.data.user.userType] || 'guest');
