@@ -396,8 +396,8 @@ export default function Navbar() {
                                             </>
                                         )}
 
-                                        {/* Provider/Landlord Menu */}
-                                        {(role === 'provider' || role === 'landlord') && (
+                                        {/* Landlord Menu */}
+                                        {role === 'landlord' && (
                                             <>
                                                 <button
                                                     onClick={() => {
@@ -711,8 +711,8 @@ export default function Navbar() {
                                             </>
                                         )}
 
-                                        {/* Provider/Landlord Menu */}
-                                        {(role === 'provider' || role === 'landlord') && (
+                                        {/* Landlord Menu */}
+                                        {role === 'landlord' && (
                                             <>
                                                 <Button
                                                     variant="ghost"
