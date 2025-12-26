@@ -18,8 +18,8 @@ import {
 import 'stream-chat-react/dist/css/v2/index.css';
 
 // Custom channel preview component
-const CustomChannelPreview = (props: ChannelPreviewUIComponentProps) => {
-    const { channel, setActiveChannel, activeChannel } = props;
+const CustomChannelPreview = (props: ChannelPreviewUIComponentProps & { onMobileClick?: () => void }) => {
+    const { channel, setActiveChannel, activeChannel, onMobileClick } = props;
     const { client } = useChatContext();
 
     if (!channel) return null;
@@ -65,6 +65,7 @@ const CustomChannelPreview = (props: ChannelPreviewUIComponentProps) => {
 
     const handleClick = () => {
         setActiveChannel?.(channel);
+        onMobileClick?.(); // Trigger mobile view change
     };
 
     return (
@@ -126,6 +127,7 @@ export default function MessagesPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [user, setUser] = useState<any>(null);
+    const [showChat, setShowChat] = useState(false); // For mobile view toggle
 
     useEffect(() => {
         const userData = localStorage.getItem('user') || sessionStorage.getItem('user');
@@ -264,38 +266,41 @@ export default function MessagesPage() {
     const sort = [{ last_message_at: -1 }] as const;
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8">
-            <div className="px-4 max-w-7xl mx-auto">
-                <div className="mb-8">
-                    <h1 className="text-4xl font-bold text-gray-900">Messages</h1>
-                    <p className="mt-2 text-gray-600">Communicate with property owners and service providers</p>
+        <div className="min-h-screen bg-gray-50 py-4 md:py-8 pb-20 md:pb-8">
+            <div className="px-2 sm:px-4 max-w-7xl mx-auto">
+                <div className="mb-4 md:mb-8 px-2">
+                    <h1 className="text-2xl md:text-4xl font-bold text-gray-900">Messages</h1>
+                    <p className="mt-1 md:mt-2 text-sm md:text-base text-gray-600">Communicate with property owners and service providers</p>
                 </div>
 
                 <div
-                    className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200"
+                    className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200 mb-4"
                     style={{
-                        height: 'calc(100vh - 240px)',
-                        minHeight: '600px'
+                        height: 'calc(100vh - 180px)',
+                        minHeight: '500px'
                     }}
                 >
                     <Chat client={client} theme="str-chat__theme-light">
-                        <div style={{ display: 'flex', height: '100%' }}>
+                        <div className="flex h-full relative">
                             {/* Left sidebar - Channel List */}
-                            <div style={{
-                                width: '360px',
-                                borderRight: '1px solid #e8e8e8',
-                                flexShrink: 0,
-                                overflow: 'hidden'
-                            }}>
+                            <div className={`
+                                w-full md:w-80 lg:w-96 border-r border-gray-200 shrink-0 overflow-hidden
+                                ${showChat ? 'hidden md:block' : 'block'}
+                            `}>
                                 <ChannelList
                                     filters={filters}
                                     sort={sort}
                                     options={{ limit: 20 }}
-                                    Preview={CustomChannelPreview}
+                                    Preview={(props) => (
+                                        <CustomChannelPreview
+                                            {...props}
+                                            onMobileClick={() => setShowChat(true)}
+                                        />
+                                    )}
                                     EmptyStateIndicator={() => (
                                         <div className="flex flex-col items-center justify-center py-16 px-4">
                                             <svg
-                                                className="w-20 h-20 text-gray-300 mb-4"
+                                                className="w-16 md:w-20 h-16 md:h-20 text-gray-300 mb-4"
                                                 fill="none"
                                                 stroke="currentColor"
                                                 viewBox="0 0 24 24"
@@ -307,10 +312,10 @@ export default function MessagesPage() {
                                                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                                                 />
                                             </svg>
-                                            <p className="text-center text-gray-600 font-medium">
+                                            <p className="text-center text-gray-600 font-medium text-sm md:text-base">
                                                 No messages yet
                                             </p>
-                                            <p className="text-center text-gray-500 text-sm mt-1">
+                                            <p className="text-center text-gray-500 text-xs md:text-sm mt-1">
                                                 Your conversations will appear here
                                             </p>
                                         </div>
@@ -319,10 +324,35 @@ export default function MessagesPage() {
                             </div>
 
                             {/* Right side - Active Chat */}
-                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                            <div className={`
+                                flex-1 flex-col
+                                ${showChat ? 'flex' : 'hidden md:flex'}
+                            `}>
                                 <Channel>
                                     <Window>
-                                        <ChannelHeader />
+                                        {/* Custom Mobile Header with Back Button */}
+                                        <div className="md:hidden">
+                                            <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200 bg-white">
+                                                <button
+                                                    onClick={() => setShowChat(false)}
+                                                    className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
+                                                    aria-label="Back to conversations"
+                                                >
+                                                    <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                                                    </svg>
+                                                </button>
+                                                <div className="flex-1">
+                                                    <ChannelHeader />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Desktop Header */}
+                                        <div className="hidden md:block">
+                                            <ChannelHeader />
+                                        </div>
+
                                         <MessageList />
                                         <MessageInput />
                                     </Window>

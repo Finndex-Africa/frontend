@@ -19,6 +19,7 @@ export default function NewPropertyPage() {
         area: '',
         furnished: false,
     });
+    const [amenities, setAmenities] = useState<string[]>([]);
     const [imageFiles, setImageFiles] = useState<File[]>([]);
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
@@ -55,6 +56,14 @@ export default function NewPropertyPage() {
         setImagePreviews(prev => prev.filter((_, i) => i !== index));
     };
 
+    const toggleAmenity = (amenity: string) => {
+        setAmenities(prev =>
+            prev.includes(amenity)
+                ? prev.filter(a => a !== amenity)
+                : [...prev, amenity]
+        );
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -81,6 +90,7 @@ export default function NewPropertyPage() {
                 area: formData.area ? Number(formData.area) : undefined,
                 furnished: formData.furnished,
                 images: imageUrls,
+                amenities: amenities.length > 0 ? amenities : undefined,
             };
 
             await propertiesApi.create(propertyData);
@@ -263,6 +273,54 @@ export default function NewPropertyPage() {
                                     placeholder="e.g., 120"
                                 />
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Amenities */}
+                    <div className="mb-8">
+                        <h2 className="text-xl font-semibold text-gray-900 mb-4">Amenities</h2>
+                        <p className="text-sm text-gray-600 mb-4">Select the amenities available in this property</p>
+
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                            {[
+                                { value: 'Water', icon: '💧' },
+                                { value: 'Electricity', icon: '⚡' },
+                                { value: 'WiFi', icon: '📶' },
+                                { value: 'Parking', icon: '🚗' },
+                                { value: 'Security', icon: '🔒' },
+                                { value: 'Swimming Pool', icon: '🏊' },
+                                { value: 'Gym', icon: '💪' },
+                                { value: 'Garden', icon: '🌳' },
+                                { value: 'Balcony', icon: '🏠' },
+                                { value: 'Air Conditioning', icon: '❄️' },
+                                { value: 'Heating', icon: '🔥' },
+                                { value: 'Laundry', icon: '🧺' },
+                                { value: 'Elevator', icon: '🛗' },
+                                { value: 'Generator', icon: '⚙️' },
+                                { value: 'CCTV', icon: '📹' },
+                                { value: 'Gate', icon: '🚪' },
+                            ].map((amenity) => (
+                                <button
+                                    key={amenity.value}
+                                    type="button"
+                                    onClick={() => toggleAmenity(amenity.value)}
+                                    className={`
+                                        px-4 py-3 rounded-lg border-2 transition-all text-left flex items-center gap-2
+                                        ${amenities.includes(amenity.value)
+                                            ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                            : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                                        }
+                                    `}
+                                >
+                                    <span className="text-xl">{amenity.icon}</span>
+                                    <span className="text-sm font-medium">{amenity.value}</span>
+                                    {amenities.includes(amenity.value) && (
+                                        <svg className="w-5 h-5 ml-auto text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                    )}
+                                </button>
+                            ))}
                         </div>
                     </div>
 

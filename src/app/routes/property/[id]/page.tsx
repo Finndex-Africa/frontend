@@ -364,7 +364,17 @@ export default function PropertyDetail() {
                     {property.landlordId && (
                         <section>
                             <h2 className="text-lg font-semibold text-gray-900 mb-4">Managed by</h2>
-                            <div className="flex items-start gap-3 border border-gray-200 p-4 rounded-lg">
+                            <button
+                                onClick={() => {
+                                    const landlordIdValue = typeof property.landlordId === 'string'
+                                        ? property.landlordId
+                                        : (property.landlordId as any)?._id;
+                                    if (landlordIdValue) {
+                                        window.location.href = `/routes/profile-view/${landlordIdValue}`;
+                                    }
+                                }}
+                                className="w-full flex items-start gap-3 border border-gray-200 p-4 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all cursor-pointer text-left"
+                            >
                                 <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 flex-shrink-0">
                                     <div className="w-full h-full flex items-center justify-center text-lg font-bold text-white">
                                         L
@@ -387,9 +397,15 @@ export default function PropertyDetail() {
                                             </svg>
                                             Identity Verified
                                         </span>
+                                        <span className="flex items-center gap-1 text-blue-600 font-medium">
+                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            </svg>
+                                            View Profile
+                                        </span>
                                     </div>
                                 </div>
-                            </div>
+                            </button>
                         </section>
                     )}
 

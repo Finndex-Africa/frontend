@@ -31,9 +31,9 @@ export const usersApi = {
         return apiClient.get<PaginatedResponse<User>>(`/admin/users?${params.toString()}`);
     },
 
-    // Get single user by ID (Admin only)
+    // Get single user by ID (Public - no auth required)
     getById: async (id: string) => {
-        return apiClient.get<User>(`/admin/users/${id}`);
+        return apiClient.get<User>(`/users/${id}`);
     },
 
     // Update user (Admin only)

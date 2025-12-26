@@ -16,7 +16,7 @@ function safeParse(raw: string | null) {
   if (!raw) return [] as DebugEntry[];
   try {
     return JSON.parse(raw) as DebugEntry[];
-  } catch (err) {
+  } catch (_err) {
     // reset invalid storage
     localStorage.removeItem(STORAGE_KEY);
     return [] as DebugEntry[];
@@ -31,10 +31,10 @@ export function logDebug(message: string, meta?: any) {
     // keep last 200 entries to avoid unbounded growth
     if (arr.length > 200) arr.splice(0, arr.length - 200);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
-  } catch (err) {
+  } catch (_err) {
     // best-effort
     // eslint-disable-next-line no-console
-    console.error('Failed to persist debug log', err);
+    console.error('Failed to persist debug log');
   }
 }
 
@@ -45,9 +45,9 @@ export function logInfo(message: string, meta?: any) {
     arr.push({ ts: new Date().toISOString(), level: 'info', message, meta });
     if (arr.length > 200) arr.splice(0, arr.length - 200);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
-  } catch (err) {
+  } catch (_err) {
     // eslint-disable-next-line no-console
-    console.error('Failed to persist info log', err);
+    console.error('Failed to persist info log');
   }
 }
 
@@ -58,9 +58,9 @@ export function logError(message: string, meta?: any) {
     arr.push({ ts: new Date().toISOString(), level: 'error', message, meta });
     if (arr.length > 200) arr.splice(0, arr.length - 200);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
-  } catch (err) {
+  } catch (_err) {
     // eslint-disable-next-line no-console
-    console.error('Failed to persist error log', err);
+    console.error('Failed to persist error log');
   }
 }
 
@@ -68,7 +68,7 @@ export function getLogs(): DebugEntry[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     return safeParse(raw);
-  } catch (err) {
+  } catch (_err) {
     return [];
   }
 }
@@ -76,15 +76,17 @@ export function getLogs(): DebugEntry[] {
 export function clearLogs() {
   try {
     localStorage.removeItem(STORAGE_KEY);
-  } catch (err) {
+  } catch (_err) {
     // ignore
   }
 }
 
-export default {
+const loggerExport = {
   logDebug,
   logInfo,
   logError,
   getLogs,
   clearLogs,
 };
+
+export default loggerExport;

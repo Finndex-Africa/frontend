@@ -59,7 +59,7 @@ function PropertiesContent() {
     const [error, setError] = useState<string | null>(null);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const limit = 8;
+    const limit = 20;
 
     // Search form state
     const [searchLocation, setSearchLocation] = useState('');

@@ -72,8 +72,14 @@ export function SafeImage({
     return (
       <Image
         src={imgSrc}
+        alt={alt}
         fill
-        {...commonProps}
+        className={className}
+        priority={priority}
+        sizes={sizes}
+        style={style}
+        onError={handleError}
+        onLoad={onLoad}
       />
     );
   }
@@ -81,9 +87,15 @@ export function SafeImage({
   return (
     <Image
       src={imgSrc}
+      alt={alt}
       width={width || 800}
       height={height || 600}
-      {...commonProps}
+      className={className}
+      priority={priority}
+      sizes={sizes}
+      style={style}
+      onError={handleError}
+      onLoad={onLoad}
     />
   );
 }

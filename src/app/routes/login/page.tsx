@@ -8,7 +8,7 @@ import { Eye, EyeOff, Mail, Lock, Phone } from 'lucide-react';
 import { useAuth } from '@/providers';
 import type { Role } from '@/providers';
 
-type UserType = 'HomeSeeker' | 'Landlord' | 'ServiceProvider';
+type UserType = 'HomeSeeker' | 'Agent' | 'ServiceProvider';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -92,8 +92,8 @@ export default function AuthPage() {
                 // Sign up - Map userType to backend enum
                 const userTypeMap: Record<UserType, string> = {
                     'HomeSeeker': 'home_seeker',
-                    // Backend uses 'agent' role for property owners/landlords
-                    'Landlord': 'agent',
+                    // Backend uses 'agent' role for property agents
+                    'Agent': 'agent',
                     'ServiceProvider': 'service_provider',
                 };
 
@@ -205,7 +205,7 @@ export default function AuthPage() {
                                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                                 >
                                     <option value="HomeSeeker">Home Seeker</option>
-                                    <option value="Landlord">Landlord / Agent</option>
+                                    <option value="Agent">Agent</option>
                                     <option value="ServiceProvider">Service Provider</option>
                                 </select>
                             </div>

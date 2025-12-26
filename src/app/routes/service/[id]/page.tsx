@@ -262,22 +262,32 @@ export default function ServiceDetail() {
                     {typeof service.provider === 'object' && service.provider && (
                         <section>
                             <h2 className="text-lg font-semibold text-gray-900 mb-4">Managed by</h2>
-                            <div className="flex items-start gap-3 border border-gray-200 p-4 rounded-lg">
-                                <div className="relative w-12 h-12 rounded-full overflow-hidden bg-linear-to-br from-blue-500 to-blue-600 shrink-0">
+                            <button
+                                onClick={() => {
+                                    const providerIdValue = typeof service.provider === 'string'
+                                        ? service.provider
+                                        : (service.provider as any)?._id;
+                                    if (providerIdValue) {
+                                        window.location.href = `/routes/profile-view/${providerIdValue}`;
+                                    }
+                                }}
+                                className="w-full flex items-start gap-3 border border-gray-200 p-4 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-all cursor-pointer text-left"
+                            >
+                                <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-purple-500 to-purple-600 shrink-0">
                                     <div className="w-full h-full flex items-center justify-center text-lg font-bold text-white">
-                                        L
+                                        P
                                     </div>
                                 </div>
                                 <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-1">
                                         <p className="font-semibold text-gray-900 text-sm">
-                                            Property Owner
+                                            Service Provider
                                         </p>
                                         <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium">
                                             Verified
                                         </span>
                                     </div>
-                                    <p className="text-gray-500 text-xs">Registered landlord on Finndex Africa</p>
+                                    <p className="text-gray-500 text-xs">Registered service provider on Finndex Africa</p>
                                     <div className="flex items-center gap-3 mt-2 text-xs text-gray-600">
                                         <span className="flex items-center gap-1">
                                             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
@@ -285,9 +295,15 @@ export default function ServiceDetail() {
                                             </svg>
                                             Identity Verified
                                         </span>
+                                        <span className="flex items-center gap-1 text-purple-600 font-medium">
+                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            </svg>
+                                            View Profile
+                                        </span>
                                     </div>
                                 </div>
-                            </div>
+                            </button>
                         </section>
                     )}
 

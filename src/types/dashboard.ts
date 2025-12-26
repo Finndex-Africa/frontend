@@ -20,8 +20,10 @@ export interface Service {
     category: string;
     location: string;
     price: number;
+    priceUnit?: string;
     status: 'pending' | 'active' | 'rejected' | 'inactive';
     rating?: number;
+    views?: number;
     images?: string[];
     provider?: string | { _id: string; name: string; email: string };
     agentId?: string | { _id: string; name: string; email: string };

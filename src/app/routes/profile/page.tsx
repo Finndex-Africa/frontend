@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { usersApi } from '@/services/api/users.api';
 import { mediaApi } from '@/services/api/media.api';
+import { serviceProvidersApi, type ServiceProviderProfile, type UpdateProviderDto } from '@/services/api/service-providers.api';
+import ServiceProviderOnboarding from '@/components/ServiceProviderOnboarding';
 
 export default function ProfilePage() {
     const router = useRouter();
@@ -13,8 +15,13 @@ export default function ProfilePage() {
     const [user, setUser] = useState<any>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [showOnboardingModal, setShowOnboardingModal] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Service provider state
+    const [providerProfile, setProviderProfile] = useState<ServiceProviderProfile | null>(null);
+    const [isEditingProvider, setIsEditingProvider] = useState(false);
 
     // Form states
     const [formData, setFormData] = useState({
@@ -22,6 +29,20 @@ export default function ProfilePage() {
         lastName: '',
         phone: '',
         avatar: '',
+    });
+
+    // Provider form states
+    const [providerFormData, setProviderFormData] = useState<UpdateProviderDto>({
+        businessName: '',
+        serviceTypes: [],
+        location: '',
+        phone: '',
+        whatsapp: '',
+        experience: 0,
+        certifications: [],
+        description: '',
+        logoUrl: '',
+        imageUrl: '',
     });
 
     // Password form states
@@ -35,26 +56,54 @@ export default function ProfilePage() {
     const [success, setSuccess] = useState('');
 
     useEffect(() => {
-        // Check if user is logged in
-        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-        if (!token) {
-            router.push('/routes/login');
-            return;
-        }
+        const loadUserData = async () => {
+            // Check if user is logged in
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            if (!token) {
+                router.push('/routes/login');
+                return;
+            }
 
-        // Get user data from localStorage
-        const userData = localStorage.getItem('user') || sessionStorage.getItem('user');
-        if (userData) {
-            const parsedUser = JSON.parse(userData);
-            setUser(parsedUser);
-            setFormData({
-                firstName: parsedUser.firstName || '',
-                lastName: parsedUser.lastName || '',
-                phone: parsedUser.phone || '',
-                avatar: parsedUser.avatar || '',
-            });
-        }
-        setIsLoading(false);
+            // Get user data from localStorage
+            const userData = localStorage.getItem('user') || sessionStorage.getItem('user');
+            if (userData) {
+                const parsedUser = JSON.parse(userData);
+                setUser(parsedUser);
+                setFormData({
+                    firstName: parsedUser.firstName || '',
+                    lastName: parsedUser.lastName || '',
+                    phone: parsedUser.phone || '',
+                    avatar: parsedUser.avatar || '',
+                });
+
+                // Fetch service provider profile if user is a service provider
+                if (parsedUser.role === 'provider' || parsedUser.userType === 'service_provider') {
+                    try {
+                        const response = await serviceProvidersApi.getMyProfile();
+                        if (response.data) {
+                            setProviderProfile(response.data);
+                            setProviderFormData({
+                                businessName: response.data.businessName || '',
+                                serviceTypes: response.data.serviceTypes || [],
+                                location: response.data.location || '',
+                                phone: response.data.phone || '',
+                                whatsapp: response.data.whatsapp || '',
+                                experience: response.data.experience || 0,
+                                certifications: response.data.certifications || [],
+                                description: response.data.description || '',
+                                logoUrl: response.data.logoUrl || '',
+                                imageUrl: response.data.imageUrl || '',
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Failed to fetch service provider profile:', error);
+                    }
+                }
+            }
+            setIsLoading(false);
+        };
+
+        loadUserData();
     }, [router]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -170,6 +219,33 @@ export default function ProfilePage() {
         });
         setError('');
         setSuccess('');
+    };
+
+    const handleOnboardingSuccess = async () => {
+        setShowOnboardingModal(false);
+        setSuccess('Business profile created successfully! 🎉');
+
+        // Reload provider profile
+        try {
+            const response = await serviceProvidersApi.getMyProfile();
+            if (response.data) {
+                setProviderProfile(response.data);
+                setProviderFormData({
+                    businessName: response.data.businessName || '',
+                    serviceTypes: response.data.serviceTypes || [],
+                    location: response.data.location || '',
+                    phone: response.data.phone || '',
+                    whatsapp: response.data.whatsapp || '',
+                    experience: response.data.experience || 0,
+                    certifications: response.data.certifications || [],
+                    description: response.data.description || '',
+                    logoUrl: response.data.logoUrl || '',
+                    imageUrl: response.data.imageUrl || '',
+                });
+            }
+        } catch (error) {
+            console.error('Failed to fetch updated provider profile:', error);
+        }
     };
 
     if (isLoading) {
@@ -403,6 +479,273 @@ export default function ProfilePage() {
                                 </div>
                             </div>
 
+                            {/* Service Provider Business Details */}
+                            {(user?.role === 'provider' || user?.userType === 'service_provider') && (
+                                providerProfile ? (
+                                <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-100">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <h3 className="text-xl font-bold text-gray-900 flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center">
+                                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                                </svg>
+                                            </div>
+                                            Business Information
+                                        </h3>
+                                        {!isEditingProvider && (
+                                            <button
+                                                onClick={() => setIsEditingProvider(true)}
+                                                className="px-4 py-2 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-all flex items-center gap-2"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                                Edit Business Info
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="group">
+                                            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                                                <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                                </svg>
+                                                Business Name
+                                            </label>
+                                            {isEditingProvider ? (
+                                                <input
+                                                    type="text"
+                                                    value={providerFormData.businessName}
+                                                    onChange={(e) => setProviderFormData(prev => ({ ...prev, businessName: e.target.value }))}
+                                                    className="w-full px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                                />
+                                            ) : (
+                                                <div className="flex items-center gap-3 px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl group-hover:border-purple-300 transition-colors">
+                                                    <span className="text-gray-700 font-medium">{providerProfile.businessName}</span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="group">
+                                            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                                                <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                </svg>
+                                                Location
+                                            </label>
+                                            {isEditingProvider ? (
+                                                <input
+                                                    type="text"
+                                                    value={providerFormData.location}
+                                                    onChange={(e) => setProviderFormData(prev => ({ ...prev, location: e.target.value }))}
+                                                    className="w-full px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                                />
+                                            ) : (
+                                                <div className="flex items-center gap-3 px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl group-hover:border-purple-300 transition-colors">
+                                                    <span className="text-gray-700 font-medium">{providerProfile.location}</span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="group">
+                                            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                                                <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                </svg>
+                                                Years of Experience
+                                            </label>
+                                            {isEditingProvider ? (
+                                                <input
+                                                    type="number"
+                                                    value={providerFormData.experience}
+                                                    onChange={(e) => setProviderFormData(prev => ({ ...prev, experience: parseInt(e.target.value) || 0 }))}
+                                                    className="w-full px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                                />
+                                            ) : (
+                                                <div className="flex items-center gap-3 px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl group-hover:border-purple-300 transition-colors">
+                                                    <span className="text-gray-700 font-medium">{providerProfile.experience} years</span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="group">
+                                            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                                                <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                                                </svg>
+                                                Verification Status
+                                            </label>
+                                            <div className="flex items-center gap-3 px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl group-hover:border-purple-300 transition-colors">
+                                                <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                                                    providerProfile.verified
+                                                        ? 'bg-green-100 text-green-700'
+                                                        : providerProfile.verificationStatus === 'pending_verification'
+                                                        ? 'bg-yellow-100 text-yellow-700'
+                                                        : 'bg-gray-100 text-gray-700'
+                                                }`}>
+                                                    {providerProfile.verified ? 'Verified' : providerProfile.verificationStatus?.replace('_', ' ')}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="group col-span-1 md:col-span-2">
+                                            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                                                <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                                </svg>
+                                                Service Types
+                                            </label>
+                                            <div className="flex flex-wrap gap-2 px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl group-hover:border-purple-300 transition-colors">
+                                                {providerProfile.serviceTypes?.map((service, index) => (
+                                                    <span key={index} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium capitalize">
+                                                        {service.replace('_', ' ')}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div className="group col-span-1 md:col-span-2">
+                                            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                                                <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                                                </svg>
+                                                Description
+                                            </label>
+                                            {isEditingProvider ? (
+                                                <textarea
+                                                    value={providerFormData.description}
+                                                    onChange={(e) => setProviderFormData(prev => ({ ...prev, description: e.target.value }))}
+                                                    rows={4}
+                                                    className="w-full px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
+                                                />
+                                            ) : (
+                                                <div className="px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl group-hover:border-purple-300 transition-colors">
+                                                    <p className="text-gray-700">{providerProfile.description}</p>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="group">
+                                            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                                                <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                                </svg>
+                                                Rating
+                                            </label>
+                                            <div className="flex items-center gap-3 px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl group-hover:border-purple-300 transition-colors">
+                                                <span className="text-2xl font-bold text-yellow-500">{providerProfile.rating.toFixed(1)}</span>
+                                                <span className="text-gray-600">/ 5.0</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="group">
+                                            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                                                <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                Completed Jobs
+                                            </label>
+                                            <div className="flex items-center gap-3 px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl group-hover:border-purple-300 transition-colors">
+                                                <span className="text-2xl font-bold text-green-600">{providerProfile.completedJobs}</span>
+                                                <span className="text-gray-600">jobs</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Provider Edit Actions */}
+                                    {isEditingProvider && (
+                                        <div className="flex items-center justify-end gap-4 pt-6 mt-6 border-t border-purple-200">
+                                            <button
+                                                onClick={() => {
+                                                    setIsEditingProvider(false);
+                                                    // Reset form data
+                                                    if (providerProfile) {
+                                                        setProviderFormData({
+                                                            businessName: providerProfile.businessName || '',
+                                                            serviceTypes: providerProfile.serviceTypes || [],
+                                                            location: providerProfile.location || '',
+                                                            phone: providerProfile.phone || '',
+                                                            whatsapp: providerProfile.whatsapp || '',
+                                                            experience: providerProfile.experience || 0,
+                                                            certifications: providerProfile.certifications || [],
+                                                            description: providerProfile.description || '',
+                                                            logoUrl: providerProfile.logoUrl || '',
+                                                            imageUrl: providerProfile.imageUrl || '',
+                                                        });
+                                                    }
+                                                }}
+                                                disabled={isSaving}
+                                                className="px-8 py-3 text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all font-semibold disabled:opacity-50 shadow-sm"
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button
+                                                onClick={async () => {
+                                                    if (!providerProfile) return;
+                                                    try {
+                                                        setIsSaving(true);
+                                                        setError('');
+                                                        setSuccess('');
+
+                                                        const response = await serviceProvidersApi.update(providerProfile._id, providerFormData);
+                                                        setProviderProfile(response.data);
+                                                        setSuccess('Business information updated successfully!');
+                                                        setIsEditingProvider(false);
+                                                    } catch (err: any) {
+                                                        console.error('Provider update failed:', err);
+                                                        setError(err.response?.data?.message || 'Failed to update business information.');
+                                                    } finally {
+                                                        setIsSaving(false);
+                                                    }
+                                                }}
+                                                disabled={isSaving}
+                                                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all font-semibold disabled:opacity-50 flex items-center gap-2 shadow-lg hover:shadow-xl"
+                                            >
+                                                {isSaving ? (
+                                                    <>
+                                                        <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                                                        Saving...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                        Save Changes
+                                                    </>
+                                                )}
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                                ) : (
+                                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-100">
+                                        <div className="text-center py-8">
+                                            <div className="w-20 h-20 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-4">
+                                                <svg className="w-10 h-10 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                                </svg>
+                                            </div>
+                                            <h3 className="text-xl font-bold text-gray-900 mb-2">Complete Your Business Profile</h3>
+                                            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                                                You haven&apos;t set up your service provider business profile yet. Complete your profile to start receiving service requests and showcase your business.
+                                            </p>
+                                            <button
+                                                onClick={() => setShowOnboardingModal(true)}
+                                                className="px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-all inline-flex items-center gap-2"
+                                            >
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                </svg>
+                                                Set Up Business Profile
+                                            </button>
+                                        </div>
+                                    </div>
+                                )
+                            )}
+
                             {/* Security Section */}
                             <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-2xl p-6 border border-gray-200">
                                 <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
@@ -545,6 +888,13 @@ export default function ProfilePage() {
                     </div>
                 </div>
             )}
+
+            {/* Service Provider Onboarding Modal */}
+            <ServiceProviderOnboarding
+                isOpen={showOnboardingModal}
+                onClose={() => setShowOnboardingModal(false)}
+                onSuccess={handleOnboardingSuccess}
+            />
         </div>
     );
 }
