@@ -149,7 +149,7 @@ export default function HomePage() {
                     console.groupEnd();
                 }
             });
-        } catch (err) {
+        } catch {
             // ignore
         }
     }, []);

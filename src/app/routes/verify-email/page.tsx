@@ -20,24 +20,24 @@ function VerifyEmailContent() {
             return;
         }
 
-        verifyEmail(token);
-    }, [searchParams]);
+        const verifyEmail = async () => {
+            try {
+                const response = await authService.verifyEmail(token);
+                setStatus('success');
+                setMessage(response.data?.message || 'Email verified successfully! You can now log in.');
 
-    const verifyEmail = async (token: string) => {
-        try {
-            const response = await authService.verifyEmail(token);
-            setStatus('success');
-            setMessage(response.data?.message || 'Email verified successfully! You can now log in.');
+                // Redirect to login after 3 seconds
+                setTimeout(() => {
+                    router.push('/routes/login');
+                }, 3000);
+            } catch (error: any) {
+                setStatus('error');
+                setMessage(error?.response?.data?.message || 'Verification failed. The link may be invalid or expired.');
+            }
+        };
 
-            // Redirect to login after 3 seconds
-            setTimeout(() => {
-                router.push('/routes/login');
-            }, 3000);
-        } catch (error: any) {
-            setStatus('error');
-            setMessage(error?.response?.data?.message || 'Verification failed. The link may be invalid or expired.');
-        }
-    };
+        verifyEmail();
+    }, [searchParams, router]);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">

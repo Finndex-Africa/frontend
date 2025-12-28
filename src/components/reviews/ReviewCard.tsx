@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Star, ThumbsUp, Flag, Trash2, MessageSquare } from 'lucide-react';
 import { Review, reviewsApi } from '@/services/api/reviews.api';
 import { AuthService } from '@/services/auth.service';
@@ -103,12 +104,13 @@ export default function ReviewCard({ review, onUpdate, showOwnerReply = true }: 
                 <div className="flex gap-4">
                     {/* Avatar */}
                     <div className="flex-shrink-0">
-                        <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
+                        <div className="relative w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
                             {review.userId.avatar ? (
-                                <img
+                                <Image
                                     src={review.userId.avatar}
                                     alt={reviewerName}
-                                    className="w-full h-full object-cover"
+                                    fill
+                                    className="object-cover"
                                 />
                             ) : (
                                 <span className="text-blue-600 font-semibold text-lg">
@@ -148,13 +150,18 @@ export default function ReviewCard({ review, onUpdate, showOwnerReply = true }: 
                         {review.photos && review.photos.length > 0 && (
                             <div className="flex gap-2 mb-3 flex-wrap">
                                 {review.photos.map((photo, index) => (
-                                    <img
+                                    <div
                                         key={index}
-                                        src={photo}
-                                        alt={`Review photo ${index + 1}`}
-                                        className="w-24 h-24 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                                        className="relative w-24 h-24 rounded-lg cursor-pointer hover:opacity-90 transition-opacity overflow-hidden"
                                         onClick={() => window.open(photo, '_blank')}
-                                    />
+                                    >
+                                        <Image
+                                            src={photo}
+                                            alt={`Review photo ${index + 1}`}
+                                            fill
+                                            className="object-cover"
+                                        />
+                                    </div>
                                 ))}
                             </div>
                         )}

@@ -20,7 +20,7 @@ function decodeJwt(token: string): any | null {
             );
         }
         return JSON.parse(json);
-    } catch (e) {
+    } catch {
         return null;
     }
 }
@@ -306,12 +306,12 @@ export class AuthService {
                                 console.warn(`[AUTH] 401 Unauthorized on ${url} - triggering auto-logout`);
                                 this.logout('401_unauthorized');
                             }
-                        } catch (e) {
+                        } catch {
                             // Fallback to logout if check fails
                             this.logout('401_unauthorized_fallback');
                         }
                     }
-                } catch (e) {
+                } catch {
                     // ignore logging failures
                 }
                 return Promise.reject(error);

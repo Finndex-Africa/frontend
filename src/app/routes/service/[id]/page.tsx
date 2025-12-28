@@ -3,9 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import toast, { Toaster } from 'react-hot-toast';
-import Button from "@/components/ui/Button";
 import MediaCarousel from "@/components/domain/MediaCarousel";
-import MessageThread from "@/components/domain/MessageThread";
 import { servicesApi } from "@/services/api";
 import { Service as ApiService } from "@/types/dashboard";
 import { apiClient } from "@/lib/api-client";

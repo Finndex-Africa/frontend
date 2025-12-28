@@ -44,6 +44,7 @@ export default function ChatPage({ params }: ChatPageProps) {
         }
 
         init();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [channelId]);
 
     if (!channel) return <p>Loading chat...</p>;

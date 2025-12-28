@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 type Partner = {
     name: string;
     logoUrl: string;
@@ -18,12 +20,13 @@ export default function PartnerLogos({
                 {partners.map((partner, index) => (
                     <div
                         key={index}
-                        className="flex items-center justify-center min-w-[110px] sm:min-w-[100px] flex-shrink-0"
+                        className="flex items-center justify-center min-w-[110px] sm:min-w-[100px] flex-shrink-0 relative h-10 md:h-12"
                     >
-                        <img
+                        <Image
                             src={partner.logoUrl}
                             alt={partner.name}
-                            className="w-[110px] sm:w-auto sm:h-10 md:h-12 object-contain opacity-50 hover:opacity-100 transition-opacity duration-300"
+                            fill
+                            className="object-contain opacity-50 hover:opacity-100 transition-opacity duration-300"
                         />
                     </div>
                 ))}
@@ -31,12 +34,13 @@ export default function PartnerLogos({
                 {partners.map((partner, index) => (
                     <div
                         key={`duplicate-${index}`}
-                        className="flex items-center justify-center min-w-[110px] sm:min-w-[100px] flex-shrink-0"
+                        className="flex items-center justify-center min-w-[110px] sm:min-w-[100px] flex-shrink-0 relative h-10 md:h-12"
                     >
-                        <img
+                        <Image
                             src={partner.logoUrl}
                             alt={partner.name}
-                            className="w-[110px] sm:w-auto sm:h-10 md:h-12 object-contain opacity-50 hover:opacity-100 transition-opacity duration-300"
+                            fill
+                            className="object-contain opacity-50 hover:opacity-100 transition-opacity duration-300"
                         />
                     </div>
                 ))}

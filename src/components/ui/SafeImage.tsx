@@ -57,17 +57,6 @@ export function SafeImage({
     }
   };
 
-  // Common props
-  const commonProps = {
-    alt,
-    className,
-    priority,
-    sizes,
-    style,
-    onError: handleError,
-    onLoad,
-  };
-
   if (fill) {
     return (
       <Image

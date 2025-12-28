@@ -180,14 +180,14 @@ export default function Navbar() {
             <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/80 backdrop-blur">
                 <div className="container-app flex items-center justify-between h-16 px-4">
                     <Link href="/" className="font-extrabold text-xl flex items-center gap-2">
-                        <img
-                            src="/images/logos/logo1.png"
-                            alt="Finndex Africa Logo"
-                            width={48}
-                            height={48}
-                            className="object-contain"
-                            style={{ width: 'auto', height: '48px' }}
-                        />
+                        <div className="relative" style={{ width: '48px', height: '48px' }}>
+                            <Image
+                                src="/images/logos/logo1.png"
+                                alt="Finndex Africa Logo"
+                                fill
+                                className="object-contain"
+                            />
+                        </div>
                     </Link>
 
                     {/* Desktop Navigation */}

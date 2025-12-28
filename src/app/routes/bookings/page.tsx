@@ -11,7 +11,6 @@ export default function BookingsPage() {
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
     const [statusFilter, setStatusFilter] = useState<string>('all');
-    const [user, setUser] = useState<any>(null);
     const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
 
@@ -21,11 +20,6 @@ export default function BookingsPage() {
         if (!token) {
             router.push('/routes/login');
             return;
-        }
-
-        const userData = localStorage.getItem('user') || sessionStorage.getItem('user');
-        if (userData) {
-            setUser(JSON.parse(userData));
         }
 
         fetchBookings();

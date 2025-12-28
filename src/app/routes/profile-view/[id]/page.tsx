@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { usersApi } from '@/services/api/users.api';
 import { serviceProvidersApi, ServiceProviderProfile } from '@/services/api/service-providers.api';
 import { User } from '@/types/users';
@@ -143,12 +144,13 @@ export default function PublicProfileView() {
                         {/* Avatar */}
                         <div className="flex items-start gap-6 -mt-16 mb-6">
                             <div className="relative">
-                                <div className="w-32 h-32 rounded-full overflow-hidden bg-white border-4 border-white shadow-lg">
+                                <div className="relative w-32 h-32 rounded-full overflow-hidden bg-white border-4 border-white shadow-lg">
                                     {user.avatar ? (
-                                        <img
+                                        <Image
                                             src={user.avatar}
                                             alt={`${user.firstName} ${user.lastName}`}
-                                            className="w-full h-full object-cover"
+                                            fill
+                                            className="object-cover"
                                         />
                                     ) : (
                                         <div className="w-full h-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center">

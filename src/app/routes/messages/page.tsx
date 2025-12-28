@@ -196,6 +196,7 @@ export default function MessagesPage() {
                 client.disconnectUser().catch(console.error);
             }
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     if (loading) {

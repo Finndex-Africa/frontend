@@ -62,6 +62,7 @@ export default function ReviewsList({ itemType, itemId, itemTitle }: ReviewsList
     useEffect(() => {
         fetchReviews();
         fetchRatingData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [itemType, itemId, currentPage, sortBy, filterRating]);
 
     const handleReviewSubmitted = () => {

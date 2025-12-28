@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { propertiesApi } from '@/services/api';
 import { mediaApi } from '@/services/api/media.api';
 
@@ -331,11 +332,12 @@ export default function NewPropertyPage() {
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                             {imagePreviews.map((preview, index) => (
-                                <div key={index} className="relative group">
-                                    <img
+                                <div key={index} className="relative group h-32">
+                                    <Image
                                         src={preview}
                                         alt={`Preview ${index + 1}`}
-                                        className="w-full h-32 object-cover rounded-lg"
+                                        fill
+                                        className="object-cover rounded-lg"
                                     />
                                     <button
                                         type="button"

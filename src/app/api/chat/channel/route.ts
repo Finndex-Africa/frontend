@@ -111,7 +111,7 @@ export async function POST(req: Request) {
         console.log('Found existing channel:', existingChannels[0].id);
         return NextResponse.json({ channelId: existingChannels[0].id });
       }
-    } catch (error) {
+    } catch {
       console.log('No existing channel found, creating new one');
     }
 

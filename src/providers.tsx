@@ -36,7 +36,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                 auth.setupAxiosInterceptors();
                 logDebug('Providers: axios interceptors setup from Providers on mount');
             }
-        } catch (err) {
+        } catch {
             // ignore
         }
 

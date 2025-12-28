@@ -136,9 +136,27 @@ export default function ProfilePage() {
             setUploadingImage(true);
             setError('');
 
-            const response = await mediaApi.upload(file, 'users', user._id);
-            setFormData(prev => ({ ...prev, avatar: response.url }));
-            setSuccess('Profile image uploaded successfully');
+            const uploadedMedia = await mediaApi.upload(file, 'users', user._id);
+            const avatarUrl = uploadedMedia.url;
+
+            // Update form data
+            setFormData(prev => ({ ...prev, avatar: avatarUrl }));
+
+            // Auto-save the profile with the new avatar
+            const response = await usersApi.updateProfile({
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                phone: formData.phone,
+                avatar: avatarUrl,
+            });
+
+            // Update localStorage with new data
+            const updatedUser = { ...user, ...response.data, avatar: avatarUrl };
+            const storage = localStorage.getItem('user') ? localStorage : sessionStorage;
+            storage.setItem('user', JSON.stringify(updatedUser));
+            setUser(updatedUser);
+
+            setSuccess('Profile image updated successfully');
         } catch (err) {
             console.error('Image upload failed:', err);
             setError('Failed to upload image. Please try again.');

@@ -1,4 +1,4 @@
-import { apiClient, PaginatedResponse, ApiSuccessResponse, PaginationMeta } from '@/lib/api-client';
+import { apiClient, ApiSuccessResponse, PaginationMeta } from '@/lib/api-client';
 
 export interface Review {
     _id: string;

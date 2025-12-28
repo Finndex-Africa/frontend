@@ -70,7 +70,7 @@ export default function AuthPage() {
                     // Also persist a debug entry so reloads don't lose this important info
                     const { logDebug } = await import('@/utils/persistentLogger');
                     logDebug('Login successful - token stored', { tokenPreview: data.data.token.substring(0, 20), rememberMe });
-                } catch (err) {
+                } catch {
                     // ignore
                 }
 
