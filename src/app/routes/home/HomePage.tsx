@@ -31,7 +31,7 @@ const adaptPropertyToCard = (apiProperty: ApiProperty): Property => {
         amenities.push(`${apiProperty.bathrooms} bathroom${apiProperty.bathrooms > 1 ? 's' : ''}`);
     }
     if (apiProperty.area) {
-        amenities.push(`${apiProperty.area} sqm`);
+        amenities.push(`${apiProperty.area} min from main road`);
     }
 
     // Fallback to a default if no amenities

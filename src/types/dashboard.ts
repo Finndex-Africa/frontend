@@ -19,9 +19,11 @@ export interface Service {
     description: string;
     category: string;
     location: string;
-    price: number;
+    price?: number;
     priceUnit?: string;
     status: 'pending' | 'active' | 'rejected' | 'inactive';
+    verified?: boolean;
+    verificationStatus?: 'pending' | 'verified' | 'rejected';
     rating?: number;
     views?: number;
     images?: string[];
@@ -39,7 +41,7 @@ export interface Property {
     propertyType: string;
     location: string;
     price: number;
-    status: 'pending' | 'approved' | 'rejected' | 'rented' | 'archived';
+    status: 'pending' | 'approved' | 'rejected' | 'rented' | 'archived' | 'suspended';
     bedrooms?: number;
     bathrooms?: number;
     rooms?: number;

@@ -159,7 +159,8 @@ export default function PropertyDetail() {
             console.log('Booking response:', response);
 
             if (response.success) {
-                toast.success('Booking request submitted successfully! The landlord will contact you soon.');
+                const posterType = property.agentId ? 'agent' : 'landlord';
+                toast.success(`Booking request submitted successfully! The ${posterType} will contact you soon.`);
                 setShowBookingModal(false);
                 setBookingData({
                     moveInDate: '',
@@ -205,7 +206,8 @@ export default function PropertyDetail() {
         pending: { icon: '⏳', text: 'Pending Approval', bg: 'bg-amber-50', border: 'border-amber-200', text_color: 'text-amber-800' },
         rejected: { icon: '❌', text: 'Not Available', bg: 'bg-red-50', border: 'border-red-200', text_color: 'text-red-800' },
         rented: { icon: '🏠', text: 'Currently Rented', bg: 'bg-gray-50', border: 'border-gray-200', text_color: 'text-gray-800' },
-        archived: { icon: '📦', text: 'Archived', bg: 'bg-gray-50', border: 'border-gray-200', text_color: 'text-gray-800' }
+        archived: { icon: '📦', text: 'Archived', bg: 'bg-gray-50', border: 'border-gray-200', text_color: 'text-gray-800' },
+        suspended: { icon: '⛔', text: 'Temporarily Unavailable', bg: 'bg-orange-50', border: 'border-orange-200', text_color: 'text-orange-800' }
     };
     const handleSendMessage = async (subject: string, message: string) => {
         if (!currentUser || !property || submitting) return;
@@ -222,7 +224,8 @@ export default function PropertyDetail() {
 
             await apiClient.post('/messages/threads', messageData);
 
-            alert('Message sent successfully! The landlord will respond to you soon.');
+            const posterType = property.agentId ? 'agent' : 'landlord';
+            alert(`Message sent successfully! The ${posterType} will respond to you soon.`);
             setShowContactModal(false);
         } catch (error: any) {
             console.error('Failed to send message:', error);
@@ -268,7 +271,7 @@ export default function PropertyDetail() {
     const features = [];
     if (property.bedrooms) features.push({ label: "Bedrooms", desc: `${property.bedrooms} rooms`, icon: "🛏️" });
     if (property.bathrooms) features.push({ label: "Bathrooms", desc: `${property.bathrooms} bathrooms`, icon: "🚿" });
-    if (property.area) features.push({ label: "Area", desc: `${property.area} sqm`, icon: "📐" });
+    if (property.area) features.push({ label: "Distance", desc: `${property.area} min from main road`, icon: "🚗" });
     if (property.furnished !== undefined) features.push({ label: "Furnished", desc: property.furnished ? "Fully furnished" : "Unfurnished", icon: "🪑" });
 
     // Add default features if none provided
@@ -389,7 +392,9 @@ export default function PropertyDetail() {
                                             Verified
                                         </span>
                                     </div>
-                                    <p className="text-gray-500 text-xs">Registered landlord on Finndex Africa</p>
+                                    <p className="text-gray-500 text-xs">
+                                        Registered {property.agentId ? 'agent' : 'landlord'} on Finndex Africa
+                                    </p>
                                     <div className="flex items-center gap-3 mt-2 text-xs text-gray-600">
                                         <span className="flex items-center gap-1">
                                             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
@@ -474,7 +479,11 @@ export default function PropertyDetail() {
                                             onClick={() => handleContactLandlord()}
                                         >
                                             <Mail className="w-4 h-4" />
-                                            <span>{currentUser ? 'Contact Landlord' : 'Sign in to Contact'}</span>
+                                            <span>
+                                                {currentUser
+                                                    ? (property.agentId ? 'Contact Agent' : 'Contact Landlord')
+                                                    : 'Sign in to Contact'}
+                                            </span>
                                             {!currentUser && <Lock className="w-3.5 h-3.5" />}
                                         </button>
                                     </div>
@@ -485,7 +494,9 @@ export default function PropertyDetail() {
                                             <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
                                                 <MessageCircle className="w-7 h-7 text-gray-500" />
                                             </div>
-                                            <p className="text-sm font-medium text-gray-900 mb-2">Message the Landlord</p>
+                                            <p className="text-sm font-medium text-gray-900 mb-2">
+                                                Message the {property.agentId ? 'Agent' : 'Landlord'}
+                                            </p>
                                             <p className="text-xs text-gray-500 mb-4">Sign in to start a conversation</p>
                                             <button className="w-full h-10 text-sm font-semibold bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-colors shadow-sm">
                                                 Sign In to Chat
@@ -523,7 +534,7 @@ export default function PropertyDetail() {
                                                             <MessageCircle className="w-4.5 h-4.5 text-blue-600" />
                                                         </div>
                                                         <span className="text-sm font-semibold text-gray-900">
-                                                            Message Landlord
+                                                            Message {property.agentId ? 'Agent' : 'Landlord'}
                                                         </span>
                                                     </div>
                                                     <ChatBox
@@ -737,7 +748,9 @@ export default function PropertyDetail() {
                     <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
                         <div className="flex items-center justify-between mb-6">
                             <div>
-                                <h3 className="text-2xl font-bold text-gray-900">Contact Landlord</h3>
+                                <h3 className="text-2xl font-bold text-gray-900">
+                                    Contact {property.agentId ? 'Agent' : 'Landlord'}
+                                </h3>
                                 <p className="text-sm text-gray-600 mt-1">Send a direct message</p>
                             </div>
                             <button
@@ -776,7 +789,7 @@ export default function PropertyDetail() {
                             </div>
                             <div className="bg-green-50 border border-green-200 rounded-xl p-4">
                                 <p className="text-sm text-green-900">
-                                    ✅ <span className="font-semibold">Quick Response:</span> Most landlords respond within 24 hours
+                                    ✅ <span className="font-semibold">Quick Response:</span> Most {property.agentId ? 'agents' : 'landlords'} respond within 24 hours
                                 </p>
                             </div>
                             <div className="flex gap-3 pt-4">

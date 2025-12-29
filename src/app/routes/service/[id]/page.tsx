@@ -256,54 +256,91 @@ export default function ServiceDetail() {
                     </section>
 
                     {/* SERVICE PROVIDER INFO */}
+                    {(() => {
+                        // Extract provider ID from service object
+                        let providerIdValue = '';
+                        let providerName = 'Service Provider';
+                        let providerEmail = '';
 
-                    {typeof service.provider === 'object' && service.provider && (
-                        <section>
-                            <h2 className="text-lg font-semibold text-gray-900 mb-4">Managed by</h2>
-                            <button
-                                onClick={() => {
-                                    const providerIdValue = typeof service.provider === 'string'
-                                        ? service.provider
-                                        : (service.provider as any)?._id;
-                                    if (providerIdValue) {
-                                        window.location.href = `/routes/profile-view/${providerIdValue}`;
-                                    }
-                                }}
-                                className="w-full flex items-start gap-3 border border-gray-200 p-4 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-all cursor-pointer text-left"
-                            >
-                                <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-purple-500 to-purple-600 shrink-0">
-                                    <div className="w-full h-full flex items-center justify-center text-lg font-bold text-white">
-                                        P
+                        if (typeof service.provider === 'object' && service.provider) {
+                            providerIdValue = (service.provider as any)._id || '';
+                            providerName = (service.provider as any).name || (service.provider as any).firstName || 'Service Provider';
+                            providerEmail = (service.provider as any).email || '';
+                        }
+
+                        if (typeof service.provider === 'string') {
+                            providerIdValue = service.provider;
+                        }
+
+                        // Fallback to agentId or landlordId if provider is not available
+                        if (!providerIdValue && typeof service.agentId === 'string') {
+                            providerIdValue = service.agentId;
+                        }
+
+                        if (!providerIdValue && service.agentId && typeof service.agentId === 'object' && (service.agentId as any)._id) {
+                            providerIdValue = (service.agentId as any)._id;
+                        }
+
+                        if (!providerIdValue && typeof service.landlordId === 'string') {
+                            providerIdValue = service.landlordId;
+                        }
+
+                        if (!providerIdValue && service.landlordId && typeof service.landlordId === 'object' && (service.landlordId as any)._id) {
+                            providerIdValue = (service.landlordId as any)._id;
+                        }
+
+                        if (!providerIdValue) {
+                            return null;
+                        }
+
+                        return (
+                            <section>
+                                <h2 className="text-lg font-semibold text-gray-900 mb-4">Service Provider</h2>
+                                <button
+                                    onClick={() => {
+                                        if (providerIdValue) {
+                                            window.location.href = `/routes/profile-view/${providerIdValue}`;
+                                        }
+                                    }}
+                                    className="w-full flex items-start gap-3 border border-gray-200 p-4 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-all cursor-pointer text-left"
+                                >
+                                    <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-purple-500 to-purple-600 flex-shrink-0">
+                                        <div className="w-full h-full flex items-center justify-center text-lg font-bold text-white">
+                                            {providerName.charAt(0).toUpperCase()}
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <p className="font-semibold text-gray-900 text-sm">
-                                            Service Provider
-                                        </p>
-                                        <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium">
-                                            Verified
-                                        </span>
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <p className="font-semibold text-gray-900 text-sm">
+                                                {providerName}
+                                            </p>
+                                            <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium">
+                                                Verified
+                                            </span>
+                                        </div>
+                                        <p className="text-gray-500 text-xs">Registered service provider on Finndex Africa</p>
+                                        {providerEmail && (
+                                            <p className="text-gray-500 text-xs mt-1">✉️ {providerEmail}</p>
+                                        )}
+                                        <div className="flex items-center gap-3 mt-2 text-xs text-gray-600">
+                                            <span className="flex items-center gap-1">
+                                                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                                                </svg>
+                                                Identity Verified
+                                            </span>
+                                            <span className="flex items-center gap-1 text-purple-600 font-medium">
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                </svg>
+                                                View Profile
+                                            </span>
+                                        </div>
                                     </div>
-                                    <p className="text-gray-500 text-xs">Registered service provider on Finndex Africa</p>
-                                    <div className="flex items-center gap-3 mt-2 text-xs text-gray-600">
-                                        <span className="flex items-center gap-1">
-                                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                                            </svg>
-                                            Identity Verified
-                                        </span>
-                                        <span className="flex items-center gap-1 text-purple-600 font-medium">
-                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                            </svg>
-                                            View Profile
-                                        </span>
-                                    </div>
-                                </div>
-                            </button>
-                        </section>
-                    )}
+                                </button>
+                            </section>
+                        );
+                    })()}
 
                     {/* MAP SECTION */}
                     <section>
@@ -340,10 +377,12 @@ export default function ServiceDetail() {
                                     <div className="p-6 bg-linear-to-br from-blue-50 to-white">
                                         <div className="flex items-baseline gap-1.5">
                                             <div className="text-4xl font-bold text-gray-900">
-                                                ${service.price ? service.price.toLocaleString() : 'Contact'}
+                                                {service.price ? `$${service.price.toLocaleString()}` : 'Contact for Price'}
                                             </div>
-                                            {service.price && (
-                                                <span className="text-gray-500 text-base font-medium">/month</span>
+                                            {service.price && service.priceUnit && (
+                                                <span className="text-gray-500 text-base font-medium">
+                                                    /{service.priceUnit}
+                                                </span>
                                             )}
                                         </div>
                                     </div>
@@ -368,7 +407,7 @@ export default function ServiceDetail() {
                                             onClick={() => handleBookService()}
                                         >
                                             <Mail className="w-4 h-4" />
-                                            <span>{currentUser ? 'Contact Landlord' : 'Sign in to Contact'}</span>
+                                            <span>{currentUser ? 'Contact Service Provider' : 'Sign in to Contact'}</span>
                                             {!currentUser && <Lock className="w-3.5 h-3.5" />}
                                         </button>
                                     </div>
@@ -487,12 +526,16 @@ export default function ServiceDetail() {
                                     <div className="flex-1 min-w-0">
                                         <h4 className="font-semibold text-gray-900 text-sm truncate">{service?.title}</h4>
                                         <p className="text-xs text-gray-600 mt-1 truncate">{service?.category.replace(/_/g, ' ')}</p>
-                                        <div className="flex items-center gap-2 mt-2">
-                                            <span className="text-base sm:text-lg font-bold text-green-600">
-                                                ${service?.price?.toLocaleString()}
-                                            </span>
-                                            <span className="text-xs text-gray-500">/service</span>
-                                        </div>
+                                        {service?.price && (
+                                            <div className="flex items-center gap-2 mt-2">
+                                                <span className="text-base sm:text-lg font-bold text-green-600">
+                                                    ${service.price.toLocaleString()}
+                                                </span>
+                                                <span className="text-xs text-gray-500">
+                                                    /{service.priceUnit || 'service'}
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>

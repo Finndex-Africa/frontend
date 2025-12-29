@@ -3,6 +3,7 @@ import React, { createContext, useContext, useMemo, useState, useEffect } from "
 import { AuthService } from '@/services/auth.service';
 import { logDebug } from '@/utils/persistentLogger';
 import { ToastProvider } from "./components/ui/Toast";
+import { AntdWarningSuppress } from "./components/AntdWarningSuppress";
 
 // Simple role/auth context for Navbar links and conditional UI
 export type Role = "guest" | "seeker" | "home_seeker" | "landlord" | "provider" | "admin";
@@ -81,13 +82,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
     }), [bookmarks]);
 
     return (
-        <AuthContext.Provider value={{ role, setRole }}>
-            <BookmarkContext.Provider value={bookmarkApi}>
-                <ToastProvider>
-                    {children}
-                </ToastProvider>
-            </BookmarkContext.Provider>
-        </AuthContext.Provider>
+        <>
+            <AntdWarningSuppress />
+            <AuthContext.Provider value={{ role, setRole }}>
+                <BookmarkContext.Provider value={bookmarkApi}>
+                    <ToastProvider>
+                        {children}
+                    </ToastProvider>
+                </BookmarkContext.Provider>
+            </AuthContext.Provider>
+        </>
     );
 }
 

@@ -35,6 +35,7 @@ export default function Navbar() {
     const menuRef = useRef<HTMLDivElement>(null);
     const notifRef = useRef<HTMLDivElement>(null);
     const mobileMenuRef = useRef<HTMLDivElement>(null);
+    const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
     const links = [
         { href: "/", label: "Discover" },
         { href: "/routes/properties", label: "Homes" },
@@ -104,7 +105,8 @@ export default function Navbar() {
             if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
                 setShowNotifications(false);
             }
-            if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+            if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node) &&
+                mobileMenuButtonRef.current && !mobileMenuButtonRef.current.contains(event.target as Node)) {
                 setShowMobileMenu(false);
             }
         };
@@ -168,10 +170,7 @@ export default function Navbar() {
     };
 
     const handleViewAllNotifications = () => {
-        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-        if (token) {
-            window.location.href = `${DASHBOARD_URL}/auth-transfer?token=${encodeURIComponent(token)}&redirect=/notifications`;
-        }
+        router.push('/routes/notifications');
         setShowNotifications(false);
     };
 
@@ -617,6 +616,7 @@ export default function Navbar() {
                             </button>
                         )}
                         <button
+                            ref={mobileMenuButtonRef}
                             onClick={() => setShowMobileMenu(!showMobileMenu)}
                             className="p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
                             aria-label="Toggle menu"
@@ -635,13 +635,13 @@ export default function Navbar() {
                 {/* Mobile Menu */}
                 {showMobileMenu && (
                     <div ref={mobileMenuRef} className="md:hidden border-t border-gray-200 bg-white">
-                        <div className="container-app px-4 py-3 space-y-3">
+                        <div className="px-4 py-3 space-y-3">
                             {/* Mobile Navigation Links */}
                             {links.map((l) => (
                                 <Link
                                     key={l.href}
                                     href={l.href}
-                                    className="block py-2 text-base font-semibold text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg px-3 transition-colors"
+                                    className="block py-2 text-base font-semibold text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg px-3 transition-colors text-left"
                                     onClick={() => setShowMobileMenu(false)}
                                 >
                                     {l.label}
@@ -652,7 +652,7 @@ export default function Navbar() {
                             <div className="pt-3 border-t border-gray-200 space-y-2">
                                 <Button
                                     variant="ghost"
-                                    className="w-full justify-center"
+                                    className="w-full !justify-start"
                                     onClick={() => {
                                         setShowAdvertiseModal(true);
                                         setShowMobileMenu(false);
@@ -688,7 +688,7 @@ export default function Navbar() {
                                         {role === 'admin' && (
                                             <Button
                                                 variant="ghost"
-                                                className="w-full justify-start"
+                                                className="w-full !justify-start"
                                                 onClick={() => {
                                                     handleDashboardClick();
                                                     setShowMobileMenu(false);
@@ -706,7 +706,7 @@ export default function Navbar() {
                                             <>
                                                 <Button
                                                     variant="ghost"
-                                                    className="w-full justify-start"
+                                                    className="w-full !justify-start"
                                                     onClick={() => {
                                                         router.push('/routes/properties');
                                                         setShowMobileMenu(false);
@@ -719,7 +719,7 @@ export default function Navbar() {
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
-                                                    className="w-full justify-start"
+                                                    className="w-full !justify-start"
                                                     onClick={() => {
                                                         router.push('/routes/bookings');
                                                         setShowMobileMenu(false);
@@ -732,7 +732,7 @@ export default function Navbar() {
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
-                                                    className="w-full justify-start"
+                                                    className="w-full !justify-start"
                                                     onClick={() => {
                                                         router.push('/routes/messages');
                                                         setShowMobileMenu(false);
@@ -745,7 +745,7 @@ export default function Navbar() {
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
-                                                    className="w-full justify-start"
+                                                    className="w-full !justify-start"
                                                     onClick={() => {
                                                         router.push('/routes/notifications');
                                                         setShowMobileMenu(false);
@@ -758,7 +758,7 @@ export default function Navbar() {
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
-                                                    className="w-full justify-start"
+                                                    className="w-full !justify-start"
                                                     onClick={() => {
                                                         router.push('/routes/profile');
                                                         setShowMobileMenu(false);
@@ -777,7 +777,7 @@ export default function Navbar() {
                                             <>
                                                 <Button
                                                     variant="ghost"
-                                                    className="w-full justify-start"
+                                                    className="w-full !justify-start"
                                                     onClick={() => {
                                                         router.push('/routes/my-listings');
                                                         setShowMobileMenu(false);
@@ -790,7 +790,7 @@ export default function Navbar() {
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
-                                                    className="w-full justify-start"
+                                                    className="w-full !justify-start"
                                                     onClick={() => {
                                                         router.push('/routes/bookings');
                                                         setShowMobileMenu(false);
@@ -803,7 +803,7 @@ export default function Navbar() {
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
-                                                    className="w-full justify-start"
+                                                    className="w-full !justify-start"
                                                     onClick={() => {
                                                         router.push('/routes/messages');
                                                         setShowMobileMenu(false);
@@ -816,7 +816,7 @@ export default function Navbar() {
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
-                                                    className="w-full justify-start"
+                                                    className="w-full !justify-start"
                                                     onClick={() => {
                                                         router.push('/routes/notifications');
                                                         setShowMobileMenu(false);
@@ -829,7 +829,7 @@ export default function Navbar() {
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
-                                                    className="w-full justify-start"
+                                                    className="w-full !justify-start"
                                                     onClick={() => {
                                                         router.push('/routes/profile');
                                                         setShowMobileMenu(false);
@@ -848,7 +848,7 @@ export default function Navbar() {
                                             <>
                                                 <Button
                                                     variant="ghost"
-                                                    className="w-full justify-start"
+                                                    className="w-full !justify-start"
                                                     onClick={() => {
                                                         router.push('/routes/my-services');
                                                         setShowMobileMenu(false);
@@ -861,7 +861,7 @@ export default function Navbar() {
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
-                                                    className="w-full justify-start"
+                                                    className="w-full !justify-start"
                                                     onClick={() => {
                                                         router.push('/routes/bookings');
                                                         setShowMobileMenu(false);
@@ -874,7 +874,7 @@ export default function Navbar() {
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
-                                                    className="w-full justify-start"
+                                                    className="w-full !justify-start"
                                                     onClick={() => {
                                                         router.push('/routes/messages');
                                                         setShowMobileMenu(false);
@@ -887,7 +887,7 @@ export default function Navbar() {
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
-                                                    className="w-full justify-start"
+                                                    className="w-full !justify-start"
                                                     onClick={() => {
                                                         router.push('/routes/notifications');
                                                         setShowMobileMenu(false);
@@ -900,7 +900,7 @@ export default function Navbar() {
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
-                                                    className="w-full justify-start"
+                                                    className="w-full !justify-start"
                                                     onClick={() => {
                                                         router.push('/routes/profile');
                                                         setShowMobileMenu(false);
@@ -917,7 +917,7 @@ export default function Navbar() {
                                         {/* Logout */}
                                         <Button
                                             variant="ghost"
-                                            className="w-full justify-start text-red-600 hover:bg-red-50"
+                                            className="w-full !justify-start text-red-600 hover:bg-red-50"
                                             onClick={() => {
                                                 handleLogout();
                                                 setShowMobileMenu(false);
@@ -932,7 +932,7 @@ export default function Navbar() {
                                 ) : (
                                     <Button
                                         variant="primary"
-                                        className="w-full justify-center"
+                                        className="w-full !justify-start"
                                         onClick={() => {
                                             router.push('/routes/login');
                                             setShowMobileMenu(false);

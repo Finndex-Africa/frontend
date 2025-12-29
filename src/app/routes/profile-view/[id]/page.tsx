@@ -318,7 +318,7 @@ export default function PublicProfileView() {
                 )}
 
                 {/* Additional Info for Landlords/Agents */}
-                {!serviceProvider && (user.role === 'landlord' || user.userType === 'landlord') && (
+                {!serviceProvider && (user.role === 'landlord' || user.userType === 'landlord' || user.userType === 'agent') && (
                     <div className="mt-6 bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                         <div className="text-center py-8">
                             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -326,8 +326,14 @@ export default function PublicProfileView() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                 </svg>
                             </div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">Registered Landlord</h3>
-                            <p className="text-gray-600">This user is a verified landlord on Finndex Africa</p>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                {user.userType === 'agent' ? 'Registered Agent' : 'Registered Landlord'}
+                            </h3>
+                            <p className="text-gray-600">
+                                {user.userType === 'agent'
+                                    ? 'This user is a verified property agent on Finndex Africa'
+                                    : 'This user is a verified landlord on Finndex Africa'}
+                            </p>
                         </div>
                     </div>
                 )}

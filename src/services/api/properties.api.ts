@@ -87,4 +87,36 @@ export const propertiesApi = {
     reject: async (id: string, rejectionReason: string) => {
         return apiClient.patch<Property>(`/properties/${id}/reject`, { rejectionReason });
     },
+
+    // Unpublish property (Owner or Admin) - change status to archived
+    unpublish: async (id: string) => {
+        return apiClient.patch<Property>(`/properties/${id}/unpublish`, {});
+    },
+
+    // Republish property (Owner or Admin) - restore archived property to approved
+    republish: async (id: string) => {
+        return apiClient.patch<Property>(`/properties/${id}/republish`, {});
+    },
+
+    // Get property statistics for landlord/agent
+    getMyStats: async () => {
+        return apiClient.get<{
+            totalProperties: number;
+            totalValue: number;
+            totalViews: number;
+            totalInquiries: number;
+            activeListings: number;
+            pendingApproval: number;
+        }>('/properties/my-stats');
+    },
+
+    // Get public platform statistics
+    getStats: async () => {
+        return apiClient.get<{
+            totalProperties: number;
+            approvedProperties: number;
+            totalServiceProviders: number;
+            totalUsers: number;
+        }>('/properties/public/stats');
+    },
 };

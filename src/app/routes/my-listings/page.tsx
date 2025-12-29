@@ -351,7 +351,7 @@ function EditPropertyModal({ property, isOpen, onClose, onSave }: { property: Ap
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Area (sqm)</label>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Minutes from main road</label>
                             <input
                                 type="number"
                                 name="area"
@@ -501,7 +501,7 @@ function PropertyModal({ property, isOpen, onClose }: { property: ApiProperty | 
                         <div className="grid grid-cols-2 gap-3">
                             {property.bedrooms && <div className="flex items-center text-gray-700 text-sm"><span className="font-semibold mr-2">🛏️</span>{property.bedrooms} Bedroom{property.bedrooms > 1 ? 's' : ''}</div>}
                             {property.bathrooms && <div className="flex items-center text-gray-700 text-sm"><span className="font-semibold mr-2">🚿</span>{property.bathrooms} Bathroom{property.bathrooms > 1 ? 's' : ''}</div>}
-                            {property.area && <div className="flex items-center text-gray-700 text-sm"><span className="font-semibold mr-2">📐</span>{property.area} sqm</div>}
+                            {property.area && <div className="flex items-center text-gray-700 text-sm"><span className="font-semibold mr-2">🚗</span>{property.area} min from main road</div>}
                             {property.furnished && <div className="flex items-center text-gray-700 text-sm"><span className="font-semibold mr-2">🛋️</span>Furnished</div>}
                         </div>
                     </div>
@@ -555,6 +555,7 @@ export default function MyListingsPage() {
     const [showModal, setShowModal] = useState(false);
     const [selectedEditProperty, setSelectedEditProperty] = useState<ApiProperty | null>(null);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [unpublishConfirm, setUnpublishConfirm] = useState<ApiProperty | null>(null);
 
     useEffect(() => {
         // Check if user is logged in and has appropriate role
@@ -655,6 +656,80 @@ export default function MyListingsPage() {
             const errorMessage = err?.response?.data?.message || err?.message || 'Failed to save property. Please try again.';
             alert(errorMessage);
         }
+    };
+
+    const handleUnpublish = async () => {
+        if (!unpublishConfirm) return;
+
+        try {
+            await propertiesApi.unpublish(unpublishConfirm._id);
+
+            // Update local state
+            setProperties(properties.map(p =>
+                p._id === unpublishConfirm._id
+                    ? { ...p, status: 'suspended' }
+                    : p
+            ));
+
+            setUnpublishConfirm(null);
+            // Show success notification with custom styled div
+            showCustomNotification('success', 'Property Unpublished', 'Your property has been successfully unpublished and removed from public listings.');
+        } catch (err: any) {
+            console.error('Failed to unpublish property:', err);
+            const errorMessage = err?.response?.data?.message || err?.message || 'Failed to unpublish property. Please try again.';
+            showCustomNotification('error', 'Unpublish Failed', errorMessage);
+        }
+    };
+
+    const handleRepublish = async (propertyId: string) => {
+        try {
+            const updatedProperty = await propertiesApi.republish(propertyId);
+
+            // Update local state
+            setProperties(properties.map(p =>
+                p._id === propertyId
+                    ? { ...p, status: 'approved' }
+                    : p
+            ));
+
+            showCustomNotification('success', 'Property Republished', 'Your property is now visible to the public again.');
+        } catch (err: any) {
+            console.error('Failed to republish property:', err);
+            const errorMessage = err?.response?.data?.message || err?.message || 'Failed to republish property. Please try again.';
+            showCustomNotification('error', 'Republish Failed', errorMessage);
+        }
+    };
+
+    const showCustomNotification = (type: 'success' | 'error', title: string, message: string) => {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-2xl z-[9999] max-w-md animate-slideInDown ${type === 'success'
+            ? 'bg-green-50 border-2 border-green-200'
+            : 'bg-red-50 border-2 border-red-200'
+            }`;
+        notification.innerHTML = `
+            <div class="flex items-start gap-3">
+                <div class="flex-shrink-0">
+                    ${type === 'success'
+                ? '<svg class="h-5 w-5 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>'
+                : '<svg class="h-5 w-5 text-red-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>'
+            }
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-sm font-semibold ${type === 'success' ? 'text-green-900' : 'text-red-900'}">${title}</h3>
+                    <p class="text-sm mt-1 ${type === 'success' ? 'text-green-800' : 'text-red-800'}">${message}</p>
+                </div>
+                <button class="text-gray-400 hover:text-gray-600" onclick="this.parentElement.remove()">
+                    <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                </button>
+            </div>
+        `;
+        document.body.appendChild(notification);
+
+        // Auto-remove after 4 seconds
+        setTimeout(() => {
+            notification.classList.add('animate-slideOutUp');
+            setTimeout(() => notification.remove(), 300);
+        }, 4000);
     };
 
     if (isLoading) {
@@ -768,7 +843,7 @@ export default function MyListingsPage() {
                 )}
 
                 {/* Filter Tabs */}
-                <div className="mb-8 bg-white rounded-xl shadow-md p-2 inline-flex gap-2">
+                <div className="mb-8 bg-white rounded-xl shadow-md p-2 flex flex-wrap gap-2">
                     {['all', 'pending', 'approved', 'rejected', 'archived'].map((status) => {
                         const count = status === 'all'
                             ? properties.length
@@ -778,18 +853,16 @@ export default function MyListingsPage() {
                             <button
                                 key={status}
                                 onClick={() => setStatusFilter(status)}
-                                className={`px-5 py-2.5 font-semibold text-sm rounded-lg whitespace-nowrap transition-all duration-200 ${
-                                    statusFilter === status
-                                        ? 'bg-blue-600 text-white shadow-md'
-                                        : 'text-gray-600 hover:bg-gray-100'
-                                }`}
+                                className={`px-4 sm:px-5 py-2.5 font-semibold text-sm rounded-lg whitespace-nowrap transition-all duration-200 ${statusFilter === status
+                                    ? 'bg-blue-600 text-white shadow-md'
+                                    : 'text-gray-600 hover:bg-gray-100'
+                                    }`}
                             >
                                 {status.charAt(0).toUpperCase() + status.slice(1)}
-                                <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-bold ${
-                                    statusFilter === status
-                                        ? 'bg-blue-500 text-white'
-                                        : 'bg-gray-200 text-gray-700'
-                                }`}>
+                                <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-bold ${statusFilter === status
+                                    ? 'bg-blue-500 text-white'
+                                    : 'bg-gray-200 text-gray-700'
+                                    }`}>
                                     {count}
                                 </span>
                             </button>
@@ -898,8 +971,8 @@ export default function MyListingsPage() {
                                         )}
                                         {property.area && (
                                             <div className="flex items-center text-sm text-gray-700">
-                                                <span className="text-base mr-1.5">📐</span>
-                                                <span className="font-medium">{property.area} sqm</span>
+                                                <span className="text-base mr-1.5">🚗</span>
+                                                <span className="font-medium">{property.area} min from main road</span>
                                             </div>
                                         )}
                                     </div>
@@ -913,19 +986,50 @@ export default function MyListingsPage() {
                                     </div>
 
                                     {/* Actions */}
-                                    <div className="flex gap-3">
-                                        <button
-                                            onClick={() => handleView(property)}
-                                            className="flex-1 px-4 py-2.5 text-sm font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors duration-200"
-                                        >
-                                            View Details
-                                        </button>
-                                        <button
-                                            onClick={() => handleEdit(property)}
-                                            className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors duration-200"
-                                        >
-                                            Edit
-                                        </button>
+                                    <div className="flex flex-col gap-3">
+                                        <div className="flex gap-3">
+                                            <button
+                                                onClick={() => handleView(property)}
+                                                className="flex-1 px-4 py-2.5 text-sm font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors duration-200"
+                                            >
+                                                View Details
+                                            </button>
+                                            <button
+                                                onClick={() => handleEdit(property)}
+                                                className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors duration-200"
+                                            >
+                                                Edit
+                                            </button>
+                                        </div>
+                                        {property.status === 'approved' && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setUnpublishConfirm(property);
+                                                }}
+                                                className="w-full px-4 py-2.5 text-sm font-semibold text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-xl transition-colors duration-200 flex items-center justify-center gap-2"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                                </svg>
+                                                Unpublish
+                                            </button>
+                                        )}
+                                        {property.status === 'suspended' && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleRepublish(property._id);
+                                                }}
+                                                className="w-full px-4 py-2.5 text-sm font-semibold text-green-600 bg-green-50 hover:bg-green-100 rounded-xl transition-colors duration-200 flex items-center justify-center gap-2"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                                Republish
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -948,6 +1052,43 @@ export default function MyListingsPage() {
                 onClose={() => setShowEditModal(false)}
                 onSave={handleSaveProperty}
             />
+
+            {/* Unpublish Confirmation Modal */}
+            {unpublishConfirm && (
+                <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fadeIn">
+                    <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 animate-slideUp">
+                        <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center">
+                            <svg className="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                            </svg>
+                        </div>
+                        <h3 className="text-2xl font-bold text-gray-900 mb-3 text-center">Unpublish Property?</h3>
+                        <p className="text-gray-600 mb-2 text-center font-medium">
+                            {unpublishConfirm.title}
+                        </p>
+                        <p className="text-gray-500 mb-8 text-center text-sm">
+                            This will remove the property from public listings. You can republish it later by editing and resubmitting for approval.
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <button
+                                onClick={() => setUnpublishConfirm(null)}
+                                className="flex-1 bg-gray-100 text-gray-700 px-6 py-3.5 rounded-xl hover:bg-gray-200 transition-all duration-200 font-semibold border-2 border-gray-200"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleUnpublish}
+                                className="flex-1 bg-gradient-to-r from-orange-600 to-orange-700 text-white px-6 py-3.5 rounded-xl hover:from-orange-700 hover:to-orange-800 transition-all duration-200 font-semibold shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-500/40 flex items-center justify-center gap-2"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                </svg>
+                                Unpublish
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

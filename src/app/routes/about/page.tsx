@@ -78,7 +78,7 @@ export default function About() {
                     Whether you&apos;re looking for services or want to provide your expertise, we welcome you to be part of our growing community.
                 </p>
                 <a
-                    href="/signup"
+                    href="/routes/login"
                     className="inline-block bg-white text-blue-600 font-semibold px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                     Get Started

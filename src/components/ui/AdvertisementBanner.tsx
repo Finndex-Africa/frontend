@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { SafeImage } from "@/components/ui/SafeImage";
-import { advertisementsApi } from "@/services/api";
+import { advertisementsApi, propertiesApi } from "@/services/api";
+import AdvertiseModal from "@/components/modals/AdvertiseModal";
 
 interface Advertisement {
     _id: string;
@@ -12,13 +13,26 @@ interface Advertisement {
     placement: string;
 }
 
+interface PlatformStats {
+    totalProperties: number;
+    totalServiceProviders: number;
+    totalUsers: number;
+}
+
 export default function AdvertisementBanner() {
     const [advertisements, setAdvertisements] = useState<Advertisement[]>([]);
     const [currentAdIndex, setCurrentAdIndex] = useState(0);
     const [loading, setLoading] = useState(true);
+    const [showAdvertiseModal, setShowAdvertiseModal] = useState(false);
+    const [stats, setStats] = useState<PlatformStats>({
+        totalProperties: 0,
+        totalServiceProviders: 0,
+        totalUsers: 0,
+    });
 
     useEffect(() => {
         fetchAdvertisements();
+        fetchStats();
     }, []);
 
     useEffect(() => {
@@ -44,7 +58,7 @@ export default function AdvertisementBanner() {
 
                 // Track impression for first ad
                 if (adsData[0]._id) {
-                    advertisementsApi.trackImpression(adsData[0]._id).catch(() => {});
+                    advertisementsApi.trackImpression(adsData[0]._id).catch(() => { });
                 }
             }
         } catch (error) {
@@ -54,9 +68,35 @@ export default function AdvertisementBanner() {
         }
     };
 
+    const fetchStats = async () => {
+        try {
+            const response = await propertiesApi.getStats();
+            if (response.data) {
+                setStats({
+                    totalProperties: response.data.totalProperties || 0,
+                    totalServiceProviders: response.data.totalServiceProviders || 0,
+                    totalUsers: response.data.totalUsers || 0,
+                });
+            }
+        } catch (error) {
+            console.error('Failed to fetch platform stats:', error);
+            // Keep default fallback values if fetch fails
+        }
+    };
+
+    const formatNumber = (num: number): string => {
+        if (num >= 1000000) {
+            return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M+';
+        }
+        if (num >= 1000) {
+            return (num / 1000).toFixed(0) + 'K+';
+        }
+        return num.toString();
+    };
+
     const handleAdClick = (ad: Advertisement) => {
         if (ad._id) {
-            advertisementsApi.trackClick(ad._id).catch(() => {});
+            advertisementsApi.trackClick(ad._id).catch(() => { });
         }
         if (ad.linkUrl) {
             window.open(ad.linkUrl, '_blank', 'noopener,noreferrer');
@@ -67,7 +107,7 @@ export default function AdvertisementBanner() {
         setCurrentAdIndex(index);
         const ad = advertisements[index];
         if (ad._id) {
-            advertisementsApi.trackImpression(ad._id).catch(() => {});
+            advertisementsApi.trackImpression(ad._id).catch(() => { });
         }
     };
 
@@ -88,12 +128,12 @@ export default function AdvertisementBanner() {
                                 looking for trusted providers.
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                                <a
-                                    href="#advertise-form"
+                                <button
+                                    onClick={() => setShowAdvertiseModal(true)}
                                     className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors text-center"
                                 >
                                     Get Started
-                                </a>
+                                </button>
                                 <a
                                     href="/routes/about"
                                     className="inline-block border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors text-center"
@@ -105,16 +145,16 @@ export default function AdvertisementBanner() {
                             {/* Stats */}
                             <div className="grid grid-cols-3 gap-4 pt-8 border-t border-white/20">
                                 <div>
-                                    <div className="text-3xl font-bold">20K+</div>
+                                    <div className="text-3xl font-bold">{formatNumber(stats.totalProperties)}</div>
                                     <div className="text-sm text-white/90">Properties Listed</div>
                                 </div>
                                 <div>
-                                    <div className="text-3xl font-bold">10K+</div>
+                                    <div className="text-3xl font-bold">{formatNumber(stats.totalServiceProviders)}</div>
                                     <div className="text-sm text-white/90">Service Providers</div>
                                 </div>
                                 <div>
-                                    <div className="text-3xl font-bold">50K+</div>
-                                    <div className="text-sm text-white/90">Monthly Visitors</div>
+                                    <div className="text-3xl font-bold">{formatNumber(stats.totalUsers)}</div>
+                                    <div className="text-sm text-white/90">Total Users</div>
                                 </div>
                             </div>
                         </div>
@@ -134,6 +174,9 @@ export default function AdvertisementBanner() {
                         </div>
                     </div>
                 </div>
+
+                {/* Advertise Modal */}
+                <AdvertiseModal open={showAdvertiseModal} onClose={() => setShowAdvertiseModal(false)} />
             </div>
         );
     }
@@ -170,11 +213,10 @@ export default function AdvertisementBanner() {
                                     <button
                                         key={index}
                                         onClick={() => handleAdChange(index)}
-                                        className={`w-2 h-2 rounded-full transition-all ${
-                                            index === currentAdIndex
-                                                ? 'bg-white w-8'
-                                                : 'bg-white/50 hover:bg-white/75'
-                                        }`}
+                                        className={`w-2 h-2 rounded-full transition-all ${index === currentAdIndex
+                                            ? 'bg-white w-8'
+                                            : 'bg-white/50 hover:bg-white/75'
+                                            }`}
                                         aria-label={`View ad ${index + 1}`}
                                     />
                                 ))}

@@ -197,14 +197,13 @@ export function ServiceForm({
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     }
-                    title="Pricing"
+                    title="Pricing (Optional)"
                 />
                 <Row gutter={[16, 16]}>
-                    <Col xs={24}>
+                    <Col xs={24} sm={12}>
                         <Form.Item
                             name="price"
                             label={<span style={{ fontWeight: '600', color: '#374151' }}>Price (USD)</span>}
-                            rules={[{ required: true, message: 'Please enter price' }]}
                         >
                             <InputNumber
                                 size="large"
@@ -213,15 +212,44 @@ export function ServiceForm({
                                     borderRadius: '12px',
                                     border: '2px solid #e5e7eb'
                                 }}
-                                placeholder="0.00"
+                                placeholder="0.00 (Optional)"
                                 min={0}
                                 precision={2}
-                                formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                formatter={(value) => value ? `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : ''}
                                 parser={(value) => Number(value!.replace(/\$\s?|(,*)/g, '')) as any}
                             />
                         </Form.Item>
                     </Col>
+                    <Col xs={24} sm={12}>
+                        <Form.Item
+                            name="priceUnit"
+                            label={<span style={{ fontWeight: '600', color: '#374151' }}>Price Unit</span>}
+                        >
+                            <Select
+                                size="large"
+                                placeholder="Select pricing unit"
+                                style={{ borderRadius: '12px' }}
+                            >
+                                <Select.Option value="day">📅 Per Day</Select.Option>
+                                <Select.Option value="week">📆 Per Week</Select.Option>
+                                <Select.Option value="month">🗓️ Per Month</Select.Option>
+                                <Select.Option value="hour">⏰ Per Hour</Select.Option>
+                                <Select.Option value="service">🔧 Per Service</Select.Option>
+                            </Select>
+                        </Form.Item>
+                    </Col>
                 </Row>
+                <div style={{
+                    padding: '12px',
+                    background: '#f9fafb',
+                    borderRadius: '10px',
+                    border: '1px solid #e5e7eb',
+                    marginTop: '8px'
+                }}>
+                    <Text type="secondary" style={{ fontSize: '13px', display: 'block', color: '#6b7280' }}>
+                        💡 Price is optional. Leave blank if you prefer to discuss pricing with clients directly.
+                    </Text>
+                </div>
             </div>
 
             {/* Description Section */}

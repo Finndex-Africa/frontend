@@ -18,7 +18,7 @@ export interface CreateServiceDto {
     category: string;
     description: string;
     location: string;
-    price: number;
+    price?: number;
     priceUnit?: string;
     duration?: number;
     included?: string[];
@@ -111,5 +111,10 @@ export const servicesApi = {
     // Mark as featured (Admin only)
     feature: async (id: string, days: number) => {
         return apiClient.patch<Service>(`/services/${id}/feature?days=${days}`, {});
+    },
+
+    // Unpublish service (Owner or Admin)
+    unpublish: async (id: string) => {
+        return apiClient.patch<Service>(`/services/${id}`, { status: 'inactive' });
     },
 };

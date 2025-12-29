@@ -8,7 +8,7 @@ import { Eye, EyeOff, Mail, Lock, Phone } from 'lucide-react';
 import { useAuth } from '@/providers';
 import type { Role } from '@/providers';
 
-type UserType = 'HomeSeeker' | 'Agent' | 'ServiceProvider';
+type UserType = 'HomeSeeker' | 'Agent' | 'Landlord' | 'ServiceProvider';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -94,6 +94,8 @@ export default function AuthPage() {
                     'HomeSeeker': 'home_seeker',
                     // Backend uses 'agent' role for property agents
                     'Agent': 'agent',
+                    // Backend uses 'landlord' role for landlords (same privileges as agent)
+                    'Landlord': 'landlord',
                     'ServiceProvider': 'service_provider',
                 };
 
@@ -206,6 +208,7 @@ export default function AuthPage() {
                                 >
                                     <option value="HomeSeeker">Home Seeker</option>
                                     <option value="Agent">Agent</option>
+                                    <option value="Landlord">Landlord</option>
                                     <option value="ServiceProvider">Service Provider</option>
                                 </select>
                             </div>
