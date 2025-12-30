@@ -13,10 +13,12 @@ import { Property as ApiProperty, Service as ApiService } from "@/types/dashboar
 import { useAuth } from "@/providers";
 
 const partnerLogos = [
-    { name: "Orange Foundation", logoUrl: "/images/partners/55e811dd-e77f-415c-bd80-073b2fa9b71c.png" },
-    { name: "MoMo Real Estate", logoUrl: "/images/partners/55ff3a0b-04aa-4fd0-93cf-4f36216d6b92.png" },
-    { name: "Orange Digital Center", logoUrl: "/images/partners/aeb9e930-3e9d-4c77-9f7e-052508497447.png" },
-    { name: "Partner 4", logoUrl: "/images/partners/e42bd8f1-69be-442e-9220-24d00ec46d8b.png" },
+    { name: "Partner 1", logoUrl: "/images/partners/partner1.jpeg" },
+    { name: "Partner 2", logoUrl: "/images/partners/partner2.jpeg" },
+    { name: "Partner 3", logoUrl: "/images/partners/partner3.jpeg" },
+    { name: "Partner 4", logoUrl: "/images/partners/partner4.jpeg" },
+    { name: "Partner 5", logoUrl: "/images/partners/partner5.jpeg" },
+    { name: "Partner 6", logoUrl: "/images/partners/partner6.jpeg" },
 ];
 
 // Adapter functions to convert API data to component types

@@ -5,12 +5,12 @@ export default function Footer() {
         <footer className="bg-gray-100">
             <div className="container-app py-12 grid grid-cols-1 md:grid-cols-4 gap-8 text-sm">
                 <div>
-                    <div className="mb-4 relative" style={{ width: '150px', height: '40px' }}>
+                    <div className="mb-4 relative" style={{ width: '200px', height: '50px' }}>
                         <Image
                             src="/images/logos/logo1.png"
                             alt="Finndex Africa"
                             fill
-                            className="object-contain"
+                            className="object-contain object-left"
                         />
                     </div>
                     <p className="text-gray-600 mt-2">A digital real estate and services platform connecting seekers with trusted providers.</p>
