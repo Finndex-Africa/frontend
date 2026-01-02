@@ -366,51 +366,86 @@ export default function PropertyDetail() {
                     {/* LANDLORD/AGENT INFO */}
                     {property.landlordId && (
                         <section>
-                            <h2 className="text-lg font-semibold text-gray-900 mb-4">Managed by</h2>
-                            <button
-                                onClick={() => {
-                                    const landlordIdValue = typeof property.landlordId === 'string'
-                                        ? property.landlordId
-                                        : (property.landlordId as any)?._id;
-                                    if (landlordIdValue) {
-                                        window.location.href = `/routes/profile-view/${landlordIdValue}`;
+                            {(() => {
+                                // Extract owner/agent info
+                                let ownerIdValue = '';
+                                let ownerName = 'Property Owner';
+                                let ownerInitial = 'L';
+                                let ownerEmail = '';
+
+                                if (typeof property.landlordId === 'object' && property.landlordId) {
+                                    const ownerObj = property.landlordId as any;
+                                    ownerIdValue = ownerObj._id || ownerObj.id || '';
+                                    ownerEmail = ownerObj.email || '';
+                                    ownerName = ownerObj.name || ownerObj.firstName || ownerObj.businessName || ownerEmail || 'Property Owner';
+                                    ownerInitial = ownerName.charAt(0).toUpperCase();
+                                } else if (typeof property.landlordId === 'string') {
+                                    ownerIdValue = property.landlordId;
+                                }
+
+                                // Fallback to agentId if landlordId doesn't have data
+                                if (!ownerIdValue && property.agentId) {
+                                    if (typeof property.agentId === 'object') {
+                                        const agentObj = property.agentId as any;
+                                        ownerIdValue = agentObj._id || agentObj.id || '';
+                                        ownerEmail = agentObj.email || '';
+                                        ownerName = agentObj.name || agentObj.firstName || ownerEmail || 'Agent';
+                                        ownerInitial = ownerName.charAt(0).toUpperCase();
+                                    } else if (typeof property.agentId === 'string') {
+                                        ownerIdValue = property.agentId;
                                     }
-                                }}
-                                className="w-full flex items-start gap-3 border border-gray-200 p-4 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all cursor-pointer text-left"
-                            >
-                                <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 flex-shrink-0">
-                                    <div className="w-full h-full flex items-center justify-center text-lg font-bold text-white">
-                                        L
-                                    </div>
-                                </div>
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <p className="font-semibold text-gray-900 text-sm">
-                                            Property Owner
-                                        </p>
-                                        <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium">
-                                            Verified
-                                        </span>
-                                    </div>
-                                    <p className="text-gray-500 text-xs">
-                                        Registered {property.agentId ? 'agent' : 'landlord'} on Finndex Africa
-                                    </p>
-                                    <div className="flex items-center gap-3 mt-2 text-xs text-gray-600">
-                                        <span className="flex items-center gap-1">
-                                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                                            </svg>
-                                            Identity Verified
-                                        </span>
-                                        <span className="flex items-center gap-1 text-blue-600 font-medium">
-                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                            </svg>
-                                            View Profile
-                                        </span>
-                                    </div>
-                                </div>
-                            </button>
+                                }
+
+                                return (
+                                    <>
+                                        <h2 className="text-lg font-semibold text-gray-900 mb-4">{ownerName}</h2>
+                                        <button
+                                            onClick={() => {
+                                                const landlordIdValue = typeof property.landlordId === 'string'
+                                                    ? property.landlordId
+                                                    : (property.landlordId as any)?._id;
+                                                if (landlordIdValue) {
+                                                    window.location.href = `/routes/profile-view/${landlordIdValue}`;
+                                                }
+                                            }}
+                                            className="w-full flex items-start gap-3 border border-gray-200 p-4 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all cursor-pointer text-left"
+                                        >
+                                            <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 flex-shrink-0">
+                                                <div className="w-full h-full flex items-center justify-center text-lg font-bold text-white">
+                                                    {ownerInitial}
+                                                </div>
+                                            </div>
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <p className="font-semibold text-gray-900 text-sm">
+                                                        {ownerName}
+                                                    </p>
+                                                    <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium">
+                                                        Verified
+                                                    </span>
+                                                </div>
+                                                <p className="text-gray-500 text-xs">
+                                                    Registered {property.agentId ? 'agent' : 'landlord'} on Finndex Africa
+                                                </p>
+                                                <div className="flex items-center gap-3 mt-2 text-xs text-gray-600">
+                                                    <span className="flex items-center gap-1">
+                                                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                                                        </svg>
+                                                        Identity Verified
+                                                    </span>
+                                                    <span className="flex items-center gap-1 text-blue-600 font-medium">
+                                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                        </svg>
+                                                        View Profile
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </>
+                                );
+                            })()}
                         </section>
                     )}
 

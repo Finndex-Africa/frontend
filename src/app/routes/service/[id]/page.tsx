@@ -145,9 +145,7 @@ export default function ServiceDetail() {
                 paymentMethod: 'pending'
             };
 
-            console.log('Submitting booking:', bookingPayload);
             const response = await apiClient.post('/bookings', bookingPayload);
-            console.log('Booking response:', response);
 
             if (response.success) {
                 toast.success('Service booking submitted successfully! The provider will contact you soon.');
@@ -212,7 +210,7 @@ export default function ServiceDetail() {
         : getDefaultImages(service.category);
 
     const media = images.map(src => ({ type: "image" as const, src }));
-    console.log(">>>>>service", service)
+
     return (
         <div className="min-h-screen bg-white">
             <Toaster position="top-center" />
@@ -256,91 +254,143 @@ export default function ServiceDetail() {
                     </section>
 
                     {/* SERVICE PROVIDER INFO */}
-                    {(() => {
-                        // Extract provider ID from service object
-                        let providerIdValue = '';
-                        let providerName = 'Service Provider';
-                        let providerEmail = '';
+                    <section>
+                        {(() => {
+                            // Extract provider ID from service object
+                            let providerIdValue = '';
+                            let providerName = 'Service Provider';
+                            let providerEmail = '';
+                            let providerAvatar = '';
 
-                        if (typeof service.provider === 'object' && service.provider) {
-                            providerIdValue = (service.provider as any)._id || '';
-                            providerName = (service.provider as any).name || (service.provider as any).firstName || 'Service Provider';
-                            providerEmail = (service.provider as any).email || '';
-                        }
+                            // Try to get provider from service.providerId first
+                            if (typeof (service as any).providerId === 'object' && (service as any).providerId) {
+                                const providerObj = (service as any).providerId;
+                                providerIdValue = providerObj._id || providerObj.id || '';
+                                providerEmail = providerObj.email || '';
+                                providerName = providerObj.name || providerObj.firstName || providerObj.businessName || providerEmail || 'Service Provider';
+                                providerAvatar = providerObj.avatar || '';
+                            } else if (typeof (service as any).providerId === 'string') {
+                                providerIdValue = (service as any).providerId;
+                            }
 
-                        if (typeof service.provider === 'string') {
-                            providerIdValue = service.provider;
-                        }
+                            // Fallback to service.provider if providerId is not available
+                            if (!providerIdValue && (service as any).provider) {
+                                if (typeof (service as any).provider === 'object') {
+                                    const providerObj = (service as any).provider;
+                                    providerIdValue = providerObj._id || providerObj.id || '';
+                                    providerEmail = providerObj.email || '';
+                                    providerName = providerObj.name || providerObj.firstName || providerObj.businessName || providerEmail || 'Service Provider';
+                                    providerAvatar = providerObj.avatar || '';
+                                } else if (typeof (service as any).provider === 'string') {
+                                    providerIdValue = (service as any).provider;
+                                }
+                            }
 
-                        // Fallback to agentId or landlordId if provider is not available
-                        if (!providerIdValue && typeof service.agentId === 'string') {
-                            providerIdValue = service.agentId;
-                        }
+                            // Fallback to agentId if provider is not available
+                            if (!providerIdValue && (service as any).agentId) {
+                                if (typeof (service as any).agentId === 'object') {
+                                    const agentObj = (service as any).agentId;
+                                    providerIdValue = agentObj._id || agentObj.id || '';
+                                    providerEmail = agentObj.email || '';
+                                    providerName = agentObj.name || agentObj.firstName || providerEmail || 'Agent';
+                                    providerAvatar = agentObj.avatar || '';
+                                } else if (typeof (service as any).agentId === 'string') {
+                                    providerIdValue = (service as any).agentId;
+                                }
+                            }
 
-                        if (!providerIdValue && service.agentId && typeof service.agentId === 'object' && (service.agentId as any)._id) {
-                            providerIdValue = (service.agentId as any)._id;
-                        }
+                            // Fallback to landlordId if still no provider
+                            if (!providerIdValue && (service as any).landlordId) {
+                                if (typeof (service as any).landlordId === 'object') {
+                                    const landlordObj = (service as any).landlordId;
+                                    providerIdValue = landlordObj._id || landlordObj.id || '';
+                                    providerEmail = landlordObj.email || '';
+                                    providerName = landlordObj.name || landlordObj.firstName || providerEmail || 'Service Provider';
+                                    providerAvatar = landlordObj.avatar || '';
+                                } else if (typeof (service as any).landlordId === 'string') {
+                                    providerIdValue = (service as any).landlordId;
+                                }
+                            }
 
-                        if (!providerIdValue && typeof service.landlordId === 'string') {
-                            providerIdValue = service.landlordId;
-                        }
-
-                        if (!providerIdValue && service.landlordId && typeof service.landlordId === 'object' && (service.landlordId as any)._id) {
-                            providerIdValue = (service.landlordId as any)._id;
-                        }
-
-                        if (!providerIdValue) {
-                            return null;
-                        }
-
-                        return (
-                            <section>
-                                <h2 className="text-lg font-semibold text-gray-900 mb-4">Service Provider</h2>
-                                <button
-                                    onClick={() => {
-                                        if (providerIdValue) {
-                                            window.location.href = `/routes/profile-view/${providerIdValue}`;
-                                        }
-                                    }}
-                                    className="w-full flex items-start gap-3 border border-gray-200 p-4 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-all cursor-pointer text-left"
-                                >
-                                    <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-purple-500 to-purple-600 flex-shrink-0">
-                                        <div className="w-full h-full flex items-center justify-center text-lg font-bold text-white">
-                                            {providerName.charAt(0).toUpperCase()}
-                                        </div>
+                            return (
+                                <>
+                                    <h2 className="text-lg font-semibold text-gray-900 mb-4">{providerName}</h2>
+                                    <div className="w-full border border-gray-200 rounded-lg overflow-hidden">
+                                        <button
+                                            onClick={() => {
+                                                if (providerIdValue) {
+                                                    window.location.href = `/routes/profile-view/${providerIdValue}`;
+                                                } else {
+                                                    console.warn('No provider ID available');
+                                                }
+                                            }}
+                                            disabled={!providerIdValue}
+                                            className={`w-full flex items-start gap-3 p-4 transition-all text-left ${providerIdValue
+                                                ? 'hover:border-purple-400 hover:bg-purple-50 cursor-pointer'
+                                                : 'bg-gray-50 cursor-not-allowed opacity-75'
+                                                }`}
+                                        >
+                                            {providerAvatar ? (
+                                                <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-gray-200">
+                                                    <img
+                                                        src={providerAvatar}
+                                                        alt={providerName}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-purple-500 to-purple-600 flex-shrink-0">
+                                                    <div className="w-full h-full flex items-center justify-center text-lg font-bold text-white">
+                                                        {providerName.charAt(0).toUpperCase()}
+                                                    </div>
+                                                </div>
+                                            )}
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <p className="font-semibold text-gray-900 text-sm">
+                                                        {providerName}
+                                                    </p>
+                                                    {service.verified && (
+                                                        <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium">
+                                                            Verified
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <p className="text-gray-500 text-xs">
+                                                    {providerIdValue ? 'Registered service provider on Finndex Africa' : 'Provider information not available'}
+                                                </p>
+                                                {providerEmail && (
+                                                    <p className="text-gray-500 text-xs mt-1 flex items-center gap-1">
+                                                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                                                        </svg>
+                                                        {providerEmail}
+                                                    </p>
+                                                )}
+                                                {providerIdValue && (
+                                                    <div className="flex items-center gap-3 mt-2 text-xs text-gray-600">
+                                                        <span className="flex items-center gap-1">
+                                                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                                                            </svg>
+                                                            Identity Verified
+                                                        </span>
+                                                        <span className="flex items-center gap-1 text-purple-600 font-medium">
+                                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                            </svg>
+                                                            View Full Profile
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </button>
                                     </div>
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <p className="font-semibold text-gray-900 text-sm">
-                                                {providerName}
-                                            </p>
-                                            <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium">
-                                                Verified
-                                            </span>
-                                        </div>
-                                        <p className="text-gray-500 text-xs">Registered service provider on Finndex Africa</p>
-                                        {providerEmail && (
-                                            <p className="text-gray-500 text-xs mt-1">✉️ {providerEmail}</p>
-                                        )}
-                                        <div className="flex items-center gap-3 mt-2 text-xs text-gray-600">
-                                            <span className="flex items-center gap-1">
-                                                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                                                </svg>
-                                                Identity Verified
-                                            </span>
-                                            <span className="flex items-center gap-1 text-purple-600 font-medium">
-                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                                </svg>
-                                                View Profile
-                                            </span>
-                                        </div>
-                                    </div>
-                                </button>
-                            </section>
-                        );
-                    })()}
+                                </>
+                            );
+                        })()}
+                    </section>
 
                     {/* MAP SECTION */}
                     <section>
@@ -394,7 +444,7 @@ export default function ServiceDetail() {
                                                 onClick={() => handleBookService()}
                                             >
                                                 <Calendar className="w-4 h-4" />
-                                                <span>{currentUser ? 'Book Viewing Now' : 'Sign in to Book'}</span>
+                                                <span>{currentUser ? 'Request Service' : 'Sign in to Request'}</span>
                                                 {!currentUser && <Lock className="w-3.5 h-3.5" />}
                                             </button>
                                         ) : (
@@ -426,27 +476,38 @@ export default function ServiceDetail() {
                                         </div>
                                     ) : currentUser ? (
                                         (() => {
-                                            // Use provider if available, otherwise fall back to agentId or landlordId
+                                            // Use providerId if available, otherwise fall back to provider, agentId or landlordId
                                             // Handle both populated objects (with _id) and direct string IDs
                                             let providerIdValue = '';
-                                            if (typeof service.provider === 'string') {
-                                                providerIdValue = service.provider;
-                                            } else if (service.provider && typeof service.provider === 'object' && (service.provider as any)._id) {
-                                                providerIdValue = String((service.provider as any)._id);
+
+                                            // Check providerId first
+                                            if (typeof (service as any).providerId === 'string') {
+                                                providerIdValue = (service as any).providerId;
+                                            } else if ((service as any).providerId && typeof (service as any).providerId === 'object' && (service as any).providerId._id) {
+                                                providerIdValue = String((service as any).providerId._id);
+                                            }
+
+                                            // Fallback to provider
+                                            if (!providerIdValue) {
+                                                if (typeof (service as any).provider === 'string') {
+                                                    providerIdValue = (service as any).provider;
+                                                } else if ((service as any).provider && typeof (service as any).provider === 'object' && (service as any).provider._id) {
+                                                    providerIdValue = String((service as any).provider._id);
+                                                }
                                             }
 
                                             let agentIdValue = '';
-                                            if (typeof service.agentId === 'string') {
-                                                agentIdValue = service.agentId;
-                                            } else if (service.agentId && typeof service.agentId === 'object' && (service.agentId as any)._id) {
-                                                agentIdValue = String((service.agentId as any)._id);
+                                            if (typeof (service as any).agentId === 'string') {
+                                                agentIdValue = (service as any).agentId;
+                                            } else if ((service as any).agentId && typeof (service as any).agentId === 'object' && (service as any).agentId._id) {
+                                                agentIdValue = String((service as any).agentId._id);
                                             }
 
                                             let landlordIdValue = '';
-                                            if (typeof service.landlordId === 'string') {
-                                                landlordIdValue = service.landlordId;
-                                            } else if (service.landlordId && typeof service.landlordId === 'object' && (service.landlordId as any)._id) {
-                                                landlordIdValue = String((service.landlordId as any)._id);
+                                            if (typeof (service as any).landlordId === 'string') {
+                                                landlordIdValue = (service as any).landlordId;
+                                            } else if ((service as any).landlordId && typeof (service as any).landlordId === 'object' && (service as any).landlordId._id) {
+                                                landlordIdValue = String((service as any).landlordId._id);
                                             }
 
                                             const providerId = providerIdValue || agentIdValue || landlordIdValue;
@@ -480,7 +541,7 @@ export default function ServiceDetail() {
                                 {/* Info Card */}
                                 <div className="mt-4 bg-blue-50 border border-blue-200 rounded-xl p-4">
                                     <p className="text-xs text-blue-900 font-medium">
-                                        💡 <span className="font-semibold">Tip:</span> Book a viewing to see this property in person. Response time is usually within 24 hours.
+                                        💡 <span className="font-semibold">Tip:</span> Contact the service provider to discuss your requirements. Response time is usually within 24 hours.
                                     </p>
                                 </div>
                             </div>
