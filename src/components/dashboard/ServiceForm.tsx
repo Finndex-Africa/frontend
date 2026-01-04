@@ -48,18 +48,32 @@ export function ServiceForm({
     }, [initialValues]);
 
     const handleSubmit = async (values: any) => {
+        console.log('🚀 FRONTEND FORM SUBMIT TRIGGERED!');
+        console.log('='.repeat(50));
+        console.log('📋 RAW VALUES FROM FORM:', values);
+        console.log('🔑 All keys:', Object.keys(values));
+        console.log('='.repeat(50));
+
         // Extract actual File objects from fileList (new uploads only)
         const filesToUpload = fileList
             .filter(file => file.originFileObj)
             .map(file => file.originFileObj as File);
 
-        // Get existing image URLs (images that were already uploaded)
-        const existingImageUrls = fileList
-            .filter(file => file.url && !file.originFileObj)
-            .map(file => file.url as string);
+        console.log('📸 Files to upload:', filesToUpload.length);
 
-        // Pass form values, new files to upload, and existing image URLs to parent
-        onSubmit({ ...values, existingImages: existingImageUrls }, filesToUpload);
+        // Validate that at least 1 image is uploaded (for create) or exists (for edit)
+        const hasNewFiles = filesToUpload.length > 0;
+        const hasExistingImages = fileList.some(file => file.url && !file.originFileObj);
+
+        if (!hasNewFiles && !hasExistingImages) {
+            showToast.error('Please upload at least 1 image');
+            return;
+        }
+
+        console.log('🎯 About to call onSubmit (frontend)...');
+        // DON'T add existingImages here - let parent handle it!
+        onSubmit(values, filesToUpload);
+        console.log('✅ onSubmit called!');
     };
 
     const handleUploadChange = ({ fileList: newFileList }: any) => {
@@ -287,7 +301,7 @@ export function ServiceForm({
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                     }
-                    title="Service Images"
+                    title="Service Images *"
                 />
                 <Upload
                     listType="picture-card"
@@ -330,7 +344,7 @@ export function ServiceForm({
                     border: '1px solid #e5e7eb'
                 }}>
                     <Text type="secondary" style={{ fontSize: '13px', display: 'block', color: '#6b7280' }}>
-                        📸 Upload up to 10 high-quality images of your service
+                        📸 Upload at least 1 image (up to 10) - Images will be uploaded to Digital Ocean
                     </Text>
                     <Text type="secondary" style={{ fontSize: '13px', display: 'block', marginTop: '4px', color: '#9ca3af' }}>
                         • Max size: 10MB per image • Supported formats: JPG, PNG, WebP

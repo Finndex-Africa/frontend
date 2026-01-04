@@ -51,29 +51,76 @@ export default function MyServicesPage() {
         try {
             setSubmitting(true);
 
-            // Step 1: Create service without images
-            const response = await servicesApi.create(values);
-            const createdService = response.data;
+            console.log('📥 Frontend page - received values:', values);
+            console.log('📸 Frontend page - files to upload:', files.length);
 
-            // Step 2: Upload images if any
+            // Step 1: Upload images to Digital Ocean FIRST
+            const uploadedUrls: string[] = [];
             if (files.length > 0) {
-                const uploadedUrls: string[] = [];
+                console.log('📤 Uploading', files.length, 'images to Digital Ocean...');
+
                 for (const file of files) {
                     try {
-                        const uploadResponse = await mediaApi.upload(file, 'services', createdService._id);
+                        const uploadResponse = await mediaApi.upload(file, 'services');
                         uploadedUrls.push(uploadResponse.url);
+                        console.log('✅ Uploaded:', uploadResponse.url);
                     } catch (error) {
-                        console.error('Failed to upload image:', error);
+                        console.error('❌ Failed to upload image:', error);
+                        showToast({
+                            title: 'Warning',
+                            description: 'Failed to upload some images',
+                            variant: 'error'
+                        });
                     }
                 }
-
-                // Step 3: Update service with image URLs
-                if (uploadedUrls.length > 0) {
-                    await servicesApi.update(createdService._id, {
-                        images: uploadedUrls,
-                    });
-                }
             }
+
+            // Step 2: Build clean data (no existingImages!)
+            const cleanData: any = {
+                title: values.title,
+                category: values.category,
+                description: values.description,
+                location: values.location,
+            };
+
+            // Add optional fields
+            if (values.businessName) cleanData.businessName = values.businessName;
+            if (values.experience !== undefined && values.experience !== null) cleanData.experience = Number(values.experience);
+            if (values.phoneNumber) cleanData.phoneNumber = values.phoneNumber;
+            if (values.whatsappNumber) cleanData.whatsappNumber = values.whatsappNumber;
+            if (values.verificationNumber) cleanData.verificationNumber = values.verificationNumber;
+            if (values.priceUnit) cleanData.priceUnit = values.priceUnit;
+            if (values.duration) cleanData.duration = values.duration;
+
+            // Handle price (optional, defaults to 0)
+            if (values.price !== undefined && values.price !== null && values.price !== '') {
+                cleanData.price = Number(values.price);
+                if (cleanData.price < 0) cleanData.price = 0;
+            } else {
+                cleanData.price = 0;
+            }
+
+            // Add uploaded image URLs (required)
+            if (uploadedUrls.length > 0) {
+                cleanData.images = uploadedUrls;
+            } else {
+                showToast({
+                    title: 'Error',
+                    description: 'At least 1 image is required',
+                    variant: 'error'
+                });
+                setSubmitting(false);
+                return;
+            }
+
+            console.log('🧹 Frontend page - clean data to send:', cleanData);
+            console.log('❓ Has existingImages?', 'existingImages' in cleanData);
+
+            // Step 3: Create service with images already included
+            const response = await servicesApi.create(cleanData);
+            const createdService = response.data;
+
+            console.log('✅ Service created:', createdService);
 
             setModalMode(null);
             fetchMyServices();

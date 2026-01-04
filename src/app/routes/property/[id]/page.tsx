@@ -398,7 +398,7 @@ export default function PropertyDetail() {
 
                                 return (
                                     <>
-                                        <h2 className="text-lg font-semibold text-gray-900 mb-4">{ownerName}</h2>
+                                        <h2 className="text-lg font-semibold text-gray-900 mb-4">Managed By</h2>
                                         <button
                                             onClick={() => {
                                                 const landlordIdValue = typeof property.landlordId === 'string'

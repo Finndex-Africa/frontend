@@ -64,7 +64,7 @@ export default function PlatformStats() {
                             </div>
                         </div>
                         <div className="text-3xl font-bold text-gray-900 mb-1">{formatNum(stats.totalUsers)}</div>
-                        <div className="text-sm text-gray-600 font-medium">Active Users</div>
+                        <div className="text-sm text-gray-600 font-medium">Total Users</div>
                     </div>
                 </div>
             </div>

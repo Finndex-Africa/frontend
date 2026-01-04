@@ -314,7 +314,7 @@ export default function ServiceDetail() {
 
                             return (
                                 <>
-                                    <h2 className="text-lg font-semibold text-gray-900 mb-4">{providerName}</h2>
+                                    <h2 className="text-lg font-semibold text-gray-900 mb-4">Managed By</h2>
                                     <div className="w-full border border-gray-200 rounded-lg overflow-hidden">
                                         <button
                                             onClick={() => {
