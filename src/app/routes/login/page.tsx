@@ -18,10 +18,12 @@ export default function AuthPage() {
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [phone, setPhone] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
     const [userType, setUserType] = useState<UserType>('HomeSeeker');
     const [loading, setLoading] = useState(false);
@@ -34,6 +36,8 @@ export default function AuthPage() {
         if (token && role !== 'guest') {
             router.push('/');
         }
+        // Log API URL for debugging
+        console.log('🌐 Using API URL:', API_URL);
     }, [role, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -42,6 +46,13 @@ export default function AuthPage() {
         setLoading(true);
 
         try {
+            // Validate password confirmation for signup
+            if (!isLogin && password !== confirmPassword) {
+                setError('Passwords do not match');
+                setLoading(false);
+                return;
+            }
+
             if (isLogin) {
                 // Login - include rememberMe in request
                 const response = await fetch(`${API_URL}/auth/login`, {
@@ -110,6 +121,9 @@ export default function AuthPage() {
                         lastName,
                         userType: userTypeMap[userType],
                     }),
+                }).catch(fetchError => {
+                    // Network error (CORS, no internet, DNS failure)
+                    throw new Error(`Network error: Unable to reach server at ${API_URL}. Please check your connection.`);
                 });
 
                 const data = await response.json();
@@ -125,6 +139,7 @@ export default function AuthPage() {
                 // Reset form
                 setEmail('');
                 setPassword('');
+                setConfirmPassword('');
                 setPhone('');
                 setFirstName('');
                 setLastName('');
@@ -136,6 +151,7 @@ export default function AuthPage() {
                 }, 3000);
             }
         } catch (err: unknown) {
+            console.error('Auth error:', err);
             setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
             setLoading(false);
@@ -308,6 +324,7 @@ export default function AuthPage() {
                                     onChange={(e) => setPassword(e.target.value)}
                                     className="w-full px-4 py-3 pl-12 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                                     placeholder="Enter your password"
+                                    minLength={6}
                                 />
                                 <Lock className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
                                 <button
@@ -318,7 +335,49 @@ export default function AuthPage() {
                                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                 </button>
                             </div>
+                            {!isLogin && (
+                                <p className="mt-1 text-xs text-gray-500">Password must be at least 6 characters</p>
+                            )}
                         </div>
+
+                        {/* Confirm Password (only for sign-up) */}
+                        {!isLogin && (
+                            <div>
+                                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                                    Confirm Password
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        id="confirmPassword"
+                                        name="confirmPassword"
+                                        type={showConfirmPassword ? 'text' : 'password'}
+                                        required
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        className={`w-full px-4 py-3 pl-12 pr-12 border rounded-lg focus:ring-2 focus:border-transparent outline-none transition-all ${confirmPassword && password !== confirmPassword
+                                                ? 'border-red-300 focus:ring-red-500'
+                                                : 'border-gray-300 focus:ring-blue-500'
+                                            }`}
+                                        placeholder="Confirm your password"
+                                        minLength={6}
+                                    />
+                                    <Lock className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        className="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
+                                    >
+                                        {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                    </button>
+                                </div>
+                                {confirmPassword && password !== confirmPassword && (
+                                    <p className="mt-1 text-xs text-red-600">Passwords do not match</p>
+                                )}
+                                {confirmPassword && password === confirmPassword && (
+                                    <p className="mt-1 text-xs text-green-600">✓ Passwords match</p>
+                                )}
+                            </div>
+                        )}
 
                         {/* Remember Me & Forgot Password */}
                         {isLogin && (

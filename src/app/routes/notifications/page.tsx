@@ -10,6 +10,8 @@ export default function NotificationsPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [filter, setFilter] = useState<'all' | 'unread'>('all');
+    const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         // Check if user is logged in
@@ -56,12 +58,18 @@ export default function NotificationsPage() {
     };
 
     const handleNotificationClick = async (notification: Notification) => {
+        setSelectedNotification(notification);
+        setShowModal(true);
+
+        // Mark as read if unread
         if (!notification.read) {
             await handleMarkAsRead(notification._id);
         }
-        if (notification.link) {
-            router.push(notification.link);
-        }
+    };
+
+    const closeModal = () => {
+        setShowModal(false);
+        setSelectedNotification(null);
     };
 
     const getTypeIcon = (type: Notification['type']) => {
@@ -131,8 +139,8 @@ export default function NotificationsPage() {
                         <button
                             onClick={() => setFilter('all')}
                             className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${filter === 'all'
-                                    ? 'border-blue-600 text-blue-600'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                                ? 'border-blue-600 text-blue-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700'
                                 }`}
                         >
                             All ({notifications.length})
@@ -140,8 +148,8 @@ export default function NotificationsPage() {
                         <button
                             onClick={() => setFilter('unread')}
                             className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${filter === 'unread'
-                                    ? 'border-blue-600 text-blue-600'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                                ? 'border-blue-600 text-blue-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700'
                                 }`}
                         >
                             Unread ({unreadCount})
@@ -208,6 +216,81 @@ export default function NotificationsPage() {
                                 </div>
                             </div>
                         ))}
+                    </div>
+                )}
+
+                {/* Notification Details Modal */}
+                {showModal && selectedNotification && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm" onClick={closeModal}>
+                        <div
+                            className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Modal Header */}
+                            <div className="flex items-start justify-between p-6 border-b border-gray-200">
+                                <div className="flex items-start gap-4">
+                                    <div className="flex-shrink-0">
+                                        {getTypeIcon(selectedNotification.type)}
+                                    </div>
+                                    <div>
+                                        <h2 className="text-xl font-bold text-gray-900">
+                                            {selectedNotification.title}
+                                        </h2>
+                                        <p className="mt-1 text-sm text-gray-500">
+                                            {new Date(selectedNotification.createdAt).toLocaleString('en-US', {
+                                                weekday: 'long',
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}
+                                        </p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={closeModal}
+                                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                                >
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            {/* Modal Body */}
+                            <div className="p-6">
+                                <div className="prose prose-sm max-w-none">
+                                    <p className="text-gray-700 text-base leading-relaxed whitespace-pre-wrap">
+                                        {selectedNotification.message}
+                                    </p>
+                                </div>
+
+                                {/* Type Badge */}
+                                <div className="mt-6 pt-6 border-t border-gray-200">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-sm font-medium text-gray-500">Type:</span>
+                                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${selectedNotification.type === 'success' ? 'bg-green-100 text-green-800' :
+                                            selectedNotification.type === 'error' ? 'bg-red-100 text-red-800' :
+                                                selectedNotification.type === 'warning' ? 'bg-yellow-100 text-yellow-800' :
+                                                    'bg-blue-100 text-blue-800'
+                                            }`}>
+                                            {selectedNotification.type.charAt(0).toUpperCase() + selectedNotification.type.slice(1)}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Modal Footer */}
+                            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end">
+                                <button
+                                    onClick={closeModal}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
