@@ -28,7 +28,7 @@ export function toFrontendRole(backendRole: BackendRole): FrontendRole {
     guest: 'guest',
     home_seeker: 'seeker',
     landlord: 'landlord',
-    agent: 'admin', // Treat agent as admin for frontend navigation
+    agent: 'landlord', // Agent has same privileges as landlord
     service_provider: 'provider',
     admin: 'admin',
   };

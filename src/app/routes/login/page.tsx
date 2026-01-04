@@ -88,8 +88,8 @@ export default function AuthPage() {
                 // Map backend role to frontend role
                 const roleMap: Record<string, Role> = {
                     admin: 'admin',
-                    agent: 'landlord',
-                    landlord: 'landlord',
+                    agent: 'landlord',      // Agent and landlord have same privileges
+                    landlord: 'landlord',   // Both map to 'landlord' frontend role
                     service_provider: 'provider',
                     home_seeker: 'home_seeker',
                 };
@@ -103,10 +103,8 @@ export default function AuthPage() {
                 // Sign up - Map userType to backend enum
                 const userTypeMap: Record<UserType, string> = {
                     'HomeSeeker': 'home_seeker',
-                    // Backend uses 'agent' role for property agents
                     'Agent': 'agent',
-                    // Backend uses 'landlord' role for landlords (same privileges as agent)
-                    'Landlord': 'landlord',
+                    'Landlord': 'landlord', // Separate role with same privileges as agent
                     'ServiceProvider': 'service_provider',
                 };
 
@@ -355,8 +353,8 @@ export default function AuthPage() {
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         className={`w-full px-4 py-3 pl-12 pr-12 border rounded-lg focus:ring-2 focus:border-transparent outline-none transition-all ${confirmPassword && password !== confirmPassword
-                                                ? 'border-red-300 focus:ring-red-500'
-                                                : 'border-gray-300 focus:ring-blue-500'
+                                            ? 'border-red-300 focus:ring-red-500'
+                                            : 'border-gray-300 focus:ring-blue-500'
                                             }`}
                                         placeholder="Confirm your password"
                                         minLength={6}
