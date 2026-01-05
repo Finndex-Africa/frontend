@@ -203,7 +203,7 @@ export default function Navbar() {
 
     return (
         <>
-            <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/80 backdrop-blur">
+            <header className="fixed md:sticky top-0 left-0 right-0 z-40 border-b border-gray-100 bg-white/80 backdrop-blur">
                 <div className="container-app flex items-center justify-between h-16 px-4">
                     <Link href="/" className="font-extrabold text-xl flex items-center gap-2">
                         <div className="relative" style={{ width: '160px', height: '45px' }}>
