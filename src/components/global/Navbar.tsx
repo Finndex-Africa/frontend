@@ -5,6 +5,7 @@ import Button from "../ui/Button";
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import AdvertiseModal from '../modals/AdvertiseModal';
+import FeedbackModal from '../modals/FeedbackModal';
 import { useAuth } from '@/providers';
 import { notificationsApi } from '@/services/api/notifications.api';
 
@@ -22,6 +23,7 @@ interface Notification {
 
 export default function Navbar() {
     const [showAdvertiseModal, setShowAdvertiseModal] = useState(false);
+    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
     const [showUserMenu, setShowUserMenu] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
     const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -226,6 +228,13 @@ export default function Navbar() {
                     </nav>
                     {/* Desktop Action Buttons */}
                     <div className="hidden md:flex items-center gap-2">
+                        <Button
+                            variant="ghost"
+                            className="px-4"
+                            onClick={() => setShowFeedbackModal(true)}
+                        >
+                            Leave us feedback
+                        </Button>
                         <Button
                             variant="ghost"
                             className="px-4"
@@ -681,6 +690,16 @@ export default function Navbar() {
                                     variant="ghost"
                                     className="w-full !justify-start"
                                     onClick={() => {
+                                        setShowFeedbackModal(true);
+                                        setShowMobileMenu(false);
+                                    }}
+                                >
+                                    Leave us feedback
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    className="w-full !justify-start"
+                                    onClick={() => {
                                         setShowAdvertiseModal(true);
                                         setShowMobileMenu(false);
                                     }}
@@ -1029,6 +1048,11 @@ export default function Navbar() {
             <AdvertiseModal
                 open={showAdvertiseModal}
                 onClose={() => setShowAdvertiseModal(false)}
+            />
+
+            <FeedbackModal
+                open={showFeedbackModal}
+                onClose={() => setShowFeedbackModal(false)}
             />
 
             {/* Notification Details Modal */}

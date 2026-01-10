@@ -3,6 +3,7 @@ import { Montserrat, Poppins } from "next/font/google";
 import "./globals.css";
 import Navbar from "../components/global/Navbar";
 import Footer from "../components/global/Footer";
+import WhatsAppFloat from "../components/global/WhatsAppFloat";
 import { Providers } from "../providers";
 import SentryInit from "./sentry-client-init";
 
@@ -53,6 +54,7 @@ export default function RootLayout({
               {children}
             </main>
             <Footer />
+            <WhatsAppFloat />
           </SentryInit>
         </Providers>
       </body>
