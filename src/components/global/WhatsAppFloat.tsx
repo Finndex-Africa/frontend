@@ -3,7 +3,7 @@
 import React from 'react';
 
 const WhatsAppFloat = () => {
-    const phoneNumber = '+231777420254';
+    const phoneNumber = '+231886149219';
     const whatsappUrl = `https://wa.me/${phoneNumber.replace(/[^0-9]/g, '')}`;
 
     return (
