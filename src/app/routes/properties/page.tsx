@@ -93,7 +93,7 @@ function PropertiesContent() {
                 filters.location = searchLocation.trim();
             }
             if (searchType) {
-                filters.type = searchType;
+                filters.propertyType = searchType;
             }
             if (searchBudget) {
                 filters.maxPrice = parseInt(searchBudget);
@@ -101,7 +101,7 @@ function PropertiesContent() {
 
             // Add URL search parameters if they exist (these override form filters)
             if (locationParam) filters.location = locationParam;
-            if (typeParam) filters.type = typeParam;
+            if (typeParam) filters.propertyType = typeParam;
             if (maxPriceParam) filters.maxPrice = parseInt(maxPriceParam);
 
             const response = await propertiesApi.getAll(filters);

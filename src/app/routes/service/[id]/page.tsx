@@ -8,6 +8,7 @@ import { servicesApi } from "@/services/api";
 import { Service as ApiService } from "@/types/dashboard";
 import { apiClient } from "@/lib/api-client";
 import { MessageCircle, Calendar, Mail, Lock } from 'lucide-react';
+import ShareButton from '@/components/ui/ShareButton';
 import ChatBox from "@/components/dashboard/ChatBox";
 import ReviewsList from "@/components/reviews/ReviewsList";
 
@@ -243,6 +244,12 @@ export default function ServiceDetail() {
                                 )}
                             </div>
                         )}
+                        <div className="mt-4">
+                            <ShareButton
+                                title={service.title}
+                                text={`Check out this service: ${service.title} in ${service.location}`}
+                            />
+                        </div>
                     </header>
 
                     {/* ABOUT SERVICE */}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import toast, { Toaster } from 'react-hot-toast';
 import { bookingsApi } from '@/services/api/bookings.api';
 import { Booking, Service } from '@/types/dashboard';
 
@@ -13,6 +14,10 @@ export default function BookingsPage() {
     const [statusFilter, setStatusFilter] = useState<string>('all');
     const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const [userRole, setUserRole] = useState<string>('');
+    const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+    const isProvider = ['service_provider', 'landlord', 'agent'].includes(userRole);
 
     useEffect(() => {
         // Check if user is logged in
@@ -20,6 +25,17 @@ export default function BookingsPage() {
         if (!token) {
             router.push('/routes/login');
             return;
+        }
+
+        // Get user role
+        const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+        if (userStr) {
+            try {
+                const userData = JSON.parse(userStr);
+                setUserRole(userData.userType || userData.role || '');
+            } catch (e) {
+                console.error('Failed to parse user data:', e);
+            }
         }
 
         fetchBookings();
@@ -93,6 +109,61 @@ export default function BookingsPage() {
         setSelectedBooking(null);
     };
 
+    const handleConfirmBooking = async (bookingId: string) => {
+        if (actionLoading) return;
+        try {
+            setActionLoading(bookingId);
+            await bookingsApi.confirm(bookingId);
+            toast.success('Booking confirmed successfully');
+            await fetchBookings();
+            setShowDetailsModal(false);
+            setSelectedBooking(null);
+        } catch (error: any) {
+            console.error('Failed to confirm booking:', error);
+            toast.error(error?.response?.data?.message || 'Failed to confirm booking');
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    const handleRejectBooking = async (bookingId: string) => {
+        const reason = prompt('Please provide a reason for rejection:');
+        if (!reason) return;
+        if (actionLoading) return;
+        try {
+            setActionLoading(bookingId);
+            await bookingsApi.reject(bookingId, reason);
+            toast.success('Booking rejected');
+            await fetchBookings();
+            setShowDetailsModal(false);
+            setSelectedBooking(null);
+        } catch (error: any) {
+            console.error('Failed to reject booking:', error);
+            toast.error(error?.response?.data?.message || 'Failed to reject booking');
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    const handleCancelBooking = async (bookingId: string) => {
+        const reason = prompt('Please provide a reason for cancellation:');
+        if (!reason) return;
+        if (actionLoading) return;
+        try {
+            setActionLoading(bookingId);
+            await bookingsApi.cancel(bookingId, reason);
+            toast.success('Booking cancelled');
+            await fetchBookings();
+            setShowDetailsModal(false);
+            setSelectedBooking(null);
+        } catch (error: any) {
+            console.error('Failed to cancel booking:', error);
+            toast.error(error?.response?.data?.message || 'Failed to cancel booking');
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -106,6 +177,7 @@ export default function BookingsPage() {
 
     return (
         <div className="min-h-screen bg-gray-50 py-8">
+            <Toaster position="top-right" />
             <div className="container-app px-4 max-w-7xl mx-auto">
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-900">My Bookings</h1>
@@ -386,15 +458,40 @@ export default function BookingsPage() {
                             >
                                 Close
                             </button>
-                            {selectedBooking.status === 'pending' && (
+                            {selectedBooking.status === 'pending' && isProvider && (
+                                <>
+                                    <button
+                                        onClick={() => handleRejectBooking(selectedBooking._id)}
+                                        disabled={actionLoading === selectedBooking._id}
+                                        className="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50"
+                                    >
+                                        {actionLoading === selectedBooking._id ? 'Processing...' : 'Reject'}
+                                    </button>
+                                    <button
+                                        onClick={() => handleConfirmBooking(selectedBooking._id)}
+                                        disabled={actionLoading === selectedBooking._id}
+                                        className="px-6 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50"
+                                    >
+                                        {actionLoading === selectedBooking._id ? 'Processing...' : 'Confirm'}
+                                    </button>
+                                </>
+                            )}
+                            {selectedBooking.status === 'pending' && !isProvider && (
                                 <button
-                                    onClick={() => {
-                                        // Handle cancel booking
-                                        console.log('Cancel booking:', selectedBooking._id);
-                                    }}
-                                    className="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors font-medium"
+                                    onClick={() => handleCancelBooking(selectedBooking._id)}
+                                    disabled={actionLoading === selectedBooking._id}
+                                    className="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50"
                                 >
-                                    Cancel Booking
+                                    {actionLoading === selectedBooking._id ? 'Cancelling...' : 'Cancel Booking'}
+                                </button>
+                            )}
+                            {selectedBooking.status === 'confirmed' && (
+                                <button
+                                    onClick={() => handleCancelBooking(selectedBooking._id)}
+                                    disabled={actionLoading === selectedBooking._id}
+                                    className="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50"
+                                >
+                                    {actionLoading === selectedBooking._id ? 'Cancelling...' : 'Cancel Booking'}
                                 </button>
                             )}
                         </div>

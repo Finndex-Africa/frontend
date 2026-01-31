@@ -240,7 +240,7 @@ export default function HomePage() {
             {/* Trusted Partners Section */}
             <section className="container-app pt-40 sm:pt-44 md:pt-48 pb-6">
                 <h2 className="text-xl sm:text-2xl font-bold text-center mb-4 sm:mb-6 px-4">
-                    Trusted <span className="text-blue-500">Partners</span>
+                    Trusted by Leading <span className="text-blue-500">Organizations and Service Providers</span>
                 </h2>
                 <PartnerLogos partners={partnerLogos} />
             </section>

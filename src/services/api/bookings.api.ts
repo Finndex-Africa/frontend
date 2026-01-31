@@ -57,4 +57,22 @@ export const bookingsApi = {
     delete: async (id: string) => {
         return apiClient.delete<void>(`/bookings/${id}`);
     },
+
+    // Confirm booking (provider/landlord/agent only)
+    confirm: async (id: string, data?: { notes?: string; estimatedDuration?: number; depositAmount?: number }) => {
+        return apiClient.patch<Booking>(`/bookings/${id}/confirm`, data || {});
+    },
+
+    // Cancel booking
+    cancel: async (id: string, reason: string) => {
+        return apiClient.patch<Booking>(`/bookings/${id}/cancel`, { reason });
+    },
+
+    // Reject booking
+    reject: async (id: string, reason: string) => {
+        return apiClient.patch<Booking>(`/bookings/${id}`, {
+            status: 'rejected',
+            cancellationReason: reason,
+        });
+    },
 };

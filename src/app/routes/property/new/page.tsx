@@ -86,7 +86,7 @@ export default function NewPropertyPage() {
                 location: formData.location,
                 price: Number(formData.price),
                 propertyType: formData.propertyType,
-                rooms: formData.bedrooms ? Number(formData.bedrooms) : undefined,
+                bedrooms: formData.bedrooms ? Number(formData.bedrooms) : undefined,
                 bathrooms: formData.bathrooms ? Number(formData.bathrooms) : undefined,
                 area: formData.area ? Number(formData.area) : undefined,
                 furnished: formData.furnished,

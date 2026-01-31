@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "../components/global/Navbar";
 import Footer from "../components/global/Footer";
 import WhatsAppFloat from "../components/global/WhatsAppFloat";
+import TestingDisclaimer from "../components/global/TestingDisclaimer";
 import { Providers } from "../providers";
 import SentryInit from "./sentry-client-init";
 
@@ -55,6 +56,7 @@ export default function RootLayout({
             </main>
             <Footer />
             <WhatsAppFloat />
+            <TestingDisclaimer />
           </SentryInit>
         </Providers>
       </body>

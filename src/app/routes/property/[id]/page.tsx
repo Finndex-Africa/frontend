@@ -6,6 +6,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import MediaCarousel from "@/components/domain/MediaCarousel";
 import Button from "@/components/ui/Button";
 import { MessageCircle, Calendar, Mail, Lock } from 'lucide-react';
+import ShareButton from '@/components/ui/ShareButton';
 import { propertiesApi } from "@/services/api";
 import { Property as ApiProperty } from "@/types/dashboard";
 import { apiClient } from "@/lib/api-client";
@@ -215,22 +216,42 @@ export default function PropertyDetail() {
         try {
             setSubmitting(true);
 
-            const messageData = {
-                receiverId: property.landlordId,
-                propertyId: property._id,
-                subject: subject || `Inquiry about ${property.title}`,
-                message: `${message}\n\nFrom: ${currentUser.firstName || 'User'}${currentUser.email ? ` (${currentUser.email})` : ''}`,
-            };
+            // Resolve landlordId to a string
+            let landlordIdValue = '';
+            if (typeof property.landlordId === 'string') {
+                landlordIdValue = property.landlordId;
+            } else if (property.landlordId && typeof property.landlordId === 'object') {
+                landlordIdValue = (property.landlordId as any)._id || '';
+            }
 
-            await apiClient.post('/messages/threads', messageData);
+            // Step 1: Create thread with correct DTO format
+            const threadData = {
+                participants: [landlordIdValue],
+                relatedItem: {
+                    type: 'property',
+                    id: property._id,
+                    title: property.title,
+                },
+            };
+            const threadResponse = await apiClient.post('/messages/threads', threadData);
+            const threadId = threadResponse.data?.data?._id || threadResponse.data?._id;
+
+            // Step 2: Send the actual message in that thread
+            if (threadId) {
+                const fullMessage = `${subject ? `[${subject}] ` : ''}${message}\n\nFrom: ${currentUser.firstName || 'User'}${currentUser.email ? ` (${currentUser.email})` : ''}`;
+                await apiClient.post('/messages/send', {
+                    threadId,
+                    text: fullMessage,
+                });
+            }
 
             const posterType = property.agentId ? 'agent' : 'landlord';
-            alert(`Message sent successfully! The ${posterType} will respond to you soon.`);
+            toast.success(`Message sent successfully! The ${posterType} will respond to you soon.`);
             setShowContactModal(false);
         } catch (error: any) {
             console.error('Failed to send message:', error);
             const errorMessage = error?.response?.data?.message || 'Failed to send message. Please try again.';
-            alert(errorMessage);
+            toast.error(errorMessage);
         } finally {
             setSubmitting(false);
         }
@@ -315,6 +336,12 @@ export default function PropertyDetail() {
                                 )}
                             </div>
                         )}
+                        <div className="mt-4">
+                            <ShareButton
+                                title={property.title}
+                                text={`Check out this property: ${property.title} in ${property.location}`}
+                            />
+                        </div>
                     </header>
 
                     {/* ABOUT */}
