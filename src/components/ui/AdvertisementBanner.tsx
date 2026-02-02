@@ -73,7 +73,7 @@ export default function AdvertisementBanner() {
             const response = await propertiesApi.getStats();
             if (response.data) {
                 setStats({
-                    totalProperties: response.data.totalProperties || 0,
+                    totalProperties: response.data.approvedProperties || response.data.totalProperties || 0,
                     totalServiceProviders: response.data.totalServiceProviders || 0,
                     totalUsers: response.data.totalUsers || 0,
                 });
@@ -162,7 +162,7 @@ export default function AdvertisementBanner() {
                         {/* Right Image/Graphic */}
                         <div className="relative h-80 md:h-96 rounded-2xl overflow-hidden shadow-2xl">
                             <SafeImage
-                                src="https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800"
+                                src="/images/properties/pexels-photo-323780.jpeg"
                                 alt="Advertise with us"
                                 fill
                                 className="object-cover"
@@ -230,7 +230,7 @@ export default function AdvertisementBanner() {
                         onClick={() => currentAd.linkUrl && handleAdClick(currentAd)}
                     >
                         <SafeImage
-                            src={currentAd.imageUrl || "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800"}
+                            src={currentAd.imageUrl || "/images/properties/pexels-photo-323780.jpeg"}
                             alt={currentAd.title}
                             fill
                             className="object-cover"

@@ -67,13 +67,20 @@ export class AuthService {
             try {
                 // Prefer persistent token, but fall back to session token
                 this.token = window.localStorage.getItem('token') || window.sessionStorage.getItem('token');
-                // Validate stored user data
                 const user = this.getUser();
-                if (!user) {
-                    // If user data is invalid, clear authentication
+                if (!user && this.token) {
+                    // Only clear if token is missing or expired; don't clear when user object was just malformed
+                    const decoded = decodeJwt(this.token);
+                    const now = Date.now() / 1000;
+                    if (!decoded || !decoded.exp || decoded.exp < now) {
+                        this.token = null;
+                        window.localStorage.removeItem('token');
+                        window.sessionStorage.removeItem('token');
+                        window.localStorage.removeItem('user');
+                        window.sessionStorage.removeItem('user');
+                    }
+                } else if (!user) {
                     this.token = null;
-                    window.localStorage.removeItem('token');
-                    window.sessionStorage.removeItem('token');
                 }
             } catch (error) {
                 console.error('Error initializing auth service:', error);
@@ -142,7 +149,7 @@ export class AuthService {
             document.cookie = 'token=; path=/; max-age=0';
         }
         this.token = null;
-        window.location.href = '/login';
+        window.location.href = '/routes/login';
     }
 
     getToken(): string | null {
@@ -222,8 +229,18 @@ export class AuthService {
             const storedUser = window.localStorage.getItem('user') || window.sessionStorage.getItem('user');
             if (storedUser) {
                 try {
-                    const parsed = JSON.parse(storedUser) as IUser;
-                    if (parsed && parsed.email) return parsed;
+                    const parsed = JSON.parse(storedUser) as Record<string, unknown>;
+                    if (parsed && (parsed.email || parsed.Email)) {
+                        // Normalize backend shape: _id -> id, userType -> role
+                        const normalized: IUser = {
+                            id: (parsed.id as string) ?? (parsed._id as string) ?? '',
+                            email: (parsed.email as string) ?? (parsed.Email as string) ?? '',
+                            firstName: (parsed.firstName as string) ?? '',
+                            lastName: (parsed.lastName as string) ?? '',
+                            role: (parsed.role as string) ?? (parsed.userType as string) ?? '',
+                        };
+                        return normalized;
+                    }
                 } catch (err) {
                     logDebug('AuthService: failed to parse stored user, will decode token', { err: String(err) });
                     // fallthrough to token decoding
@@ -266,9 +283,9 @@ export class AuthService {
 
             return null;
         } catch (error) {
+            logDebug('AuthService: getUser error (not clearing token)', { err: String(error) });
             console.error('Error getting user data:', error);
-            // Clear invalid token
-            window.localStorage.removeItem('token');
+            // Do not clear token on parse/read errors; only expiry clears storage above
             return null;
         }
     }
@@ -277,8 +294,9 @@ export class AuthService {
     setupAxiosInterceptors(): void {
         axios.interceptors.request.use(
             (config) => {
-                if (this.token) {
-                    config.headers.Authorization = `Bearer ${this.token}`;
+                const token = this.getToken();
+                if (token) {
+                    config.headers.Authorization = `Bearer ${token}`;
                 }
                 return config;
             },

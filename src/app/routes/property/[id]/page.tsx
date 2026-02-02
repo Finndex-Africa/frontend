@@ -13,37 +13,9 @@ import { apiClient } from "@/lib/api-client";
 import ChatBox from "@/components/dashboard/ChatBox";
 import ReviewsList from "@/components/reviews/ReviewsList";
 
-// Default images based on property type
-const getDefaultImages = (type: string) => {
-    const defaultImages: Record<string, string[]> = {
-        'Apartment': [
-            'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267',
-            'https://images.unsplash.com/photo-1502672260066-6bc35f0e1e1e',
-            'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267'
-        ],
-        'House': [
-            'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9',
-            'https://images.unsplash.com/photo-1600585154340-be6161a56a0c',
-            'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c'
-        ],
-        'Commercial': [
-            'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab',
-            'https://images.unsplash.com/photo-1497366216548-37526070297c',
-            'https://images.unsplash.com/photo-1497366811353-6870744d04b2'
-        ],
-        'Land': [
-            'https://images.unsplash.com/photo-1500382017468-9049fed747ef',
-            'https://images.unsplash.com/photo-1500382017468-9049fed747ef',
-            'https://images.unsplash.com/photo-1500382017468-9049fed747ef'
-        ],
-        'Other': [
-            'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c',
-            'https://images.unsplash.com/photo-1600607687644-aac4c3eac7f4',
-            'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3'
-        ]
-    };
-    return defaultImages[type] || defaultImages['Other'];
-};
+const LOCAL_PROPERTY_IMAGE = '/images/properties/pexels-photo-323780.jpeg';
+
+const getDefaultImages = (type: string) => [LOCAL_PROPERTY_IMAGE];
 
 export default function PropertyDetail() {
     const params = useParams();
@@ -213,45 +185,62 @@ export default function PropertyDetail() {
     const handleSendMessage = async (subject: string, message: string) => {
         if (!currentUser || !property || submitting) return;
 
+        // Resolve recipient: landlord first, then agent (same as "Managed By" section)
+        let recipientId = '';
+        if (typeof property.landlordId === 'string' && property.landlordId) {
+            recipientId = property.landlordId;
+        } else if (property.landlordId && typeof property.landlordId === 'object') {
+            recipientId = (property.landlordId as any)._id || '';
+        }
+        if (!recipientId && property.agentId) {
+            if (typeof property.agentId === 'string') {
+                recipientId = property.agentId;
+            } else if (typeof property.agentId === 'object' && property.agentId) {
+                recipientId = (property.agentId as any)._id || (property.agentId as any).id || '';
+            }
+        }
+
+        if (!recipientId) {
+            toast.error('This listing has no contact. Please try another property.');
+            return;
+        }
+
+        // Backend expects only participants (array of user ID strings) and optional relatedItem
+        const participants: string[] = [recipientId];
+
         try {
             setSubmitting(true);
 
-            // Resolve landlordId to a string
-            let landlordIdValue = '';
-            if (typeof property.landlordId === 'string') {
-                landlordIdValue = property.landlordId;
-            } else if (property.landlordId && typeof property.landlordId === 'object') {
-                landlordIdValue = (property.landlordId as any)._id || '';
-            }
-
-            // Step 1: Create thread with correct DTO format
-            const threadData = {
-                participants: [landlordIdValue],
+            const threadPayload = {
+                participants,
                 relatedItem: {
                     type: 'property',
                     id: property._id,
-                    title: property.title,
+                    title: property.title || 'Property',
                 },
             };
-            const threadResponse = await apiClient.post('/messages/threads', threadData);
-            const threadId = threadResponse.data?.data?._id || threadResponse.data?._id;
 
-            // Step 2: Send the actual message in that thread
-            if (threadId) {
-                const fullMessage = `${subject ? `[${subject}] ` : ''}${message}\n\nFrom: ${currentUser.firstName || 'User'}${currentUser.email ? ` (${currentUser.email})` : ''}`;
-                await apiClient.post('/messages/send', {
-                    threadId,
-                    text: fullMessage,
-                });
+            const threadResponse = await apiClient.post('/messages/threads', threadPayload);
+            const threadId = threadResponse.data?.data?._id ?? threadResponse.data?._id;
+
+            if (!threadId) {
+                toast.error('Could not start conversation. Please try again.');
+                return;
             }
+
+            const fullMessage = `${subject ? `[${subject}] ` : ''}${message}\n\nFrom: ${currentUser.firstName || 'User'}${currentUser.email ? ` (${currentUser.email})` : ''}`;
+            await apiClient.post('/messages/send', {
+                threadId,
+                text: fullMessage,
+            });
 
             const posterType = property.agentId ? 'agent' : 'landlord';
             toast.success(`Message sent successfully! The ${posterType} will respond to you soon.`);
             setShowContactModal(false);
         } catch (error: any) {
-            console.error('Failed to send message:', error);
-            const errorMessage = error?.response?.data?.message || 'Failed to send message. Please try again.';
-            toast.error(errorMessage);
+            const res = error?.response?.data;
+            const msg = Array.isArray(res?.message) ? res.message.join(' ') : (res?.message || 'Failed to send message. Please try again.');
+            toast.error(msg);
         } finally {
             setSubmitting(false);
         }
@@ -290,7 +279,12 @@ export default function PropertyDetail() {
 
     // Prepare amenities/features
     const features = [];
-    if (property.bedrooms) features.push({ label: "Bedrooms", desc: `${property.bedrooms} rooms`, icon: "🛏️" });
+    const bedroomCount = property.bedrooms != null ? property.bedrooms : property.rooms;
+    features.push({
+        label: "Bedrooms",
+        desc: bedroomCount != null ? `${bedroomCount} rooms` : "Not specified",
+        icon: "🛏️"
+    });
     if (property.bathrooms) features.push({ label: "Bathrooms", desc: `${property.bathrooms} bathrooms`, icon: "🚿" });
     if (property.area) features.push({ label: "Distance", desc: `${property.area} min from main road`, icon: "🚗" });
     if (property.furnished !== undefined) features.push({ label: "Furnished", desc: property.furnished ? "Fully furnished" : "Unfurnished", icon: "🪑" });

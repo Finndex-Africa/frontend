@@ -12,9 +12,12 @@ import { Property as ApiProperty } from "@/types/dashboard";
 const adaptPropertyToCard = (apiProperty: ApiProperty): Property => {
     const amenities = [];
 
-    // Build amenities array from property data
-    if (apiProperty.bedrooms) {
-        amenities.push(`${apiProperty.bedrooms} bedroom${apiProperty.bedrooms > 1 ? 's' : ''}`);
+    // Build amenities array from property data (use rooms as fallback when bedrooms missing)
+    const bedroomCount = apiProperty.bedrooms != null ? apiProperty.bedrooms : apiProperty.rooms;
+    if (bedroomCount != null) {
+        amenities.push(`${bedroomCount} bedroom${bedroomCount !== 1 ? 's' : ''}`);
+    } else {
+        amenities.push('Bedrooms not specified');
     }
     if (apiProperty.bathrooms) {
         amenities.push(`${apiProperty.bathrooms} bathroom${apiProperty.bathrooms > 1 ? 's' : ''}`);
@@ -28,16 +31,7 @@ const adaptPropertyToCard = (apiProperty: ApiProperty): Property => {
         amenities.push(apiProperty.type);
     }
 
-    // Default placeholder image based on property type
-    const defaultImages: Record<string, string> = {
-        'Apartment': 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267',
-        'House': 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9',
-        'Commercial': 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab',
-        'Land': 'https://images.unsplash.com/photo-1500382017468-9049fed747ef',
-        'Other': 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c'
-    };
-
-    const defaultImage = defaultImages[apiProperty.type] || defaultImages['Other'];
+    const defaultImage = '/images/properties/pexels-photo-323780.jpeg';
 
     return {
         id: apiProperty._id,
@@ -161,7 +155,7 @@ function PropertiesContent() {
             <section className="relative h-[500px] sm:h-[450px] md:h-[400px] w-full overflow-visible pb-32 sm:pb-20 md:pb-0">
                 <div className="absolute inset-0 overflow-hidden h-[300px] sm:h-[350px] md:h-[400px]">
                     <Image
-                        src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1600"
+                        src="/images/properties/pexels-photo-323780.jpeg"
                         alt="Properties Hero"
                         fill
                         className="object-cover"

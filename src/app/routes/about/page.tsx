@@ -8,7 +8,7 @@ export default function About() {
         <div className="min-h-screen bg-gray-50">
             {/* HERO SECTION */}
             <section className="relative h-[320px] w-full overflow-hidden">
-                <Image src="https://images.unsplash.com/photo-1497366216548-37526070297c" alt="Trusted services" fill className="object-cover" />
+                <Image src="/images/services/cleaning1.jpeg" alt="Trusted services" fill className="object-cover" />
                 <div className="absolute inset-0 bg-black/40" />
                 <div className="relative z-10 h-full flex flex-col items-center justify-center text-center text-white">
                     <h1 className="px-4 text-3xl md:text-5xl font-extrabold">About Us</h1>
@@ -38,7 +38,7 @@ export default function About() {
                 <div className="container mx-auto px-4 flex flex-col md:flex-row items-center gap-12">
                     <div className="md:w-1/2">
                         <Image
-                            src="https://images.unsplash.com/photo-1521791136064-7986c2920216"
+                            src="/images/properties/pexels-photo-323780.jpeg"
                             alt="Our Story"
                             width={600}
                             height={400}
@@ -55,7 +55,7 @@ export default function About() {
                         <p className="text-gray-700 mb-4">
                             Our platform was established to address long-standing challenges within the rental housing sector, including unverified listings,
                             excessive agent fees, rental scams, and inefficient search processes. Through digital innovation, Finndex Africa simplifies every step
-                            of the rental journey—making it faster, safer, and more affordable for individuals and families to find suitable housing and services.
+                            of the rental journey making it faster, safer, and more affordable for individuals and families to find suitable housing and services.
                         </p>
                         <p className="text-gray-700">
                             Beyond property listings, we provide access to verified household service providers, enabling users to connect with reliable electricians,

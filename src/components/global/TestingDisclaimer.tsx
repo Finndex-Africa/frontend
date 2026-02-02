@@ -35,10 +35,10 @@ export default function TestingDisclaimer() {
 
                 <div className="px-6 py-6">
                     <p className="text-gray-800 text-base leading-relaxed">
-                        Welcome to <span className="font-semibold">Finndex Africa</span>! Please note that this platform is currently in <span className="font-semibold text-amber-600">testing mode</span>.
+                        Welcome to <span className="font-semibold">Finndex Africa</span>. This platform is currently in <span className="font-semibold text-amber-600">testing</span>.
                     </p>
                     <p className="text-gray-700 text-sm mt-3 leading-relaxed">
-                        All properties, services, and listings displayed are for demonstration purposes only and are <span className="font-semibold">not real</span>. Please do not make any real enquiries or transactions based on the content shown.
+                        <span className="font-semibold">Properties and services shown on this site are not real.</span> All listings are for demonstration only. We have been receiving enquiries about them please do not make enquiries or transactions based on the content shown.
                     </p>
                     <p className="text-gray-500 text-xs mt-4">
                         Thank you for helping us test and improve the platform.

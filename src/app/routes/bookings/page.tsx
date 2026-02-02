@@ -53,21 +53,12 @@ export default function BookingsPage() {
     const fetchBookings = async () => {
         try {
             setIsLoading(true);
-            console.log('Fetching bookings...');
             const response = await bookingsApi.getAll({ limit: 100 });
-            console.log('Bookings API response:', response);
-            console.log('Response data:', response.data);
-
-            // API returns { success: true, data: { data: [], pagination: {} } }
-            // So we need response.data.data to get the actual bookings array
+            // API returns { success: true, data: [...], pagination: {} } or { data: { data: [], pagination } }
             const bookingsData = Array.isArray(response.data) ? response.data : (response.data as any)?.data || [];
-            console.log('Bookings array:', bookingsData);
-            console.log('Total bookings:', bookingsData.length);
-
             setBookings(bookingsData);
         } catch (error) {
             console.error('Failed to fetch bookings:', error);
-            console.error('Error details:', error);
         } finally {
             setIsLoading(false);
         }

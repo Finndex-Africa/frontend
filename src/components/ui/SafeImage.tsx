@@ -16,12 +16,18 @@ interface SafeImageProps {
   onLoad?: () => void;
 }
 
-// Valid placeholder images for different categories
+// Local placeholders to avoid Unsplash 404s
 const FALLBACK_IMAGES = {
-  property: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80', // Modern house
-  service: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&q=80', // Home services
-  default: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80', // Real estate
+  property: '/images/properties/pexels-photo-323780.jpeg',
+  service: '/images/services/cleaning1.jpeg',
+  default: '/images/properties/pexels-photo-323780.jpeg',
 };
+
+// Skip known-bad Unsplash placeholder IDs (e.g. 1580000000001) so we never request them
+function isBadUnsplashUrl(url: string): boolean {
+  if (typeof url !== 'string' || !url.includes('unsplash.com')) return false;
+  return /photo-1580{8,}\d*/.test(url) || /photo-15[56]0448204/.test(url) || /photo-1502672260266/.test(url) || /photo-1600607687644/.test(url);
+}
 
 export function SafeImage({
   src,
@@ -35,10 +41,6 @@ export function SafeImage({
   style,
   onLoad
 }: SafeImageProps) {
-  const [imgSrc, setImgSrc] = useState(src);
-  const [hasError, setHasError] = useState(false);
-
-  // Determine fallback based on alt text
   const getFallbackImage = () => {
     const altLower = alt.toLowerCase();
     if (altLower.includes('property') || altLower.includes('house') || altLower.includes('apartment')) {
@@ -49,6 +51,8 @@ export function SafeImage({
     }
     return FALLBACK_IMAGES.default;
   };
+  const [imgSrc, setImgSrc] = useState(() => (src && !isBadUnsplashUrl(src) ? src : getFallbackImage()));
+  const [hasError, setHasError] = useState(false);
 
   const handleError = () => {
     if (!hasError) {

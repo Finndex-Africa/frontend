@@ -50,10 +50,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
                     agent: 'landlord',
                     landlord: 'landlord',
                     service_provider: 'provider',
+                    vendor: 'provider', // alias for service_provider
                     home_seeker: 'home_seeker',
                 };
                 // Check both userType and role fields for compatibility
-                const userRole = userData.userType || userData.role;
+                const userRole = (userData.userType || userData.role || '').toLowerCase();
                 setRoleState(roleMap[userRole] || 'guest');
             } catch (e) {
                 console.error('Failed to parse user data:', e);

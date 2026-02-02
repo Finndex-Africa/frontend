@@ -17,7 +17,7 @@ export default function ServiceProviderCard({ sp }: { sp: ServiceProvider }) {
         <Card interactive>
             <div className="relative h-36 w-full">
                 <SafeImage
-                    src={sp.imageUrl || sp.logoUrl || "https://images.unsplash.com/photo-1581091215367-59ab6b11b3d6"}
+                    src={sp.imageUrl || sp.logoUrl || "/images/services/cleaning1.jpeg"}
                     alt={sp.name}
                     fill
                     className="object-cover"

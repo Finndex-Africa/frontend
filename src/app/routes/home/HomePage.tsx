@@ -26,9 +26,12 @@ const partnerLogos = [
 const adaptPropertyToCard = (apiProperty: ApiProperty): Property => {
     const amenities = [];
 
-    // Build amenities array from property data
-    if (apiProperty.bedrooms) {
-        amenities.push(`${apiProperty.bedrooms} bedroom${apiProperty.bedrooms > 1 ? 's' : ''}`);
+    // Build amenities array from property data (use rooms as fallback when bedrooms missing)
+    const bedroomCount = apiProperty.bedrooms != null ? apiProperty.bedrooms : apiProperty.rooms;
+    if (bedroomCount != null) {
+        amenities.push(`${bedroomCount} bedroom${bedroomCount !== 1 ? 's' : ''}`);
+    } else {
+        amenities.push('Bedrooms not specified');
     }
     if (apiProperty.bathrooms) {
         amenities.push(`${apiProperty.bathrooms} bathroom${apiProperty.bathrooms > 1 ? 's' : ''}`);
@@ -42,16 +45,7 @@ const adaptPropertyToCard = (apiProperty: ApiProperty): Property => {
         amenities.push(apiProperty.type);
     }
 
-    // Default placeholder image based on property type
-    const defaultImages: Record<string, string> = {
-        'Apartment': 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267',
-        'House': 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9',
-        'Commercial': 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab',
-        'Land': 'https://images.unsplash.com/photo-1500382017468-9049fed747ef',
-        'Other': 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c'
-    };
-
-    const defaultImage = defaultImages[apiProperty.type] || defaultImages['Other'];
+    const defaultImage = '/images/properties/pexels-photo-323780.jpeg';
 
     return {
         id: apiProperty._id,
@@ -70,20 +64,18 @@ const adaptServiceToCard = (apiService: ApiService): Service => {
     // Extract tags from category and description
     const tags = [apiService.category.replace(/_/g, ' ')];
 
-    // Default placeholder images for different service categories
     const defaultServiceImages: Record<string, string> = {
-        'electrical': 'https://images.unsplash.com/photo-1621905251918-48416bd8575a',
-        'plumbing': 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39',
-        'cleaning': 'https://images.unsplash.com/photo-1581578731548-c64695cc6952',
-        'painting_decoration': 'https://images.unsplash.com/photo-1562259949-e8e7689d7828',
-        'carpentry_furniture': 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7',
-        'moving_logistics': 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf',
-        'security_services': 'https://images.unsplash.com/photo-1557597774-9d273605dfa9',
-        'sanitation_services': 'https://images.unsplash.com/photo-1628177142898-93e36e4e3a50',
-        'maintenance': 'https://images.unsplash.com/photo-1504309092620-4d0ec726efa4',
-        'other': 'https://images.unsplash.com/photo-1581578731548-c64695cc6952'
+        electrical: '/images/services/electricity1.jpeg',
+        plumbing: '/images/services/plumbing1.jpeg',
+        cleaning: '/images/services/cleaning1.jpeg',
+        painting_decoration: '/images/services/cleaning1.jpeg',
+        carpentry_furniture: '/images/services/cleaning1.jpeg',
+        moving_logistics: '/images/services/cleaning1.jpeg',
+        security_services: '/images/services/cleaning1.jpeg',
+        sanitation_services: '/images/services/cleaning1.jpeg',
+        maintenance: '/images/services/cleaning1.jpeg',
+        other: '/images/services/cleaning1.jpeg',
     };
-
     const defaultImage = defaultServiceImages[apiService.category] || defaultServiceImages['other'];
 
     // Extract provider info if available
@@ -216,7 +208,7 @@ export default function HomePage() {
             <section className="relative h-[600px] sm:h-[650px] md:h-[700px] w-full overflow-visible">
                 <div className="absolute inset-0 overflow-hidden">
                     <Image
-                        src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c"
+                        src="/images/properties/pexels-photo-323780.jpeg"
                         alt="Hero"
                         fill
                         className="object-cover"
@@ -237,10 +229,10 @@ export default function HomePage() {
                 </div>
             </section>
 
-            {/* Trusted Partners Section */}
+            {/* Trusted by Leading Organizations and Service Providers */}
             <section className="container-app pt-40 sm:pt-44 md:pt-48 pb-6">
                 <h2 className="text-xl sm:text-2xl font-bold text-center mb-4 sm:mb-6 px-4">
-                    Trusted by Leading <span className="text-blue-500">Organizations and Service Providers</span>
+                    Trusted by Leading Organizations and Service Providers
                 </h2>
                 <PartnerLogos partners={partnerLogos} />
             </section>

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Eye, EyeOff, Mail, Lock, Phone } from 'lucide-react';
+import Image from 'next/image';
 import { useAuth } from '@/providers';
 import type { Role } from '@/providers';
 
@@ -88,13 +89,15 @@ export default function AuthPage() {
                 // Map backend role to frontend role
                 const roleMap: Record<string, Role> = {
                     admin: 'admin',
-                    agent: 'landlord',      // Agent and landlord have same privileges
-                    landlord: 'landlord',   // Both map to 'landlord' frontend role
+                    agent: 'landlord',
+                    landlord: 'landlord',
                     service_provider: 'provider',
+                    vendor: 'provider',
                     home_seeker: 'home_seeker',
                 };
-                setRole(roleMap[data.data.user.userType] || 'guest');
-                console.log('✅ Role set:', roleMap[data.data.user.userType] || 'guest');
+                const userRole = (data.data.user.userType || data.data.user.role || '').toLowerCase();
+                setRole(roleMap[userRole] || 'guest');
+                console.log('✅ Role set:', roleMap[userRole] || 'guest');
 
                 // Redirect to discover page (home)
                 console.log('🚀 Redirecting to discover page');
@@ -157,48 +160,46 @@ export default function AuthPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-            <motion.div
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="max-w-md w-full space-y-6"
-            >
-                {/* Toggle Login / Sign-Up */}
-                <div className="text-center">
-                    <h2 className="text-2xl font-bold text-blue-900">
-                        {isLogin ? 'Sign in to your account' : 'Create a new account'}
-                    </h2>
-                    <p className="mt-2 text-gray-600">
-                        {isLogin
-                            ? 'Or create a new account'
-                            : 'Already have an account? '}
-                        {!isLogin && (
-                            <button
-                                onClick={() => setIsLogin(true)}
-                                className="text-blue-600 hover:text-blue-700 font-medium ml-1"
-                            >
-                                Sign In
-                            </button>
-                        )}
-                        {isLogin && (
-                            <button
-                                onClick={() => setIsLogin(false)}
-                                className="text-blue-600 hover:text-blue-700 font-medium ml-1"
-                            >
-                                Sign Up
-                            </button>
-                        )}
-                    </p>
-                </div>
+        <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+            {/* House background image */}
+            <div className="fixed inset-0 z-0" aria-hidden>
+                <Image
+                    src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80"
+                    alt=""
+                    fill
+                    className="object-cover object-center"
+                    priority
+                    sizes="100vw"
+                />
+                <div className="absolute inset-0 bg-slate-900/50" aria-hidden />
+            </div>
 
-                {/* Form */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.6, delay: 0.2 }}
-                    className="bg-white rounded-lg shadow-lg p-8"
-                >
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="relative z-10 max-w-md w-full"
+            >
+                <div className="bg-white rounded-lg shadow-xl p-8">
+                    <div className="text-center mb-6">
+                        <h2 className="text-2xl font-bold text-gray-900">
+                            {isLogin ? 'Sign in to your account' : 'Create a new account'}
+                        </h2>
+                        <p className="mt-2 text-gray-600">
+                            {isLogin ? 'Or create a new account' : 'Already have an account? '}
+                            {!isLogin && (
+                                <button type="button" onClick={() => setIsLogin(true)} className="text-blue-600 hover:text-blue-700 font-medium ml-1">
+                                    Sign In
+                                </button>
+                            )}
+                            {isLogin && (
+                                <button type="button" onClick={() => setIsLogin(false)} className="text-blue-600 hover:text-blue-700 font-medium ml-1">
+                                    Sign Up
+                                </button>
+                            )}
+                        </p>
+                    </div>
+
                     {error && (
                         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
                             {error}
@@ -209,16 +210,15 @@ export default function AuthPage() {
                             {successMessage}
                         </div>
                     )}
+
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {!isLogin && (
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    User Type
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">User Type</label>
                                 <select
                                     value={userType}
                                     onChange={(e) => setUserType(e.target.value as UserType)}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                                 >
                                     <option value="HomeSeeker">Home Seeker</option>
                                     <option value="Agent">Agent</option>
@@ -228,13 +228,10 @@ export default function AuthPage() {
                             </div>
                         )}
 
-                        {/* First Name & Last Name (only for sign-up) */}
                         {!isLogin && (
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
-                                        First Name
-                                    </label>
+                                    <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
                                     <input
                                         id="firstName"
                                         name="firstName"
@@ -242,14 +239,12 @@ export default function AuthPage() {
                                         required
                                         value={firstName}
                                         onChange={(e) => setFirstName(e.target.value)}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                                         placeholder="First name"
                                     />
                                 </div>
                                 <div>
-                                    <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
-                                        Last Name
-                                    </label>
+                                    <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
                                     <input
                                         id="lastName"
                                         name="lastName"
@@ -257,18 +252,15 @@ export default function AuthPage() {
                                         required
                                         value={lastName}
                                         onChange={(e) => setLastName(e.target.value)}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                                         placeholder="Last name"
                                     />
                                 </div>
                             </div>
                         )}
 
-                        {/* Email */}
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                                Email Address
-                            </label>
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                             <div className="relative">
                                 <input
                                     id="email"
@@ -277,19 +269,16 @@ export default function AuthPage() {
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                    className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                                     placeholder="Enter your email"
                                 />
                                 <Mail className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
                             </div>
                         </div>
 
-                        {/* Phone (only for sign-up) */}
                         {!isLogin && (
                             <div>
-                                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                                    Phone Number
-                                </label>
+                                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
                                 <div className="relative">
                                     <input
                                         id="phone"
@@ -298,7 +287,7 @@ export default function AuthPage() {
                                         required
                                         value={phone}
                                         onChange={(e) => setPhone(e.target.value)}
-                                        className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                        className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                                         placeholder="+250788123456"
                                     />
                                     <Phone className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
@@ -307,11 +296,8 @@ export default function AuthPage() {
                             </div>
                         )}
 
-                        {/* Password */}
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                                Password
-                            </label>
+                            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">Password</label>
                             <div className="relative">
                                 <input
                                     id="password"
@@ -320,30 +306,21 @@ export default function AuthPage() {
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full px-4 py-3 pl-12 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                    className="w-full px-4 py-3 pl-12 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                                     placeholder="Enter your password"
                                     minLength={6}
                                 />
                                 <Lock className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
-                                >
+                                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600">
                                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                 </button>
                             </div>
-                            {!isLogin && (
-                                <p className="mt-1 text-xs text-gray-500">Password must be at least 6 characters</p>
-                            )}
+                            {!isLogin && <p className="mt-1 text-xs text-gray-500">Password must be at least 6 characters</p>}
                         </div>
 
-                        {/* Confirm Password (only for sign-up) */}
                         {!isLogin && (
                             <div>
-                                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                                    Confirm Password
-                                </label>
+                                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
                                 <div className="relative">
                                     <input
                                         id="confirmPassword"
@@ -352,32 +329,20 @@ export default function AuthPage() {
                                         required
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
-                                        className={`w-full px-4 py-3 pl-12 pr-12 border rounded-lg focus:ring-2 focus:border-transparent outline-none transition-all ${confirmPassword && password !== confirmPassword
-                                            ? 'border-red-300 focus:ring-red-500'
-                                            : 'border-gray-300 focus:ring-blue-500'
-                                            }`}
+                                        className={`w-full px-4 py-3 pl-12 pr-12 border rounded-lg focus:ring-2 focus:border-transparent outline-none ${confirmPassword && password !== confirmPassword ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
                                         placeholder="Confirm your password"
                                         minLength={6}
                                     />
                                     <Lock className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        className="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
-                                    >
+                                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600">
                                         {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                     </button>
                                 </div>
-                                {confirmPassword && password !== confirmPassword && (
-                                    <p className="mt-1 text-xs text-red-600">Passwords do not match</p>
-                                )}
-                                {confirmPassword && password === confirmPassword && (
-                                    <p className="mt-1 text-xs text-green-600">✓ Passwords match</p>
-                                )}
+                                {confirmPassword && password !== confirmPassword && <p className="mt-1 text-xs text-red-600">Passwords do not match</p>}
+                                {confirmPassword && password === confirmPassword && <p className="mt-1 text-xs text-green-600">✓ Passwords match</p>}
                             </div>
                         )}
 
-                        {/* Remember Me & Forgot Password */}
                         {isLogin && (
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center">
@@ -389,31 +354,23 @@ export default function AuthPage() {
                                         onChange={(e) => setRememberMe(e.target.checked)}
                                         className="h-4 w-4 text-blue-500 focus:ring-blue-500 border-gray-300 rounded"
                                     />
-                                    <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                                        Remember Me
-                                    </label>
+                                    <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">Remember Me</label>
                                 </div>
-                                <Link
-                                    href="/forgot-password"
-                                    className="text-sm text-blue-600 hover:text-blue-700 transition-colors"
-                                >
-                                    Forgot Password?
-                                </Link>
+                                <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">Forgot Password?</Link>
                             </div>
                         )}
 
-                        {/* Submit */}
                         <motion.button
                             whileHover={{ scale: loading ? 1 : 1.02 }}
                             whileTap={{ scale: loading ? 1 : 0.98 }}
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium text-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Sign Up')}
                         </motion.button>
                     </form>
-                </motion.div>
+                </div>
             </motion.div>
         </div>
     );

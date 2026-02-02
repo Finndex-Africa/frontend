@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useBookmarks } from "@/providers";
 import { SafeImage } from "@/components/ui/SafeImage";
+import ShareButton from "@/components/ui/ShareButton";
 
 export type Property = {
     id: string;
@@ -39,27 +40,37 @@ export default function PropertyCard({ p, badge }: { p: Property; badge?: string
                         {badge}
                     </div>
                 )}
-                <button
-                    aria-label="Bookmark"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        toggle(p.id);
-                    }}
-                    className="absolute top-3 right-3 p-2 hover:scale-110 transition-transform bg-white/10 backdrop-blur-sm rounded-full"
-                >
-                    <svg
-                        className={`w-5 h-5 ${saved ? 'fill-red-500 stroke-red-500' : 'fill-none stroke-white'}`}
-                        strokeWidth={2.5}
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                    <div className="absolute top-3 right-3 flex items-center gap-1">
+                        <ShareButton
+                            compact
+                            dropdownRight
+                            url={`/routes/property/${p.id}`}
+                            title={p.title}
+                            text={`Check out this property: ${p.title} in ${p.location}`}
                         />
-                    </svg>
-                </button>
-            </div>
+                        <button
+                            aria-label="Bookmark"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                toggle(p.id);
+                            }}
+                            className="p-2 hover:scale-110 transition-transform bg-white/10 backdrop-blur-sm rounded-full"
+                        >
+                            <svg
+                                className={`w-5 h-5 ${saved ? 'fill-red-500 stroke-red-500' : 'fill-none stroke-white'}`}
+                                strokeWidth={2.5}
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
 
             <div className="space-y-1">
                 <div className="flex items-start justify-between gap-2">

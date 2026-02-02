@@ -12,32 +12,9 @@ import ShareButton from '@/components/ui/ShareButton';
 import ChatBox from "@/components/dashboard/ChatBox";
 import ReviewsList from "@/components/reviews/ReviewsList";
 
-// Default images based on service category
-const getDefaultImages = (category: string) => {
-    const defaultImages: Record<string, string[]> = {
-        'electrical': [
-            'https://images.unsplash.com/photo-1621905251918-48416bd8575a',
-            'https://images.unsplash.com/photo-1621905252507-b35492cc74b4',
-            'https://images.unsplash.com/photo-1621905252472-0d7c27a8f8d7'
-        ],
-        'plumbing': [
-            'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39',
-            'https://images.unsplash.com/photo-1585704032915-c3400ca199e7',
-            'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39'
-        ],
-        'cleaning': [
-            'https://images.unsplash.com/photo-1581578731548-c64695cc6952',
-            'https://images.unsplash.com/photo-1563453392212-326f5e854473',
-            'https://images.unsplash.com/photo-1628177142898-93e36e4e3a50'
-        ],
-        'other': [
-            'https://images.unsplash.com/photo-1581578731548-c64695cc6952',
-            'https://images.unsplash.com/photo-1504309092620-4d0ec726efa4',
-            'https://images.unsplash.com/photo-1560518883-ce09059eeffa'
-        ]
-    };
-    return defaultImages[category] || defaultImages['other'];
-};
+const LOCAL_SERVICE_IMAGE = '/images/services/cleaning1.jpeg';
+
+const getDefaultImages = (_category: string) => [LOCAL_SERVICE_IMAGE];
 
 export default function ServiceDetail() {
     const params = useParams();

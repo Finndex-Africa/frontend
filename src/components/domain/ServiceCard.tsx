@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useBookmarks } from "@/providers";
 import { SafeImage } from "@/components/ui/SafeImage";
+import ShareButton from "@/components/ui/ShareButton";
 
 export type Service = {
     id: string;
@@ -38,26 +39,36 @@ export default function ServiceCard({ service }: { service: Service }) {
                             {service.badge}
                         </div>
                     )}
-                    <button
-                        aria-label="Bookmark"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            toggle(service.id);
-                        }}
-                        className="absolute top-3 right-3 p-2 bg-white/10 backdrop-blur-sm rounded-full hover:scale-110 transition-transform"
-                    >
-                        <svg
-                            className={`w-5 h-5 ${saved ? 'fill-red-500 stroke-red-500' : 'fill-none stroke-white'}`}
-                            strokeWidth={2.5}
-                            viewBox="0 0 24 24"
+                    <div className="absolute top-3 right-3 flex items-center gap-1">
+                        <ShareButton
+                            compact
+                            dropdownRight
+                            url={`/routes/service/${service.id}`}
+                            title={service.name}
+                            text={`Check out this service: ${service.name} in ${service.location}`}
+                        />
+                        <button
+                            aria-label="Bookmark"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                toggle(service.id);
+                            }}
+                            className="p-2 bg-white/10 backdrop-blur-sm rounded-full hover:scale-110 transition-transform"
                         >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                            />
-                        </svg>
-                    </button>
+                            <svg
+                                className={`w-5 h-5 ${saved ? 'fill-red-500 stroke-red-500' : 'fill-none stroke-white'}`}
+                                strokeWidth={2.5}
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
 
                 {/* CONTENT */}

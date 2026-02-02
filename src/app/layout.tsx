@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Montserrat, Poppins } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import Navbar from "../components/global/Navbar";
 import Footer from "../components/global/Footer";
@@ -8,19 +8,17 @@ import TestingDisclaimer from "../components/global/TestingDisclaimer";
 import { Providers } from "../providers";
 import SentryInit from "./sentry-client-init";
 
-// Primary Font: Montserrat ExtraBold
-const montserrat = Montserrat({
-  variable: "--font-montserrat",
-  subsets: ["latin"],
-  weight: ["800"], // ExtraBold
+// Primary (Headings): Whitney Bold
+const whitneyBold = localFont({
+  src: "../../Whitney-Font/whitney-bold.otf",
+  variable: "--font-whitney-bold",
   display: "swap",
 });
 
-// Secondary Font: Poppins (Bold, Medium, Regular)
-const poppins = Poppins({
-  variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["400", "500", "700"], // Regular, Medium, Bold
+// Secondary (Body): Whitney Medium
+const whitneyMedium = localFont({
+  src: "../../Whitney-Font/whitney-medium.otf",
+  variable: "--font-whitney-medium",
   display: "swap",
 });
 
@@ -45,15 +43,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${montserrat.variable} ${poppins.variable} antialiased`}
+        className={`${whitneyBold.variable} ${whitneyMedium.variable} font-body antialiased`}
         suppressHydrationWarning
       >
         <Providers>
           <SentryInit>
             <Navbar />
-            <main className="min-h-screen pt-16 md:pt-0">
-              {children}
-            </main>
+            <main className="min-h-screen pt-16 md:pt-0">{children}</main>
             <Footer />
             <WhatsAppFloat />
             <TestingDisclaimer />

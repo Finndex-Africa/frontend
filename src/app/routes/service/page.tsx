@@ -4,15 +4,15 @@ import ServiceProviderCard, { ServiceProvider } from "@/components/domain/Servic
 import SearchFilters from "@/components/domain/SearchFilters";
 
 const providers: ServiceProvider[] = [
-    { id: "1", name: "Mel's Plumbing", services: ["Plumbing", "Repairs"], location: "Accra", contact: "mels@example.com", verified: true, imageUrl: "https://images.unsplash.com/photo-1583923150151-5a045b72a6b1" },
-    { id: "2", name: "Sparklynix", services: ["Cleaning"], location: "Lagos", contact: "clean@example.com", verified: false, imageUrl: "https://images.unsplash.com/photo-1581579188871-45ea61f2a0c8" },
+    { id: "1", name: "Mel's Plumbing", services: ["Plumbing", "Repairs"], location: "Accra", contact: "mels@example.com", verified: true, imageUrl: "/images/services/plumbing1.jpeg" },
+    { id: "2", name: "Sparklynix", services: ["Cleaning"], location: "Lagos", contact: "clean@example.com", verified: false, imageUrl: "/images/services/cleaning1.jpeg" },
 ];
 
 export default function ServicesPage() {
     return (
         <div className="">
             <section className="relative h-[320px] w-full overflow-hidden">
-                <Image src="https://images.unsplash.com/photo-1497366216548-37526070297c" alt="Trusted services" fill className="object-cover" />
+                <Image src="/images/services/cleaning1.jpeg" alt="Trusted services" fill className="object-cover" />
                 <div className="absolute inset-0 bg-black/40" />
                 <div className="relative z-10 h-full flex flex-col items-center justify-center text-center text-white">
                     <h1 className="px-4 text-3xl md:text-5xl font-extrabold">Find Trusted Services</h1>

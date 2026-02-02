@@ -6,6 +6,15 @@ import { propertiesApi } from '@/services/api';
 import { Property as ApiProperty } from '@/types/dashboard';
 import Image from 'next/image';
 
+function getBedroomDisplay(p: ApiProperty): string {
+    const n = p.bedrooms ?? p.rooms;
+    return n != null ? `${n} Bedroom${n !== 1 ? 's' : ''}` : 'Not specified';
+}
+function getBedShortDisplay(p: ApiProperty): string {
+    const n = p.bedrooms ?? p.rooms;
+    return n != null ? `${n} bed${n !== 1 ? 's' : ''}` : 'Not specified';
+}
+
 // Property edit modal component
 function EditPropertyModal({ property, isOpen, onClose, onSave }: { property: ApiProperty | null; isOpen: boolean; onClose: () => void; onSave: (data: Partial<ApiProperty>) => Promise<void> }) {
     const [formData, setFormData] = useState<Partial<ApiProperty>>({});
@@ -499,7 +508,7 @@ function PropertyModal({ property, isOpen, onClose }: { property: ApiProperty | 
                     <div>
                         <label className="text-xs font-semibold text-gray-500 uppercase block mb-3">Amenities</label>
                         <div className="grid grid-cols-2 gap-3">
-                            {property.bedrooms && <div className="flex items-center text-gray-700 text-sm"><span className="font-semibold mr-2">🛏️</span>{property.bedrooms} Bedroom{property.bedrooms > 1 ? 's' : ''}</div>}
+                            <div className="flex items-center text-gray-700 text-sm"><span className="font-semibold mr-2">🛏️</span>{getBedroomDisplay(property)}</div>
                             {property.bathrooms && <div className="flex items-center text-gray-700 text-sm"><span className="font-semibold mr-2">🚿</span>{property.bathrooms} Bathroom{property.bathrooms > 1 ? 's' : ''}</div>}
                             {property.area && <div className="flex items-center text-gray-700 text-sm"><span className="font-semibold mr-2">🚗</span>{property.area} min from main road</div>}
                             {property.furnished && <div className="flex items-center text-gray-700 text-sm"><span className="font-semibold mr-2">🛋️</span>Furnished</div>}
@@ -957,12 +966,10 @@ export default function MyListingsPage() {
 
                                     {/* Amenities */}
                                     <div className="flex flex-wrap gap-3 mb-4 pb-4 border-b border-gray-100">
-                                        {property.bedrooms && (
-                                            <div className="flex items-center text-sm text-gray-700">
-                                                <span className="text-base mr-1.5">🛏️</span>
-                                                <span className="font-medium">{property.bedrooms} bed{property.bedrooms > 1 ? 's' : ''}</span>
-                                            </div>
-                                        )}
+                                        <div className="flex items-center text-sm text-gray-700">
+                                            <span className="text-base mr-1.5">🛏️</span>
+                                            <span className="font-medium">{getBedShortDisplay(property)}</span>
+                                        </div>
                                         {property.bathrooms && (
                                             <div className="flex items-center text-sm text-gray-700">
                                                 <span className="text-base mr-1.5">🚿</span>

@@ -13,20 +13,18 @@ const adaptServiceToCard = (apiService: ApiService): Service => {
     // Extract tags from category and description
     const tags = [apiService.category.replace(/_/g, ' ')];
 
-    // Default placeholder images for different service categories
     const defaultServiceImages: Record<string, string> = {
-        'electrical': 'https://images.unsplash.com/photo-1621905251918-48416bd8575a',
-        'plumbing': 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39',
-        'cleaning': 'https://images.unsplash.com/photo-1581578731548-c64695cc6952',
-        'painting_decoration': 'https://images.unsplash.com/photo-1562259949-e8e7689d7828',
-        'carpentry_furniture': 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7',
-        'moving_logistics': 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf',
-        'security_services': 'https://images.unsplash.com/photo-1557597774-9d273605dfa9',
-        'sanitation_services': 'https://images.unsplash.com/photo-1628177142898-93e36e4e3a50',
-        'maintenance': 'https://images.unsplash.com/photo-1504309092620-4d0ec726efa4',
-        'other': 'https://images.unsplash.com/photo-1581578731548-c64695cc6952'
+        electrical: '/images/services/electricity1.jpeg',
+        plumbing: '/images/services/plumbing1.jpeg',
+        cleaning: '/images/services/cleaning1.jpeg',
+        painting_decoration: '/images/services/cleaning1.jpeg',
+        carpentry_furniture: '/images/services/cleaning1.jpeg',
+        moving_logistics: '/images/services/cleaning1.jpeg',
+        security_services: '/images/services/cleaning1.jpeg',
+        sanitation_services: '/images/services/cleaning1.jpeg',
+        maintenance: '/images/services/cleaning1.jpeg',
+        other: '/images/services/cleaning1.jpeg',
     };
-
     const defaultImage = defaultServiceImages[apiService.category] || defaultServiceImages['other'];
 
     // Extract provider info if available
@@ -159,7 +157,7 @@ function ServicesContent() {
             <section className="relative h-[500px] sm:h-[450px] md:h-[400px] w-full overflow-visible pb-32 sm:pb-20 md:pb-0">
                 <div className="absolute inset-0 overflow-hidden h-[300px] sm:h-[350px] md:h-[400px]">
                     <Image
-                        src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1600"
+                        src="/images/services/cleaning1.jpeg"
                         alt="Services Hero"
                         fill
                         className="object-cover"
