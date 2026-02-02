@@ -8,8 +8,9 @@
   --primary-blue: #0000FF;
   --primary-blue-rgb: 0, 0, 255;
 
-  /* Brand Font - Whitney Bold */
-  --font-primary: var(--font-whitney-bold);
+  /* Brand Fonts */
+  --font-heading: var(--font-whitney-bold);
+  --font-body: var(--font-whitney-medium);
 }
 
 @theme inline {
@@ -19,10 +20,10 @@
   --color-primary: var(--primary-blue);
   --color-brand-blue: var(--primary-blue);
 
-  /* Fonts - Whitney Bold app-wide */
-  --font-sans: var(--font-whitney-bold);
+  /* Fonts: body/sans = Whitney Medium, headings/display = Whitney Bold */
+  --font-sans: var(--font-whitney-medium);
   --font-display: var(--font-whitney-bold);
-  --font-body: var(--font-whitney-bold);
+  --font-body: var(--font-whitney-medium);
   --font-heading: var(--font-whitney-bold);
 }
 
@@ -30,37 +31,33 @@
 body {
   background: #ffffff;
   color: #222222;
-  font-family: var(--font-whitney-bold), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-whitney-medium), -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Whitney Bold app-wide */
+/* Body text: Whitney Medium */
 .font-whitney {
-  font-family: var(--font-whitney-bold), sans-serif;
+  font-family: var(--font-whitney-medium), sans-serif;
 }
 
+/* Headings: Whitney Bold */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-whitney-bold), sans-serif;
 }
 
+.font-heading,
 .font-primary {
   font-family: var(--font-whitney-bold), sans-serif;
 }
 
-.font-secondary {
-  font-family: var(--font-whitney-bold), sans-serif;
+.font-secondary,
+.font-secondary-medium,
+.font-secondary-regular {
+  font-family: var(--font-whitney-medium), sans-serif;
 }
 
 .font-secondary-bold {
-  font-family: var(--font-whitney-bold), sans-serif;
-}
-
-.font-secondary-medium {
-  font-family: var(--font-whitney-bold), sans-serif;
-}
-
-.font-secondary-regular {
   font-family: var(--font-whitney-bold), sans-serif;
 }
 

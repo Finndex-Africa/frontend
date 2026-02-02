@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Navbar from "../components/global/Navbar";
-import Footer from "../components/global/Footer";
+import ConditionalFooter from "../components/global/ConditionalFooter";
 import WhatsAppFloat from "../components/global/WhatsAppFloat";
 import TestingDisclaimer from "../components/global/TestingDisclaimer";
 import { Providers } from "../providers";
@@ -50,7 +50,7 @@ export default function RootLayout({
           <SentryInit>
             <Navbar />
             <main className="min-h-screen pt-16 md:pt-0">{children}</main>
-            <Footer />
+            <ConditionalFooter />
             <WhatsAppFloat />
             <TestingDisclaimer />
           </SentryInit>
