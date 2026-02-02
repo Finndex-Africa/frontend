@@ -7,7 +7,7 @@ import MediaCarousel from "@/components/domain/MediaCarousel";
 import Button from "@/components/ui/Button";
 import { MessageCircle, Calendar, Mail, Lock } from 'lucide-react';
 import ShareButton from '@/components/ui/ShareButton';
-import { propertiesApi } from "@/services/api";
+import { propertiesApi, messagesApi } from "@/services/api";
 import { Property as ApiProperty } from "@/types/dashboard";
 import { apiClient } from "@/lib/api-client";
 import ChatBox from "@/components/dashboard/ChatBox";
@@ -220,8 +220,8 @@ export default function PropertyDetail() {
                 },
             };
 
-            const threadResponse = await apiClient.post('/messages/threads', threadPayload);
-            const threadId = threadResponse.data?.data?._id ?? threadResponse.data?._id;
+            const threadResponse = await messagesApi.createThread(threadPayload);
+            const threadId = threadResponse.data?._id;
 
             if (!threadId) {
                 toast.error('Could not start conversation. Please try again.');
