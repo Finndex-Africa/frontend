@@ -210,7 +210,7 @@ export default function Navbar() {
                     <Link href="/" className="font-extrabold text-xl flex items-center gap-2">
                         <div className="relative" style={{ width: '160px', height: '45px' }}>
                             <Image
-                                src="/images/logos/logo1.png"
+                                src="/images/logos/Finndex Africa Updated Logo.png"
                                 alt="Finndex Africa Logo"
                                 fill
                                 className="object-contain object-left"

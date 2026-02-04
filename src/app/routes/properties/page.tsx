@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import PropertyCard, { Property } from "../../../components/domain/PropertyCard";
 import Pagination from "../../../components/ui/Pagination";
@@ -48,6 +48,7 @@ const adaptPropertyToCard = (apiProperty: ApiProperty): Property => {
 
 function PropertiesContent() {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const [properties, setProperties] = useState<Property[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -60,10 +61,41 @@ function PropertiesContent() {
     const [searchType, setSearchType] = useState('');
     const [searchBudget, setSearchBudget] = useState('');
 
+    // Clear all filters
+    const clearAllFilters = () => {
+        setSearchLocation('');
+        setSearchType('');
+        setSearchBudget('');
+        setPage(1);
+        router.push('/routes/properties');
+    };
+
+    // Remove a specific filter
+    const removeFilter = (filterName: 'location' | 'type' | 'maxPrice') => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete(filterName);
+
+        // Also clear the corresponding form state
+        if (filterName === 'location') setSearchLocation('');
+        if (filterName === 'type') setSearchType('');
+        if (filterName === 'maxPrice') setSearchBudget('');
+
+        setPage(1);
+        const queryString = params.toString();
+        router.push(`/routes/properties${queryString ? `?${queryString}` : ''}`);
+    };
+
     // Get search parameters
     const locationParam = searchParams.get('location');
     const typeParam = searchParams.get('type');
     const maxPriceParam = searchParams.get('maxPrice');
+
+    // Sync form state with URL params on mount/change
+    useEffect(() => {
+        if (locationParam) setSearchLocation(locationParam);
+        if (typeParam) setSearchType(typeParam);
+        if (maxPriceParam) setSearchBudget(maxPriceParam);
+    }, [locationParam, typeParam, maxPriceParam]);
 
     useEffect(() => {
         fetchProperties();
@@ -74,7 +106,7 @@ function PropertiesContent() {
         try {
             setLoading(true);
 
-            // Build filters object with search params
+            // Build filters object
             const filters: any = {
                 page,
                 limit,
@@ -82,21 +114,14 @@ function PropertiesContent() {
                 sort: '-createdAt'  // Sort by most recent first
             };
 
-            // Add search form filters
-            if (searchLocation.trim()) {
-                filters.location = searchLocation.trim();
-            }
-            if (searchType) {
-                filters.propertyType = searchType;
-            }
-            if (searchBudget) {
-                filters.maxPrice = parseInt(searchBudget);
-            }
+            // Use form state for real-time filtering, URL params take precedence if present
+            const location = locationParam || searchLocation.trim();
+            const type = typeParam || searchType;
+            const maxPrice = maxPriceParam || searchBudget;
 
-            // Add URL search parameters if they exist (these override form filters)
-            if (locationParam) filters.location = locationParam;
-            if (typeParam) filters.propertyType = typeParam;
-            if (maxPriceParam) filters.maxPrice = parseInt(maxPriceParam);
+            if (location) filters.location = location;
+            if (type) filters.propertyType = type;
+            if (maxPrice) filters.maxPrice = parseInt(maxPrice);
 
             const response = await propertiesApi.getAll(filters);
 
@@ -131,22 +156,28 @@ function PropertiesContent() {
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        setPage(1); // Reset to first page when searching
+
+        // Build URL params from form state
+        const params = new URLSearchParams();
+        if (searchLocation.trim()) params.append('location', searchLocation.trim());
+        if (searchType) params.append('type', searchType);
+        if (searchBudget) params.append('maxPrice', searchBudget);
+
+        setPage(1);
+        const queryString = params.toString();
+        router.push(`/routes/properties${queryString ? `?${queryString}` : ''}`);
     };
 
     const handleLocationChange = (value: string) => {
         setSearchLocation(value);
-        setPage(1); // Reset to first page
     };
 
     const handleTypeChange = (value: string) => {
         setSearchType(value);
-        setPage(1); // Reset to first page
     };
 
     const handleBudgetChange = (value: string) => {
         setSearchBudget(value);
-        setPage(1); // Reset to first page
     };
 
     return (
@@ -248,22 +279,51 @@ function PropertiesContent() {
                 {/* Show active filters */}
                 {(locationParam || typeParam || maxPriceParam) && (
                     <div className="mb-4 sm:mb-6 bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
-                        <h3 className="font-semibold text-sm sm:text-base text-gray-900 mb-2">Active Filters:</h3>
+                        <div className="flex items-center justify-between mb-2">
+                            <h3 className="font-semibold text-sm sm:text-base text-gray-900">Active Filters:</h3>
+                            <button
+                                onClick={clearAllFilters}
+                                className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                                Clear All
+                            </button>
+                        </div>
                         <div className="flex flex-wrap gap-2">
                             {locationParam && (
-                                <span className="bg-white px-3 py-1 rounded-full text-sm border border-blue-300">
+                                <button
+                                    onClick={() => removeFilter('location')}
+                                    className="bg-white px-3 py-1 rounded-full text-sm border border-blue-300 flex items-center gap-1.5 hover:bg-blue-100 transition-colors group"
+                                >
                                     Location: {locationParam}
-                                </span>
+                                    <svg className="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
                             )}
                             {typeParam && (
-                                <span className="bg-white px-3 py-1 rounded-full text-sm border border-blue-300">
+                                <button
+                                    onClick={() => removeFilter('type')}
+                                    className="bg-white px-3 py-1 rounded-full text-sm border border-blue-300 flex items-center gap-1.5 hover:bg-blue-100 transition-colors group"
+                                >
                                     Type: {typeParam}
-                                </span>
+                                    <svg className="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
                             )}
                             {maxPriceParam && (
-                                <span className="bg-white px-3 py-1 rounded-full text-sm border border-blue-300">
+                                <button
+                                    onClick={() => removeFilter('maxPrice')}
+                                    className="bg-white px-3 py-1 rounded-full text-sm border border-blue-300 flex items-center gap-1.5 hover:bg-blue-100 transition-colors group"
+                                >
                                     Max Budget: ${maxPriceParam}
-                                </span>
+                                    <svg className="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
                             )}
                         </div>
                     </div>

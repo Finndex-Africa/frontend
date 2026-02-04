@@ -7,7 +7,7 @@ export default function Footer() {
                 <div>
                     <div className="mb-4 relative" style={{ width: '200px', height: '50px' }}>
                         <Image
-                            src="/images/logos/logo1.png"
+                            src="/images/logos/Finndex Africa Updated Logo.png"
                             alt="Finndex Africa"
                             fill
                             className="object-contain object-left"

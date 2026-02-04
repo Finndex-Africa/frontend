@@ -27,6 +27,9 @@ export default function PlatformStats() {
     return (
         <div className="bg-white py-6">
             <div className="container-app">
+                <h2 className="text-xl sm:text-2xl font-bold text-center mb-6 text-gray-900">
+                    Our Platform at a Glance
+                </h2>
                 <div className="grid grid-cols-3 gap-6 max-w-3xl mx-auto">
                     {/* Properties */}
                     <div className="text-center">

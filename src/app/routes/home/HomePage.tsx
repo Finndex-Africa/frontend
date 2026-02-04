@@ -217,7 +217,7 @@ export default function HomePage() {
                 </div>
                 <div className="relative z-[5] h-full flex flex-col items-center justify-center text-center text-white px-4 pb-32">
                     <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold max-w-4xl leading-tight mb-3 sm:mb-4 drop-shadow-lg">
-                        Discover the Perfect Homes and Services Tailored to your lifestyle
+                        Discover the Perfect Homes and Service Providers Tailored to your lifestyle
                     </h1>
                 </div>
 
