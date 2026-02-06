@@ -53,7 +53,7 @@ export default function PropertyCard({ p, badge }: { p: Property; badge?: string
                             onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                toggle(p.id);
+                                toggle(p.id, "property");
                             }}
                             className="p-2 hover:scale-110 transition-transform bg-white/10 backdrop-blur-sm rounded-full"
                         >

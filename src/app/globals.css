@@ -14,11 +14,24 @@
 }
 
 @theme inline {
-  /* Colors */
+  /* Colors - single source: --primary-blue (#0000FF) */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-primary: var(--primary-blue);
   --color-brand-blue: var(--primary-blue);
+
+  /* Blue palette: all blues use primary blue for consistency */
+  --color-blue-50: #e6e6ff;
+  --color-blue-100: #b3b3ff;
+  --color-blue-200: #8080ff;
+  --color-blue-300: #4d4dff;
+  --color-blue-400: #1a1aff;
+  --color-blue-500: var(--primary-blue);
+  --color-blue-600: var(--primary-blue);
+  --color-blue-700: #0000e6;
+  --color-blue-800: #0000cc;
+  --color-blue-900: #0000b3;
+  --color-blue-950: #000099;
 
   /* Fonts: body/sans = Whitney Medium, headings/display = Whitney Bold */
   --font-sans: var(--font-whitney-medium);

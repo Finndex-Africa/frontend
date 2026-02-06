@@ -126,8 +126,8 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
                 className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-in fade-in zoom-in duration-200"
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Header */}
-                <div className="relative bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-white">
+                {/* Header - primary blue */}
+                <div className="relative bg-gradient-to-r from-blue-600 to-blue-700 p-8 text-white">
                     <button
                         onClick={onClose}
                         className="absolute top-4 right-4 text-white/80 hover:text-white transition-colors"
@@ -167,7 +167,7 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
                                 value={formData.name}
                                 onChange={handleChange}
                                 placeholder="Enter your full name"
-                                className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+                                className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
                                     errors.name ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300'
                                 }`}
                             />
@@ -193,7 +193,7 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
                                 value={formData.email}
                                 onChange={handleChange}
                                 placeholder="you@example.com"
-                                className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+                                className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
                                     errors.email ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300'
                                 }`}
                             />
@@ -219,7 +219,7 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
                                 value={formData.phone}
                                 onChange={handleChange}
                                 placeholder="+250 700 000 000"
-                                className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+                                className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
                                     errors.phone ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300'
                                 }`}
                             />
@@ -245,7 +245,7 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
                                 value={formData.company}
                                 onChange={handleChange}
                                 placeholder="Your company or organization"
-                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 hover:border-gray-300 transition-all"
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-gray-300 transition-all"
                             />
                         </div>
 
@@ -261,7 +261,7 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
                                 onChange={handleChange}
                                 placeholder="Tell us about your advertising needs, budget, and target audience..."
                                 rows={4}
-                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 hover:border-gray-300 transition-all resize-none"
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-gray-300 transition-all resize-none"
                             />
                         </div>
                     </div>
@@ -279,7 +279,7 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-500/30 flex items-center gap-2"
+                            className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/30 flex items-center gap-2"
                         >
                             {loading ? (
                                 <>

@@ -52,7 +52,7 @@ export default function ServiceCard({ service }: { service: Service }) {
                             onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                toggle(service.id);
+                                toggle(service.id, "service");
                             }}
                             className="p-2 bg-white/10 backdrop-blur-sm rounded-full hover:scale-110 transition-transform"
                         >

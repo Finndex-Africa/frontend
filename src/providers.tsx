@@ -15,8 +15,16 @@ export function useAuth() {
     return ctx;
 }
 
-// Bookmarks context for saving property ids locally
-type BookmarkContextType = { bookmarks: string[]; toggle: (id: string) => void; has: (id: string) => boolean };
+// Bookmarks: saved items with type so we can show them on Favorites page
+export type BookmarkType = "property" | "service";
+export type BookmarkItem = { id: string; type: BookmarkType };
+const STORAGE_KEY = "finndex-bookmarks";
+
+type BookmarkContextType = {
+    bookmarks: BookmarkItem[];
+    toggle: (id: string, type: BookmarkType) => void;
+    has: (id: string) => boolean;
+};
 const BookmarkContext = createContext<BookmarkContextType | null>(null);
 export function useBookmarks() {
     const ctx = useContext(BookmarkContext);
@@ -24,9 +32,30 @@ export function useBookmarks() {
     return ctx;
 }
 
+function loadBookmarks(): BookmarkItem[] {
+    if (typeof window === "undefined") return [];
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+        return parsed.filter(
+            (x: unknown): x is BookmarkItem =>
+                typeof x === "object" && x !== null && "id" in x && "type" in x && ((x as BookmarkItem).type === "property" || (x as BookmarkItem).type === "service")
+        );
+    } catch {
+        return [];
+    }
+}
+
 export function Providers({ children }: { children: React.ReactNode }) {
     const [role, setRoleState] = useState<Role>("guest");
-    const [bookmarks, setBookmarks] = useState<string[]>([]);
+    const [bookmarks, setBookmarks] = useState<BookmarkItem[]>([]);
+
+    // Load bookmarks from localStorage on mount
+    useEffect(() => {
+        setBookmarks(loadBookmarks());
+    }, []);
 
     // Restore role from localStorage on mount
     useEffect(() => {
@@ -78,8 +107,20 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
     const bookmarkApi = useMemo<BookmarkContextType>(() => ({
         bookmarks,
-        toggle: (id) => setBookmarks((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id])),
-        has: (id) => bookmarks.includes(id),
+        toggle: (id, type) => {
+            setBookmarks((prev) => {
+                const next = prev.some((x) => x.id === id)
+                    ? prev.filter((x) => x.id !== id)
+                    : [...prev, { id, type }];
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+                } catch {
+                    // ignore
+                }
+                return next;
+            });
+        },
+        has: (id) => bookmarks.some((x) => x.id === id),
     }), [bookmarks]);
 
     return (
