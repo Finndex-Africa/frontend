@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "npm run lint"
+    "test": "pnpm run lint"
   },
   "dependencies": {
     "@ant-design/charts": "^2.6.5",
