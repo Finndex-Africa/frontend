@@ -223,7 +223,7 @@ function ServicesContent() {
                                         type="text"
                                         value={searchLocation}
                                         onChange={(e) => handleLocationChange(e.target.value)}
-                                        placeholder="Search location"
+                                        placeholder="City or area (e.g. Kampala)"
                                         className="w-full h-11 sm:h-12 px-3 sm:px-4 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-600 bg-white placeholder-gray-400 hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                                     />
                                 </div>
@@ -259,15 +259,18 @@ function ServicesContent() {
                                         <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
-                                        Budget
+                                        Budget (USD)
                                     </label>
-                                    <input
-                                        type="number"
-                                        value={searchBudget}
-                                        onChange={(e) => handleBudgetChange(e.target.value)}
-                                        placeholder="Max Budget"
-                                        className="w-full h-11 sm:h-12 px-3 sm:px-4 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-600 bg-white placeholder-gray-400 hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                                    />
+                                    <div className="relative">
+                                        <span className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium text-sm sm:text-base">$</span>
+                                        <input
+                                            type="number"
+                                            value={searchBudget}
+                                            onChange={(e) => handleBudgetChange(e.target.value)}
+                                            placeholder="Max budget"
+                                            className="w-full h-11 sm:h-12 pl-7 sm:pl-8 pr-3 sm:pr-4 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-600 bg-white placeholder-gray-400 hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                        />
+                                    </div>
                                 </div>
 
                                 {/* Search Button */}

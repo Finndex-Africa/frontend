@@ -290,6 +290,22 @@ export class AuthService {
         }
     }
 
+    async forgotPassword(email: string): Promise<{ message: string }> {
+        const response = await axios.post<{ data: { message: string } }>(
+            `${API_URL}/auth/forgot-password`,
+            { email },
+        );
+        return response.data.data;
+    }
+
+    async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+        const response = await axios.post<{ data: { message: string } }>(
+            `${API_URL}/auth/reset-password`,
+            { token, newPassword },
+        );
+        return response.data.data;
+    }
+
     // Add axios interceptor to add token to requests
     setupAxiosInterceptors(): void {
         axios.interceptors.request.use(
