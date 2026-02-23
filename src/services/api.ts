@@ -9,6 +9,7 @@ export * from './api/dashboard.api';
 export * from './api/media.api';
 export * from './api/advertisements.api';
 export * from './api/messages.api';
+export * from './api/verification.api';
 
 export interface ApiError {
   message: string;

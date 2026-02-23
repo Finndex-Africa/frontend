@@ -72,7 +72,10 @@ function VerifyEmailContent() {
                             </svg>
                         </div>
                         <h2 className="text-2xl font-bold text-gray-900 mb-2">Email Verified!</h2>
-                        <p className="text-gray-600 mb-6">{message}</p>
+                        <p className="text-gray-600 mb-4">{message}</p>
+                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+                            <p className="text-sm text-amber-800">Your email is confirmed. An admin will review and verify your account shortly.</p>
+                        </div>
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                             <p className="text-sm text-blue-800">Redirecting you to login in 3 seconds...</p>
                         </div>

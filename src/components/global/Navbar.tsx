@@ -44,6 +44,7 @@ export default function Navbar() {
         { href: "/", label: "Discover" },
         { href: "/routes/properties", label: "Homes" },
         { href: "/routes/services", label: "Services" },
+        { href: "/routes/pricing", label: "Pricing" },
     ];
     const router = useRouter();
 
@@ -643,7 +644,25 @@ export default function Navbar() {
                                                 </>
                                             )}
 
-                                            {role !== 'admin' && <div className="my-2 border-t border-gray-100"></div>}
+                                            {role !== 'admin' && (
+                                                <>
+                                                    <div className="my-2 border-t border-gray-100"></div>
+                                                    <button
+                                                        onClick={() => {
+                                                            router.push('/routes/verify-identity');
+                                                            setShowUserMenu(false);
+                                                        }}
+                                                        className="w-full text-left px-4 py-3 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-700 flex items-center gap-3 transition-all duration-150"
+                                                    >
+                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                                        </svg>
+                                                        Verify Identity
+                                                    </button>
+                                                </>
+                                            )}
+
+                                            <div className="my-2 border-t border-gray-100"></div>
 
                                             {/* Logout */}
                                             <button
@@ -1034,6 +1053,21 @@ export default function Navbar() {
                                                 </Button>
                                             </>
                                         )}
+
+                                        {/* Verify Identity */}
+                                        <Button
+                                            variant="ghost"
+                                            className="w-full !justify-start"
+                                            onClick={() => {
+                                                router.push('/routes/verify-identity');
+                                                setShowMobileMenu(false);
+                                            }}
+                                        >
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                            </svg>
+                                            Verify Identity
+                                        </Button>
 
                                         {/* Logout */}
                                         <Button

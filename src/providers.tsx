@@ -18,7 +18,7 @@ export function useAuth() {
 // Bookmarks: saved items with type so we can show them on Favorites page
 export type BookmarkType = "property" | "service";
 export type BookmarkItem = { id: string; type: BookmarkType };
-const STORAGE_KEY = "finndex-bookmarks";
+const STORAGE_PREFIX = "finndex-bookmarks";
 
 type BookmarkContextType = {
     bookmarks: BookmarkItem[];
@@ -32,10 +32,23 @@ export function useBookmarks() {
     return ctx;
 }
 
+function getStorageKey(): string {
+    if (typeof window === "undefined") return STORAGE_PREFIX;
+    try {
+        const raw = localStorage.getItem("user") || sessionStorage.getItem("user");
+        if (raw) {
+            const u = JSON.parse(raw);
+            const uid = u?.id || u?._id;
+            if (uid) return `${STORAGE_PREFIX}-${uid}`;
+        }
+    } catch { /* ignore */ }
+    return STORAGE_PREFIX;
+}
+
 function loadBookmarks(): BookmarkItem[] {
     if (typeof window === "undefined") return [];
     try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const raw = localStorage.getItem(getStorageKey());
         if (!raw) return [];
         const parsed = JSON.parse(raw);
         if (!Array.isArray(parsed)) return [];
@@ -52,10 +65,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
     const [role, setRoleState] = useState<Role>("guest");
     const [bookmarks, setBookmarks] = useState<BookmarkItem[]>([]);
 
-    // Load bookmarks from localStorage on mount
+    // Reload bookmarks when user changes (login/logout)
     useEffect(() => {
         setBookmarks(loadBookmarks());
-    }, []);
+    }, [role]);
 
     // Restore role from localStorage on mount
     useEffect(() => {
@@ -113,7 +126,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                     ? prev.filter((x) => x.id !== id)
                     : [...prev, { id, type }];
                 try {
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+                    localStorage.setItem(getStorageKey(), JSON.stringify(next));
                 } catch {
                     // ignore
                 }
