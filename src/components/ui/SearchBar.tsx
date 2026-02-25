@@ -48,7 +48,7 @@ export default function SearchBar() {
                             : "bg-blue-600 text-white"
                             }`}
                     >
-                        Homes
+                        Properties
                     </button>
                     <button
                         onClick={() => handleTabChange("services")}
@@ -105,7 +105,7 @@ export default function SearchBar() {
                                 {activeTab === "homes" ? (
                                     <>
                                         <option value="Apartment">Apartment</option>
-                                        <option value="House">House</option>
+                                        <option value="Office Space">Office Space</option>
                                     </>
                                 ) : (
                                     <>

@@ -241,7 +241,7 @@ function PropertiesContent() {
                                     >
                                         <option value="">Select type</option>
                                         <option value="Apartment">Apartment</option>
-                                        <option value="House">House</option>
+                                        <option value="Office Space">Office Space</option>
                                     </select>
                                 </div>
 

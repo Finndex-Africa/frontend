@@ -39,7 +39,7 @@ export default function SearchFilters({ value, onChange, onSubmit }: Props) {
                 >
                     <option value="">Property Type</option>
                     <option>Apartment</option>
-                    <option>House</option>
+                    <option>Office Space</option>
                     <option>Studio</option>
                 </select>
             </div>

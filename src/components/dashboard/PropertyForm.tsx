@@ -104,7 +104,7 @@ export function PropertyForm({
                                 style={{ borderRadius: '8px' }}
                             >
                                 <Select.Option value="Apartment">Apartment</Select.Option>
-                                <Select.Option value="House">House</Select.Option>
+                                <Select.Option value="Office Space">Office Space</Select.Option>
                             </Select>
                         </Form.Item>
                     </Col>

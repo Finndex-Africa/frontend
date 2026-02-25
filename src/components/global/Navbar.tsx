@@ -42,7 +42,7 @@ export default function Navbar() {
     const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
     const links = [
         { href: "/", label: "Discover" },
-        { href: "/routes/properties", label: "Homes" },
+        { href: "/routes/properties", label: "Properties" },
         { href: "/routes/services", label: "Services" },
         { href: "/routes/pricing", label: "Pricing" },
     ];
@@ -725,8 +725,8 @@ export default function Navbar() {
 
                 {/* Mobile Menu */}
                 {showMobileMenu && (
-                    <div ref={mobileMenuRef} className="md:hidden border-t border-gray-200 bg-white">
-                        <div className="px-4 py-3 space-y-3">
+                    <div ref={mobileMenuRef} className="md:hidden border-t border-gray-200 bg-white overflow-y-auto z-50" style={{ maxHeight: 'calc(100vh - 64px)' }}>
+                        <div className="px-4 py-3 space-y-3 pb-32">
                             {/* Mobile Navigation Links */}
                             {links.map((l) => (
                                 <Link
