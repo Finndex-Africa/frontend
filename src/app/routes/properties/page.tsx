@@ -196,10 +196,10 @@ function PropertiesContent() {
                 </div>
                 <div className="relative z-[5] h-[300px] sm:h-[350px] md:h-[400px] flex flex-col items-center justify-center text-center text-white px-4">
                     <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold max-w-4xl leading-tight mb-2 sm:mb-4">
-                        Find Verified Homes
+                        Find Verified Properties
                     </h1>
                     <p className="text-base sm:text-lg md:text-xl text-white/90 mb-4 sm:mb-8">
-                        Discover your perfect home from our collection of verified properties
+                        Discover the perfect property from our collection of verified listings
                     </p>
                 </div>
 

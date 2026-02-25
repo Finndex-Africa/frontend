@@ -243,7 +243,7 @@ export default function HomePage() {
             {/* Property Grid */}
             <div className="container-app py-12">
                 <h2 className="text-2xl font-semibold text-gray-900 mb-8">
-                    Explore available homes
+                    Explore available properties
                 </h2>
                 {loadingProperties ? (
                     <div className="flex justify-center items-center py-20">
@@ -276,7 +276,7 @@ export default function HomePage() {
             <div>
                 <div className="container-app py-12">
                     <h2 className="text-2xl font-semibold text-gray-900 mb-8">
-                        Continue exploring homes
+                        Continue exploring properties
                     </h2>
                     <button className="cursor-pointer bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors"
                         onClick={() => router.push('/routes/properties')}
