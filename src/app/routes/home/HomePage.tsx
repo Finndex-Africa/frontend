@@ -239,6 +239,9 @@ export default function HomePage() {
                 </section>
             )}
 
+            {/* Spacer so search overlay does not overlap Platform Statistics */}
+            <div className="pt-32 sm:pt-36 md:pt-40" aria-hidden="true" />
+
             {/* Platform Statistics Section */}
             <PlatformStats />
 
