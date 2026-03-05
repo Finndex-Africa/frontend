@@ -3,8 +3,9 @@
 import React from 'react';
 
 const WhatsAppFloat = () => {
-    const phoneNumber = '+231886149219';
-    const whatsappUrl = `https://wa.me/${phoneNumber.replace(/[^0-9]/g, '')}`;
+    const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+231886149219';
+    const defaultMessage = encodeURIComponent('Hi, I found you through Finndex Africa and would like to get in touch.');
+    const whatsappUrl = `https://wa.me/${phoneNumber.replace(/[^0-9+]/g, '').replace(/^\+/, '')}?text=${defaultMessage}`;
 
     return (
         <a
@@ -26,7 +27,7 @@ const WhatsAppFloat = () => {
 
             {/* Tooltip on hover */}
             <span className="absolute right-full mr-3 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                Message us on WhatsApp
+                Chat with us on WhatsApp (Finndex Africa)
             </span>
         </a>
     );

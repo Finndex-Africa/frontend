@@ -229,13 +229,15 @@ export default function HomePage() {
                 </div>
             </section>
 
-            {/* Trusted by Leading Organizations and Service Providers */}
-            <section className="container-app pt-40 sm:pt-44 md:pt-48 pb-6">
-                <h2 className="text-xl sm:text-2xl font-bold text-center mb-4 sm:mb-6 px-4">
-                    Trusted by Leading Organizations and Service Providers
-                </h2>
-                <PartnerLogos partners={partnerLogos} />
-            </section>
+            {/* Trusted by Leading Organizations and Service Providers - disabled for now */}
+            {false && (
+                <section className="container-app pt-40 sm:pt-44 md:pt-48 pb-6">
+                    <h2 className="text-xl sm:text-2xl font-bold text-center mb-4 sm:mb-6 px-4">
+                        Trusted by Leading Organizations and Service Providers
+                    </h2>
+                    <PartnerLogos partners={partnerLogos} />
+                </section>
+            )}
 
             {/* Platform Statistics Section */}
             <PlatformStats />
@@ -337,6 +339,20 @@ export default function HomePage() {
 
             {/* Testimonials Section */}
             <TestimonialsSection />
+
+            {/* CTA - Join Us on Our Journey */}
+            <section className="bg-blue-600 py-16 text-white text-center">
+                <h2 className="text-3xl md:text-4xl font-bold mb-4">Join Us on Our Journey</h2>
+                <p className="text-lg md:text-xl max-w-2xl mx-auto mb-6">
+                    Whether you&apos;re looking for services or want to provide your expertise, we welcome you to be part of our growing community.
+                </p>
+                <a
+                    href="/routes/login"
+                    className="inline-block bg-white text-blue-600 font-semibold px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                    Get Started
+                </a>
+            </section>
         </div>
     );
 }
