@@ -182,6 +182,17 @@ export default function AuthPage() {
             >
                 <div className="bg-white rounded-lg shadow-xl p-8">
                     <div className="text-center mb-6">
+                        <div className="flex justify-center mb-5">
+                            <div className="relative w-60 h-24 md:w-80 md:h-28 overflow-hidden rounded-2xl">
+                                <Image
+                                    src="/images/logos/logo-stacked-yellow-bg.png"
+                                    alt="Finndex Africa"
+                                    fill
+                                    className="object-contain"
+                                    priority
+                                />
+                            </div>
+                        </div>
                         <h2 className="text-2xl font-bold text-gray-900">
                             {isLogin ? 'Sign in to your account' : 'Create a new account'}
                         </h2>

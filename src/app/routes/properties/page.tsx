@@ -7,6 +7,7 @@ import PropertyCard, { Property } from "../../../components/domain/PropertyCard"
 import Pagination from "../../../components/ui/Pagination";
 import { propertiesApi } from "@/services/api";
 import { Property as ApiProperty } from "@/types/dashboard";
+import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 
 // Adapter function to convert API data to component types
 const adaptPropertyToCard = (apiProperty: ApiProperty): Property => {
@@ -143,7 +144,7 @@ function PropertiesContent() {
             setError(null);
         } catch (error) {
             console.error('Error fetching properties:', error);
-            setError('Failed to load properties. Please try again later.');
+            setError(getUserFriendlyErrorMessage(error, 'Failed to load properties. Please try again later.'));
         } finally {
             setLoading(false);
         }

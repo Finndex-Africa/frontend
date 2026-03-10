@@ -188,13 +188,15 @@ export default function ReviewsList({ itemType, itemId, itemTitle }: ReviewsList
             ) : (
                 <>
                     <div>
-                        {reviews.map((review) => (
-                            <ReviewCard
-                                key={review._id}
-                                review={review}
-                                onUpdate={fetchReviews}
-                            />
-                        ))}
+                        {reviews
+                            .filter((review) => review.userId != null)
+                            .map((review) => (
+                                <ReviewCard
+                                    key={review._id}
+                                    review={review}
+                                    onUpdate={fetchReviews}
+                                />
+                            ))}
                     </div>
 
                     {/* Pagination */}

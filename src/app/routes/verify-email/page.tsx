@@ -44,9 +44,9 @@ function VerifyEmailContent() {
             <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
                 {/* Logo */}
                 <div className="flex justify-center mb-6">
-                    <div className="relative w-24 h-24">
+                    <div className="relative w-64 h-40 md:w-80 md:h-48 overflow-hidden rounded-2xl">
                         <Image
-                            src="/images/logos/logo1.png"
+                            src="/images/logos/logo-stacked-blue-bg.png"
                             alt="Finndex Africa"
                             fill
                             className="object-contain"

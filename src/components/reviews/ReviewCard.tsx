@@ -19,7 +19,7 @@ export default function ReviewCard({ review, onUpdate, showOwnerReply = true }: 
     const user = authService.getUser();
     const isAuthenticated = authService.isAuthenticated();
 
-    const [isHelpful, setIsHelpful] = useState(review.helpfulBy.includes(user?.id || ''));
+    const [isHelpful, setIsHelpful] = useState((review.helpfulBy ?? []).includes(user?.id || ''));
     const [helpfulCount, setHelpfulCount] = useState(review.helpfulCount);
     const [isReportModalVisible, setIsReportModalVisible] = useState(false);
     const [reportReason, setReportReason] = useState('');
@@ -77,10 +77,11 @@ export default function ReviewCard({ review, onUpdate, showOwnerReply = true }: 
         }
     };
 
-    const isOwnReview = user?.id === review.userId._id;
-    const reviewerName = review.userId.firstName && review.userId.lastName
-        ? `${review.userId.firstName} ${review.userId.lastName}`
-        : review.userId.email || 'Anonymous User';
+    const userId = review.userId ?? null;
+    const isOwnReview = user?.id === userId?._id;
+    const reviewerName = userId?.firstName && userId?.lastName
+        ? `${userId.firstName} ${userId.lastName}`
+        : userId?.email || 'Anonymous User';
 
     // Format date
     const formatDate = (dateString: string) => {
@@ -105,17 +106,17 @@ export default function ReviewCard({ review, onUpdate, showOwnerReply = true }: 
                     {/* Avatar */}
                     <div className="flex-shrink-0">
                         <div className="relative w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
-                            {review.userId.avatar ? (
+                            {userId?.avatar ? (
                                 <Image
-                                    src={review.userId.avatar}
+                                    src={userId.avatar}
                                     alt={reviewerName}
                                     fill
                                     className="object-cover"
                                 />
                             ) : (
                                 <span className="text-blue-600 font-semibold text-lg">
-                                    {review.userId.firstName?.charAt(0) || ''}
-                                    {review.userId.lastName?.charAt(0) || 'U'}
+                                    {userId?.firstName?.charAt(0) || ''}
+                                    {userId?.lastName?.charAt(0) || 'U'}
                                 </span>
                             )}
                         </div>

@@ -7,6 +7,7 @@ import MediaCarousel from "@/components/domain/MediaCarousel";
 import { servicesApi } from "@/services/api";
 import { Service as ApiService } from "@/types/dashboard";
 import { apiClient } from "@/lib/api-client";
+import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 import { MessageCircle, Calendar, Mail, Lock } from 'lucide-react';
 import ShareButton from '@/components/ui/ShareButton';
 import ChatBox from "@/components/dashboard/ChatBox";
@@ -140,19 +141,7 @@ export default function ServiceDetail() {
             }
         } catch (error: any) {
             console.error('Booking error:', error);
-            console.error('Error response:', error?.response?.data);
-
-            let errorMessage = 'Failed to submit booking. Please try again.';
-
-            if (error?.response?.data?.message) {
-                errorMessage = error.response.data.message;
-            } else if (error?.response?.status === 401) {
-                errorMessage = 'Your session has expired. Please sign in again.';
-            } else if (error?.response?.status === 404) {
-                errorMessage = 'Booking service is temporarily unavailable. Please try again or contact support.';
-            }
-
-            toast.error(errorMessage);
+            toast.error(getUserFriendlyErrorMessage(error, 'Failed to submit booking. Please try again.'));
         } finally {
             setSubmitting(false);
         }

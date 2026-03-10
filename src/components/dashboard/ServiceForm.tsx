@@ -83,11 +83,11 @@ export function ServiceForm({
     const beforeUpload = (file: File) => {
         const isImage = file.type.startsWith('image/');
         if (!isImage) {
-            showToast.error('You can only upload image files!');
+            showToast.error('This file type is not allowed. Please use JPG, PNG, GIF, or WebP.');
         }
         const isLt10M = file.size / 1024 / 1024 < 10;
         if (!isLt10M) {
-            showToast.error('Image must be smaller than 10MB!');
+            showToast.error('This image is too large. Maximum size is 10MB per file. Please choose a smaller image or compress it.');
         }
         return isImage && isLt10M;
     };

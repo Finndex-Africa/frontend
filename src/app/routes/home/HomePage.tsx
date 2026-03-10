@@ -10,6 +10,7 @@ import PlatformStats from "../../../components/ui/PlatformStats";
 import Image from "next/image";
 import { useRouter, useSearchParams } from 'next/navigation';
 import { propertiesApi, servicesApi } from "@/services/api";
+import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 import { Property as ApiProperty, Service as ApiService } from "@/types/dashboard";
 import { useAuth } from "@/providers";
 
@@ -168,7 +169,7 @@ export default function HomePage() {
             } catch (error: any) {
                 console.error('Error fetching properties:', error);
                 console.error('Error details:', error?.response?.data || error?.message);
-                setPropertiesError('Failed to load properties. Please try again later.');
+                setPropertiesError(getUserFriendlyErrorMessage(error, 'Failed to load properties. Please try again later.'));
                 setProperties([]);
             } finally {
                 setLoadingProperties(false);
@@ -192,7 +193,7 @@ export default function HomePage() {
                 setServicesError(null);
             } catch (error) {
                 console.error('Error fetching services:', error);
-                setServicesError('Failed to load services. Please try again later.');
+                setServicesError(getUserFriendlyErrorMessage(error, 'Failed to load services. Please try again later.'));
                 setServices([]);
             } finally {
                 setLoadingServices(false);
@@ -343,8 +344,25 @@ export default function HomePage() {
             {/* Testimonials Section */}
             <TestimonialsSection />
 
+            {/* Cultural pattern – divider before CTA */}
+            <div
+                className="h-12 w-full bg-repeat-x bg-center bg-gray-100 opacity-95"
+                style={{ backgroundImage: 'url(/images/patterns/pattern-chevron.png)', backgroundSize: 'auto 3rem' }}
+                aria-hidden
+            />
+
             {/* CTA - Join Us on Our Journey */}
             <section className="bg-blue-600 py-16 text-white text-center">
+                <div className="flex justify-center mb-6">
+                    <div className="relative w-80 h-24 md:w-[420px] md:h-32 overflow-hidden rounded-2xl">
+                        <Image
+                            src="/images/logos/logo-tagline-yellow-bg.png"
+                            alt="Finndex Africa - Connecting you Seamlessly"
+                            fill
+                            className="object-contain"
+                        />
+                    </div>
+                </div>
                 <h2 className="text-3xl md:text-4xl font-bold mb-4">Join Us on Our Journey</h2>
                 <p className="text-lg md:text-xl max-w-2xl mx-auto mb-6">
                     Whether you&apos;re looking for services or want to provide your expertise, we welcome you to be part of our growing community.

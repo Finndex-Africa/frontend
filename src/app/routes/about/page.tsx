@@ -11,9 +11,24 @@ export default function About() {
                 <Image src="/images/services/cleaning1.jpeg" alt="Trusted services" fill className="object-cover" />
                 <div className="absolute inset-0 bg-black/40" />
                 <div className="relative z-10 h-full flex flex-col items-center justify-center text-center text-white">
+                    <div className="relative w-64 h-24 mb-4 md:w-96 md:h-32 overflow-hidden rounded-2xl drop-shadow-lg">
+                        <Image
+                            src="/images/logos/logo-horizontal-yellow-bg.png"
+                            alt="Finndex Africa"
+                            fill
+                            className="object-contain"
+                        />
+                    </div>
                     <h1 className="px-4 text-3xl md:text-5xl font-extrabold">About Us</h1>
                 </div>
             </section>
+
+            {/* Cultural pattern */}
+            <div
+                className="h-12 w-full bg-repeat-x bg-center bg-white opacity-95"
+                style={{ backgroundImage: 'url(/images/patterns/pattern-triangle-spiral.png)', backgroundSize: 'auto 3rem' }}
+                aria-hidden
+            />
 
             {/* OUR MISSION & VISION */}
             <section className="container mx-auto py-16 px-4 grid grid-cols-1 md:grid-cols-2 gap-12">

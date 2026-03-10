@@ -7,6 +7,7 @@ import ServiceCard, { Service } from "../../../components/domain/ServiceCard";
 import Pagination from "../../../components/ui/Pagination";
 import { servicesApi } from "@/services/api";
 import { Service as ApiService } from "@/types/dashboard";
+import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 
 // Adapter function to convert API data to component types
 const adaptServiceToCard = (apiService: ApiService): Service => {
@@ -145,7 +146,7 @@ function ServicesContent() {
             setError(null);
         } catch (error) {
             console.error('Error fetching services:', error);
-            setError('Failed to load services. Please try again later.');
+            setError(getUserFriendlyErrorMessage(error, 'Failed to load services. Please try again later.'));
         } finally {
             setLoading(false);
         }

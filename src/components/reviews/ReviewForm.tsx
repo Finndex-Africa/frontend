@@ -6,6 +6,7 @@ import { reviewsApi, CreateReviewDto } from '@/services/api/reviews.api';
 import { AuthService } from '@/services/auth.service';
 import Modal from '@/components/ui/Modal';
 import { showToast } from '@/lib/toast';
+import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
 
 interface ReviewFormProps {
     itemType: 'property' | 'service';
@@ -78,8 +79,7 @@ export default function ReviewForm({ itemType, itemId, itemTitle, onSuccess }: R
             }
         } catch (error: any) {
             console.error('Review submission error:', error);
-            const errorMessage = error?.response?.data?.message || error?.message || 'Failed to submit review';
-            showToast.error(errorMessage);
+            showToast.error(getUserFriendlyErrorMessage(error, 'Failed to submit review. Please try again.'));
         } finally {
             setLoading(false);
         }

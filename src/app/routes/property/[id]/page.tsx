@@ -10,6 +10,7 @@ import ShareButton from '@/components/ui/ShareButton';
 import { propertiesApi, messagesApi } from "@/services/api";
 import { Property as ApiProperty } from "@/types/dashboard";
 import { apiClient } from "@/lib/api-client";
+import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 import ChatBox from "@/components/dashboard/ChatBox";
 import ReviewsList from "@/components/reviews/ReviewsList";
 
@@ -146,30 +147,7 @@ export default function PropertyDetail() {
             }
         } catch (error: any) {
             console.error('Booking error:', error);
-            console.error('Error response:', error?.response?.data);
-
-            // Provide user-friendly error messages
-            let errorMessage = 'Failed to submit booking. Please try again.';
-
-            if (error?.response?.data?.message) {
-                errorMessage = error.response.data.message;
-
-                // Specific error handling based on backend messages
-                if (errorMessage.includes('not available for booking')) {
-                    errorMessage = 'This property is not available for booking at this time.';
-                } else if (errorMessage.includes('scheduled date') || errorMessage.includes('must be in the future')) {
-                    errorMessage = 'Please select a valid move-in date in the future.';
-                } else if (errorMessage.includes('Unauthorized') || errorMessage.includes('401')) {
-                    errorMessage = 'Your session has expired. Please sign in again.';
-                } else if (error?.response?.status === 404) {
-                    errorMessage = 'Booking service is temporarily unavailable. Please try again or contact support.';
-                }
-            } else if (error?.response?.status === 401) {
-                errorMessage = 'Your session has expired. Please sign in again.';
-            } else if (error?.response?.status === 404) {
-                errorMessage = 'Booking service is temporarily unavailable. Please try again or contact support.';
-            }
-
+            const errorMessage = getUserFriendlyErrorMessage(error, 'Failed to submit booking. Please try again.');
             toast.error(errorMessage);
         } finally {
             setSubmitting(false);
@@ -238,9 +216,7 @@ export default function PropertyDetail() {
             toast.success(`Message sent successfully! The ${posterType} will respond to you soon.`);
             setShowContactModal(false);
         } catch (error: any) {
-            const res = error?.response?.data;
-            const msg = Array.isArray(res?.message) ? res.message.join(' ') : (res?.message || 'Failed to send message. Please try again.');
-            toast.error(msg);
+            toast.error(getUserFriendlyErrorMessage(error, 'Failed to send message. Please try again.'));
         } finally {
             setSubmitting(false);
         }

@@ -209,12 +209,24 @@ export default function Navbar() {
             <header className="fixed md:sticky top-0 left-0 right-0 z-40 border-b border-gray-100 bg-white/80 backdrop-blur">
                 <div className="container-app flex items-center justify-between h-16 px-4">
                     <Link href="/" className="font-extrabold text-xl flex items-center gap-2">
-                        <div className="relative" style={{ width: '160px', height: '45px' }}>
+                        {/* Desktop: full horizontal logo */}
+                        <div className="relative hidden md:block overflow-hidden rounded-xl" style={{ width: '280px', height: '64px' }}>
                             <Image
-                                src="/images/logos/Finndex Africa Updated Logo.png"
-                                alt="Finndex Africa Logo"
+                                src="/images/logos/logo-horizontal-blue-bg.png"
+                                alt="Finndex Africa"
                                 fill
                                 className="object-contain object-left"
+                                priority
+                            />
+                        </div>
+                        {/* Mobile: icon-only logo to save space */}
+                        <div className="relative md:hidden shrink-0 overflow-hidden rounded-xl" style={{ width: '60px', height: '60px' }}>
+                            <Image
+                                src="/images/logos/logo-icon-blue-bg.png"
+                                alt="Finndex Africa"
+                                fill
+                                className="object-contain"
+                                priority
                             />
                         </div>
                     </Link>
@@ -727,6 +739,17 @@ export default function Navbar() {
                 {showMobileMenu && (
                     <div ref={mobileMenuRef} className="md:hidden border-t border-gray-200 bg-white overflow-y-auto z-50" style={{ maxHeight: 'calc(100vh - 64px)' }}>
                         <div className="px-4 py-3 space-y-3 pb-32">
+                            {/* Mobile menu brand - yellow icon for contrast */}
+                            <div className="flex justify-center py-3 pb-4 border-b border-gray-100">
+                                <div className="relative w-24 h-24 overflow-hidden rounded-2xl">
+                                    <Image
+                                        src="/images/logos/logo-icon-yellow-bg.png"
+                                        alt="Finndex Africa"
+                                        fill
+                                        className="object-contain"
+                                    />
+                                </div>
+                            </div>
                             {/* Mobile Navigation Links */}
                             {links.map((l) => (
                                 <Link

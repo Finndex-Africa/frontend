@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useToast } from '../ui/Toast';
+import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
 
 interface AdvertiseModalProps {
     open: boolean;
@@ -98,7 +99,7 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
             console.error('Failed to submit request:', error);
             showToast({
                 title: 'Submission Failed',
-                description: error.message || 'Failed to submit request. Please try again.',
+                description: getUserFriendlyErrorMessage(error, 'Failed to submit request. Please try again.'),
                 variant: 'error'
             });
         } finally {

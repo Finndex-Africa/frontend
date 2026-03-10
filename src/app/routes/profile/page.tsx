@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { usersApi } from '@/services/api/users.api';
 import { mediaApi } from '@/services/api/media.api';
+import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
 import { serviceProvidersApi, type ServiceProviderProfile, type UpdateProviderDto } from '@/services/api/service-providers.api';
 import ServiceProviderOnboarding from '@/components/ServiceProviderOnboarding';
 
@@ -157,9 +158,9 @@ export default function ProfilePage() {
             setUser(updatedUser);
 
             setSuccess('Profile image updated successfully');
-        } catch (err) {
+        } catch (err: any) {
             console.error('Image upload failed:', err);
-            setError('Failed to upload image. Please try again.');
+            setError(getUserFriendlyErrorMessage(err, 'Failed to upload image. Please try again.'));
         } finally {
             setUploadingImage(false);
         }
@@ -188,7 +189,7 @@ export default function ProfilePage() {
             setIsEditing(false);
         } catch (err: any) {
             console.error('Profile update failed:', err);
-            setError(err.response?.data?.message || 'Failed to update profile. Please try again.');
+            setError(getUserFriendlyErrorMessage(err, 'Failed to update profile. Please try again.'));
         } finally {
             setIsSaving(false);
         }
@@ -221,7 +222,7 @@ export default function ProfilePage() {
             setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
         } catch (err: any) {
             console.error('Password change failed:', err);
-            setError(err.response?.data?.message || 'Failed to change password. Please try again.');
+            setError(getUserFriendlyErrorMessage(err, 'Failed to change password. Please try again.'));
         } finally {
             setIsSaving(false);
         }
@@ -713,7 +714,7 @@ export default function ProfilePage() {
                                                         setIsEditingProvider(false);
                                                     } catch (err: any) {
                                                         console.error('Provider update failed:', err);
-                                                        setError(err.response?.data?.message || 'Failed to update business information.');
+                                                        setError(getUserFriendlyErrorMessage(err, 'Failed to update business information. Please try again.'));
                                                     } finally {
                                                         setIsSaving(false);
                                                     }

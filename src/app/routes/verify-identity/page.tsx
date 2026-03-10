@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { verificationApi, type IdVerification, type SubmitIdVerificationDto } from "@/services/api/verification.api";
 import { mediaApi } from "@/services/api/media.api";
+import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 
 const ID_TYPES = [
     { value: "passport", label: "Passport" },
@@ -68,8 +69,8 @@ export default function VerifyIdentityPage() {
         try {
             const result = await mediaApi.upload(file, "users");
             setForm((prev) => ({ ...prev, [field]: result.url }));
-        } catch {
-            setError("Failed to upload image. Please try again.");
+        } catch (err: any) {
+            setError(getUserFriendlyErrorMessage(err, "Failed to upload image. Please check that the file is under 10MB and is JPG, PNG, GIF, or WebP, then try again."));
         } finally {
             setUploading(false);
         }
@@ -95,7 +96,7 @@ export default function VerifyIdentityPage() {
             setSuccess("Your ID has been submitted for verification. You will be notified once it's reviewed.");
             loadExisting();
         } catch (err: any) {
-            setError(err?.response?.data?.message || "Failed to submit. Please try again.");
+            setError(getUserFriendlyErrorMessage(err, "Failed to submit. Please try again."));
         } finally {
             setSubmitting(false);
         }

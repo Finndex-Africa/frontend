@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { propertiesApi } from '@/services/api';
 import { mediaApi } from '@/services/api/media.api';
 import { showToast } from '@/lib/toast';
+import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
 
 export default function NewPropertyPage() {
     const router = useRouter();
@@ -101,7 +102,7 @@ export default function NewPropertyPage() {
             router.push('/routes/my-listings');
         } catch (error: any) {
             console.error('Failed to create property:', error);
-            showToast.error(error?.response?.data?.message || 'Failed to create property. Please try again.');
+            showToast.error(getUserFriendlyErrorMessage(error, 'Failed to create property. Please try again.'));
         } finally {
             setLoading(false);
         }

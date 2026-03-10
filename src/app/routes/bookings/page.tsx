@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import { bookingsApi } from '@/services/api/bookings.api';
+import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
 import { Booking, Service } from '@/types/dashboard';
 
 export default function BookingsPage() {
@@ -111,7 +112,7 @@ export default function BookingsPage() {
             setSelectedBooking(null);
         } catch (error: any) {
             console.error('Failed to confirm booking:', error);
-            toast.error(error?.response?.data?.message || 'Failed to confirm booking');
+            toast.error(getUserFriendlyErrorMessage(error, 'Failed to confirm booking. Please try again.'));
         } finally {
             setActionLoading(null);
         }
@@ -130,7 +131,7 @@ export default function BookingsPage() {
             setSelectedBooking(null);
         } catch (error: any) {
             console.error('Failed to reject booking:', error);
-            toast.error(error?.response?.data?.message || 'Failed to reject booking');
+            toast.error(getUserFriendlyErrorMessage(error, 'Failed to reject booking. Please try again.'));
         } finally {
             setActionLoading(null);
         }
@@ -149,7 +150,7 @@ export default function BookingsPage() {
             setSelectedBooking(null);
         } catch (error: any) {
             console.error('Failed to cancel booking:', error);
-            toast.error(error?.response?.data?.message || 'Failed to cancel booking');
+            toast.error(getUserFriendlyErrorMessage(error, 'Failed to cancel booking. Please try again.'));
         } finally {
             setActionLoading(null);
         }

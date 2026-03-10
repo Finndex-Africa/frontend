@@ -6,6 +6,7 @@ import { propertiesApi } from '@/services/api';
 import { Property as ApiProperty } from '@/types/dashboard';
 import Image from 'next/image';
 import { showToast } from '@/lib/toast';
+import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
 
 function getBedroomDisplay(p: ApiProperty): string {
     const n = p.bedrooms ?? p.rooms;
@@ -165,8 +166,7 @@ function EditPropertyModal({ property, isOpen, onClose, onSave }: { property: Ap
             onClose();
         } catch (error: any) {
             console.error('Failed to save property:', error);
-            const errorMsg = error?.response?.data?.message || error?.message || 'Failed to save property. Please try again.';
-            showToast.error(errorMsg);
+            showToast.error(getUserFriendlyErrorMessage(error, 'Failed to save property. Please try again.'));
         } finally {
             setLoading(false);
         }
@@ -600,7 +600,7 @@ export default function MyListingsPage() {
             setProperties(response.data || []);
         } catch (err) {
             console.error('Failed to fetch properties:', err);
-            setError('Failed to load your listings. Please try again later.');
+            setError(getUserFriendlyErrorMessage(err, 'Failed to load your listings. Please try again later.'));
             setProperties([]);
         } finally {
             setIsLoading(false);
@@ -663,8 +663,7 @@ export default function MyListingsPage() {
             setSelectedEditProperty(null);
         } catch (err: any) {
             console.error('Failed to update property:', err);
-            const errorMessage = err?.response?.data?.message || err?.message || 'Failed to save property. Please try again.';
-            showToast.error(errorMessage);
+            showToast.error(getUserFriendlyErrorMessage(err, 'Failed to save property. Please try again.'));
         }
     };
 
@@ -686,8 +685,7 @@ export default function MyListingsPage() {
             showCustomNotification('success', 'Property Unpublished', 'Your property has been successfully unpublished and removed from public listings.');
         } catch (err: any) {
             console.error('Failed to unpublish property:', err);
-            const errorMessage = err?.response?.data?.message || err?.message || 'Failed to unpublish property. Please try again.';
-            showCustomNotification('error', 'Unpublish Failed', errorMessage);
+            showCustomNotification('error', 'Unpublish Failed', getUserFriendlyErrorMessage(err, 'Failed to unpublish property. Please try again.'));
         }
     };
 
@@ -705,8 +703,7 @@ export default function MyListingsPage() {
             showCustomNotification('success', 'Property Republished', 'Your property is now visible to the public again.');
         } catch (err: any) {
             console.error('Failed to republish property:', err);
-            const errorMessage = err?.response?.data?.message || err?.message || 'Failed to republish property. Please try again.';
-            showCustomNotification('error', 'Republish Failed', errorMessage);
+            showCustomNotification('error', 'Republish Failed', getUserFriendlyErrorMessage(err, 'Failed to republish property. Please try again.'));
         }
     };
 

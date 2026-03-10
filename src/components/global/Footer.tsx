@@ -1,14 +1,22 @@
 import Image from 'next/image';
 
+const PATTERN_URL = '/images/patterns/rwanda-cultural-pattern.png';
+
 export default function Footer() {
     return (
         <footer className="bg-gray-100">
+            {/* Rwanda cultural pattern – full-width divider above footer content */}
+            <div
+                className="h-8 w-full bg-repeat-x bg-center opacity-90"
+                style={{ backgroundImage: `url(${PATTERN_URL})`, backgroundSize: 'auto 2rem' }}
+                aria-hidden
+            />
             <div className="container-app py-12 grid grid-cols-1 md:grid-cols-4 gap-8 text-sm">
                 <div>
-                    <div className="mb-4 relative" style={{ width: '200px', height: '50px' }}>
+                    <div className="mb-4 relative overflow-hidden rounded-2xl" style={{ width: '380px', height: '100px' }}>
                         <Image
-                            src="/images/logos/Finndex Africa Updated Logo.png"
-                            alt="Finndex Africa"
+                            src="/images/logos/logo-tagline-blue-bg.png"
+                            alt="Finndex Africa - Connecting you Seamlessly"
                             fill
                             className="object-contain object-left"
                         />

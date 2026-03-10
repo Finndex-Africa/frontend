@@ -8,6 +8,7 @@ import { Service as ApiService } from '@/types/dashboard';
 import Image from 'next/image';
 import { ServiceForm } from '@/components/dashboard/ServiceForm';
 import { useToast } from '@/components/ui/Toast';
+import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
 
 type ModalMode = 'create' | 'edit' | 'view' | null;
 
@@ -40,7 +41,7 @@ export default function MyServicesPage() {
             if (error.response?.status === 401 || error.response?.status === 403) {
                 setError('Please log in as a service provider to view your services.');
             } else {
-                setError('Failed to load your services. Please try again later.');
+                setError(getUserFriendlyErrorMessage(error, 'Failed to load your services. Please try again later.'));
             }
         } finally {
             setLoading(false);
@@ -64,11 +65,11 @@ export default function MyServicesPage() {
                         const uploadResponse = await mediaApi.upload(file, 'services');
                         uploadedUrls.push(uploadResponse.url);
                         console.log('✅ Uploaded:', uploadResponse.url);
-                    } catch (error) {
+                    } catch (error: any) {
                         console.error('❌ Failed to upload image:', error);
                         showToast({
-                            title: 'Warning',
-                            description: 'Failed to upload some images',
+                            title: 'Upload failed',
+                            description: getUserFriendlyErrorMessage(error, 'One or more images could not be uploaded. Check that each file is under 10MB and is JPG, PNG, GIF, or WebP.'),
                             variant: 'error'
                         });
                     }
@@ -133,7 +134,7 @@ export default function MyServicesPage() {
             console.error('Failed to create service:', error);
             showToast({
                 title: 'Error',
-                description: error.response?.data?.message || 'Failed to create service',
+                description: getUserFriendlyErrorMessage(error, 'Failed to create service. Please try again.'),
                 variant: 'error'
             });
         } finally {
@@ -154,8 +155,13 @@ export default function MyServicesPage() {
                     try {
                         const uploadResponse = await mediaApi.upload(file, 'services', selectedService._id);
                         newImageUrls.push(uploadResponse.url);
-                    } catch (error) {
+                    } catch (error: any) {
                         console.error('Failed to upload image:', error);
+                        showToast({
+                            title: 'Upload failed',
+                            description: getUserFriendlyErrorMessage(error, 'One or more images could not be uploaded. Check that each file is under 10MB and is JPG, PNG, GIF, or WebP.'),
+                            variant: 'error'
+                        });
                     }
                 }
             }
@@ -201,7 +207,7 @@ export default function MyServicesPage() {
             console.error('Failed to update service:', error);
             showToast({
                 title: 'Error',
-                description: error.response?.data?.message || 'Failed to update service',
+                description: getUserFriendlyErrorMessage(error, 'Failed to update service. Please try again.'),
                 variant: 'error'
             });
         } finally {
@@ -223,7 +229,7 @@ export default function MyServicesPage() {
             console.error('Failed to delete service:', error);
             showToast({
                 title: 'Error',
-                description: error.response?.data?.message || 'Failed to delete service',
+                description: getUserFriendlyErrorMessage(error, 'Failed to delete service. Please try again.'),
                 variant: 'error'
             });
         }
@@ -252,7 +258,7 @@ export default function MyServicesPage() {
             console.error('Failed to unpublish service:', error);
             showToast({
                 title: 'Error',
-                description: error.response?.data?.message || 'Failed to unpublish service',
+                description: getUserFriendlyErrorMessage(error, 'Failed to unpublish service. Please try again.'),
                 variant: 'error'
             });
         }

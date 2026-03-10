@@ -27,11 +27,11 @@ export const metadata: Metadata = {
   description: "Find your perfect home in Africa",
   icons: {
     icon: [
-      { url: '/images/logos/Finndex Africa Updated Logo.png' },
+      { url: '/images/logos/logo-icon-blue-bg.png' },
       { url: '/favicon.ico' },
     ],
-    apple: '/images/logos/Finndex Africa Updated Logo.png',
-    shortcut: '/images/logos/Finndex Africa Updated Logo.png',
+    apple: '/images/logos/logo-icon-blue-bg.png',
+    shortcut: '/images/logos/logo-icon-blue-bg.png',
   },
 };
 
@@ -42,6 +42,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      {/* suppressHydrationWarning: avoids mismatch when browser extensions (e.g. security tools) inject attributes like bis_skin_checked into the DOM */}
       <body
         className={`${whitneyBold.variable} ${whitneyMedium.variable} font-body antialiased`}
         suppressHydrationWarning
