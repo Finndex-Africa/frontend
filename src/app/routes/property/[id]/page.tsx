@@ -873,7 +873,7 @@ export default function PropertyDetail() {
                                         if (message.trim()) {
                                             handleSendMessage(subject, message);
                                         } else {
-                                            alert('Please enter a message before sending.');
+                                            toast.error('Please enter a message before sending.');
                                         }
                                     }}
                                     disabled={submitting}

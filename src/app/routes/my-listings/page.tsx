@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { propertiesApi } from '@/services/api';
 import { Property as ApiProperty } from '@/types/dashboard';
 import Image from 'next/image';
+import { showToast } from '@/lib/toast';
 
 function getBedroomDisplay(p: ApiProperty): string {
     const n = p.bedrooms ?? p.rooms;
@@ -85,7 +86,7 @@ function EditPropertyModal({ property, isOpen, onClose, onSave }: { property: Ap
         const totalImages = images.length + newImageFiles.length + files.length;
 
         if (totalImages > 10) {
-            alert('You can only have up to 10 images total');
+            showToast.warning('You can only have up to 10 images total');
             return;
         }
 
@@ -165,7 +166,7 @@ function EditPropertyModal({ property, isOpen, onClose, onSave }: { property: Ap
         } catch (error: any) {
             console.error('Failed to save property:', error);
             const errorMsg = error?.response?.data?.message || error?.message || 'Failed to save property. Please try again.';
-            alert(errorMsg);
+            showToast.error(errorMsg);
         } finally {
             setLoading(false);
         }
@@ -663,7 +664,7 @@ export default function MyListingsPage() {
         } catch (err: any) {
             console.error('Failed to update property:', err);
             const errorMessage = err?.response?.data?.message || err?.message || 'Failed to save property. Please try again.';
-            alert(errorMessage);
+            showToast.error(errorMessage);
         }
     };
 

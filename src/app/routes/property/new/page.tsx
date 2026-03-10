@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { propertiesApi } from '@/services/api';
 import { mediaApi } from '@/services/api/media.api';
+import { showToast } from '@/lib/toast';
 
 export default function NewPropertyPage() {
     const router = useRouter();
@@ -36,7 +37,7 @@ export default function NewPropertyPage() {
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
         if (files.length + imageFiles.length > 10) {
-            alert('You can only upload up to 10 images');
+            showToast.warning('You can only upload up to 10 images');
             return;
         }
 
@@ -96,11 +97,11 @@ export default function NewPropertyPage() {
 
             await propertiesApi.create(propertyData);
 
-            alert('Property created successfully! It will be reviewed by admin.');
+            showToast.success('Property created successfully! It will be reviewed by admin.');
             router.push('/routes/my-listings');
         } catch (error: any) {
             console.error('Failed to create property:', error);
-            alert(error?.response?.data?.message || 'Failed to create property. Please try again.');
+            showToast.error(error?.response?.data?.message || 'Failed to create property. Please try again.');
         } finally {
             setLoading(false);
         }
