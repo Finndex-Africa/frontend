@@ -183,13 +183,12 @@ export default function AuthPage() {
                 <div className="bg-white rounded-lg shadow-xl p-8">
                     <div className="text-center mb-6">
                         <div className="flex justify-center mb-5">
-                            <div className="relative w-60 h-24 md:w-80 md:h-28 overflow-hidden rounded-2xl">
-                                <Image
+                            <div className="relative w-60 h-24 md:w-80 md:h-28 flex items-center justify-center">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
                                     src="/images/logos/logo-stacked-yellow-bg.png"
                                     alt="Finndex Africa"
-                                    fill
-                                    className="object-contain"
-                                    priority
+                                    className="max-w-full max-h-full w-auto h-auto object-contain rounded-[1.5rem]"
                                 />
                             </div>
                         </div>
@@ -289,7 +288,7 @@ export default function AuthPage() {
 
                         {!isLogin && (
                             <div>
-                                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">WhatsApp Number</label>
                                 <div className="relative">
                                     <input
                                         id="phone"
@@ -303,7 +302,7 @@ export default function AuthPage() {
                                     />
                                     <Phone className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
                                 </div>
-                                <p className="mt-1 text-xs text-gray-500">Enter phone in international format (e.g., +250788123456)</p>
+                                <p className="mt-1 text-xs text-gray-500">Enter WhatsApp number in international format (e.g., +250788123456)</p>
                             </div>
                         )}
 

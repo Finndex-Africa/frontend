@@ -79,7 +79,7 @@ export default function SearchBar() {
                                 type="text"
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
-                                placeholder="City or area (e.g. Kampala)"
+                                placeholder="City or area (e.g. Thinker's Village)"
                                 className="w-full h-12 px-4 border border-gray-300 rounded-lg text-gray-600 bg-white placeholder-gray-400 hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                             />
                         </div>

@@ -7,6 +7,7 @@
   /* Brand Colors - Finndex Africa */
   --primary-blue: #0000FF;
   --primary-blue-rgb: 0, 0, 255;
+  --brand-yellow: #ffcc00;
 
   /* Brand Fonts */
   --font-heading: var(--font-whitney-bold);
@@ -19,6 +20,7 @@
   --color-foreground: var(--foreground);
   --color-primary: var(--primary-blue);
   --color-brand-blue: var(--primary-blue);
+  --color-brand-yellow: var(--brand-yellow);
 
   /* Blue palette: all blues use primary blue for consistency */
   --color-blue-50: #e6e6ff;

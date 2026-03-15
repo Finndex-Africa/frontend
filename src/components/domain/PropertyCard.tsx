@@ -14,11 +14,14 @@ export type Property = {
     rating?: number;
     distance?: string;
     dates?: string;
+    /** Property type for badge (e.g. "Apartment", "Office Space") - set when posting listing */
+    propertyType?: string;
 };
 
 export default function PropertyCard({ p, badge }: { p: Property; badge?: string }) {
     const { toggle, has } = useBookmarks();
     const saved = has(p.id);
+    const displayBadge = badge ?? p.propertyType;
 
     // Format price with thousand separators
     const formatPrice = (price: string) => {
@@ -35,9 +38,9 @@ export default function PropertyCard({ p, badge }: { p: Property; badge?: string
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                {badge && (
+                {displayBadge && (
                     <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-md text-[11px] font-medium text-gray-700 shadow-sm">
-                        {badge}
+                        {displayBadge}
                     </div>
                 )}
                     <div className="absolute top-3 right-3 flex items-center gap-1">

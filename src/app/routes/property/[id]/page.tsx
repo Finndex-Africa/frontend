@@ -253,8 +253,17 @@ export default function PropertyDetail() {
 
     const media = images.map(src => ({ type: "image" as const, src }));
 
-    // Prepare amenities/features
-    const features = [];
+    // Prepare amenities/features: use saved amenities from listing when available
+    const features: { label: string; desc: string; icon: string }[] = [];
+    if (property.amenities && property.amenities.length > 0) {
+        property.amenities.forEach((a) => {
+            features.push({
+                label: a.label,
+                desc: a.description || "Available",
+                icon: a.icon || "•",
+            });
+        });
+    }
     const bedroomCount = property.bedrooms != null ? property.bedrooms : property.rooms;
     features.push({
         label: "Bedrooms",
@@ -262,11 +271,11 @@ export default function PropertyDetail() {
         icon: "🛏️"
     });
     if (property.bathrooms) features.push({ label: "Bathrooms", desc: `${property.bathrooms} bathrooms`, icon: "🚿" });
-    if (property.area) features.push({ label: "Distance", desc: `${property.area} min from main road`, icon: "🚗" });
+    if (property.area) features.push({ label: "Area", desc: `${property.area} sq ft`, icon: "📐" });
     if (property.furnished !== undefined) features.push({ label: "Furnished", desc: property.furnished ? "Fully furnished" : "Unfurnished", icon: "🪑" });
 
-    // Add default features if none provided
-    if (features.length < 4) {
+    // Add default features only if we have no listing amenities
+    if (!property.amenities?.length && features.length < 4) {
         const defaults = [
             { label: "Wi-Fi", desc: "High-speed internet", icon: "📶" },
             { label: "Security", desc: "24/7 security", icon: "🔒" },
@@ -289,7 +298,7 @@ export default function PropertyDetail() {
                 <div className="lg:col-span-2 space-y-8">
                     {/* TITLE & BASIC INFO */}
                     <header>
-                        <div className="text-xs uppercase text-blue-600 font-semibold tracking-wide">
+                        <div className="text-xs uppercase font-semibold tracking-wide text-[#ffcc00] bg-[#ffcc00]/10 px-2 py-1 rounded inline-block">
                             {property.status === 'approved' ? 'For Rent' : (property.status?.toUpperCase() || 'AVAILABLE')}
                         </div>
                         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mt-2">{property.title}</h1>
@@ -334,7 +343,7 @@ export default function PropertyDetail() {
                             {features.map((f, i) => (
                                 <div
                                     key={i}
-                                    className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-all"
+                                    className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-[#ffcc00]/40 transition-all border-l-4 border-l-[#ffcc00]"
                                 >
                                     <div className="text-xl">{f.icon}</div>
                                     <div>

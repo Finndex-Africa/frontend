@@ -27,11 +27,11 @@ export const metadata: Metadata = {
   description: "Find your perfect home in Africa",
   icons: {
     icon: [
-      { url: '/images/logos/logo-icon-blue-bg.png' },
+      { url: '/images/logos/Finndex%20Africa%20Updated%20Logo.png' },
       { url: '/favicon.ico' },
     ],
-    apple: '/images/logos/logo-icon-blue-bg.png',
-    shortcut: '/images/logos/logo-icon-blue-bg.png',
+    apple: '/images/logos/Finndex%20Africa%20Updated%20Logo.png',
+    shortcut: '/images/logos/Finndex%20Africa%20Updated%20Logo.png',
   },
 };
 

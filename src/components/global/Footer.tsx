@@ -15,13 +15,13 @@ export default function Footer() {
                 <div>
                     <div className="mb-4 relative overflow-hidden rounded-2xl" style={{ width: '380px', height: '100px' }}>
                         <Image
-                            src="/images/logos/logo-tagline-blue-bg.png"
+                            src="/images/logos/Finndex%20Africa%20Updated%20Logo.png"
                             alt="Finndex Africa - Connecting you Seamlessly"
                             fill
                             className="object-contain object-left"
                         />
                     </div>
-                    <p className="text-gray-600 mt-2">A digital real estate and services platform connecting seekers with trusted providers.</p>
+                    <p className="text-gray-600 mt-2">A digital real estate and services platform that connects home Seekers with landlords, agents and services providers.</p>
 
                     {/* Social Media Icons */}
                     <div className="flex gap-4 mt-6">

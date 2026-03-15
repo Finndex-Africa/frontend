@@ -24,7 +24,8 @@ export interface CreatePropertyDto {
     isPremium?: boolean;
     images?: string[];
     videos?: string[];
-    amenities?: string[];
+    /** Backend expects { icon, label } per item */
+    amenities?: Array<{ icon: string; label: string; description?: string }>;
     availableFrom?: string;
     availableTo?: string;
 }

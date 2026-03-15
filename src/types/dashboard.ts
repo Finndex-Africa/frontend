@@ -48,6 +48,8 @@ export interface Property {
     area?: number;
     description: string;
     images: string[];
+    /** Amenities selected when posting (e.g. [{ icon: '💧', label: 'Water' }]) */
+    amenities?: Array<{ icon?: string; label: string; description?: string }>;
     agentId?: string;
     landlordId?: string;
     views?: number;

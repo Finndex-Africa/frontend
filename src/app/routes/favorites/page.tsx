@@ -26,6 +26,7 @@ function adaptPropertyToCard(apiProperty: ApiProperty): Property {
     }
     if (amenities.length === 0) amenities.push(apiProperty.type);
 
+    const propertyType = apiProperty.propertyType || apiProperty.type || '';
     return {
         id: apiProperty._id,
         title: apiProperty.title,
@@ -36,6 +37,7 @@ function adaptPropertyToCard(apiProperty: ApiProperty): Property {
         rating: apiProperty.rating ? Number(apiProperty.rating.toFixed(2)) : undefined,
         distance: undefined,
         dates: apiProperty.availableFrom ? `Available from ${new Date(apiProperty.availableFrom).toLocaleDateString()}` : undefined,
+        propertyType: propertyType || undefined,
     };
 }
 
@@ -67,7 +69,7 @@ function adaptServiceToCard(apiService: ApiService): Service {
         reviews: 0,
         imageUrl: apiService.images?.[0] || defaultImage,
         tags,
-        badge: apiService.status === 'active' ? 'VERIFIED' : undefined,
+        badge: apiService.category ? apiService.category.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : undefined,
         provider,
     };
 }

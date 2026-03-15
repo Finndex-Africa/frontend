@@ -48,6 +48,7 @@ const adaptPropertyToCard = (apiProperty: ApiProperty): Property => {
 
     const defaultImage = '/images/properties/pexels-photo-323780.jpeg';
 
+    const propertyType = apiProperty.propertyType || apiProperty.type || '';
     return {
         id: apiProperty._id,
         title: apiProperty.title,
@@ -57,7 +58,8 @@ const adaptPropertyToCard = (apiProperty: ApiProperty): Property => {
         amenities,
         rating: apiProperty.rating ? Number(apiProperty.rating.toFixed(2)) : undefined,
         distance: undefined,
-        dates: apiProperty.availableFrom ? `Available from ${new Date(apiProperty.availableFrom).toLocaleDateString()}` : undefined
+        dates: apiProperty.availableFrom ? `Available from ${new Date(apiProperty.availableFrom).toLocaleDateString()}` : undefined,
+        propertyType: propertyType || undefined,
     };
 };
 
@@ -95,7 +97,7 @@ const adaptServiceToCard = (apiService: ApiService): Service => {
         reviews: 0, // API doesn't provide review count yet
         imageUrl: apiService.images?.[0] || defaultImage,
         tags,
-        badge: apiService.status === 'active' ? 'VERIFIED' : undefined,
+        badge: apiService.category ? apiService.category.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : undefined,
         provider
     };
 };
@@ -344,25 +346,8 @@ export default function HomePage() {
             {/* Testimonials Section */}
             <TestimonialsSection />
 
-            {/* Cultural pattern – divider before CTA */}
-            <div
-                className="h-12 w-full bg-repeat-x bg-center bg-gray-100 opacity-95"
-                style={{ backgroundImage: 'url(/images/patterns/pattern-chevron.png)', backgroundSize: 'auto 3rem' }}
-                aria-hidden
-            />
-
             {/* CTA - Join Us on Our Journey */}
             <section className="bg-blue-600 py-16 text-white text-center">
-                <div className="flex justify-center mb-6">
-                    <div className="relative w-80 h-24 md:w-[420px] md:h-32 overflow-hidden rounded-2xl">
-                        <Image
-                            src="/images/logos/logo-tagline-yellow-bg.png"
-                            alt="Finndex Africa - Connecting you Seamlessly"
-                            fill
-                            className="object-contain"
-                        />
-                    </div>
-                </div>
                 <h2 className="text-3xl md:text-4xl font-bold mb-4">Join Us on Our Journey</h2>
                 <p className="text-lg md:text-xl max-w-2xl mx-auto mb-6">
                     Whether you&apos;re looking for services or want to provide your expertise, we welcome you to be part of our growing community.
