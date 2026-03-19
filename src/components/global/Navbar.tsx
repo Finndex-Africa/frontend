@@ -220,7 +220,7 @@ export default function Navbar() {
                             />
                         </div>
                         {/* Mobile: icon-only logo to save space */}
-                        <div className="relative md:hidden shrink-0 overflow-hidden rounded-xl" style={{ width: '76px', height: '76px' }}>
+                        <div className="relative md:hidden shrink-0 overflow-hidden rounded-xl" style={{ width: '136px', height: '56px' }}>
                             <Image
                                 src="/images/logos/Header%20Logo.png"
                                 alt="Finndex Africa"

@@ -253,14 +253,19 @@ export default function PropertyDetail() {
 
     const media = images.map(src => ({ type: "image" as const, src }));
 
-    // Prepare amenities/features: use saved amenities from listing when available
+    // Prepare amenities/features: support both legacy string[] and object[] amenities
     const features: { label: string; desc: string; icon: string }[] = [];
     if (property.amenities && property.amenities.length > 0) {
-        property.amenities.forEach((a) => {
+        property.amenities.forEach((a: any) => {
+            if (typeof a === 'string') {
+                features.push({ label: a, desc: 'Available', icon: '•' });
+                return;
+            }
+            const label = a?.label || 'Amenity';
             features.push({
-                label: a.label,
-                desc: a.description || "Available",
-                icon: a.icon || "•",
+                label,
+                desc: a?.description || 'Available',
+                icon: a?.icon || '•',
             });
         });
     }
