@@ -18,6 +18,31 @@ const LOCAL_PROPERTY_IMAGE = '/images/properties/pexels-photo-323780.jpeg';
 
 const getDefaultImages = (type: string) => [LOCAL_PROPERTY_IMAGE];
 
+const AMENITY_ICON_BY_LABEL: Record<string, string> = {
+    water: '💧',
+    electricity: '⚡',
+    wifi: '📶',
+    parking: '🚗',
+    security: '🔒',
+    'swimming pool': '🏊',
+    gym: '💪',
+    garden: '🌳',
+    balcony: '🏠',
+    'air conditioning': '❄️',
+    heating: '🔥',
+    laundry: '🧺',
+    elevator: '🛗',
+    generator: '⚙️',
+    cctv: '📹',
+    gate: '🚪',
+};
+
+const getAmenityIcon = (label?: string, icon?: string) => {
+    if (icon && icon.trim() && icon !== '•') return icon;
+    const key = (label || '').trim().toLowerCase();
+    return AMENITY_ICON_BY_LABEL[key] || '•';
+};
+
 export default function PropertyDetail() {
     const params = useParams();
     const propertyId = params?.id as string;
@@ -258,14 +283,14 @@ export default function PropertyDetail() {
     if (property.amenities && property.amenities.length > 0) {
         property.amenities.forEach((a: any) => {
             if (typeof a === 'string') {
-                features.push({ label: a, desc: 'Available', icon: '•' });
+                features.push({ label: a, desc: 'Available', icon: getAmenityIcon(a) });
                 return;
             }
             const label = a?.label || 'Amenity';
             features.push({
                 label,
                 desc: a?.description || 'Available',
-                icon: a?.icon || '•',
+                icon: getAmenityIcon(label, a?.icon),
             });
         });
     }
@@ -309,7 +334,7 @@ export default function PropertyDetail() {
                         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mt-2">{property.title}</h1>
                         <p className="text-gray-600 text-base mt-1">{property.location}</p>
 
-                        {property.rating && (
+                        {typeof property.rating === 'number' && property.rating > 0 && (
                             <div className="flex items-center gap-2 mt-3">
                                 <svg className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 24 24">
                                     <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
