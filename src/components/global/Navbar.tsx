@@ -210,9 +210,9 @@ export default function Navbar() {
                 <div className="container-app flex items-center justify-between h-16 px-4">
                     <Link href="/" className="font-extrabold text-xl flex items-center gap-2">
                         {/* Desktop: full horizontal logo */}
-                        <div className="relative hidden md:block overflow-hidden rounded-xl" style={{ width: '280px', height: '64px' }}>
+                        <div className="relative hidden md:block overflow-hidden rounded-xl" style={{ width: '220px', height: '52px' }}>
                             <Image
-                                src="/images/logos/Finndex%20Africa%20Updated%20Logo.png"
+                                src="/images/logos/Header%20Logo.png"
                                 alt="Finndex Africa"
                                 fill
                                 className="object-contain object-left"
@@ -220,9 +220,9 @@ export default function Navbar() {
                             />
                         </div>
                         {/* Mobile: icon-only logo to save space */}
-                        <div className="relative md:hidden shrink-0 overflow-hidden rounded-xl" style={{ width: '60px', height: '60px' }}>
+                        <div className="relative md:hidden shrink-0 overflow-hidden rounded-xl" style={{ width: '76px', height: '76px' }}>
                             <Image
-                                src="/images/logos/Finndex%20Africa%20Updated%20Logo.png"
+                                src="/images/logos/Header%20Logo.png"
                                 alt="Finndex Africa"
                                 fill
                                 className="object-contain"

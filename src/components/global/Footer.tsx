@@ -13,9 +13,9 @@ export default function Footer() {
             />
             <div className="container-app py-12 grid grid-cols-1 md:grid-cols-4 gap-8 text-sm">
                 <div>
-                    <div className="mb-4 relative overflow-hidden rounded-2xl" style={{ width: '380px', height: '100px' }}>
+                    <div className="mb-4 relative overflow-hidden rounded-2xl" style={{ width: '300px', height: '72px' }}>
                         <Image
-                            src="/images/logos/Finndex%20Africa%20Updated%20Logo.png"
+                            src="/images/logos/Footer%20Logo.png"
                             alt="Finndex Africa - Connecting you Seamlessly"
                             fill
                             className="object-contain object-left"
