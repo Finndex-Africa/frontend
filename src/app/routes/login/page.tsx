@@ -186,8 +186,8 @@ export default function AuthPage() {
                             <div className="relative w-60 h-24 md:w-80 md:h-28 flex items-center justify-center">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
-                                    src="/images/logos/logo-stacked-yellow-bg.png"
-                                    alt="Finndex Africa"
+                                    src="/images/logos/logoforsignuplogin.jpeg"
+                                    alt="FindAfriq"
                                     className="max-w-full max-h-full w-auto h-auto object-contain rounded-[1.5rem]"
                                 />
                             </div>

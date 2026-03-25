@@ -13,14 +13,14 @@ export default function TermsPage() {
             >
                 <h1 className="text-4xl font-bold text-gray-900 mb-6 text-center">Terms & Conditions</h1>
                 <p className="text-gray-700 mb-8 text-center">
-                    Welcome to Finndex Africa! Please read these terms carefully before using our platform.
+                    Welcome to FindAfriq! Please read these terms carefully before using our platform.
                 </p>
 
                 <div className="space-y-6">
                     <section>
                         <h2 className="text-2xl font-semibold text-gray-900 mb-2">1. Acceptance of Terms</h2>
                         <p className="text-gray-700">
-                            By accessing or using Finndex Africa’s services, you agree to comply with and be bound by these Terms and Conditions.
+                            By accessing or using FindAfriq’s services, you agree to comply with and be bound by these Terms and Conditions.
                         </p>
                     </section>
 
@@ -48,14 +48,14 @@ export default function TermsPage() {
                     <section>
                         <h2 className="text-2xl font-semibold text-gray-900 mb-2">5. Privacy</h2>
                         <p className="text-gray-700">
-                            Your use of Finndex Africa is also governed by our Privacy Policy. Please review it to understand how we collect, use, and protect your personal data.
+                            Your use of FindAfriq is also governed by our Privacy Policy. Please review it to understand how we collect, use, and protect your personal data.
                         </p>
                     </section>
 
                     <section>
                         <h2 className="text-2xl font-semibold text-gray-900 mb-2">6. Limitation of Liability</h2>
                         <p className="text-gray-700">
-                            Finndex Africa is not liable for any direct or indirect damages arising from the use of the platform, including transactions, listings, or interactions with third-party service providers.
+                            FindAfriq is not liable for any direct or indirect damages arising from the use of the platform, including transactions, listings, or interactions with third-party service providers.
                         </p>
                     </section>
 
@@ -69,7 +69,7 @@ export default function TermsPage() {
                     <section>
                         <h2 className="text-2xl font-semibold text-gray-900 mb-2">8. Contact Us</h2>
                         <p className="text-gray-700">
-                            If you have any questions regarding these terms, please contact our support team at <a href="mailto:support@finndexafrica.com" className="text-blue-600 underline">support@finndexafrica.com</a>.
+                            If you have any questions regarding these terms, please contact our support team at <a href="mailto:support@findafriq.com" className="text-blue-600 underline">support@findafriq.com</a>.
                         </p>
                     </section>
                 </div>

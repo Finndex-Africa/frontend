@@ -212,8 +212,8 @@ export default function Navbar() {
                         {/* Desktop: full horizontal logo */}
                         <div className="relative hidden md:block overflow-hidden rounded-xl" style={{ width: '220px', height: '52px' }}>
                             <Image
-                                src="/images/logos/Header%20Logo.png"
-                                alt="Finndex Africa"
+                                src="/images/logos/Header%20Logo-Findafriq.png"
+                                alt="FindAfriq"
                                 fill
                                 className="object-contain object-left"
                                 priority
@@ -222,8 +222,8 @@ export default function Navbar() {
                         {/* Mobile: icon-only logo to save space */}
                         <div className="relative md:hidden shrink-0 overflow-hidden rounded-xl" style={{ width: '136px', height: '56px' }}>
                             <Image
-                                src="/images/logos/Header%20Logo.png"
-                                alt="Finndex Africa"
+                                src="/images/logos/Header%20Logo-Findafriq.png"
+                                alt="FindAfriq"
                                 fill
                                 className="object-contain"
                                 priority

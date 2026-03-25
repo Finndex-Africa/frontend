@@ -35,7 +35,7 @@ export default function TestingDisclaimer() {
 
                 <div className="px-6 py-6">
                     <p className="text-gray-800 text-base leading-relaxed">
-                        Welcome to <span className="font-semibold">Finndex Africa</span>. This platform is currently in <span className="font-semibold text-amber-600">testing</span>.
+                        Welcome to <span className="font-semibold">FindAfriq</span>. This platform is currently in <span className="font-semibold text-amber-600">testing</span>.
                     </p>
                     <p className="text-gray-700 text-sm mt-3 leading-relaxed">
                         <span className="font-semibold">Properties and services shown on this site are not real.</span> All listings are for demonstration only. We have been receiving enquiries about them please do not make enquiries or transactions based on the content shown.

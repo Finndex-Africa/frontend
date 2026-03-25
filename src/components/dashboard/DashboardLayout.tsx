@@ -141,7 +141,7 @@ export function DashboardLayout({ children, userRole, userName }: DashboardLayou
                     {collapsed ? (
                         <div style={{ fontWeight: 'bold', fontSize: '18px' }}>F</div>
                     ) : (
-                        <div style={{ fontWeight: 'bold', fontSize: '18px' }}>Finndex</div>
+                        <div style={{ fontWeight: 'bold', fontSize: '18px' }}>FindAfriq</div>
                     )}
                 </div>
                 <Menu

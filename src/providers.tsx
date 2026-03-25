@@ -18,7 +18,7 @@ export function useAuth() {
 // Bookmarks: saved items with type so we can show them on Favorites page
 export type BookmarkType = "property" | "service";
 export type BookmarkItem = { id: string; type: BookmarkType };
-const STORAGE_PREFIX = "finndex-bookmarks";
+const STORAGE_PREFIX = "findafriq-bookmarks";
 
 type BookmarkContextType = {
     bookmarks: BookmarkItem[];

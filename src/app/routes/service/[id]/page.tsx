@@ -330,7 +330,7 @@ export default function ServiceDetail() {
                                                     )}
                                                 </div>
                                                 <p className="text-gray-500 text-xs">
-                                                    {providerIdValue ? 'Registered service provider on Finndex Africa' : 'Provider information not available'}
+                                                    {providerIdValue ? 'Registered service provider on FindAfriq' : 'Provider information not available'}
                                                 </p>
                                                 {providerEmail && (
                                                     <p className="text-gray-500 text-xs mt-1 flex items-center gap-1">
@@ -434,7 +434,7 @@ export default function ServiceDetail() {
                                                     phone = provider.phone || provider.whatsapp || '';
                                                 }
                                                 const cleanPhone = phone.replace(/[^0-9+]/g, '');
-                                                const msg = encodeURIComponent(`Hi, I'm interested in your service "${service.title}" on Finndex Africa.`);
+                                                const msg = encodeURIComponent(`Hi, I'm interested in your service "${service.title}" on FindAfriq.`);
                                                 return cleanPhone
                                                     ? `https://wa.me/${cleanPhone.replace('+', '')}?text=${msg}`
                                                     : `https://wa.me/?text=${msg}`;

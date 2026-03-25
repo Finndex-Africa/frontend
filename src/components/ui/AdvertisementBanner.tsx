@@ -120,7 +120,7 @@ export default function AdvertisementBanner() {
                         {/* Left Content */}
                         <div className="text-white space-y-6">
                             <h2 className="text-3xl md:text-4xl font-bold">
-                                Advertise with Finndex Africa
+                                Advertise with FindAfriq
                             </h2>
                             <p className="text-lg text-white/95">
                                 Reach thousands of potential customers across Africa.

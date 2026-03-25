@@ -331,8 +331,8 @@ export default function PublicProfileView() {
                             </h3>
                             <p className="text-gray-600">
                                 {user.userType === 'agent'
-                                    ? 'This user is a verified property agent on Finndex Africa'
-                                    : 'This user is a verified landlord on Finndex Africa'}
+                                    ? 'This user is a verified property agent on FindAfriq'
+                                    : 'This user is a verified landlord on FindAfriq'}
                             </p>
                         </div>
                     </div>

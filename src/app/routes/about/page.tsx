@@ -48,18 +48,18 @@ export default function About() {
                     <div className="md:w-1/2">
                         <h2 className="text-3xl font-bold mb-4">Our Story</h2>
                         <p className="text-gray-700 mb-4">
-                            Finndex Africa Inc. is a PropTech startup dedicated to transforming the rental housing experience across Africa.
+                            FindAfriq Inc. is a PropTech startup dedicated to transforming the rental housing experience across Africa.
                             We leverage technology to create a transparent, efficient, and trusted marketplace that connects home seekers, landlords,
                             and service providers in one unified digital ecosystem.
                         </p>
                         <p className="text-gray-700 mb-4">
                             Our platform was established to address long-standing challenges within the rental housing sector, including unverified listings,
-                            excessive agent fees, rental scams, and inefficient search processes. Through digital innovation, Finndex Africa simplifies every step
+                            excessive agent fees, rental scams, and inefficient search processes. Through digital innovation, FindAfriq simplifies every step
                             of the rental journey making it faster, safer, and more affordable for individuals and families to find suitable housing and services.
                         </p>
                         <p className="text-gray-700">
                             Beyond property listings, we provide access to verified household service providers, enabling users to connect with reliable electricians,
-                            plumbers, movers, and cleaners. Finndex Africa operates as a community-driven, trusted digital marketplace designed to enhance convenience,
+                            plumbers, movers, and cleaners. FindAfriq operates as a community-driven, trusted digital marketplace designed to enhance convenience,
                             promote accountability, and support inclusive growth within Africa’s housing ecosystem.
                         </p>
                     </div>
@@ -72,7 +72,7 @@ export default function About() {
                 <div className="container mx-auto">
                     <h2 className="text-3xl md:text-4xl font-bold text-center mb-3">Meet the Team</h2>
                     <p className="text-gray-600 text-center max-w-2xl mx-auto mb-12">
-                        The people behind Finndex Africa working to transform the rental housing experience across the continent.
+                        The people behind FindAfriq working to transform the rental housing experience across the continent.
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
                         {[

@@ -23,15 +23,15 @@ const whitneyMedium = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Finndex Africa",
+  title: "FindAfriq",
   description: "Find your perfect home in Africa",
   icons: {
     icon: [
-      { url: '/images/logos/Finndex%20Africa%20Updated%20Logo.png' },
+      { url: '/images/logos/Header%20Logo-Findafriq.png' },
       { url: '/favicon.ico' },
     ],
-    apple: '/images/logos/Finndex%20Africa%20Updated%20Logo.png',
-    shortcut: '/images/logos/Finndex%20Africa%20Updated%20Logo.png',
+    apple: '/images/logos/Header%20Logo-Findafriq.png',
+    shortcut: '/images/logos/Header%20Logo-Findafriq.png',
   },
 };
 

@@ -461,7 +461,7 @@ export default function PropertyDetail() {
                                                     </span>
                                                 </div>
                                                 <p className="text-gray-500 text-xs">
-                                                    Registered {property.agentId ? 'agent' : 'landlord'} on Finndex Africa
+                                                    Registered {property.agentId ? 'agent' : 'landlord'} on FindAfriq
                                                 </p>
                                                 <div className="flex items-center gap-3 mt-2 text-xs text-gray-600">
                                                     <span className="flex items-center gap-1">
@@ -554,7 +554,7 @@ export default function PropertyDetail() {
                                                     phone = (owner as any).phone || '';
                                                 }
                                                 const cleanPhone = phone.replace(/[^0-9+]/g, '');
-                                                const msg = encodeURIComponent(`Hi, I'm interested in your property "${property.title}" on Finndex Africa.`);
+                                                const msg = encodeURIComponent(`Hi, I'm interested in your property "${property.title}" on FindAfriq.`);
                                                 return cleanPhone
                                                     ? `https://wa.me/${cleanPhone.replace('+', '')}?text=${msg}`
                                                     : `https://wa.me/?text=${msg}`;
