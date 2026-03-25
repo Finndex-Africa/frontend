@@ -6,7 +6,7 @@ import SearchBar from "../../../components/ui/SearchBar";
 import AdvertisementBanner from "../../../components/ui/AdvertisementBanner";
 import TestimonialsSection from "../../../components/ui/TestimonialsSection";
 import PartnerLogos from "../../../components/ui/PartnerLogos";
-import PlatformStats from "../../../components/ui/PlatformStats";
+
 import Image from "next/image";
 import { useRouter, useSearchParams } from 'next/navigation';
 import { propertiesApi, servicesApi } from "@/services/api";
@@ -242,11 +242,8 @@ export default function HomePage() {
                 </section>
             )}
 
-            {/* Spacer so search overlay does not overlap Platform Statistics */}
+            {/* Spacer */}
             <div className="pt-32 sm:pt-36 md:pt-40" aria-hidden="true" />
-
-            {/* Platform Statistics Section */}
-            <PlatformStats />
 
             {/* Property Grid */}
             <div className="container-app py-12">
