@@ -6,7 +6,6 @@ import ConditionalFooter from "../components/global/ConditionalFooter";
 import WhatsAppFloat from "../components/global/WhatsAppFloat";
 import TestingDisclaimer from "../components/global/TestingDisclaimer";
 import { Providers } from "../providers";
-import SentryInit from "./sentry-client-init";
 
 // Primary (Headings): Whitney Bold
 const whitneyBold = localFont({
@@ -48,13 +47,11 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <Providers>
-          <SentryInit>
             <Navbar />
             <main className="min-h-screen pt-16 md:pt-0">{children}</main>
             <ConditionalFooter />
             <WhatsAppFloat />
             <TestingDisclaimer />
-          </SentryInit>
         </Providers>
       </body>
     </html>
