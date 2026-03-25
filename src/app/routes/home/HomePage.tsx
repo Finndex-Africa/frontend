@@ -8,7 +8,7 @@ import TestimonialsSection from "../../../components/ui/TestimonialsSection";
 import PartnerLogos from "../../../components/ui/PartnerLogos";
 
 import Image from "next/image";
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { propertiesApi, servicesApi } from "@/services/api";
 import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 import { Property as ApiProperty, Service as ApiService } from "@/types/dashboard";
@@ -104,7 +104,6 @@ const adaptServiceToCard = (apiService: ApiService): Service => {
 
 export default function HomePage() {
     const router = useRouter();
-    const searchParams = useSearchParams();
     const { setRole } = useAuth();
     const [properties, setProperties] = useState<Property[]>([]);
     const [services, setServices] = useState<Service[]>([]);
@@ -115,7 +114,9 @@ export default function HomePage() {
 
     // Handle logout from dashboard
     useEffect(() => {
-        const isLogout = searchParams.get('logout') === 'true';
+        if (typeof window === 'undefined') return;
+        const url = new URL(window.location.href);
+        const isLogout = url.searchParams.get('logout') === 'true';
         if (isLogout) {
             console.log('🚪 Logout request from dashboard');
             // Clear all auth storage
@@ -128,11 +129,10 @@ export default function HomePage() {
             setRole('guest');
 
             // Remove logout parameter from URL
-            const url = new URL(window.location.href);
             url.searchParams.delete('logout');
             window.history.replaceState({}, '', url.toString());
         }
-    }, [searchParams, setRole]);
+    }, [setRole]);
 
     // On mount, print any persistent debug logs (helpful after redirects)
     useEffect(() => {
