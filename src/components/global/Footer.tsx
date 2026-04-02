@@ -61,7 +61,7 @@ export default function Footer() {
                 </div>
             </div>
             <div className="container-app py-4 border-t border-gray-300 text-xs text-gray-500">
-                © 2026 FindAfriq. All rights reserved.
+                © 2026 FindAfriq, Inc. All rights reserved.
             </div>
         </footer>
     );

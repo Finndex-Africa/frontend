@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useId } from 'react';
+import { createPortal } from 'react-dom';
 import { Share2, Link2, ChevronDown } from 'lucide-react';
 
 interface ShareButtonProps {
@@ -23,6 +24,10 @@ export default function ShareButton({ title, text, url, className, compact, drop
     const [open, setOpen] = useState(false);
     const [copied, setCopied] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const buttonRef = useRef<HTMLButtonElement>(null);
+    const menuRef = useRef<HTMLDivElement>(null);
+    const menuId = useId();
+    const [menuPos, setMenuPos] = useState<{ top: number; left: number; width: number } | null>(null);
 
     const getResolvedUrl = () => {
         const u = url || (typeof window !== 'undefined' ? window.location.href : '');
@@ -37,7 +42,10 @@ export default function ShareButton({ title, text, url, className, compact, drop
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+            const target = e.target as Node;
+            const clickedTrigger = !!dropdownRef.current?.contains(target);
+            const clickedMenu = !!menuRef.current?.contains(target);
+            if (!clickedTrigger && !clickedMenu) {
                 setOpen(false);
             }
         };
@@ -45,11 +53,85 @@ export default function ShareButton({ title, text, url, className, compact, drop
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    useEffect(() => {
+        if (!open) return;
+
+        const update = () => {
+            const btn = buttonRef.current;
+            if (!btn) return;
+            const rect = btn.getBoundingClientRect();
+            const minWidth = 220;
+            const width = Math.max(minWidth, rect.width);
+            const left = dropdownRight ? rect.right - width : rect.left;
+            const top = rect.bottom + 6;
+            setMenuPos({ top, left, width });
+        };
+
+        update();
+        window.addEventListener('scroll', update, true);
+        window.addEventListener('resize', update);
+        return () => {
+            window.removeEventListener('scroll', update, true);
+            window.removeEventListener('resize', update);
+        };
+    }, [open, dropdownRight]);
+
+    useEffect(() => {
+        if (!open) return;
+        // Focus first menu item for keyboard users
+        const id = window.setTimeout(() => {
+            const first = menuRef.current?.querySelector<HTMLElement>('[data-menuitem="true"]');
+            first?.focus();
+        }, 0);
+        return () => window.clearTimeout(id);
+    }, [open]);
+
+    const closeMenu = () => {
+        setOpen(false);
+        // restore focus to trigger
+        window.setTimeout(() => buttonRef.current?.focus(), 0);
+    };
+
+    const onMenuKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            closeMenu();
+            return;
+        }
+        if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp' && e.key !== 'Home' && e.key !== 'End') {
+            return;
+        }
+        e.preventDefault();
+
+        const items = Array.from(menuRef.current?.querySelectorAll<HTMLElement>('[data-menuitem="true"]') || []);
+        if (items.length === 0) return;
+
+        const active = document.activeElement as HTMLElement | null;
+        const currentIndex = active ? items.indexOf(active) : -1;
+
+        const nextIndex = (() => {
+            switch (e.key) {
+                case 'Home':
+                    return 0;
+                case 'End':
+                    return items.length - 1;
+                case 'ArrowDown':
+                    return currentIndex >= 0 ? (currentIndex + 1) % items.length : 0;
+                case 'ArrowUp':
+                    return currentIndex >= 0 ? (currentIndex - 1 + items.length) % items.length : items.length - 1;
+                default:
+                    return 0;
+            }
+        })();
+
+        items[nextIndex]?.focus();
+    };
+
     const openShare = (href: string) => {
         if (typeof window !== 'undefined') {
             window.open(href, '_blank', 'noopener,noreferrer,width=600,height=500');
         }
-        setOpen(false);
+        closeMenu();
     };
 
     const handleCopyLink = async () => {
@@ -68,9 +150,9 @@ export default function ShareButton({ title, text, url, className, compact, drop
             }
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
-            setOpen(false);
+            closeMenu();
         } catch {
-            setOpen(false);
+            closeMenu();
         }
     };
 
@@ -78,7 +160,7 @@ export default function ShareButton({ title, text, url, className, compact, drop
         if (typeof navigator !== 'undefined' && navigator.share) {
             try {
                 await navigator.share({ title, text, url: shareUrl });
-                setOpen(false);
+                closeMenu();
             } catch (err) {
                 if ((err as Error).name !== 'AbortError') {
                     handleCopyLink();
@@ -95,6 +177,7 @@ export default function ShareButton({ title, text, url, className, compact, drop
         <div className="relative inline-block" ref={dropdownRef}>
             <button
                 type="button"
+                ref={buttonRef}
                 onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -104,6 +187,7 @@ export default function ShareButton({ title, text, url, className, compact, drop
                 title="Share"
                 aria-haspopup="true"
                 aria-expanded={open}
+                aria-controls={open ? menuId : undefined}
             >
                 <Share2 className="w-4 h-4" />
                 {!compact && (
@@ -114,10 +198,19 @@ export default function ShareButton({ title, text, url, className, compact, drop
                 )}
             </button>
 
-            {open && (
+            {open && typeof document !== 'undefined' && menuPos &&
+                createPortal(
                 <div
-                    className={`absolute top-full mt-1 z-[9999] min-w-[200px] py-1 bg-white border border-gray-200 rounded-xl shadow-lg ${dropdownRight ? 'right-0 left-auto' : 'left-0'}`}
+                    id={menuId}
+                    ref={menuRef}
+                    className="fixed z-99999 py-1 bg-white border border-gray-200 rounded-xl shadow-lg"
+                    style={{
+                        top: menuPos.top,
+                        left: Math.max(8, Math.min(menuPos.left, window.innerWidth - menuPos.width - 8)),
+                        width: menuPos.width,
+                    }}
                     role="menu"
+                    onKeyDown={onMenuKeyDown}
                 >
                     <p className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100">
                         Share via
@@ -132,6 +225,8 @@ export default function ShareButton({ title, text, url, className, compact, drop
                         }}
                         className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-800 hover:bg-blue-50 transition-colors"
                         role="menuitem"
+                        tabIndex={0}
+                        data-menuitem="true"
                     >
                         <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#1877F2]/10 text-[#1877F2]">
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -150,6 +245,8 @@ export default function ShareButton({ title, text, url, className, compact, drop
                         }}
                         className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-800 hover:bg-gray-100 transition-colors"
                         role="menuitem"
+                        tabIndex={0}
+                        data-menuitem="true"
                     >
                         <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-black/5 text-gray-900">
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -168,6 +265,8 @@ export default function ShareButton({ title, text, url, className, compact, drop
                         }}
                         className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-800 hover:bg-green-50 transition-colors"
                         role="menuitem"
+                        tabIndex={0}
+                        data-menuitem="true"
                     >
                         <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#25D366]/10 text-[#25D366]">
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -186,6 +285,8 @@ export default function ShareButton({ title, text, url, className, compact, drop
                         }}
                         className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-800 hover:bg-blue-50 transition-colors"
                         role="menuitem"
+                        tabIndex={0}
+                        data-menuitem="true"
                     >
                         <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#0A66C2]/10 text-[#0A66C2]">
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -200,6 +301,8 @@ export default function ShareButton({ title, text, url, className, compact, drop
                             onClick={handleCopyLink}
                             className="flex items-center gap-3 w-full px-3 py-2.5 text-sm text-gray-800 hover:bg-gray-50 transition-colors"
                             role="menuitem"
+                            tabIndex={0}
+                            data-menuitem="true"
                         >
                             <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 text-gray-600">
                                 <Link2 className="w-4 h-4" />
@@ -212,6 +315,8 @@ export default function ShareButton({ title, text, url, className, compact, drop
                                 onClick={handleNativeShare}
                                 className="flex items-center gap-3 w-full px-3 py-2.5 text-sm text-gray-800 hover:bg-gray-50 transition-colors"
                                 role="menuitem"
+                                tabIndex={0}
+                                data-menuitem="true"
                             >
                                 <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 text-gray-600">
                                     <Share2 className="w-4 h-4" />
@@ -220,7 +325,8 @@ export default function ShareButton({ title, text, url, className, compact, drop
                             </button>
                         )}
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

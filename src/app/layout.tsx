@@ -26,11 +26,11 @@ export const metadata: Metadata = {
   description: "Find your perfect home in Africa",
   icons: {
     icon: [
-      { url: '/images/logos/Header%20Logo-Findafriq.png' },
-      { url: '/favicon.ico' },
+      { url: '/favicon-16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32.png', sizes: '32x32', type: 'image/png' },
     ],
-    apple: '/images/logos/Header%20Logo-Findafriq.png',
-    shortcut: '/images/logos/Header%20Logo-Findafriq.png',
+    apple: '/apple-icon.png',
+    shortcut: '/favicon-32.png',
   },
 };
 

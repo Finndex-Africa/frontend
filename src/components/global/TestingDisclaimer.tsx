@@ -6,6 +6,17 @@ export default function TestingDisclaimer() {
     const [visible, setVisible] = useState(false);
 
     useEffect(() => {
+        const appEnv = (process.env.NEXT_PUBLIC_APP_ENV || '').toLowerCase();
+        const hostname = window.location.hostname.toLowerCase();
+
+        const isStaging =
+            appEnv === 'staging' ||
+            hostname.includes('staging') ||
+            hostname.includes('localhost') ||
+            hostname.includes('127.0.0.1');
+
+        if (!isStaging) return;
+
         const dismissed = sessionStorage.getItem('testing-disclaimer-dismissed');
         if (!dismissed) {
             setVisible(true);
