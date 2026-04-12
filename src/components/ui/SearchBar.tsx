@@ -37,7 +37,7 @@ export default function SearchBar() {
     };
 
     return (
-        <div className="w-full max-w-5xl mx-auto px-2 sm:px-0">
+        <div className="w-full">
             {/* Tabs */}
             <div className="flex justify-center mb-4">
                 <div className="bg-blue-600 rounded-full p-1 inline-flex gap-1">
@@ -62,14 +62,14 @@ export default function SearchBar() {
                 </div>
             </div>
 
-            {/* Search Bar */}
-            <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6">
+            {/* Search Bar — card sizing matches /routes/properties hero form */}
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 border border-gray-200">
                 <form onSubmit={handleSearch}>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 items-end">
                         {/* Location */}
                         <div>
-                            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
+                                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
@@ -80,14 +80,14 @@ export default function SearchBar() {
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
                                 placeholder="City or area (e.g. Thinker's Village)"
-                                className="w-full h-12 px-4 border border-gray-300 rounded-lg text-gray-600 bg-white placeholder-gray-400 hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                className="w-full h-11 sm:h-12 px-3 sm:px-4 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-600 bg-white placeholder-gray-400 hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                             />
                         </div>
 
                         {/* Property Type / Service Type */}
                         <div>
-                            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
+                                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     {activeTab === "homes" ? (
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                     ) : (
@@ -99,7 +99,7 @@ export default function SearchBar() {
                             <select
                                 value={type}
                                 onChange={(e) => setType(e.target.value)}
-                                className="w-full h-12 px-4 pr-10 border border-gray-300 rounded-lg text-gray-600 bg-white appearance-none cursor-pointer hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                className="w-full h-11 sm:h-12 px-3 sm:px-4 pr-8 sm:pr-10 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-600 bg-white appearance-none cursor-pointer hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                             >
                                 <option value="">Select type</option>
                                 {activeTab === "homes" ? (
@@ -124,29 +124,29 @@ export default function SearchBar() {
 
                         {/* Budget */}
                         <div>
-                            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
+                                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 Budget (USD)
                             </label>
                             <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
+                                <span className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium text-sm sm:text-base">$</span>
                                 <input
                                     type="number"
                                     value={budget}
                                     onChange={(e) => setBudget(e.target.value)}
                                     placeholder="Max budget"
-                                    className="w-full h-12 pl-8 pr-4 border border-gray-300 rounded-lg text-gray-600 bg-white placeholder-gray-400 hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                    className="w-full h-11 sm:h-12 pl-7 sm:pl-8 pr-3 sm:pr-4 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-600 bg-white placeholder-gray-400 hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                                 />
                             </div>
                         </div>
 
                         {/* Search Button */}
-                        <div>
+                        <div className="sm:col-span-2 md:col-span-1">
                             <button
                                 type="submit"
-                                className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg"
+                                className="w-full h-11 sm:h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg text-sm sm:text-base"
                             >
                                 Search
                             </button>

@@ -2,32 +2,32 @@ import TestimonialCard from "./TestimonialCard";
 
 const testimonials = [
     {
-        name: "Sarah Johnson",
+        name: "Aïssatou Diallo",
         role: "Property Owner",
         content: "FindAfriq made it incredibly easy to list my property. Within weeks, I had multiple interested tenants. The platform is user-friendly and the support team is excellent!",
         rating: 5,
-        avatarUrl: "https://i.pravatar.cc/150?img=1"
+        avatarUrl: "https://images.unsplash.com/photo-1769636930016-5d9f0ca653aa?auto=format&fit=crop&w=200&h=200&q=80"
     },
     {
-        name: "Michael Osei",
+        name: "Kwame Mensah",
         role: "Service Provider",
         content: "As a plumber, joining FindAfriq was the best business decision I made. I get consistent leads and the verification process helped build trust with my clients.",
         rating: 5,
-        avatarUrl: "https://i.pravatar.cc/150?img=12"
+        avatarUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&h=200&q=80"
     },
     {
         name: "Aminata Kamara",
         role: "Home Seeker",
         content: "Finding a home in Monrovia was stressful until I discovered FindAfriq. The search filters made it easy to find exactly what I needed, and all properties were verified!",
         rating: 5,
-        avatarUrl: "https://i.pravatar.cc/150?img=5"
+        avatarUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&h=200&q=80"
     },
     {
-        name: "David Chen",
+        name: "Nia Okafor",
         role: "Property Manager",
         content: "Managing multiple properties became much simpler with FindAfriq. The dashboard is intuitive and I can track everything in one place.",
         rating: 5,
-        avatarUrl: "https://i.pravatar.cc/150?img=8"
+        avatarUrl: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=200&h=200&q=80"
     }
 ];
 
