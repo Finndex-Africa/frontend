@@ -222,8 +222,9 @@ export default function HomePage() {
 
                 <div className="relative z-[5] flex flex-col md:block md:h-[400px]">
                     <div className="px-4 pt-8 pb-5 sm:pt-10 sm:pb-6 text-center text-white md:absolute md:inset-0 md:flex md:items-center md:justify-center md:pt-0 md:pb-0 md:px-4">
-                        <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold max-w-4xl mx-auto leading-tight drop-shadow-lg">
-                            Find Verified Properties and Trusted Service Providers
+                        <h1 className="max-w-4xl mx-auto font-extrabold drop-shadow-lg text-2xl leading-snug sm:text-3xl sm:leading-snug md:inline-block md:text-5xl md:leading-tight">
+                            <span className="block md:inline">Find Verified Properties and </span>
+                            <span className="block md:inline">Trusted Service Providers</span>
                         </h1>
                     </div>
 

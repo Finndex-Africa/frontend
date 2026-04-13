@@ -2,35 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAuth, type Role } from "@/providers";
 
 const HIDE_NAV_PREFIXES = ["/routes/login", "/routes/verify-email", "/forgot-password", "/reset-password"];
-
-function secondaryForRole(role: Role): { label: string; href: string } {
-    if (role === "landlord") {
-        return { label: "My Listings", href: "/routes/my-listings" };
-    }
-    if (role === "provider") {
-        return { label: "My Services", href: "/routes/my-services" };
-    }
-    return { label: "Browse", href: "/routes/properties" };
-}
-
-function isSecondaryActive(pathname: string, href: string): boolean {
-    if (href === "/routes/properties") {
-        return (
-            pathname.startsWith("/routes/properties") ||
-            pathname.startsWith("/routes/property")
-        );
-    }
-    if (href === "/routes/my-listings") {
-        return pathname.startsWith("/routes/my-listings");
-    }
-    if (href === "/routes/my-services") {
-        return pathname.startsWith("/routes/my-services");
-    }
-    return false;
-}
 
 function IconHome({ active }: { active: boolean }) {
     const c = active ? "text-blue-600" : "text-gray-500";
@@ -50,29 +23,11 @@ function IconSearch({ active }: { active: boolean }) {
     );
 }
 
-function IconListings({ active }: { active: boolean }) {
-    const c = active ? "text-blue-600" : "text-gray-500";
-    return (
-        <svg className={`w-6 h-6 ${c}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-        </svg>
-    );
-}
-
 function IconBriefcase({ active }: { active: boolean }) {
     const c = active ? "text-blue-600" : "text-gray-500";
     return (
         <svg className={`w-6 h-6 ${c}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-        </svg>
-    );
-}
-
-function IconCalendar({ active }: { active: boolean }) {
-    const c = active ? "text-blue-600" : "text-gray-500";
-    return (
-        <svg className={`w-6 h-6 ${c}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
     );
 }
@@ -97,28 +52,19 @@ function IconProfile({ active }: { active: boolean }) {
 
 export default function MobileBottomNav() {
     const pathname = usePathname() || "";
-    const { role } = useAuth();
-    const secondary = secondaryForRole(role);
 
     if (!pathname || HIDE_NAV_PREFIXES.some((p) => pathname.startsWith(p))) {
         return null;
     }
 
     const homeActive = pathname === "/";
-    const secActive = isSecondaryActive(pathname, secondary.href);
-    const bookingsActive = pathname.startsWith("/routes/bookings");
+    const propertiesActive =
+        pathname.startsWith("/routes/properties") || pathname.startsWith("/routes/property");
+    const servicesActive =
+        pathname.startsWith("/routes/services") || pathname.startsWith("/routes/service");
     const messagesActive = pathname.startsWith("/routes/messages") || pathname.startsWith("/chat");
     const profileActive =
         pathname.startsWith("/routes/profile") || pathname.startsWith("/routes/profile-view");
-
-    const secIcon =
-        secondary.href === "/routes/my-listings" ? (
-            <IconListings active={secActive} />
-        ) : secondary.href === "/routes/my-services" ? (
-            <IconBriefcase active={secActive} />
-        ) : (
-            <IconSearch active={secActive} />
-        );
 
     return (
         <nav
@@ -141,30 +87,30 @@ export default function MobileBottomNav() {
                 </Link>
 
                 <Link
-                    href={secondary.href}
+                    href="/routes/properties"
                     className="flex flex-1 flex-col items-center justify-center gap-0.5 min-w-0 py-1"
                 >
-                    {secIcon}
+                    <IconSearch active={propertiesActive} />
                     <span
                         className={`text-[10px] font-semibold leading-tight truncate w-full text-center ${
-                            secActive ? "text-blue-600" : "text-gray-500"
+                            propertiesActive ? "text-blue-600" : "text-gray-500"
                         }`}
                     >
-                        {secondary.label}
+                        Properties
                     </span>
                 </Link>
 
                 <Link
-                    href="/routes/bookings"
+                    href="/routes/services"
                     className="flex flex-1 flex-col items-center justify-center gap-0.5 min-w-0 py-1"
                 >
-                    <IconCalendar active={bookingsActive} />
+                    <IconBriefcase active={servicesActive} />
                     <span
                         className={`text-[10px] font-semibold leading-tight truncate w-full text-center ${
-                            bookingsActive ? "text-blue-600" : "text-gray-500"
+                            servicesActive ? "text-blue-600" : "text-gray-500"
                         }`}
                     >
-                        Bookings
+                        Services
                     </span>
                 </Link>
 
