@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Navbar from "../components/global/Navbar";
+import MobileBottomNav from "../components/global/MobileBottomNav";
 import ConditionalFooter from "../components/global/ConditionalFooter";
 import WhatsAppFloat from "../components/global/WhatsAppFloat";
 import TestingDisclaimer from "../components/global/TestingDisclaimer";
@@ -25,12 +26,9 @@ export const metadata: Metadata = {
   title: "FindAfriq",
   description: "Find your perfect home in Africa",
   icons: {
-    icon: [
-      { url: '/favicon-16.png', sizes: '16x16', type: 'image/png' },
-      { url: '/favicon-32.png', sizes: '32x32', type: 'image/png' },
-    ],
+    icon: [{ url: '/favicon.ico', type: 'image/x-icon' }],
     apple: '/apple-icon.png',
-    shortcut: '/favicon-32.png',
+    shortcut: '/favicon.ico',
   },
 };
 
@@ -48,7 +46,10 @@ export default function RootLayout({
       >
         <Providers>
             <Navbar />
-            <main className="min-h-screen pt-16 md:pt-0">{children}</main>
+            <main className="min-h-screen pt-16 md:pt-0 pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
+                {children}
+            </main>
+            <MobileBottomNav />
             <ConditionalFooter />
             <WhatsAppFloat />
             <TestingDisclaimer />

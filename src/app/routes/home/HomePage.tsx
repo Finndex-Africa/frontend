@@ -207,27 +207,32 @@ export default function HomePage() {
     }, []);
     return (
         <div className="min-h-screen bg-white">
-            {/* Hero Section with Search Overlay */}
-            <section className="relative h-[600px] sm:h-[650px] md:h-[700px] w-full overflow-visible">
-                <div className="absolute inset-0 overflow-hidden">
+            {/* Hero — fixed image heights (same as Properties); mobile: stacked headline + search with extra gap; md+: unchanged overlap */}
+            <section className="relative h-[500px] sm:h-[450px] md:h-[400px] w-full overflow-visible pb-32 sm:pb-20 md:pb-0">
+                <div className="absolute inset-0 overflow-hidden h-[300px] sm:h-[350px] md:h-[400px]">
                     <Image
                         src="/images/properties/pexels-photo-323780.jpeg"
                         alt="Hero"
                         fill
                         className="object-cover"
+                        priority
                     />
-                    <div className="absolute inset-0 bg-black/50" />
-                </div>
-                <div className="relative z-[5] h-full flex flex-col items-center justify-center text-center text-white px-4 pb-32">
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold max-w-4xl leading-tight mb-3 sm:mb-4 drop-shadow-lg">
-                        Discover the Perfect Properties and Service Providers Tailored to your lifestyle
-                    </h1>
+                    <div className="absolute inset-0 bg-black/40" />
                 </div>
 
-                {/* Search Bar Overlay - positioned to overlap */}
-                <div className="absolute bottom-0 left-0 right-0 translate-y-1/3 z-[10] px-4">
-                    <div className="w-full max-w-5xl mx-auto">
-                        <SearchBar />
+                <div className="relative z-[5] flex flex-col md:block md:h-[400px]">
+                    <div className="px-4 pt-8 pb-5 sm:pt-10 sm:pb-6 text-center text-white md:absolute md:inset-0 md:flex md:items-center md:justify-center md:pt-0 md:pb-0 md:px-4">
+                        <h1 className="max-w-4xl mx-auto font-extrabold drop-shadow-lg text-2xl leading-snug sm:text-3xl sm:leading-snug md:inline-block md:text-5xl md:leading-tight">
+                            <span className="block md:inline">Find Verified Properties and </span>
+                            <span className="block md:inline">Trusted Service Providers</span>
+                        </h1>
+                    </div>
+
+                    {/* Mobile: margin-top pushes search below headline (no overlap); md+: same as Properties — no extra margin */}
+                    <div className="relative z-10 mt-6 sm:mt-8 px-4 pb-6 sm:pb-8 md:mt-0 md:pb-0 md:absolute md:bottom-0 md:left-0 md:right-0 md:translate-y-1/2">
+                        <div className="container-app max-w-5xl mx-auto">
+                            <SearchBar />
+                        </div>
                     </div>
                 </div>
             </section>
@@ -242,8 +247,8 @@ export default function HomePage() {
                 </section>
             )}
 
-            {/* Spacer */}
-            <div className="pt-32 sm:pt-36 md:pt-40" aria-hidden="true" />
+            {/* Spacer — matches top padding after hero on Properties page */}
+            <div className="pt-8 sm:pt-12 md:pt-32" aria-hidden="true" />
 
             {/* Property Grid */}
             <div className="container-app py-12">
