@@ -237,14 +237,14 @@ export default function About() {
                 </div>
             </section>
 
-            {/* TEAM */}
+            {/* TEAM — centered profile cards: photo, name, role, location, LinkedIn */}
             <section className="container-app px-4 pb-12 sm:pb-16">
                 <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center">Meet the Team</h2>
                 <p className="mt-3 text-gray-700 text-center max-w-2xl mx-auto">
                     The people behind FindAfriq working to transform the rental housing experience across the continent.
                 </p>
 
-                <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                     {[
                         {
                             name: 'Levi Singbeh',
@@ -268,23 +268,36 @@ export default function About() {
                             photo: '/images/team/Christiana.jpeg',
                         },
                     ].map((member) => (
-                        <div key={member.name} className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 overflow-hidden">
-                            <div className="relative h-44">
-                                <Image src={member.photo} alt={member.name} fill className="object-cover" />
+                        <div
+                            key={member.name}
+                            className="flex flex-col items-center text-center bg-white rounded-3xl shadow-md px-7 py-8 sm:px-8 sm:py-10"
+                        >
+                            <div className="relative h-32 w-32 sm:h-36 sm:w-36 shrink-0 rounded-full overflow-hidden ring-1 ring-gray-100 shadow-sm">
+                                <Image
+                                    src={member.photo}
+                                    alt={member.name}
+                                    fill
+                                    sizes="(max-width: 640px) 128px, 144px"
+                                    className="object-cover"
+                                />
                             </div>
-                            <div className="p-6">
-                                <div className="font-semibold text-gray-900">{member.name}</div>
-                                <div className="text-sm text-blue-700 mt-1">{member.position}</div>
-                                <div className="text-sm text-gray-600 mt-1">{member.country}</div>
-                                <a
-                                    href={member.linkedin}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex mt-4 text-sm font-semibold text-blue-700 hover:text-blue-800"
-                                >
-                                    View LinkedIn →
-                                </a>
-                            </div>
+                            <h3 className="mt-6 text-lg sm:text-xl font-bold text-gray-900 tracking-tight">
+                                {member.name}
+                            </h3>
+                            <p className="mt-3 text-sm text-gray-600 leading-snug max-w-xs">
+                                {member.position}
+                            </p>
+                            <p className="mt-1 text-sm text-gray-600 leading-snug max-w-xs">
+                                {member.country}
+                            </p>
+                            <a
+                                href={member.linkedin}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-6 text-sm font-semibold text-blue-700 hover:text-blue-800 underline-offset-2 hover:underline"
+                            >
+                                View LinkedIn →
+                            </a>
                         </div>
                     ))}
                 </div>
