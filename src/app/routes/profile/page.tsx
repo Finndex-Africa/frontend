@@ -336,12 +336,13 @@ export default function ProfilePage() {
                         <div className="flex flex-col md:flex-row md:items-end md:justify-between -mt-16 mb-8">
                             <div className="flex flex-col md:flex-row items-center md:items-end gap-6 mb-6 md:mb-0">
                                 <div className="relative group">
-                                    <div className="w-32 h-32 rounded-2xl bg-white border-4 border-white shadow-2xl flex items-center justify-center text-5xl font-bold text-blue-600 overflow-hidden transition-transform group-hover:scale-105">
+                                    <div className="relative w-32 h-32 rounded-full bg-white border-4 border-white shadow-2xl flex items-center justify-center text-5xl font-bold text-blue-600 overflow-hidden transition-transform group-hover:scale-105">
                                         {formData.avatar ? (
                                             <Image
                                                 src={formData.avatar}
                                                 alt="Profile"
                                                 fill
+                                                sizes="128px"
                                                 className="object-cover"
                                             />
                                         ) : (
@@ -598,13 +599,15 @@ export default function ProfilePage() {
                                             </label>
                                             <div className="flex items-center gap-3 px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl group-hover:border-purple-300 transition-colors">
                                                 <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                                                    providerProfile.verified
+                                                    providerProfile.verificationStatus === 'verified'
                                                         ? 'bg-green-100 text-green-700'
-                                                        : providerProfile.verificationStatus === 'pending_verification'
+                                                        : providerProfile.verificationStatus === 'pending' || providerProfile.verificationStatus === 'pending_verification'
                                                         ? 'bg-yellow-100 text-yellow-700'
                                                         : 'bg-gray-100 text-gray-700'
                                                 }`}>
-                                                    {providerProfile.verified ? 'Verified' : providerProfile.verificationStatus?.replace('_', ' ')}
+                                                    {providerProfile.verificationStatus === 'verified'
+                                                        ? 'Verified'
+                                                        : (providerProfile.verificationStatus || 'Pending').replace(/_/g, ' ')}
                                                 </span>
                                             </div>
                                         </div>

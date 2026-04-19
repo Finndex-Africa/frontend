@@ -13,6 +13,7 @@ import { apiClient } from "@/lib/api-client";
 import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 import ChatBox from "@/components/dashboard/ChatBox";
 import ReviewsList from "@/components/reviews/ReviewsList";
+import { isUserVerifiedByAdmin } from "@/lib/user-verification";
 
 const LOCAL_PROPERTY_IMAGE = '/images/properties/pexels-photo-323780.jpeg';
 
@@ -37,11 +38,56 @@ const AMENITY_ICON_BY_LABEL: Record<string, string> = {
     gate: '🚪',
 };
 
-const getAmenityIcon = (label?: string, icon?: string) => {
-    if (icon && icon.trim() && icon !== '•') return icon;
+function isIconUrl(s: string): boolean {
+    const t = s.trim();
+    return /^https?:\/\//i.test(t) || t.startsWith('/');
+}
+
+const getAmenityIcon = (label?: string, iconHint?: string) => {
+    if (iconHint && iconHint.trim() && iconHint !== '•' && !isIconUrl(iconHint)) {
+        return iconHint.trim();
+    }
     const key = (label || '').trim().toLowerCase();
-    return AMENITY_ICON_BY_LABEL[key] || '•';
+    return AMENITY_ICON_BY_LABEL[key] || '🏷️';
 };
+
+function normalizeAmenityEntry(raw: unknown): { label: string; desc: string; icon: string } | null {
+    if (typeof raw === 'string') {
+        const label = raw.trim();
+        if (!label) return null;
+        return { label, desc: 'Available', icon: getAmenityIcon(label) };
+    }
+    if (raw && typeof raw === 'object') {
+        const o = raw as Record<string, unknown>;
+        const labelRaw = o.label ?? o.name ?? o.title ?? o.amenity ?? o.value ?? o.key;
+        const label = typeof labelRaw === 'string' ? labelRaw.trim() : '';
+        if (!label) return null;
+        const iconRaw = o.icon;
+        const iconStr = typeof iconRaw === 'string' ? iconRaw.trim() : '';
+        let icon: string;
+        if (iconStr && isIconUrl(iconStr)) {
+            icon = iconStr;
+        } else if (iconStr && iconStr !== '•') {
+            icon = getAmenityIcon(label, iconStr);
+        } else {
+            icon = getAmenityIcon(label);
+        }
+        const desc =
+            typeof o.description === 'string' && o.description.trim()
+                ? (o.description as string).trim()
+                : 'Available';
+        return { label, desc, icon };
+    }
+    return null;
+}
+
+function AmenityIconDisplay({ icon }: { icon: string }) {
+    if (isIconUrl(icon)) {
+        // eslint-disable-next-line @next/next/no-img-element
+        return <img src={icon} alt="" className="w-6 h-6 object-contain shrink-0" />;
+    }
+    return <span className="text-xl leading-none">{icon}</span>;
+}
 
 export default function PropertyDetail() {
     const params = useParams();
@@ -278,20 +324,12 @@ export default function PropertyDetail() {
 
     const media = images.map(src => ({ type: "image" as const, src }));
 
-    // Prepare amenities/features: support both legacy string[] and object[] amenities
+    // Amenities: normalize API shapes ({ label } | { name } | string | URL icons)
     const features: { label: string; desc: string; icon: string }[] = [];
     if (property.amenities && property.amenities.length > 0) {
-        property.amenities.forEach((a: any) => {
-            if (typeof a === 'string') {
-                features.push({ label: a, desc: 'Available', icon: getAmenityIcon(a) });
-                return;
-            }
-            const label = a?.label || 'Amenity';
-            features.push({
-                label,
-                desc: a?.description || 'Available',
-                icon: getAmenityIcon(label, a?.icon),
-            });
+        property.amenities.forEach((a: unknown) => {
+            const row = normalizeAmenityEntry(a);
+            if (row) features.push(row);
         });
     }
     const bedroomCount = property.bedrooms != null ? property.bedrooms : property.rooms;
@@ -301,10 +339,18 @@ export default function PropertyDetail() {
         icon: "🛏️"
     });
     if (property.bathrooms) features.push({ label: "Bathrooms", desc: `${property.bathrooms} bathrooms`, icon: "🚿" });
-    if (property.area) features.push({ label: "Area", desc: `${property.area} sq ft`, icon: "📐" });
-    if (property.furnished !== undefined) features.push({ label: "Furnished", desc: property.furnished ? "Fully furnished" : "Unfurnished", icon: "🪑" });
+    if (property.area != null) {
+        features.push({ label: "Distance", desc: `${property.area} min from main road`, icon: "🚗" });
+    }
+    if (property.furnished !== undefined) {
+        features.push({
+            label: property.furnished ? "Furnished" : "Unfurnished",
+            desc: property.furnished ? "Includes furniture" : "No furniture included",
+            icon: "🪑",
+        });
+    }
 
-    // Add default features only if we have no listing amenities
+    // Add default highlights only when the listing has no custom amenities
     if (!property.amenities?.length && features.length < 4) {
         const defaults = [
             { label: "Wi-Fi", desc: "High-speed internet", icon: "📶" },
@@ -375,7 +421,7 @@ export default function PropertyDetail() {
                                     key={i}
                                     className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-[#ffcc00]/40 transition-all border-l-4 border-l-[#ffcc00]"
                                 >
-                                    <div className="text-xl">{f.icon}</div>
+                                    <AmenityIconDisplay icon={f.icon} />
                                     <div>
                                         <div className="font-medium text-gray-900 text-sm">{f.label}</div>
                                         <div className="text-xs text-gray-500">{f.desc}</div>
@@ -403,73 +449,94 @@ export default function PropertyDetail() {
                     {property.landlordId && (
                         <section>
                             {(() => {
-                                // Extract owner/agent info
                                 let ownerIdValue = '';
                                 let ownerName = 'Property Owner';
                                 let ownerInitial = 'L';
                                 let ownerEmail = '';
+                                let ownerAvatar = '';
+                                let ownerForVerification: { verificationStatus?: string; verified?: boolean } | null = null;
 
                                 if (typeof property.landlordId === 'object' && property.landlordId) {
-                                    const ownerObj = property.landlordId as any;
-                                    ownerIdValue = ownerObj._id || ownerObj.id || '';
-                                    ownerEmail = ownerObj.email || '';
-                                    ownerName = ownerObj.name || ownerObj.firstName || ownerObj.businessName || ownerEmail || 'Property Owner';
+                                    const ownerObj = property.landlordId as Record<string, unknown>;
+                                    ownerIdValue = String(ownerObj._id || ownerObj.id || '');
+                                    ownerEmail = String(ownerObj.email || '');
+                                    ownerName =
+                                        String(ownerObj.name || '').trim() ||
+                                        [ownerObj.firstName, ownerObj.lastName].filter(Boolean).join(' ').trim() ||
+                                        String(ownerObj.businessName || '') ||
+                                        ownerEmail ||
+                                        'Property Owner';
                                     ownerInitial = ownerName.charAt(0).toUpperCase();
+                                    ownerAvatar = String(ownerObj.avatar || '');
+                                    ownerForVerification = ownerObj as { verificationStatus?: string; verified?: boolean };
                                 } else if (typeof property.landlordId === 'string') {
                                     ownerIdValue = property.landlordId;
                                 }
 
-                                // Fallback to agentId if landlordId doesn't have data
                                 if (!ownerIdValue && property.agentId) {
-                                    if (typeof property.agentId === 'object') {
-                                        const agentObj = property.agentId as any;
-                                        ownerIdValue = agentObj._id || agentObj.id || '';
-                                        ownerEmail = agentObj.email || '';
-                                        ownerName = agentObj.name || agentObj.firstName || ownerEmail || 'Agent';
+                                    if (typeof property.agentId === 'object' && property.agentId) {
+                                        const agentObj = property.agentId as Record<string, unknown>;
+                                        ownerIdValue = String(agentObj._id || agentObj.id || '');
+                                        ownerEmail = String(agentObj.email || '');
+                                        ownerName =
+                                            String(agentObj.name || '').trim() ||
+                                            [agentObj.firstName, agentObj.lastName].filter(Boolean).join(' ').trim() ||
+                                            ownerEmail ||
+                                            'Agent';
                                         ownerInitial = ownerName.charAt(0).toUpperCase();
+                                        ownerAvatar = String(agentObj.avatar || '');
+                                        ownerForVerification = agentObj as { verificationStatus?: string; verified?: boolean };
                                     } else if (typeof property.agentId === 'string') {
                                         ownerIdValue = property.agentId;
                                     }
                                 }
 
+                                const showVerifiedBadge = isUserVerifiedByAdmin(ownerForVerification);
+
                                 return (
                                     <>
                                         <h2 className="text-lg font-semibold text-gray-900 mb-4">Managed By</h2>
                                         <button
+                                            type="button"
                                             onClick={() => {
-                                                const landlordIdValue = typeof property.landlordId === 'string'
-                                                    ? property.landlordId
-                                                    : (property.landlordId as any)?._id;
-                                                if (landlordIdValue) {
-                                                    window.location.href = `/routes/profile-view/${landlordIdValue}`;
+                                                if (ownerIdValue) {
+                                                    window.location.href = `/routes/profile-view/${ownerIdValue}`;
                                                 }
                                             }}
                                             className="w-full flex items-start gap-3 border border-gray-200 p-4 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all cursor-pointer text-left"
                                         >
                                             <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 flex-shrink-0">
-                                                <div className="w-full h-full flex items-center justify-center text-lg font-bold text-white">
-                                                    {ownerInitial}
-                                                </div>
+                                                {ownerAvatar ? (
+                                                    // eslint-disable-next-line @next/next/no-img-element
+                                                    <img
+                                                        src={ownerAvatar}
+                                                        alt=""
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-lg font-bold text-white">
+                                                        {ownerInitial}
+                                                    </div>
+                                                )}
                                             </div>
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2 mb-1">
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex flex-wrap items-center gap-2 mb-1">
                                                     <p className="font-semibold text-gray-900 text-sm">
                                                         {ownerName}
                                                     </p>
-                                                    <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium">
-                                                        Verified
-                                                    </span>
+                                                    {showVerifiedBadge && (
+                                                        <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium shrink-0">
+                                                            Verified
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 <p className="text-gray-500 text-xs">
                                                     Registered {property.agentId ? 'agent' : 'landlord'} on FindAfriq
                                                 </p>
+                                                {ownerEmail ? (
+                                                    <p className="text-gray-500 text-xs mt-1 truncate">{ownerEmail}</p>
+                                                ) : null}
                                                 <div className="flex items-center gap-3 mt-2 text-xs text-gray-600">
-                                                    <span className="flex items-center gap-1">
-                                                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                                                        </svg>
-                                                        Identity Verified
-                                                    </span>
                                                     <span className="flex items-center gap-1 text-blue-600 font-medium">
                                                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

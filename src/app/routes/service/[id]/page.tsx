@@ -12,6 +12,7 @@ import { MessageCircle, Calendar, Mail, Lock } from 'lucide-react';
 import ShareButton from '@/components/ui/ShareButton';
 import ChatBox from "@/components/dashboard/ChatBox";
 import ReviewsList from "@/components/reviews/ReviewsList";
+import { isUserVerifiedByAdmin } from "@/lib/user-verification";
 
 const LOCAL_SERVICE_IMAGE = '/images/services/cleaning1.jpeg';
 
@@ -234,6 +235,7 @@ export default function ServiceDetail() {
                             let providerName = 'Service Provider';
                             let providerEmail = '';
                             let providerAvatar = '';
+                            let providerUserObj: { verificationStatus?: string; verified?: boolean } | null = null;
 
                             // Try to get provider from service.providerId first
                             if (typeof (service as any).providerId === 'object' && (service as any).providerId) {
@@ -242,6 +244,7 @@ export default function ServiceDetail() {
                                 providerEmail = providerObj.email || '';
                                 providerName = providerObj.name || providerObj.firstName || providerObj.businessName || providerEmail || 'Service Provider';
                                 providerAvatar = providerObj.avatar || '';
+                                providerUserObj = providerObj;
                             } else if (typeof (service as any).providerId === 'string') {
                                 providerIdValue = (service as any).providerId;
                             }
@@ -254,6 +257,7 @@ export default function ServiceDetail() {
                                     providerEmail = providerObj.email || '';
                                     providerName = providerObj.name || providerObj.firstName || providerObj.businessName || providerEmail || 'Service Provider';
                                     providerAvatar = providerObj.avatar || '';
+                                    providerUserObj = providerObj;
                                 } else if (typeof (service as any).provider === 'string') {
                                     providerIdValue = (service as any).provider;
                                 }
@@ -267,6 +271,7 @@ export default function ServiceDetail() {
                                     providerEmail = agentObj.email || '';
                                     providerName = agentObj.name || agentObj.firstName || providerEmail || 'Agent';
                                     providerAvatar = agentObj.avatar || '';
+                                    providerUserObj = agentObj;
                                 } else if (typeof (service as any).agentId === 'string') {
                                     providerIdValue = (service as any).agentId;
                                 }
@@ -280,10 +285,13 @@ export default function ServiceDetail() {
                                     providerEmail = landlordObj.email || '';
                                     providerName = landlordObj.name || landlordObj.firstName || providerEmail || 'Service Provider';
                                     providerAvatar = landlordObj.avatar || '';
+                                    providerUserObj = landlordObj;
                                 } else if (typeof (service as any).landlordId === 'string') {
                                     providerIdValue = (service as any).landlordId;
                                 }
                             }
+
+                            const showProviderVerifiedBadge = isUserVerifiedByAdmin(providerUserObj);
 
                             return (
                                 <>
@@ -323,7 +331,7 @@ export default function ServiceDetail() {
                                                     <p className="font-semibold text-gray-900 text-sm">
                                                         {providerName}
                                                     </p>
-                                                    {service.verified && (
+                                                    {showProviderVerifiedBadge && (
                                                         <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium">
                                                             Verified
                                                         </span>
@@ -343,12 +351,6 @@ export default function ServiceDetail() {
                                                 )}
                                                 {providerIdValue && (
                                                     <div className="flex items-center gap-3 mt-2 text-xs text-gray-600">
-                                                        <span className="flex items-center gap-1">
-                                                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                                                            </svg>
-                                                            Identity Verified
-                                                        </span>
                                                         <span className="flex items-center gap-1 text-purple-600 font-medium">
                                                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
