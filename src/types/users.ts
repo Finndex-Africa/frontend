@@ -16,6 +16,8 @@ export interface User {
   role?: UserRole; // For backward compatibility
   status: string;
   verified: boolean;
+  /** Admin approval — only this should drive the platform "Verified" badge */
+  verificationStatus?: 'pending' | 'verified' | 'rejected';
   phoneVerified: boolean;
   blocked: boolean;
   blockedReason?: string;

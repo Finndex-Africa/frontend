@@ -1,139 +1,160 @@
-"use client";
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { BulletList, LegalContactCard, LegalDocLayout, LegalSection } from '../../../components/legal/LegalDocLayout';
 
-const tiers = [
-    {
-        name: "Basic",
-        description: "Great for getting started",
-        price: "Free",
-        features: [
-            "Browse property listings",
-            "Browse service providers",
-            "Save favorites",
-            "Basic messaging",
-        ],
-        cta: "Get Started",
-        highlighted: false,
-    },
-    {
-        name: "Premium",
-        description: "For landlords and agents",
-        price: "Coming Soon",
-        features: [
-            "Everything in Basic",
-            "Unlimited property listings",
-            "Featured listings",
-            "Priority support",
-            "Analytics dashboard",
-        ],
-        cta: "Coming Soon",
-        highlighted: true,
-    },
-    {
-        name: "Business",
-        description: "For service providers",
-        price: "Coming Soon",
-        features: [
-            "Everything in Premium",
-            "Verified badge",
-            "Booking management",
-            "Revenue reports",
-            "Dedicated account manager",
-        ],
-        cta: "Coming Soon",
-        highlighted: false,
-    },
-];
+export const metadata: Metadata = {
+    title: 'Pricing Model | FindAfriq',
+    description: 'Property listing packages, home seeker authorization fees, and service provider subscriptions.',
+};
 
 export default function PricingPage() {
     return (
-            <main className="min-h-screen bg-linear-to-b from-blue-50 to-white pt-8 pb-20 px-4">
-                <div className="max-w-6xl mx-auto">
-                    <div className="text-center mb-16">
-                        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                            Simple, Transparent Pricing
-                        </h1>
-                        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                            Choose the plan that fits your needs. Pricing details will be
-                            available soon.
-                        </p>
+        <LegalDocLayout
+            title="FindAfriq Pricing Model"
+            subtitle="Transparent pricing for landlords, agents, home seekers, and service providers."
+        >
+            <LegalSection title="1. Property posting packages (landlords & agents)">
+                <p className="text-gray-600 text-sm mb-4">Per property. Prices in USD.</p>
+                <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm ring-1 ring-gray-100">
+                    <table className="min-w-full text-left text-sm">
+                        <thead>
+                            <tr className="border-b border-gray-200 bg-blue-50/80">
+                                <th className="px-4 py-3 font-semibold text-gray-900">Package</th>
+                                <th className="px-4 py-3 font-semibold text-gray-900">Price (USD)</th>
+                                <th className="px-4 py-3 font-semibold text-gray-900">Features included</th>
+                                <th className="px-4 py-3 font-semibold text-gray-900">Deadline</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            <tr className="hover:bg-gray-50/80">
+                                <td className="px-4 py-3 font-medium text-gray-900">Basic</td>
+                                <td className="px-4 py-3 text-gray-800">$2</td>
+                                <td className="px-4 py-3 text-gray-700">Property listing only</td>
+                                <td className="px-4 py-3 text-gray-700">Unlimited</td>
+                            </tr>
+                            <tr className="hover:bg-gray-50/80">
+                                <td className="px-4 py-3 font-medium text-gray-900">Pro</td>
+                                <td className="px-4 py-3 text-gray-800">$5</td>
+                                <td className="px-4 py-3 text-gray-700">Listing + top feature placement</td>
+                                <td className="px-4 py-3 text-gray-700">—</td>
+                            </tr>
+                            <tr className="hover:bg-gray-50/80">
+                                <td className="px-4 py-3 font-medium text-gray-900">Premium</td>
+                                <td className="px-4 py-3 text-gray-800">$10</td>
+                                <td className="px-4 py-3 text-gray-700">Listing + top feature + marketing promotion</td>
+                                <td className="px-4 py-3 text-gray-700">—</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </LegalSection>
+
+            <LegalSection title="2. Agent platform authorization fee (home seekers)">
+                <p className="text-gray-700 mb-2">
+                    One-time platform authorization fee per property transaction category, based on property size. Access
+                    periods may be offered as <span className="font-medium text-gray-900">7 days</span> or{' '}
+                    <span className="font-medium text-gray-900">1 month</span> depending on the product you select at
+                    checkout.
+                </p>
+                <p className="text-sm text-gray-600 mb-4">
+                    Home seekers pay agents directly. The platform does not collect rental commissions. The authorization
+                    fee is a fixed amount based on property size.
+                </p>
+                <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm ring-1 ring-gray-100">
+                    <table className="min-w-full text-left text-sm">
+                        <thead>
+                            <tr className="border-b border-gray-200 bg-blue-50/80">
+                                <th className="px-4 py-3 font-semibold text-gray-900">Property size</th>
+                                <th className="px-4 py-3 font-semibold text-gray-900">Authorization fee (USD)</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            <tr className="hover:bg-gray-50/80">
+                                <td className="px-4 py-3 text-gray-800">1–2 rooms</td>
+                                <td className="px-4 py-3 font-medium text-gray-900">$20</td>
+                            </tr>
+                            <tr className="hover:bg-gray-50/80">
+                                <td className="px-4 py-3 text-gray-800">3–4 rooms</td>
+                                <td className="px-4 py-3 font-medium text-gray-900">$30</td>
+                            </tr>
+                            <tr className="hover:bg-gray-50/80">
+                                <td className="px-4 py-3 text-gray-800">5+ rooms</td>
+                                <td className="px-4 py-3 font-medium text-gray-900">$40</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </LegalSection>
+
+            <LegalSection title="3. Service provider subscription plans">
+                <p className="text-gray-600 text-sm mb-4">Subscription-based. Prices in USD.</p>
+                <div className="grid gap-6 lg:grid-cols-2">
+                    <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm ring-1 ring-gray-100 lg:col-span-2">
+                        <table className="min-w-full text-left text-sm">
+                            <thead>
+                                <tr className="border-b border-gray-200 bg-blue-50/80">
+                                    <th className="px-4 py-3 font-semibold text-gray-900">Package</th>
+                                    <th className="px-4 py-3 font-semibold text-gray-900">Price (USD)</th>
+                                    <th className="px-4 py-3 font-semibold text-gray-900">Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                                <tr className="hover:bg-gray-50/80">
+                                    <td className="px-4 py-3 font-medium text-gray-900">Basic</td>
+                                    <td className="px-4 py-3 text-gray-800">$10</td>
+                                    <td className="px-4 py-3 text-gray-700">2 months</td>
+                                </tr>
+                                <tr className="hover:bg-gray-50/80">
+                                    <td className="px-4 py-3 font-medium text-gray-900">Pro</td>
+                                    <td className="px-4 py-3 text-gray-800">$25</td>
+                                    <td className="px-4 py-3 text-gray-700">2 months</td>
+                                </tr>
+                                <tr className="hover:bg-gray-50/80">
+                                    <td className="px-4 py-3 font-medium text-gray-900">Premium</td>
+                                    <td className="px-4 py-3 text-gray-800">$50</td>
+                                    <td className="px-4 py-3 text-gray-700">2 months</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-
-                    <div className="grid md:grid-cols-3 gap-8">
-                        {tiers.map((tier) => (
-                            <div
-                                key={tier.name}
-                                className={`rounded-2xl p-8 flex flex-col ${
-                                    tier.highlighted
-                                        ? "bg-[#0000FF] text-white shadow-2xl scale-105"
-                                        : "bg-white text-gray-900 border border-gray-200 shadow-lg"
-                                }`}
-                            >
-                                <h2 className="text-2xl font-bold mb-1">{tier.name}</h2>
-                                <p
-                                    className={`text-sm mb-6 ${
-                                        tier.highlighted ? "text-blue-200" : "text-gray-500"
-                                    }`}
-                                >
-                                    {tier.description}
-                                </p>
-
-                                <div className="text-3xl font-extrabold mb-8">
-                                    {tier.price}
-                                </div>
-
-                                <ul className="flex-1 space-y-3 mb-8">
-                                    {tier.features.map((f) => (
-                                        <li key={f} className="flex items-start gap-2">
-                                            <svg
-                                                className={`w-5 h-5 mt-0.5 shrink-0 ${
-                                                    tier.highlighted
-                                                        ? "text-blue-200"
-                                                        : "text-[#0000FF]"
-                                                }`}
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth={2}
-                                                    d="M5 13l4 4L19 7"
-                                                />
-                                            </svg>
-                                            <span className="text-sm">{f}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-
-                                <button
-                                    disabled={tier.cta === "Coming Soon"}
-                                    className={`w-full py-3 rounded-xl font-semibold transition-colors ${
-                                        tier.highlighted
-                                            ? "bg-white text-[#0000FF] hover:bg-blue-50"
-                                            : tier.cta === "Coming Soon"
-                                              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                              : "bg-[#0000FF] text-white hover:bg-blue-700"
-                                    }`}
-                                >
-                                    {tier.cta}
-                                </button>
+                    <div className="rounded-2xl border border-blue-100 bg-blue-50/50 p-6 ring-1 ring-blue-100 lg:col-span-2">
+                        <p className="text-sm font-semibold text-blue-900">Subscription benefits</p>
+                        <div className="mt-3">
+                            <BulletList
+                                items={[
+                                    'Business profile listing',
+                                    'Direct customer inquiries',
+                                    'Verified provider badge',
+                                    'Access to platform housing clients',
+                                ]}
+                            />
                             </div>
-                        ))}
-                    </div>
-
-                    <div className="mt-16 text-center">
-                        <p className="text-gray-500">
-                            Need a custom plan?{" "}
-                            <a
-                                href="/routes/about"
-                                className="text-[#0000FF] font-semibold hover:underline"
-                            >
-                                Contact us
-                            </a>
-                        </p>
                     </div>
                 </div>
-            </main>
+            </LegalSection>
+
+            <div className="rounded-2xl border border-gray-200 bg-slate-900 p-6 sm:p-8 text-white shadow-lg">
+                <p className="text-lg font-bold font-heading">Need help choosing?</p>
+                <p className="mt-2 text-sm text-white/80">
+                    We can walk you through listing packages, authorization fees, and provider subscriptions.
+                </p>
+                <div className="mt-5 flex flex-wrap gap-3">
+                    <Link
+                        href="/routes/help"
+                        className="inline-flex items-center justify-center rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-slate-900 hover:bg-white/90"
+                    >
+                        Help center
+                    </Link>
+                    <Link
+                        href="/routes/about#contact"
+                        className="inline-flex items-center justify-center rounded-lg bg-white/10 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/15"
+                            >
+                                Contact us
+                    </Link>
+                </div>
+            </div>
+
+            <LegalContactCard />
+        </LegalDocLayout>
     );
 }
