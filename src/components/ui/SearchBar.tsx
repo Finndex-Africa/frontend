@@ -39,7 +39,7 @@ export default function SearchBar() {
     return (
         <div className="w-full">
             {/* Tabs */}
-            <div className="flex justify-center mb-4">
+            <div className="flex justify-center mb-2 sm:mb-3">
                 <div className="bg-blue-600 rounded-full p-1 inline-flex gap-1">
                     <button
                         onClick={() => handleTabChange("homes")}

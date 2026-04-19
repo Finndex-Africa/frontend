@@ -254,7 +254,7 @@ export default function HomePage() {
         </div>
 
         <div className="relative z-[5] flex flex-col md:block md:h-[400px]">
-          <div className="px-4 pt-8 pb-8 sm:pt-10 sm:pb-10 text-center text-white md:absolute md:inset-0 md:flex md:items-center md:justify-center md:pt-0 md:pb-0 md:px-4">
+          <div className="px-4 pt-14 pb-2 sm:pb-3 text-center text-white md:absolute md:inset-0 md:flex md:items-center md:justify-center md:pt-0 md:pb-0 md:px-4">
             <h1 className="max-w-4xl mx-auto font-extrabold drop-shadow-lg text-2xl leading-snug sm:text-3xl sm:leading-snug md:inline-block md:text-5xl md:leading-tight">
               <span className="block md:inline">
                 Find Verified Properties and{" "}
@@ -263,8 +263,8 @@ export default function HomePage() {
             </h1>
           </div>
 
-          {/* Mobile: margin-top pushes search below headline (no overlap); md+: same as Properties — no extra margin */}
-          <div className="relative z-10 mt-10 sm:mt-12 px-4 pb-6 sm:pb-8 md:mt-0 md:pb-0 md:absolute md:bottom-0 md:left-0 md:right-0 md:translate-y-1/2">
+          {/* Mobile: tighter gap below headline; md+: bar overlaps hero bottom */}
+          <div className="relative z-10 mt-3 sm:mt-5 px-4 pb-6 sm:pb-8 md:mt-0 md:pb-0 md:absolute md:bottom-0 md:left-0 md:right-0 md:translate-y-1/2">
             <div className="container-app max-w-5xl mx-auto">
               <SearchBar />
             </div>
