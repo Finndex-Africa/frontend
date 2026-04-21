@@ -17,6 +17,41 @@ function getBedShortDisplay(p: ApiProperty): string {
     return n != null ? `${n} bed${n !== 1 ? 's' : ''}` : 'Not specified';
 }
 
+function getPropertyTypeLabel(p: ApiProperty): string {
+    return (p.propertyType || p.type || '').trim() || '—';
+}
+
+/** Amenity rows from API (objects with label, optional icon); skips empty arrays / invalid items. */
+function getAmenityRowsFromApi(property: ApiProperty): { icon: string; label: string; description?: string | null }[] {
+    const rows: { icon: string; label: string; description?: string | null }[] = [];
+    const raw = property.amenities;
+    if (!Array.isArray(raw)) return rows;
+    for (const a of raw) {
+        if (a == null) continue;
+        if (Array.isArray(a)) continue;
+        if (typeof a === 'string') {
+            const label = a.trim();
+            if (label) rows.push({ icon: '🏷️', label });
+            continue;
+        }
+        if (typeof a === 'object') {
+            const o = a as Record<string, unknown>;
+            const labelRaw = o.label ?? o.name ?? o.title ?? o.amenity ?? o.value;
+            const label = typeof labelRaw === 'string' ? labelRaw.trim() : '';
+            if (!label) continue;
+            const iconRaw = o.icon;
+            const icon =
+                typeof iconRaw === 'string' && iconRaw.trim() && iconRaw !== '•' ? iconRaw.trim() : '🏷️';
+            const description =
+                o.description != null && typeof o.description === 'string' && o.description.trim()
+                    ? o.description.trim()
+                    : null;
+            rows.push({ icon, label, description });
+        }
+    }
+    return rows;
+}
+
 // Property edit modal component
 function EditPropertyModal({ property, isOpen, onClose, onSave }: { property: ApiProperty | null; isOpen: boolean; onClose: () => void; onSave: (data: Partial<ApiProperty>) => Promise<void> }) {
     const [formData, setFormData] = useState<Partial<ApiProperty>>({});
@@ -449,6 +484,8 @@ function EditPropertyModal({ property, isOpen, onClose, onSave }: { property: Ap
 function PropertyModal({ property, isOpen, onClose }: { property: ApiProperty | null; isOpen: boolean; onClose: () => void }) {
     if (!isOpen || !property) return null;
 
+    const amenityRows = getAmenityRowsFromApi(property);
+
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-in fade-in zoom-in duration-200">
@@ -491,7 +528,7 @@ function PropertyModal({ property, isOpen, onClose }: { property: ApiProperty | 
                         </div>
                         <div>
                             <label className="text-xs font-semibold text-gray-500 uppercase">Type</label>
-                            <p className="text-gray-900 font-medium">{property.type}</p>
+                            <p className="text-gray-900 font-medium">{getPropertyTypeLabel(property)}</p>
                         </div>
                         <div>
                             <label className="text-xs font-semibold text-gray-500 uppercase">Status</label>
@@ -505,14 +542,67 @@ function PropertyModal({ property, isOpen, onClose }: { property: ApiProperty | 
                         </div>
                     </div>
 
-                    {/* Amenities */}
+                    {/* Amenities from API */}
                     <div>
                         <label className="text-xs font-semibold text-gray-500 uppercase block mb-3">Amenities</label>
+                        {amenityRows.length === 0 ? (
+                            <p className="text-sm text-gray-500 italic">No amenities listed for this property.</p>
+                        ) : (
+                            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {amenityRows.map((row, idx) => (
+                                    <li
+                                        key={`${row.label}-${idx}`}
+                                        className="flex items-start gap-2 text-gray-800 text-sm rounded-lg bg-gray-50 px-3 py-2 border border-gray-100"
+                                    >
+                                        <span className="text-lg leading-none shrink-0" aria-hidden>
+                                            {row.icon}
+                                        </span>
+                                        <span>
+                                            <span className="font-medium">{row.label}</span>
+                                            {row.description ? (
+                                                <span className="block text-xs text-gray-500 mt-0.5">{row.description}</span>
+                                            ) : null}
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+
+                    {/* Structural fields (not the amenities array) */}
+                    <div>
+                        <label className="text-xs font-semibold text-gray-500 uppercase block mb-3">Details</label>
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="flex items-center text-gray-700 text-sm"><span className="font-semibold mr-2">🛏️</span>{getBedroomDisplay(property)}</div>
-                            {property.bathrooms && <div className="flex items-center text-gray-700 text-sm"><span className="font-semibold mr-2">🚿</span>{property.bathrooms} Bathroom{property.bathrooms > 1 ? 's' : ''}</div>}
-                            {property.area && <div className="flex items-center text-gray-700 text-sm"><span className="font-semibold mr-2">🚗</span>{property.area} min from main road</div>}
-                            {property.furnished && <div className="flex items-center text-gray-700 text-sm"><span className="font-semibold mr-2">🛋️</span>Furnished</div>}
+                            <div className="flex items-center text-gray-700 text-sm">
+                                <span className="font-semibold mr-2" aria-hidden>
+                                    🛏️
+                                </span>
+                                {getBedroomDisplay(property)}
+                            </div>
+                            {property.bathrooms != null && property.bathrooms > 0 ? (
+                                <div className="flex items-center text-gray-700 text-sm">
+                                    <span className="font-semibold mr-2" aria-hidden>
+                                        🚿
+                                    </span>
+                                    {property.bathrooms} Bathroom{property.bathrooms > 1 ? 's' : ''}
+                                </div>
+                            ) : null}
+                            {property.area != null ? (
+                                <div className="flex items-center text-gray-700 text-sm">
+                                    <span className="font-semibold mr-2" aria-hidden>
+                                        🚗
+                                    </span>
+                                    {property.area} min from main road
+                                </div>
+                            ) : null}
+                            {property.furnished !== undefined ? (
+                                <div className="flex items-center text-gray-700 text-sm">
+                                    <span className="font-semibold mr-2" aria-hidden>
+                                        🪑
+                                    </span>
+                                    {property.furnished ? 'Furnished' : 'Unfurnished'}
+                                </div>
+                            ) : null}
                         </div>
                     </div>
 
