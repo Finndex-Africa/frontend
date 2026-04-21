@@ -524,9 +524,13 @@ export default function PropertyDetail() {
                                                     <p className="font-semibold text-gray-900 text-sm">
                                                         {ownerName}
                                                     </p>
-                                                    {showVerifiedBadge && (
+                                                    {showVerifiedBadge ? (
                                                         <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium shrink-0">
                                                             Verified
+                                                        </span>
+                                                    ) : (
+                                                        <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full font-medium shrink-0">
+                                                            Not Verified
                                                         </span>
                                                     )}
                                                 </div>
