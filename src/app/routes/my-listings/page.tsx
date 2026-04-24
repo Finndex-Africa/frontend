@@ -24,7 +24,7 @@ function getPropertyTypeLabel(p: ApiProperty): string {
 /** Amenity rows from API (objects with label, optional icon); skips empty arrays / invalid items. */
 function getAmenityRowsFromApi(property: ApiProperty): { icon: string; label: string; description?: string | null }[] {
     const rows: { icon: string; label: string; description?: string | null }[] = [];
-    const raw = property.amenities;
+    const raw: unknown = property.amenities;
     if (!Array.isArray(raw)) return rows;
     for (const a of raw) {
         if (a == null) continue;
