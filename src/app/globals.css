@@ -286,3 +286,136 @@ h1, h2, h3, h4, h5, h6 {
 .animate-slideDown {
   animation: slideDown 0.3s ease-out;
 }
+
+/* Public launch overlay — balloons + CTA pulse */
+@keyframes launch-balloon-rise {
+  0% {
+    transform: translateY(0) translateX(0) rotate(var(--rot, 0deg)) scale(0.6);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+    transform: translateY(-8vh) translateX(calc(var(--drift) * 0.1))
+      rotate(var(--rot, 0deg)) scale(1);
+  }
+  100% {
+    transform: translateY(-120vh) translateX(var(--drift, 0px))
+      rotate(calc(var(--rot, 0deg) + 18deg)) scale(1.05);
+    opacity: 0.95;
+  }
+}
+
+.launch-balloon {
+  animation-name: launch-balloon-rise;
+  animation-timing-function: cubic-bezier(0.22, 0.82, 0.28, 1);
+  animation-fill-mode: forwards;
+}
+
+@keyframes launch-cta-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 12px 40px rgba(0, 0, 0, 0.35),
+      0 0 0 0 rgba(255, 204, 0, 0.55);
+  }
+  50% {
+    box-shadow:
+      0 16px 48px rgba(0, 0, 0, 0.4),
+      0 0 0 18px rgba(255, 204, 0, 0);
+  }
+}
+
+.launch-cta-btn:not(:disabled) {
+  animation: launch-cta-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes launch-firework-explode {
+  0% {
+    transform: rotate(var(--fw-angle, 0deg)) translateX(0) scale(1);
+    opacity: 1;
+  }
+  55% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(var(--fw-angle, 0deg)) translateX(var(--fw-dist, 120px))
+      scale(0.25);
+    opacity: 0;
+  }
+}
+
+.launch-firework-dot {
+  animation-name: launch-firework-explode;
+  animation-timing-function: cubic-bezier(0.12, 0.88, 0.22, 1);
+  animation-fill-mode: both;
+}
+
+@keyframes launch-confetti-fall {
+  0% {
+    transform: translateY(-12vh) translateX(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(115vh) translateX(var(--drift, 0px))
+      rotate(var(--spin, 720deg));
+    opacity: 0.92;
+  }
+}
+
+.launch-confetti {
+  animation-name: launch-confetti-fall;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes launch-star-twinkle {
+  0%,
+  100% {
+    opacity: 0.12;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.5);
+  }
+}
+
+.launch-star {
+  animation: launch-star-twinkle 3.2s ease-in-out infinite;
+}
+
+@keyframes launch-icon-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+.launch-float-icon {
+  animation: launch-icon-float 2.6s ease-in-out infinite;
+}
+
+@keyframes launch-cheers-pop {
+  0% {
+    transform: scale(0.82);
+    opacity: 0;
+    filter: blur(6px);
+  }
+  60% {
+    transform: scale(1.05);
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+.launch-cheers-text {
+  animation: launch-cheers-pop 0.85s cubic-bezier(0.34, 1.45, 0.64, 1) forwards;
+}

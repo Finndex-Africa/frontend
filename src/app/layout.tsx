@@ -6,6 +6,7 @@ import MobileBottomNav from "../components/global/MobileBottomNav";
 import ConditionalFooter from "../components/global/ConditionalFooter";
 import WhatsAppFloat from "../components/global/WhatsAppFloat";
 import TestingDisclaimer from "../components/global/TestingDisclaimer";
+import LaunchCelebrationOverlay from "../components/global/LaunchCelebrationOverlay";
 import { Providers } from "../providers";
 
 // Primary (Headings): Whitney Bold
@@ -53,6 +54,7 @@ export default function RootLayout({
             <ConditionalFooter />
             <WhatsAppFloat />
             <TestingDisclaimer />
+            <LaunchCelebrationOverlay />
         </Providers>
       </body>
     </html>
