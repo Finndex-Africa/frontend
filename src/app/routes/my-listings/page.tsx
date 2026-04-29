@@ -27,13 +27,13 @@ function getAmenityRowsFromApi(
 ): { icon: string; label: string; description?: string | null }[] {
   const rows: { icon: string; label: string; description?: string | null }[] =
     [];
-  const raw = property.amenities;
+  const raw: unknown = property.amenities;
   if (!Array.isArray(raw)) return rows;
   for (const a of raw) {
     if (a == null) continue;
     if (Array.isArray(a)) continue;
     if (typeof a === "string") {
-      const label = (a as string).trim();
+      const label = a.trim();
       if (label) rows.push({ icon: "🏷️", label });
       continue;
     }
