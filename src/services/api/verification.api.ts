@@ -8,6 +8,7 @@ export interface IdVerification {
     idFrontImage: string;
     idBackImage?: string;
     selfieImage?: string;
+    businessRegistrationCertificate?: string;
     status: 'pending' | 'approved' | 'rejected' | 'expired';
     rejectionReason?: string;
     createdAt: string;
@@ -23,6 +24,7 @@ export interface SubmitIdVerificationDto {
     dateOfBirth?: string;
     address?: string;
     expiryDate?: string;
+    businessRegistrationCertificate?: string;
 }
 
 export const verificationApi = {
