@@ -4,7 +4,13 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { verificationApi, type IdVerification, type SubmitIdVerificationDto } from "@/services/api/verification.api";
 import { mediaApi } from "@/services/api/media.api";
+import { AuthService } from "@/services/auth.service";
 import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
+
+function isServiceProviderRole(role: string | undefined): boolean {
+    const r = (role || "").toLowerCase();
+    return r === "service_provider" || r === "provider" || r === "vendor";
+}
 
 const ID_TYPES = [
     { value: "passport", label: "Passport" },
@@ -20,6 +26,8 @@ export default function VerifyIdentityPage() {
     const [existing, setExisting] = useState<IdVerification | null>(null);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const [isServiceProvider, setIsServiceProvider] = useState(false);
+    const [businessCertIsPdf, setBusinessCertIsPdf] = useState(false);
 
     const [form, setForm] = useState<SubmitIdVerificationDto>({
         idType: "national_id",
@@ -28,15 +36,18 @@ export default function VerifyIdentityPage() {
         idBackImage: "",
         selfieImage: "",
         fullName: "",
+        businessRegistrationCertificate: "",
     });
 
     const [uploadingFront, setUploadingFront] = useState(false);
     const [uploadingBack, setUploadingBack] = useState(false);
     const [uploadingSelfie, setUploadingSelfie] = useState(false);
+    const [uploadingBusinessCert, setUploadingBusinessCert] = useState(false);
 
     const frontRef = useRef<HTMLInputElement>(null);
     const backRef = useRef<HTMLInputElement>(null);
     const selfieRef = useRef<HTMLInputElement>(null);
+    const businessCertRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -44,8 +55,23 @@ export default function VerifyIdentityPage() {
             router.replace("/routes/login");
             return;
         }
+        const user = AuthService.getInstance().getUser();
+        setIsServiceProvider(isServiceProviderRole(user?.role));
         loadExisting();
     }, [router]);
+
+    useEffect(() => {
+        if (
+            existing?.businessRegistrationCertificate &&
+            (existing.status === "rejected" || existing.status === "expired")
+        ) {
+            setForm((p) => ({
+                ...p,
+                businessRegistrationCertificate: existing.businessRegistrationCertificate,
+            }));
+            setBusinessCertIsPdf(/\.pdf(\?|#|$)/i.test(existing.businessRegistrationCertificate));
+        }
+    }, [existing]);
 
     const loadExisting = async () => {
         try {
@@ -61,7 +87,7 @@ export default function VerifyIdentityPage() {
 
     const handleUpload = async (
         file: File,
-        field: "idFrontImage" | "idBackImage" | "selfieImage",
+        field: "idFrontImage" | "idBackImage" | "selfieImage" | "businessRegistrationCertificate",
         setUploading: (v: boolean) => void,
     ) => {
         setUploading(true);
@@ -69,8 +95,15 @@ export default function VerifyIdentityPage() {
         try {
             const result = await mediaApi.upload(file, "users");
             setForm((prev) => ({ ...prev, [field]: result.url }));
+            if (field === "businessRegistrationCertificate") {
+                setBusinessCertIsPdf(file.type === "application/pdf");
+            }
         } catch (err: any) {
-            setError(getUserFriendlyErrorMessage(err, "Failed to upload image. Please check that the file is under 10MB and is JPG, PNG, GIF, or WebP, then try again."));
+            const fallback =
+                field === "businessRegistrationCertificate"
+                    ? "Failed to upload document. Please check that the file is under 10MB and is JPG, PNG, GIF, WebP, or PDF, then try again."
+                    : "Failed to upload image. Please check that the file is under 10MB and is JPG, PNG, GIF, or WebP, then try again.";
+            setError(getUserFriendlyErrorMessage(err, fallback));
         } finally {
             setUploading(false);
         }
@@ -89,10 +122,18 @@ export default function VerifyIdentityPage() {
             setError("Please upload the front of your ID.");
             return;
         }
+        if (isServiceProvider && !form.businessRegistrationCertificate?.trim()) {
+            setError("Please upload your business registration certificate.");
+            return;
+        }
 
         setSubmitting(true);
         try {
-            await verificationApi.submit(form);
+            const payload: SubmitIdVerificationDto = { ...form };
+            if (!isServiceProvider) {
+                delete payload.businessRegistrationCertificate;
+            }
+            await verificationApi.submit(payload);
             setSuccess("Your ID has been submitted for verification. You will be notified once it's reviewed.");
             loadExisting();
         } catch (err: any) {
@@ -123,6 +164,8 @@ export default function VerifyIdentityPage() {
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">Identity Verification</h1>
                     <p className="text-gray-600 mb-8">
                         Upload a government-issued ID so our team can verify your account.
+                        {isServiceProvider &&
+                            " Service providers must also submit a business registration certificate."}
                     </p>
 
                     {/* Existing verification status */}
@@ -257,6 +300,58 @@ export default function VerifyIdentityPage() {
                                     )}
                                 </button>
                             </div>
+
+                            {/* Business registration certificate (service providers only) */}
+                            {isServiceProvider && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Business Registration Certificate <span className="text-red-500">*</span>
+                                    </label>
+                                    <p className="text-xs text-gray-500 mb-2">
+                                        Upload a scan or photo of your official business registration document (PDF or image).
+                                    </p>
+                                    <input
+                                        ref={businessCertRef}
+                                        type="file"
+                                        accept="image/*,.pdf,application/pdf"
+                                        className="hidden"
+                                        onChange={(e) => {
+                                            const f = e.target.files?.[0];
+                                            if (f) handleUpload(f, "businessRegistrationCertificate", setUploadingBusinessCert);
+                                        }}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => businessCertRef.current?.click()}
+                                        disabled={uploadingBusinessCert}
+                                        className="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors"
+                                    >
+                                        {uploadingBusinessCert ? (
+                                            <span className="text-blue-600">Uploading...</span>
+                                        ) : form.businessRegistrationCertificate ? (
+                                            businessCertIsPdf ? (
+                                                <a
+                                                    href={form.businessRegistrationCertificate}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-600 font-medium hover:underline"
+                                                    onClick={(ev) => ev.stopPropagation()}
+                                                >
+                                                    PDF uploaded — click to open
+                                                </a>
+                                            ) : (
+                                                <img
+                                                    src={form.businessRegistrationCertificate}
+                                                    alt="Business registration"
+                                                    className="max-h-40 mx-auto rounded"
+                                                />
+                                            )
+                                        ) : (
+                                            <span className="text-gray-500">Click to upload business registration certificate</span>
+                                        )}
+                                    </button>
+                                </div>
+                            )}
 
                             {/* Selfie */}
                             <div>
