@@ -139,7 +139,7 @@ const FAQ_SECTIONS: FaqSection[] = [
                 key: 'pay1',
                 question: 'Does FindAfriq handle payments?',
                 answer:
-                    'Payment handling may vary depending on the service. Always confirm payment terms with the provider.',
+                    'Payments made through our platform cover only platform-related usage fees. Fees by agents for property access or by service providers for their services are handled directly between users and those providers. Please confirm all agent or service provider payment terms with them before proceeding.',
             },
             {
                 key: 'pay2',

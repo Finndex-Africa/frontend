@@ -14,6 +14,7 @@ import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 import ChatBox from "@/components/dashboard/ChatBox";
 import ReviewsList from "@/components/reviews/ReviewsList";
 import { isUserVerifiedByAdmin } from "@/lib/user-verification";
+import { getUserDisplayName } from '@/lib/display-name';
 
 const LOCAL_PROPERTY_IMAGE = '/images/properties/pexels-photo-323780.jpeg';
 
@@ -460,12 +461,7 @@ export default function PropertyDetail() {
                                     const ownerObj = property.landlordId as Record<string, unknown>;
                                     ownerIdValue = String(ownerObj._id || ownerObj.id || '');
                                     ownerEmail = String(ownerObj.email || '');
-                                    ownerName =
-                                        String(ownerObj.name || '').trim() ||
-                                        [ownerObj.firstName, ownerObj.lastName].filter(Boolean).join(' ').trim() ||
-                                        String(ownerObj.businessName || '') ||
-                                        ownerEmail ||
-                                        'Property Owner';
+                                    ownerName = getUserDisplayName(ownerObj, ownerEmail || 'Property Owner');
                                     ownerInitial = ownerName.charAt(0).toUpperCase();
                                     ownerAvatar = String(ownerObj.avatar || '');
                                     ownerForVerification = ownerObj as { verificationStatus?: string; verified?: boolean };
@@ -478,11 +474,7 @@ export default function PropertyDetail() {
                                         const agentObj = property.agentId as Record<string, unknown>;
                                         ownerIdValue = String(agentObj._id || agentObj.id || '');
                                         ownerEmail = String(agentObj.email || '');
-                                        ownerName =
-                                            String(agentObj.name || '').trim() ||
-                                            [agentObj.firstName, agentObj.lastName].filter(Boolean).join(' ').trim() ||
-                                            ownerEmail ||
-                                            'Agent';
+                                        ownerName = getUserDisplayName(agentObj, ownerEmail || 'Agent');
                                         ownerInitial = ownerName.charAt(0).toUpperCase();
                                         ownerAvatar = String(agentObj.avatar || '');
                                         ownerForVerification = agentObj as { verificationStatus?: string; verified?: boolean };

@@ -116,6 +116,7 @@ export const propertiesApi = {
         return apiClient.get<{
             totalProperties: number;
             approvedProperties: number;
+            totalServices: number;
             totalServiceProviders: number;
             totalUsers: number;
         }>('/properties/public/stats');

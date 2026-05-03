@@ -13,12 +13,12 @@ export function LegalDocLayout({
         <div className="min-h-screen bg-gray-50">
             <header className="relative overflow-hidden bg-slate-900">
                 <div className="absolute inset-0 bg-linear-to-br from-blue-900/90 via-slate-900 to-slate-950" />
-                <div className="relative container-app px-4 py-12 sm:py-16">
+                <div className="relative container-app px-4 py-12 sm:py-16 text-center">
                     <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight font-heading">
                         {title}
                     </h1>
                     {subtitle ? (
-                        <p className="mt-3 text-sm sm:text-base text-white/80 max-w-2xl leading-relaxed">
+                        <p className="mt-3 text-sm sm:text-base text-white/80 max-w-2xl mx-auto leading-relaxed">
                             {subtitle}
                         </p>
                     ) : null}
@@ -43,7 +43,7 @@ export function LegalSection({
     return (
         <section id={id} className="scroll-mt-24">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 font-heading">{title}</h2>
-            <div className="space-y-3 text-gray-700 text-[15px] sm:text-base">{children}</div>
+            <div className="space-y-3 text-gray-700 text-[15px] sm:text-base text-left">{children}</div>
         </section>
     );
 }
@@ -54,7 +54,7 @@ export function LegalSubheading({ children }: { children: ReactNode }) {
 
 export function BulletList({ items }: { items: string[] }) {
     return (
-        <ul className="list-disc pl-5 space-y-2 text-gray-700">
+        <ul className="list-disc pl-5 space-y-2 text-gray-700 text-left">
             {items.map((item) => (
                 <li key={item}>{item}</li>
             ))}
@@ -75,32 +75,32 @@ export function PolicyTable({
         <div className="my-6">
             {caption ? <p className="mb-2 text-xs text-gray-500">{caption}</p> : null}
             <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm ring-1 ring-gray-100">
-            <table className="min-w-full text-left text-sm">
-                <thead>
-                    <tr className="border-b border-gray-200 bg-blue-50/80">
-                        {headers.map((h) => (
-                            <th
-                                key={h}
-                                scope="col"
-                                className="px-4 py-3 font-semibold text-gray-900 first:rounded-tl-xl last:rounded-tr-xl"
-                            >
-                                {h}
-                            </th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                    {rows.map((row, i) => (
-                        <tr key={i} className="hover:bg-gray-50/80">
-                            {row.map((cell, j) => (
-                                <td key={j} className="px-4 py-3 text-gray-700 align-top">
-                                    {cell}
-                                </td>
+                <table className="min-w-full text-left text-sm">
+                    <thead>
+                        <tr className="border-b border-gray-200 bg-blue-50/80">
+                            {headers.map((h) => (
+                                <th
+                                    key={h}
+                                    scope="col"
+                                    className="px-4 py-3 font-semibold text-gray-900 first:rounded-tl-xl last:rounded-tr-xl"
+                                >
+                                    {h}
+                                </th>
                             ))}
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                        {rows.map((row, i) => (
+                            <tr key={i} className="hover:bg-gray-50/80">
+                                {row.map((cell, j) => (
+                                    <td key={j} className="px-4 py-3 text-gray-700 align-top">
+                                        {cell}
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
         </div>
     );
@@ -127,7 +127,15 @@ export function LegalContactCard() {
                     findafriq@gmail.com
                 </a>
                 <br />
-                FB &amp; LinkedIn: @Findafriq
+                FB, LinkedIn &amp; YouTube: @Findafriq ·{' '}
+                <a
+                    href="https://www.youtube.com/@Findafriq"
+                    className="text-[#0000FF] font-medium hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    youtube.com/@Findafriq
+                </a>
             </p>
         </div>
     );

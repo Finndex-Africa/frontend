@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { propertiesApi } from "@/services/api";
 import { Property as ApiProperty } from "@/types/dashboard";
 import Image from "next/image";
+import { MIN_PROPERTY_LISTING_IMAGES } from "@/lib/property-images";
 import { showToast } from "@/lib/toast";
 import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 
@@ -175,8 +176,18 @@ function EditPropertyModal({
     setImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const listingImageTotal = images.length + newImageFiles.length;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (listingImageTotal < MIN_PROPERTY_LISTING_IMAGES) {
+      showToast.error(
+        `Please add at least ${MIN_PROPERTY_LISTING_IMAGES} images before saving your listing.`,
+      );
+      return;
+    }
+
     setLoading(true);
     try {
       // Upload new images if any
@@ -223,9 +234,7 @@ function EditPropertyModal({
       if (formData.availableTo) {
         submitData.availableTo = new Date(formData.availableTo).toISOString();
       }
-      if (finalImages.length > 0) {
-        submitData.images = finalImages;
-      }
+      submitData.images = finalImages;
 
       console.log("Submitting data:", submitData);
       await onSave(submitData);
@@ -283,8 +292,17 @@ function EditPropertyModal({
               Property Images
             </label>
             <p className="text-xs text-gray-600 mb-4">
-              Upload up to 10 images (Max 10MB each)
+              Upload at least {MIN_PROPERTY_LISTING_IMAGES} images (required), up to 10 total (Max 10MB each)
             </p>
+            {listingImageTotal < MIN_PROPERTY_LISTING_IMAGES ? (
+              <p className="text-xs text-amber-700 mb-4">
+                Add{" "}
+                {MIN_PROPERTY_LISTING_IMAGES - listingImageTotal}{" "}
+                more
+                {" "}
+                {MIN_PROPERTY_LISTING_IMAGES - listingImageTotal === 1 ? "image" : "images"} before you can save.
+              </p>
+            ) : null}
 
             <div className="grid grid-cols-3 gap-4">
               {/* Existing Images */}
@@ -578,7 +596,7 @@ function EditPropertyModal({
           </button>
           <button
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || listingImageTotal < MIN_PROPERTY_LISTING_IMAGES}
             className="flex-1 px-6 py-3 text-white bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading
@@ -606,6 +624,15 @@ function PropertyModal({
   if (!isOpen || !property) return null;
 
   const amenityRows = getAmenityRowsFromApi(property);
+
+  const imageUrls = (() => {
+    const raw = property.images;
+    if (!raw) return [];
+    if (Array.isArray(raw)) {
+      return raw.filter((u): u is string => typeof u === 'string' && u.trim().length > 0);
+    }
+    return [];
+  })();
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -635,15 +662,34 @@ function PropertyModal({
 
         {/* Content */}
         <div className="p-6 space-y-6">
-          {/* Image */}
-          {property.images && property.images.length > 0 && (
-            <div className="relative w-full h-64 rounded-lg overflow-hidden bg-gray-100">
-              <Image
-                src={property.images[0]}
-                alt={property.title}
-                fill
-                className="object-cover"
-              />
+          {/* Property photos */}
+          {imageUrls.length > 0 ? (
+            <div>
+              <label className="text-xs font-semibold text-gray-500 uppercase block mb-3">
+                Photos ({imageUrls.length})
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {imageUrls.map((src, i) => (
+                  <a
+                    key={`${src}-${i}`}
+                    href={src}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 ring-1 ring-gray-200 hover:ring-blue-400 transition-shadow"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element -- remote Space URLs; avoid Image domain config gaps */}
+                    <img
+                      src={src}
+                      alt={`${property.title} — photo ${i + 1}`}
+                      className="h-full w-full object-cover"
+                    />
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center">
+              <p className="text-sm text-gray-600">No photos attached to this listing.</p>
             </div>
           )}
 

@@ -13,6 +13,7 @@ import ShareButton from '@/components/ui/ShareButton';
 import ChatBox from "@/components/dashboard/ChatBox";
 import ReviewsList from "@/components/reviews/ReviewsList";
 import { isUserVerifiedByAdmin } from "@/lib/user-verification";
+import { getUserDisplayName } from '@/lib/display-name';
 
 const LOCAL_SERVICE_IMAGE = '/images/services/cleaning1.jpeg';
 
@@ -242,7 +243,10 @@ export default function ServiceDetail() {
                                 const providerObj = (service as any).providerId;
                                 providerIdValue = providerObj._id || providerObj.id || '';
                                 providerEmail = providerObj.email || '';
-                                providerName = providerObj.name || providerObj.firstName || providerObj.businessName || providerEmail || 'Service Provider';
+                                providerName = getUserDisplayName(
+                                    providerObj as Record<string, unknown>,
+                                    providerEmail || 'Service Provider',
+                                );
                                 providerAvatar = providerObj.avatar || '';
                                 providerUserObj = providerObj;
                             } else if (typeof (service as any).providerId === 'string') {
@@ -255,7 +259,10 @@ export default function ServiceDetail() {
                                     const providerObj = (service as any).provider;
                                     providerIdValue = providerObj._id || providerObj.id || '';
                                     providerEmail = providerObj.email || '';
-                                    providerName = providerObj.name || providerObj.firstName || providerObj.businessName || providerEmail || 'Service Provider';
+                                    providerName = getUserDisplayName(
+                                        providerObj as Record<string, unknown>,
+                                        providerEmail || 'Service Provider',
+                                    );
                                     providerAvatar = providerObj.avatar || '';
                                     providerUserObj = providerObj;
                                 } else if (typeof (service as any).provider === 'string') {
@@ -269,7 +276,10 @@ export default function ServiceDetail() {
                                     const agentObj = (service as any).agentId;
                                     providerIdValue = agentObj._id || agentObj.id || '';
                                     providerEmail = agentObj.email || '';
-                                    providerName = agentObj.name || agentObj.firstName || providerEmail || 'Agent';
+                                    providerName = getUserDisplayName(
+                                        agentObj as Record<string, unknown>,
+                                        providerEmail || 'Agent',
+                                    );
                                     providerAvatar = agentObj.avatar || '';
                                     providerUserObj = agentObj;
                                 } else if (typeof (service as any).agentId === 'string') {
@@ -283,7 +293,10 @@ export default function ServiceDetail() {
                                     const landlordObj = (service as any).landlordId;
                                     providerIdValue = landlordObj._id || landlordObj.id || '';
                                     providerEmail = landlordObj.email || '';
-                                    providerName = landlordObj.name || landlordObj.firstName || providerEmail || 'Service Provider';
+                                    providerName = getUserDisplayName(
+                                        landlordObj as Record<string, unknown>,
+                                        providerEmail || 'Service Provider',
+                                    );
                                     providerAvatar = landlordObj.avatar || '';
                                     providerUserObj = landlordObj;
                                 } else if (typeof (service as any).landlordId === 'string') {

@@ -50,15 +50,8 @@ export default function PricingPage() {
             </LegalSection>
 
             <LegalSection title="2. Agent platform authorization fee (home seekers)">
-                <p className="text-gray-700 mb-2">
-                    One-time platform authorization fee per property transaction category, based on property size. Access
-                    periods may be offered as <span className="font-medium text-gray-900">7 days</span> or{' '}
-                    <span className="font-medium text-gray-900">1 month</span> depending on the product you select at
-                    checkout.
-                </p>
-                <p className="text-sm text-gray-600 mb-4">
-                    Home seekers pay agents directly. The platform does not collect rental commissions. The authorization
-                    fee is a fixed amount based on property size.
+                <p className="text-gray-700 mb-4">
+                    One-time platform authorization fee per property transaction category, based on property size.
                 </p>
                 <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm ring-1 ring-gray-100">
                     <table className="min-w-full text-left text-sm">
@@ -102,17 +95,17 @@ export default function PricingPage() {
                                 <tr className="hover:bg-gray-50/80">
                                     <td className="px-4 py-3 font-medium text-gray-900">Basic</td>
                                     <td className="px-4 py-3 text-gray-800">$10</td>
-                                    <td className="px-4 py-3 text-gray-700">2 months</td>
+                                    <td className="px-4 py-3 text-gray-700">1 month</td>
                                 </tr>
                                 <tr className="hover:bg-gray-50/80">
                                     <td className="px-4 py-3 font-medium text-gray-900">Pro</td>
                                     <td className="px-4 py-3 text-gray-800">$25</td>
-                                    <td className="px-4 py-3 text-gray-700">2 months</td>
+                                    <td className="px-4 py-3 text-gray-700">1 month</td>
                                 </tr>
                                 <tr className="hover:bg-gray-50/80">
                                     <td className="px-4 py-3 font-medium text-gray-900">Premium</td>
                                     <td className="px-4 py-3 text-gray-800">$50</td>
-                                    <td className="px-4 py-3 text-gray-700">2 months</td>
+                                    <td className="px-4 py-3 text-gray-700">1 month</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -128,7 +121,7 @@ export default function PricingPage() {
                                     'Access to platform housing clients',
                                 ]}
                             />
-                            </div>
+                        </div>
                     </div>
                 </div>
             </LegalSection>
@@ -148,8 +141,8 @@ export default function PricingPage() {
                     <Link
                         href="/routes/about#contact"
                         className="inline-flex items-center justify-center rounded-lg bg-white/10 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/15"
-                            >
-                                Contact us
+                    >
+                        Contact us
                     </Link>
                 </div>
             </div>
