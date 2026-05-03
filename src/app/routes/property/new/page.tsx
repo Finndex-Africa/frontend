@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { propertiesApi } from '@/services/api';
 import { mediaApi } from '@/services/api/media.api';
+import { MIN_PROPERTY_LISTING_IMAGES } from '@/lib/property-images';
 import { showToast } from '@/lib/toast';
 import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
 
@@ -89,6 +90,14 @@ export default function NewPropertyPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (imageFiles.length < MIN_PROPERTY_LISTING_IMAGES) {
+            showToast.error(
+                `Please upload at least ${MIN_PROPERTY_LISTING_IMAGES} images before posting your listing.`,
+            );
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -340,7 +349,9 @@ export default function NewPropertyPage() {
                     {/* Images */}
                     <div className="mb-8">
                         <h2 className="text-xl font-semibold text-gray-900 mb-4">Property Images</h2>
-                        <p className="text-sm text-gray-600 mb-4">Upload up to 10 images (Max 10MB each)</p>
+                        <p className="text-sm text-gray-600 mb-4">
+                            Upload at least {MIN_PROPERTY_LISTING_IMAGES} images (required) and up to 10 (Max 10MB each)
+                        </p>
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                             {imagePreviews.map((preview, index) => (
@@ -387,7 +398,7 @@ export default function NewPropertyPage() {
                     <div className="flex items-center gap-4 pt-6 border-t border-gray-200">
                         <button
                             type="submit"
-                            disabled={loading}
+                            disabled={loading || imageFiles.length < MIN_PROPERTY_LISTING_IMAGES}
                             className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                         >
                             {loading ? 'Creating...' : 'Create Property'}

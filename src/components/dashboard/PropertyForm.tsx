@@ -14,6 +14,7 @@ import Upload from 'antd/es/upload';
 import { PlusOutlined } from '@ant-design/icons';
 import type { UploadFile } from 'antd/es/upload/interface';
 import type { Property } from '@/types/dashboard';
+import { MIN_PROPERTY_LISTING_IMAGES } from '@/lib/property-images';
 import { showToast } from '@/lib/toast';
 
 const { TextArea } = Input;
@@ -36,13 +37,15 @@ export function PropertyForm({
     const [fileList, setFileList] = useState<UploadFile[]>([]);
 
     const handleSubmit = async (values: any) => {
-        // Extract actual File objects from fileList
         const filesToUpload = fileList
             .filter(file => file.originFileObj)
             .map(file => file.originFileObj as File);
 
-        // Pass form values and files to parent
-        // Parent will create property first, then upload images with property ID
+        if (!initialValues && filesToUpload.length < MIN_PROPERTY_LISTING_IMAGES) {
+            showToast.error(`Please add at least ${MIN_PROPERTY_LISTING_IMAGES} images before posting your listing.`);
+            return;
+        }
+
         onSubmit(values, filesToUpload);
     };
 
@@ -242,7 +245,7 @@ export function PropertyForm({
                     )}
                 </Upload>
                 <Text type="secondary" style={{ fontSize: '12px', display: 'block', marginTop: '8px' }}>
-                    Upload up to 10 images. Max size: 10MB per image. Images will be uploaded to DigitalOcean Spaces.
+                    Upload at least {MIN_PROPERTY_LISTING_IMAGES} images (required) and up to 10. Max size: 10MB per image.
                 </Text>
             </div>
 
@@ -267,6 +270,11 @@ export function PropertyForm({
                     size="large"
                     htmlType="submit"
                     loading={loading}
+                    disabled={
+                        !initialValues &&
+                        fileList.filter((f) => f.originFileObj).length <
+                            MIN_PROPERTY_LISTING_IMAGES
+                    }
                     style={{
                         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                         border: 'none',

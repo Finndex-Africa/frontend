@@ -15,9 +15,11 @@ interface Advertisement {
 
 interface PlatformStats {
     totalProperties: number;
-    totalServiceProviders: number;
+    totalServices: number;
     totalUsers: number;
 }
+
+const FINDAFRIQ_INTRO_EMBED_SRC = 'https://www.youtube.com/embed/W7e_E5S_YKA';
 
 export default function AdvertisementBanner() {
     const [advertisements, setAdvertisements] = useState<Advertisement[]>([]);
@@ -26,7 +28,7 @@ export default function AdvertisementBanner() {
     const [showAdvertiseModal, setShowAdvertiseModal] = useState(false);
     const [stats, setStats] = useState<PlatformStats>({
         totalProperties: 0,
-        totalServiceProviders: 0,
+        totalServices: 0,
         totalUsers: 0,
     });
 
@@ -74,7 +76,8 @@ export default function AdvertisementBanner() {
             if (response.data) {
                 setStats({
                     totalProperties: response.data.approvedProperties || response.data.totalProperties || 0,
-                    totalServiceProviders: response.data.totalServiceProviders || 0,
+                    totalServices:
+                        response.data.totalServices ?? response.data.totalServiceProviders ?? 0,
                     totalUsers: response.data.totalUsers || 0,
                 });
             }
@@ -149,8 +152,8 @@ export default function AdvertisementBanner() {
                                     <div className="text-sm text-white/90">Properties Listed</div>
                                 </div>
                                 <div>
-                                    <div className="text-3xl font-bold">{formatNumber(stats.totalServiceProviders)}</div>
-                                    <div className="text-sm text-white/90">Service Providers</div>
+                                    <div className="text-3xl font-bold">{formatNumber(stats.totalServices)}</div>
+                                    <div className="text-sm text-white/90">Services Listed</div>
                                 </div>
                                 <div>
                                     <div className="text-3xl font-bold">{formatNumber(stats.totalUsers)}</div>
@@ -159,18 +162,29 @@ export default function AdvertisementBanner() {
                             </div>
                         </div>
 
-                        {/* Right Image/Graphic */}
-                        <div className="relative h-80 md:h-96 rounded-2xl overflow-hidden shadow-2xl">
-                            <SafeImage
-                                src="/images/properties/pexels-photo-323780.jpeg"
-                                alt="Advertise with us"
-                                fill
-                                className="object-cover"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                            <div className="absolute bottom-6 left-6 right-6 text-white">
-                                <p className="text-lg font-semibold">Join our growing network of successful partners</p>
+                        {/* Introduction video */}
+                        <div className="flex flex-col gap-2 w-full">
+                            <div className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-2xl bg-black ring-2 ring-white/20">
+                                <iframe
+                                    src={FINDAFRIQ_INTRO_EMBED_SRC}
+                                    title="Introduction to FindAfriq"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    referrerPolicy="strict-origin-when-cross-origin"
+                                    allowFullScreen
+                                    className="absolute inset-0 h-full w-full border-0"
+                                />
                             </div>
+                            <p className="text-xs text-white/85 text-center sm:text-right">
+                                Watch our introduction — FindAfriq on{' '}
+                                <a
+                                    href="https://www.youtube.com/@Findafriq"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="underline font-medium hover:text-white"
+                                >
+                                    YouTube
+                                </a>
+                            </p>
                         </div>
                     </div>
                 </div>

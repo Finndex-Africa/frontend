@@ -6,7 +6,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 interface Stats {
     totalProperties: number;
     approvedProperties: number;
-    totalServiceProviders: number;
+    totalServices: number;
     totalUsers: number;
 }
 
@@ -86,11 +86,25 @@ export default function PlatformStats() {
         fetch(`${API_URL}/properties/public/stats`)
             .then(res => res.json())
             .then(data => {
-                setStats(data.data ?? null);
+                const d = data?.data;
+                if (!d || typeof d !== 'object') {
+                    setStats(null);
+                    return;
+                }
+                const row = d as Record<string, unknown>;
+                setStats({
+                    totalProperties: Number(row.totalProperties) || 0,
+                    approvedProperties: Number(row.approvedProperties) || 0,
+                    totalServices:
+                        row.totalServices !== undefined
+                            ? Number(row.totalServices) || 0
+                            : Number(row.totalServiceProviders) || 0,
+                    totalUsers: Number(row.totalUsers) || 0,
+                });
             })
             .catch(() => {
                 setError(true);
-                setStats({ totalProperties: 0, approvedProperties: 0, totalServiceProviders: 0, totalUsers: 0 });
+                setStats({ totalProperties: 0, approvedProperties: 0, totalServices: 0, totalUsers: 0 });
             })
             .finally(() => setLoading(false));
     }, []);
@@ -125,15 +139,15 @@ export default function PlatformStats() {
                         iconBg="bg-blue-100"
                         value={stats?.approvedProperties ?? 0}
                         loading={loading}
-                        label="Properties"
+                        label="Properties Listed"
                         formatNum={formatNum}
                     />
                     <StatCard
                         icon={BriefcaseIcon}
                         iconBg="bg-purple-100"
-                        value={stats?.totalServiceProviders ?? 0}
+                        value={stats?.totalServices ?? 0}
                         loading={loading}
-                        label="Service Providers"
+                        label="Services Listed"
                         formatNum={formatNum}
                     />
                     <StatCard
