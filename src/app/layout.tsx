@@ -50,7 +50,16 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   icons: {
-    icon: [{ url: "/favicon.ico", type: "image/x-icon" }],
+    icon: [
+      { url: "/favicon.ico", sizes: "any", type: "image/x-icon" },
+      { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-48.png", sizes: "48x48", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: ["/favicon.ico"],
   },
   openGraph: {
     type: "website",
@@ -60,7 +69,10 @@ export const metadata: Metadata = {
     url: SITE_URL,
     images: [
       {
-        url: "/favicon.ico",
+        url: "/icon-512.png",
+        width: 512,
+        height: 512,
+        type: "image/png",
         alt: `${SITE_NAME} brand icon`,
       },
     ],
@@ -70,7 +82,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
-    images: ["/favicon.ico"],
+    images: ["/icon-512.png"],
   },
   robots: {
     index: true,
