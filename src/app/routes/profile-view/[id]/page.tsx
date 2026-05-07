@@ -84,11 +84,13 @@ export default function PublicProfileView() {
             provider: { label: 'Service Provider', bg: 'bg-purple-100', text: 'text-purple-700' },
             service_provider: { label: 'Service Provider', bg: 'bg-purple-100', text: 'text-purple-700' },
             agent: { label: 'Agent', bg: 'bg-amber-100', text: 'text-amber-700' },
-            seeker: { label: 'Seeker', bg: 'bg-gray-100', text: 'text-gray-700' },
+            admin: { label: 'Admin', bg: 'bg-slate-200', text: 'text-slate-800' },
+            home_seeker: { label: 'Home Seeker', bg: 'bg-gray-100', text: 'text-gray-700' },
+            seeker: { label: 'Home Seeker', bg: 'bg-gray-100', text: 'text-gray-700' },
         };
 
-        const role = user.role || user.userType || 'seeker';
-        const config = roleConfig[role] || roleConfig.seeker;
+        const role = user.role || user.userType || 'home_seeker';
+        const config = roleConfig[role] || roleConfig.home_seeker;
 
         return (
             <span className={`inline-flex items-center ${config.bg} ${config.text} text-xs px-2.5 py-1 rounded-full font-medium`}>

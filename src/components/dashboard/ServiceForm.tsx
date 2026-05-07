@@ -61,12 +61,17 @@ export function ServiceForm({
 
         console.log('📸 Files to upload:', filesToUpload.length);
 
-        // Validate that at least 1 image is uploaded (for create) or exists (for edit)
-        const hasNewFiles = filesToUpload.length > 0;
-        const hasExistingImages = fileList.some(file => file.url && !file.originFileObj);
+        const imageCount = fileList.filter(
+            (f) => f.status !== 'error' && (Boolean(f.url) || Boolean(f.originFileObj)),
+        ).length;
 
-        if (!hasNewFiles && !hasExistingImages) {
-            showToast.error('Please upload at least 1 image');
+        const minImages = initialValues ? 1 : 4;
+        if (imageCount < minImages) {
+            showToast.error(
+                initialValues
+                    ? 'Please upload at least 1 image'
+                    : 'Please upload at least 4 images',
+            );
             return;
         }
 
@@ -344,7 +349,9 @@ export function ServiceForm({
                     border: '1px solid #e5e7eb'
                 }}>
                     <Text type="secondary" style={{ fontSize: '13px', display: 'block', color: '#6b7280' }}>
-                        📸 Upload at least 1 image (up to 10) - Images will be uploaded to Digital Ocean
+                        {initialValues
+                            ? '📸 Keep at least 1 image (up to 10) — Images upload to Digital Ocean'
+                            : '📸 Upload at least 4 images (up to 10) — Images will be uploaded to Digital Ocean'}
                     </Text>
                     <Text type="secondary" style={{ fontSize: '13px', display: 'block', marginTop: '4px', color: '#9ca3af' }}>
                         • Max size: 10MB per image • Supported formats: JPG, PNG, WebP
