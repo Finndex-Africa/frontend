@@ -23,13 +23,64 @@ const whitneyMedium = localFont({
   display: "swap",
 });
 
+const SITE_URL = "https://findafriq.com";
+const SITE_NAME = "FindAfriq";
+const SITE_DESCRIPTION =
+  "FindAfriq is a digital real estate and services platform that connects home seekers with landlords, agents, and trusted service providers across Africa.";
+
 export const metadata: Metadata = {
-  title: "FindAfriq",
-  description: "Find your perfect home in Africa",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  keywords: [
+    "FindAfriq",
+    "real estate Africa",
+    "rentals Africa",
+    "landlords",
+    "agents",
+    "service providers",
+    "Liberia rentals",
+    "find a home Africa",
+  ],
+  alternates: {
+    canonical: "/",
+  },
   icons: {
-    icon: [{ url: '/favicon.ico', type: 'image/x-icon' }],
-    apple: '/apple-icon.png',
-    shortcut: '/favicon.ico',
+    icon: [{ url: "/favicon.ico", type: "image/x-icon" }],
+  },
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    images: [
+      {
+        url: "/favicon.ico",
+        alt: `${SITE_NAME} brand icon`,
+      },
+    ],
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    images: ["/favicon.ico"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 
