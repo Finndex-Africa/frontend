@@ -179,6 +179,7 @@ export default function ServiceDetail() {
         : getDefaultImages(service.category);
 
     const media = images.map(src => ({ type: "image" as const, src }));
+    const hasListPrice = service.price != null && Number(service.price) > 0;
 
     return (
         <div className="min-h-screen bg-white">
@@ -340,15 +341,21 @@ export default function ServiceDetail() {
                                                 </div>
                                             )}
                                             <div className="flex-1">
-                                                <div className="flex items-center gap-2 mb-1">
+                                                <div className="flex flex-wrap items-center gap-2 mb-1">
                                                     <p className="font-semibold text-gray-900 text-sm">
                                                         {providerName}
                                                     </p>
-                                                    {showProviderVerifiedBadge && (
-                                                        <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium">
-                                                            Verified
-                                                        </span>
-                                                    )}
+                                                    {providerIdValue ? (
+                                                        showProviderVerifiedBadge ? (
+                                                            <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium shrink-0">
+                                                                Verified
+                                                            </span>
+                                                        ) : (
+                                                            <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full font-medium shrink-0">
+                                                                Not Verified
+                                                            </span>
+                                                        )
+                                                    ) : null}
                                                 </div>
                                                 <p className="text-gray-500 text-xs">
                                                     {providerIdValue ? 'Registered service provider on FindAfriq' : 'Provider information not available'}
@@ -415,13 +422,13 @@ export default function ServiceDetail() {
                                     <div className="p-6 bg-linear-to-br from-blue-50 to-white">
                                         <div className="flex items-baseline gap-1.5">
                                             <div className="text-4xl font-bold text-gray-900">
-                                                {service.price ? `$${service.price.toLocaleString()}` : 'Contact for Price'}
+                                                {hasListPrice ? `$${Number(service.price).toLocaleString()}` : 'Contact for Price'}
                                             </div>
-                                            {service.price && service.priceUnit && (
+                                            {hasListPrice && service.priceUnit ? (
                                                 <span className="text-gray-500 text-base font-medium">
                                                     /{service.priceUnit}
                                                 </span>
-                                            )}
+                                            ) : null}
                                         </div>
                                     </div>
 
@@ -588,16 +595,16 @@ export default function ServiceDetail() {
                                     <div className="flex-1 min-w-0">
                                         <h4 className="font-semibold text-gray-900 text-sm truncate">{service?.title}</h4>
                                         <p className="text-xs text-gray-600 mt-1 truncate">{service?.category.replace(/_/g, ' ')}</p>
-                                        {service?.price && (
+                                        {hasListPrice ? (
                                             <div className="flex items-center gap-2 mt-2">
                                                 <span className="text-base sm:text-lg font-bold text-green-600">
-                                                    ${service.price.toLocaleString()}
+                                                    ${Number(service.price).toLocaleString()}
                                                 </span>
                                                 <span className="text-xs text-gray-500">
                                                     /{service.priceUnit || 'service'}
                                                 </span>
                                             </div>
-                                        )}
+                                        ) : null}
                                     </div>
                                 </div>
                             </div>

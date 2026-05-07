@@ -101,18 +101,16 @@ export default function MyServicesPage() {
                 cleanData.price = 0;
             }
 
-            // Add uploaded image URLs (required)
-            if (uploadedUrls.length > 0) {
-                cleanData.images = uploadedUrls;
-            } else {
+            if (uploadedUrls.length < 4) {
                 showToast({
                     title: 'Error',
-                    description: 'At least 1 image is required',
+                    description: 'At least 4 images are required',
                     variant: 'error'
                 });
                 setSubmitting(false);
                 return;
             }
+            cleanData.images = uploadedUrls;
 
             console.log('🧹 Frontend page - clean data to send:', cleanData);
             console.log('❓ Has existingImages?', 'existingImages' in cleanData);
@@ -517,13 +515,15 @@ export default function MyServicesPage() {
                                             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full">
                                                 <div className="text-left sm:text-right flex-1 sm:flex-none">
                                                     <p className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                                                        {service.price ? formatCurrency(service.price) : 'Contact for Price'}
+                                                        {service.price != null && Number(service.price) > 0
+                                                            ? formatCurrency(service.price)
+                                                            : 'Contact for Price'}
                                                     </p>
-                                                    {service.price && (
+                                                    {service.price != null && Number(service.price) > 0 ? (
                                                         <p className="text-xs text-gray-500 font-medium">
                                                             {service.priceUnit || 'per service'}
                                                         </p>
-                                                    )}
+                                                    ) : null}
                                                 </div>
                                                 <div className="flex items-center gap-2 w-full sm:w-auto">
                                                     <button
@@ -670,7 +670,11 @@ export default function MyServicesPage() {
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-600">Price</p>
-                                        <p className="font-semibold">{selectedService.price ? formatCurrency(selectedService.price) : 'Contact for Price'}</p>
+                                        <p className="font-semibold">
+                                            {selectedService.price != null && Number(selectedService.price) > 0
+                                                ? formatCurrency(selectedService.price)
+                                                : 'Contact for Price'}
+                                        </p>
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-600">Rating</p>
