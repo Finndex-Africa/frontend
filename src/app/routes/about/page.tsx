@@ -267,6 +267,13 @@ export default function About() {
                             linkedin: 'https://www.linkedin.com/in/christiana-miracle-bimba-62192b206',
                             photo: '/images/team/Christiana.jpeg',
                         },
+                        {
+                            name: 'Abdullah Sonnie',
+                            position: 'Admin & Operations Officer',
+                            country: 'Liberia',
+                            linkedin: 'https://www.linkedin.com/in/mo-abdullah-sonnie-14ab6a203/',
+                            photo: '/images/team/sonnie.jpeg',
+                        },
                     ].map((member) => (
                         <div
                             key={member.name}
@@ -300,6 +307,37 @@ export default function About() {
                             </a>
                         </div>
                     ))}
+                </div>
+            </section>
+
+            {/* PARTNERS */}
+            <section className="container-app px-4 pb-12 sm:pb-16">
+                <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 px-7 py-10 sm:px-12 sm:py-14">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 text-center mb-4">
+                        Trusted &amp; Supported by
+                    </p>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center leading-snug">
+                        Leading Organizations &amp; Institutions
+                    </h2>
+                    <div className="mt-6 sm:mt-8 grid grid-cols-3 gap-6 sm:gap-10 items-center justify-items-center">
+                        {[
+                            { name: 'Orange Digital Center', logo: '/images/partners/Orange.png' },
+                            { name: 'Orange Foundation', logo: '/images/partners/Orange Foundation.png' },
+                            { name: 'Tony Elumelu Foundation', logo: '/images/partners/Tony Elumelu.png' },
+                        ].map((partner) => (
+                            <div key={partner.name} className="flex items-center justify-center w-full px-2 sm:px-4 py-2">
+                                <div className="relative h-36 sm:h-44 w-full max-w-[300px]">
+                                    <Image
+                                        src={partner.logo}
+                                        alt={partner.name}
+                                        fill
+                                        sizes="300px"
+                                        className="object-contain"
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </section>
 

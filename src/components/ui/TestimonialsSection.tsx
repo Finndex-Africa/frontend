@@ -9,11 +9,11 @@ const testimonials = [
         avatarUrl: "https://images.unsplash.com/photo-1769636930016-5d9f0ca653aa?auto=format&fit=crop&w=200&h=200&q=80"
     },
     {
-        name: "Kwame Mensah",
+        name: "Fine Living Cleaning Service",
         role: "Service Provider",
-        content: "As a plumber, joining FindAfriq was the best business decision I made. I get consistent leads and the verification process helped build trust with my clients.",
+        content: "Using FindAfriq has been smooth and easy. From creating our profile to listing our services, the platform made everything simple to navigate. We're excited about the visibility and opportunities it brings to our business.",
         rating: 5,
-        avatarUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&h=200&q=80"
+        avatarUrl: "/images/partners/fine living.jpeg"
     },
     {
         name: "Aminata Kamara",

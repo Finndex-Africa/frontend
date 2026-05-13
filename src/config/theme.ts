@@ -2,12 +2,12 @@ import type { ThemeConfig } from 'antd';
 
 export const designTokens = {
   colors: {
-    brand: '#1890FF',
-    primary: '#1890FF',
+    brand: '#0a00f1',
+    primary: '#0a00f1',
     success: '#52C41A',
     warning: '#FAAD14',
     error: '#FF4D4F',
-    info: '#1890FF',
+    info: '#0a00f1',
     accent: '#FF9500',
     text: '#000000D9',
     muted: '#00000073',
@@ -85,9 +85,9 @@ export const antdTheme: ThemeConfig = {
     },
     Menu: {
       itemBg: 'transparent',
-      itemSelectedBg: '#1890FF10',
+      itemSelectedBg: '#0a00f110',
       itemSelectedColor: designTokens.colors.brand,
-      itemHoverBg: '#1890FF08',
+      itemHoverBg: '#0a00f108',
     },
   },
 };
