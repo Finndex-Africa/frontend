@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { advertisementsApi, propertiesApi } from "@/services/api";
-import AdvertiseModal from "@/components/modals/AdvertiseModal";
+import { AGENT_APPLICATION_FORM_URL } from "@/config/marketing-links";
 
 interface Advertisement {
     _id: string;
@@ -25,7 +25,6 @@ export default function AdvertisementBanner() {
     const [advertisements, setAdvertisements] = useState<Advertisement[]>([]);
     const [currentAdIndex, setCurrentAdIndex] = useState(0);
     const [loading, setLoading] = useState(true);
-    const [showAdvertiseModal, setShowAdvertiseModal] = useState(false);
     const [stats, setStats] = useState<PlatformStats>({
         totalProperties: 0,
         totalServices: 0,
@@ -123,20 +122,21 @@ export default function AdvertisementBanner() {
                         {/* Left Content */}
                         <div className="text-white space-y-6">
                             <h2 className="text-3xl md:text-4xl font-bold">
-                                Advertise with FindAfriq
+                                Become an Agent
                             </h2>
                             <p className="text-lg text-white/95">
-                                Reach thousands of potential customers across Africa.
-                                Showcase your properties and services to a targeted audience
-                                looking for trusted providers.
+                                Are you passionate about your community and eager to earn while making an impact?
+                                Join our agents network and start earning today
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                                <button
-                                    onClick={() => setShowAdvertiseModal(true)}
+                                <a
+                                    href={AGENT_APPLICATION_FORM_URL}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors text-center"
                                 >
                                     Get Started
-                                </button>
+                                </a>
                                 <a
                                     href="/routes/about"
                                     className="inline-block border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors text-center"
@@ -188,9 +188,6 @@ export default function AdvertisementBanner() {
                         </div>
                     </div>
                 </div>
-
-                {/* Advertise Modal */}
-                <AdvertiseModal open={showAdvertiseModal} onClose={() => setShowAdvertiseModal(false)} />
             </div>
         );
     }
