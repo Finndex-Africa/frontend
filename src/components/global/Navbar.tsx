@@ -5,7 +5,7 @@ import Button from "../ui/Button";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import AdvertiseModal from "../modals/AdvertiseModal";
-import FeedbackModal from "../modals/FeedbackModal";
+import { AGENT_APPLICATION_FORM_URL } from "@/config/marketing-links";
 import { useAuth } from "@/providers";
 import { notificationsApi } from "@/services/api/notifications.api";
 
@@ -24,7 +24,6 @@ interface Notification {
 
 export default function Navbar() {
   const [showAdvertiseModal, setShowAdvertiseModal] = useState(false);
-  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -308,13 +307,14 @@ export default function Navbar() {
           </nav>
           {/* Desktop Action Buttons */}
           <div className="hidden md:flex items-center gap-2">
-            <Button
-              variant="ghost"
-              className="px-4"
-              onClick={() => setShowFeedbackModal(true)}
+            <a
+              href={AGENT_APPLICATION_FORM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn bg-transparent text-gray-700 hover:bg-gray-100 px-4 text-sm font-semibold"
             >
-              Leave us feedback
-            </Button>
+              Become an Agent
+            </a>
             <Button
               variant="ghost"
               className="px-4"
@@ -1079,16 +1079,15 @@ export default function Navbar() {
 
               {/* Mobile Actions */}
               <div className="pt-3 border-t border-gray-200 space-y-2">
-                <Button
-                  variant="ghost"
-                  className="w-full !justify-start"
-                  onClick={() => {
-                    setShowFeedbackModal(true);
-                    setShowMobileMenu(false);
-                  }}
+                <a
+                  href={AGENT_APPLICATION_FORM_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn bg-transparent text-gray-700 hover:bg-gray-100 px-4 text-sm font-semibold w-full !justify-start"
+                  onClick={() => setShowMobileMenu(false)}
                 >
-                  Leave us feedback
-                </Button>
+                  Become an Agent
+                </a>
                 <Button
                   variant="ghost"
                   className="w-full !justify-start"
@@ -1735,11 +1734,6 @@ export default function Navbar() {
       <AdvertiseModal
         open={showAdvertiseModal}
         onClose={() => setShowAdvertiseModal(false)}
-      />
-
-      <FeedbackModal
-        open={showFeedbackModal}
-        onClose={() => setShowFeedbackModal(false)}
       />
 
       {/* Notification Details Modal */}
