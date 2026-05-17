@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { advertisementsApi, propertiesApi } from "@/services/api";
-import { AGENT_APPLICATION_FORM_URL } from "@/config/marketing-links";
+import AgentApplicationModal from "@/components/modals/AgentApplicationModal";
 
 interface Advertisement {
     _id: string;
@@ -30,6 +30,7 @@ export default function AdvertisementBanner() {
         totalServices: 0,
         totalUsers: 0,
     });
+    const [showAgentApplicationModal, setShowAgentApplicationModal] = useState(false);
 
     useEffect(() => {
         fetchAdvertisements();
@@ -116,34 +117,34 @@ export default function AdvertisementBanner() {
     // Show default banner if no ads or loading
     if (loading || advertisements.length === 0) {
         return (
-            <div className="w-full bg-blue-500">
-                <div className="container-app py-16">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                        {/* Left Content */}
-                        <div className="text-white space-y-6">
-                            <h2 className="text-3xl md:text-4xl font-bold">
-                                Become an Agent
-                            </h2>
-                            <p className="text-lg text-white/95">
-                                Are you passionate about your community and eager to earn while making an impact?
-                                Join our agents network and start earning today
-                            </p>
-                            <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                                <a
-                                    href={AGENT_APPLICATION_FORM_URL}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors text-center"
-                                >
-                                    Get Started
-                                </a>
-                                <a
-                                    href="/routes/about"
-                                    className="inline-block border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors text-center"
-                                >
-                                    Learn More
-                                </a>
-                            </div>
+            <>
+                <div className="w-full bg-blue-500">
+                    <div className="container-app py-16">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                            {/* Left Content */}
+                            <div className="text-white space-y-6">
+                                <h2 className="text-3xl md:text-4xl font-bold">
+                                    Become an Agent
+                                </h2>
+                                <p className="text-lg text-white/95">
+                                    Are you passionate about your community and eager to earn while making an impact?
+                                    Join our agents network and start earning today
+                                </p>
+                                <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowAgentApplicationModal(true)}
+                                        className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors text-center"
+                                    >
+                                        Get Started
+                                    </button>
+                                    <a
+                                        href="/routes/about"
+                                        className="inline-block border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors text-center"
+                                    >
+                                        Learn More
+                                    </a>
+                                </div>
 
                             {/* Stats */}
                             <div className="grid grid-cols-3 gap-4 pt-8 border-t border-white/20">
@@ -188,7 +189,12 @@ export default function AdvertisementBanner() {
                         </div>
                     </div>
                 </div>
-            </div>
+                </div>
+                <AgentApplicationModal
+                    open={showAgentApplicationModal}
+                    onClose={() => setShowAgentApplicationModal(false)}
+                />
+            </>
         );
     }
 
