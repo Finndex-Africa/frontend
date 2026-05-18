@@ -31,7 +31,7 @@ export default function PropertyCard({ p, badge }: { p: Property; badge?: string
 
     return (
         <Link href={`/routes/property/${p.id}`} className="group cursor-pointer block">
-            <div className="relative aspect-square w-full rounded-2xl overflow-hidden mb-3 shadow-sm">
+            <div className="relative aspect-[5/3] max-h-[200px] sm:max-h-none md:aspect-square w-full rounded-2xl overflow-hidden mb-3 shadow-sm">
                 <SafeImage
                     src={p.imageUrl}
                     alt={p.title}
