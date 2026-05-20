@@ -14,7 +14,7 @@ const TAB_LABEL: Record<TabId, string> = {
 };
 
 const cardShell =
-    'flex flex-col rounded-2xl bg-[#153885] text-white p-6 sm:p-7 shadow-xl ring-1 ring-white/15 min-h-[480px]';
+    'flex flex-col rounded-2xl bg-brand-blue text-white p-6 sm:p-7 shadow-xl ring-1 ring-white/15 min-h-[480px]';
 
 function FeatureRow({ ok, label, muted }: { ok: boolean; label: string; muted?: boolean }) {
     return (
@@ -46,7 +46,7 @@ function PricingCard({
         <div className={cardShell}>
             <h3 className="text-center text-xl font-bold font-heading tracking-tight">{name}</h3>
             <div className="my-4 border-t border-white/25" />
-            <p className="text-center text-4xl sm:text-[2.75rem] font-extrabold text-[#FFCC00] leading-none">{price}</p>
+            <p className="text-center text-4xl sm:text-[2.75rem] font-extrabold text-brand-yellow leading-none">{price}</p>
             <p className="mt-2 text-center text-xs sm:text-sm text-white/85">{priceCaption}</p>
             <ul className="mt-6 flex-1 space-y-2.5">
                 {rows.map((row) => (
@@ -55,7 +55,7 @@ function PricingCard({
             </ul>
             <Link
                 href="/routes/login"
-                className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-[#FFCC00] px-5 py-3.5 text-center text-sm font-bold text-[#0a1628] shadow-md transition hover:bg-[#ffd633] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+                className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-brand-yellow px-5 py-3.5 text-center text-sm font-bold text-brand-blue shadow-md transition hover:brightness-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
             >
                 Get started
             </Link>
@@ -213,9 +213,9 @@ export default function PricingPageContent() {
     };
 
     return (
-        <div className="min-h-screen bg-[#eef2ff]">
+        <div className="min-h-screen bg-blue-50">
             <header className="relative px-4 pt-12 pb-10 sm:pt-16 sm:pb-12 text-center">
-                <h1 className="text-3xl sm:text-4xl md:text-[2.35rem] font-extrabold text-[#153885] tracking-tight font-heading px-2">
+                <h1 className="text-3xl sm:text-4xl md:text-[2.35rem] font-extrabold text-brand-blue tracking-tight font-heading px-2">
                     {headings[tab]}
                 </h1>
                 <p className="mt-3 max-w-2xl mx-auto text-sm sm:text-base text-gray-700 leading-relaxed">
@@ -224,7 +224,7 @@ export default function PricingPageContent() {
 
                 <div className="mt-8 flex justify-center px-2">
                     <div
-                        className="inline-flex flex-wrap justify-center gap-1 rounded-full bg-white p-1.5 shadow-md ring-1 ring-[#153885]/15"
+                        className="inline-flex flex-wrap justify-center gap-1 rounded-full bg-white p-1.5 shadow-md ring-1 ring-brand-blue/15"
                         role="tablist"
                         aria-label="Pricing audience"
                     >
@@ -234,10 +234,10 @@ export default function PricingPageContent() {
                                 type="button"
                                 role="tab"
                                 aria-selected={tab === id}
-                                className={`rounded-full px-4 py-2.5 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#153885]/40 ${
+                                className={`rounded-full px-4 py-2.5 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/40 ${
                                     tab === id
-                                        ? 'bg-[#153885] text-white shadow-sm'
-                                        : 'text-[#153885] hover:bg-[#eef2ff]'
+                                        ? 'bg-brand-blue text-white shadow-sm'
+                                        : 'text-brand-blue hover:bg-blue-50'
                                 }`}
                                 onClick={() => setTab(id)}
                             >
@@ -255,7 +255,7 @@ export default function PricingPageContent() {
                     {tab === 'provider' && <ServiceProviderCards />}
                 </div>
 
-                <div className="rounded-2xl border border-gray-200 bg-slate-900 p-6 sm:p-8 text-white shadow-lg">
+                <div className="rounded-2xl border border-brand-blue/20 bg-brand-blue p-6 sm:p-8 text-white shadow-lg">
                     <p className="text-lg font-bold font-heading">Need help choosing?</p>
                     <p className="mt-2 text-sm text-white/80">
                         We can walk you through listing packages, authorization fees, and provider subscriptions.
