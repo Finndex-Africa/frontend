@@ -179,7 +179,7 @@ export default function HomePage() {
         setLoadingProperties(true);
         const response = await propertiesApi.getAll({
           page: 1,
-          limit: 15,
+          limit: 10,
           status: "approved",
           sort: "-createdAt", // Sort by most recent first
         });
@@ -212,7 +212,7 @@ export default function HomePage() {
         setLoadingServices(true);
         const response = await servicesApi.getAll({
           page: 1,
-          limit: 15,
+          limit: 10,
           status: "active",
           sort: "-createdAt", // Sort by most recent first
         });
@@ -311,9 +311,9 @@ export default function HomePage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-10">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 gap-y-6 sm:gap-x-6 sm:gap-y-10">
             {properties.map((property) => (
-              <PropertyCard key={property.id} p={property} />
+              <PropertyCard key={property.id} p={property} compact />
             ))}
           </div>
         )}
@@ -363,9 +363,9 @@ export default function HomePage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-10">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 gap-y-6 sm:gap-x-6 sm:gap-y-10">
             {services.map((service) => (
-              <ServiceCard key={service.id} service={service} />
+              <ServiceCard key={service.id} service={service} compact />
             ))}
           </div>
         )}

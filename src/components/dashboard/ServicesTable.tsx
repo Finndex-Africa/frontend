@@ -31,6 +31,11 @@ export function ServicesTable({
     onReject,
     approvingId,
 }: ServicesTableProps) {
+    /** Moderation queue: listing hidden until approved again after edits or new submissions */
+    const needsModeration = (record: Service) =>
+        record.status !== 'rejected' &&
+        (record.status === 'pending' || record.verificationStatus === 'pending');
+
     const getStatusColor = (status: Service['status']) => {
         switch (status) {
             case 'active':
@@ -53,11 +58,10 @@ export function ServicesTable({
     const columns: ColumnsType<Service> = [
         {
             title: 'Service',
-            dataIndex: 'name',
-            key: 'name',
-            render: (name, record) => (
+            key: 'title',
+            render: (_, record) => (
                 <div>
-                    <div className="font-medium text-gray-900">{name}</div>
+                    <div className="font-medium text-gray-900">{record.title}</div>
                     <div className="text-sm text-gray-500">{record.category}</div>
                 </div>
             ),
@@ -66,6 +70,14 @@ export function ServicesTable({
             title: 'Provider',
             dataIndex: 'provider',
             key: 'provider',
+            render: (provider: Service['provider']) => {
+                if (!provider) return '—';
+                if (typeof provider === 'string') return provider;
+                if (typeof provider === 'object' && provider !== null && 'name' in provider) {
+                    return String((provider as { name?: string }).name || '—');
+                }
+                return '—';
+            },
         },
         {
             title: 'Price',
@@ -109,11 +121,12 @@ export function ServicesTable({
         {
             title: 'Actions',
             key: 'actions',
-            render: (_, record) => (
-                <Space size="small">
-                    {record.status === 'pending' && onApprove && onReject ? (
-                        <>
-                            <Tooltip title="Approve">
+            render: (_, record) => {
+                const queue = needsModeration(record);
+                return (
+                    <Space size="small" wrap>
+                        {queue && onApprove && (
+                            <Tooltip title="Approve & publish">
                                 <Button
                                     type="primary"
                                     size="small"
@@ -128,6 +141,8 @@ export function ServicesTable({
                                     Approve
                                 </Button>
                             </Tooltip>
+                        )}
+                        {queue && onReject && (
                             <Tooltip title="Reject">
                                 <Button
                                     danger
@@ -138,35 +153,30 @@ export function ServicesTable({
                                     Reject
                                 </Button>
                             </Tooltip>
-                        </>
-                    ) : (
-                        <>
+                        )}
+                        {onView && (
                             <Tooltip title="View">
-                                <Button
-                                    type="text"
-                                    icon={<EyeOutlined />}
-                                    onClick={() => onView?.(record)}
-                                />
+                                <Button type="text" icon={<EyeOutlined />} onClick={() => onView(record)} />
                             </Tooltip>
+                        )}
+                        {onEdit && (
                             <Tooltip title="Edit">
-                                <Button
-                                    type="text"
-                                    icon={<EditOutlined />}
-                                    onClick={() => onEdit?.(record)}
-                                />
+                                <Button type="text" icon={<EditOutlined />} onClick={() => onEdit(record)} />
                             </Tooltip>
+                        )}
+                        {onDelete && (
                             <Tooltip title="Delete">
                                 <Button
                                     type="text"
                                     danger
                                     icon={<DeleteOutlined />}
-                                    onClick={() => onDelete?.(record)}
+                                    onClick={() => onDelete(record)}
                                 />
                             </Tooltip>
-                        </>
-                    )}
-                </Space>
-            ),
+                        )}
+                    </Space>
+                );
+            },
         },
     ];
 
