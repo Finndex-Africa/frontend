@@ -30,6 +30,7 @@ export default function ProfilePage() {
         lastName: '',
         phone: '',
         avatar: '',
+        website: '',
     });
 
     // Provider form states
@@ -44,6 +45,7 @@ export default function ProfilePage() {
         description: '',
         logoUrl: '',
         imageUrl: '',
+        website: '',
     });
 
     // Password form states
@@ -75,6 +77,7 @@ export default function ProfilePage() {
                     lastName: parsedUser.lastName || '',
                     phone: parsedUser.phone || '',
                     avatar: parsedUser.avatar || '',
+                    website: parsedUser.website || '',
                 });
 
                 // Fetch service provider profile if user is a service provider
@@ -94,6 +97,7 @@ export default function ProfilePage() {
                                 description: response.data.description || '',
                                 logoUrl: response.data.logoUrl || '',
                                 imageUrl: response.data.imageUrl || '',
+                                website: response.data.website || '',
                             });
                         }
                     } catch (error) {
@@ -172,12 +176,24 @@ export default function ProfilePage() {
             setError('');
             setSuccess('');
 
-            const response = await usersApi.updateProfile({
+            const profilePayload: {
+                firstName: string;
+                lastName: string;
+                phone: string;
+                avatar: string;
+                website?: string;
+            } = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 phone: formData.phone,
                 avatar: formData.avatar,
-            });
+            };
+
+            if (user?.role === 'provider' || user?.userType === 'service_provider') {
+                profilePayload.website = formData.website;
+            }
+
+            const response = await usersApi.updateProfile(profilePayload);
 
             // Update localStorage with new data
             const updatedUser = { ...user, ...response.data };
@@ -235,6 +251,7 @@ export default function ProfilePage() {
             lastName: user.lastName || '',
             phone: user.phone || '',
             avatar: user.avatar || '',
+            website: user.website || '',
         });
         setError('');
         setSuccess('');
@@ -466,6 +483,42 @@ export default function ProfilePage() {
                                         )}
                                     </div>
 
+                                    {(user?.role === 'provider' || user?.userType === 'service_provider') && !providerProfile && (
+                                        <div className="group md:col-span-2">
+                                            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                                                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                                                </svg>
+                                                Website <span className="text-gray-400 font-normal">(optional)</span>
+                                            </label>
+                                            {isEditing ? (
+                                                <input
+                                                    type="url"
+                                                    name="website"
+                                                    value={formData.website}
+                                                    onChange={handleInputChange}
+                                                    placeholder="https://yourbusiness.com"
+                                                    className="w-full px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                                />
+                                            ) : (
+                                                <div className="flex items-center gap-3 px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl group-hover:border-blue-300 transition-colors">
+                                                    {formData.website ? (
+                                                        <a
+                                                            href={formData.website.startsWith('http') ? formData.website : `https://${formData.website}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="text-blue-600 hover:text-blue-700 font-medium truncate"
+                                                        >
+                                                            {formData.website}
+                                                        </a>
+                                                    ) : (
+                                                        <span className="text-gray-400 italic">No website added</span>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
                                     <div className="group">
                                         <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
                                             <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -593,6 +646,39 @@ export default function ProfilePage() {
                                         <div className="group">
                                             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
                                                 <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                                                </svg>
+                                                Website
+                                            </label>
+                                            {isEditingProvider ? (
+                                                <input
+                                                    type="url"
+                                                    value={providerFormData.website || ''}
+                                                    onChange={(e) => setProviderFormData(prev => ({ ...prev, website: e.target.value }))}
+                                                    placeholder="https://yourbusiness.com"
+                                                    className="w-full px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                                />
+                                            ) : (
+                                                <div className="flex items-center gap-3 px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl group-hover:border-purple-300 transition-colors">
+                                                    {providerProfile.website ? (
+                                                        <a
+                                                            href={providerProfile.website.startsWith('http') ? providerProfile.website : `https://${providerProfile.website}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="text-blue-600 hover:text-blue-700 font-medium truncate"
+                                                        >
+                                                            {providerProfile.website}
+                                                        </a>
+                                                    ) : (
+                                                        <span className="text-gray-400 italic">No website added</span>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="group">
+                                            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                                                <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                                                 </svg>
                                                 Verification Status
@@ -695,6 +781,7 @@ export default function ProfilePage() {
                                                             description: providerProfile.description || '',
                                                             logoUrl: providerProfile.logoUrl || '',
                                                             imageUrl: providerProfile.imageUrl || '',
+                                                            website: providerProfile.website || '',
                                                         });
                                                     }
                                                 }}

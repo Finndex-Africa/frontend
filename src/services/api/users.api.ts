@@ -52,7 +52,7 @@ export const usersApi = {
     },
 
     // Update current user profile
-    updateProfile: async (data: { firstName?: string; lastName?: string; phone?: string; avatar?: string }) => {
+    updateProfile: async (data: { firstName?: string; lastName?: string; phone?: string; avatar?: string; website?: string }) => {
         return apiClient.put<User>('/users/profile', data);
     },
 

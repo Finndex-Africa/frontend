@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { serviceProvidersApi, type OnboardProviderDto } from '@/services/api/service-providers.api';
 
 interface ServiceProviderOnboardingProps {
@@ -34,7 +34,25 @@ export default function ServiceProviderOnboarding({ isOpen, onClose, onSuccess }
         experience: 0,
         certifications: [],
         description: '',
+        website: '',
     });
+
+    useEffect(() => {
+        if (!isOpen) return;
+        try {
+            const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+            if (userStr) {
+                const userData = JSON.parse(userStr);
+                setFormData(prev => ({
+                    ...prev,
+                    phone: prev.phone || userData.phone || '',
+                    website: prev.website || userData.website || '',
+                }));
+            }
+        } catch {
+            // ignore
+        }
+    }, [isOpen]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -258,6 +276,18 @@ export default function ServiceProviderOnboarding({ isOpen, onClose, onSuccess }
                                     value={formData.whatsapp}
                                     onChange={handleInputChange}
                                     placeholder="+254..."
+                                    className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">Website (Optional)</label>
+                                <input
+                                    type="url"
+                                    name="website"
+                                    value={formData.website || ''}
+                                    onChange={handleInputChange}
+                                    placeholder="https://yourbusiness.com"
                                     className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                                 />
                             </div>

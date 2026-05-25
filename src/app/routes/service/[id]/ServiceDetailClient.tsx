@@ -14,6 +14,7 @@ import ChatBox from "@/components/dashboard/ChatBox";
 import ReviewsList from "@/components/reviews/ReviewsList";
 import { isUserVerifiedByAdmin } from "@/lib/user-verification";
 import { getUserDisplayName } from '@/lib/display-name';
+import { serviceProvidersApi, type ServiceProviderProfile } from '@/services/api/service-providers.api';
 
 const LOCAL_SERVICE_IMAGE = '/images/services/cleaning1.jpeg';
 
@@ -36,6 +37,7 @@ export default function ServiceDetail() {
         serviceLocation: '',
         notes: ''
     });
+    const [providerProfile, setProviderProfile] = useState<ServiceProviderProfile | null>(null);
 
     useEffect(() => {
         // Get current user from storage
@@ -70,12 +72,43 @@ export default function ServiceDetail() {
             const { data } = await servicesApi.getById(serviceId);
             setService(data);
             setError(null);
+
+            const providerUserId = extractProviderUserId(data);
+            if (providerUserId) {
+                try {
+                    const providerResponse = await serviceProvidersApi.getByUserId(providerUserId);
+                    if (providerResponse.data) {
+                        setProviderProfile(providerResponse.data);
+                    }
+                } catch {
+                    setProviderProfile(null);
+                }
+            } else {
+                setProviderProfile(null);
+            }
         } catch (error) {
             console.error('Error fetching service:', error);
             setError('Failed to load service details. Please try again later.');
         } finally {
             setLoading(false);
         }
+    };
+
+    const extractProviderUserId = (serviceData: ApiService): string => {
+        const svc = serviceData as ApiService & {
+            providerId?: string | { _id?: string; id?: string };
+            provider?: string | { _id?: string; id?: string };
+            agentId?: string | { _id?: string; id?: string };
+            landlordId?: string | { _id?: string; id?: string };
+        };
+
+        const fromRef = (ref: typeof svc.providerId) => {
+            if (!ref) return '';
+            if (typeof ref === 'string') return ref;
+            return ref._id || ref.id || '';
+        };
+
+        return fromRef(svc.providerId) || fromRef(svc.provider) || fromRef(svc.agentId) || fromRef(svc.landlordId);
     };
 
     const handleBookService = () => {
@@ -367,6 +400,22 @@ export default function ServiceDetail() {
                                                             <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                                                         </svg>
                                                         {providerEmail}
+                                                    </p>
+                                                )}
+                                                {providerProfile?.website && (
+                                                    <p className="text-gray-500 text-xs mt-1 flex items-center gap-1">
+                                                        <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                                                        </svg>
+                                                        <a
+                                                            href={providerProfile.website.startsWith('http') ? providerProfile.website : `https://${providerProfile.website}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="text-blue-600 hover:text-blue-700 hover:underline truncate"
+                                                            onClick={(e) => e.stopPropagation()}
+                                                        >
+                                                            {providerProfile.website}
+                                                        </a>
                                                     </p>
                                                 )}
                                                 {providerIdValue && (

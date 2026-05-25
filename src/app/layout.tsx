@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import Navbar from "../components/global/Navbar";
+import ConditionalNavbar from "../components/global/ConditionalNavbar";
 import MobileBottomNav from "../components/global/MobileBottomNav";
 import ConditionalFooter from "../components/global/ConditionalFooter";
 import WhatsAppFloat from "../components/global/WhatsAppFloat";
@@ -109,7 +109,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <Providers>
-            <Navbar />
+            <ConditionalNavbar />
             <main className="min-h-screen pt-16 md:pt-0 pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
                 {children}
             </main>

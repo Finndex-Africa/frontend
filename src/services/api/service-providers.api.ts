@@ -17,6 +17,7 @@ export interface ServiceProviderProfile {
     verifiedAt?: string;
     logoUrl?: string;
     imageUrl?: string;
+    website?: string;
     rating: number;
     completedJobs: number;
     rejectionReason?: string;
@@ -36,6 +37,7 @@ export interface OnboardProviderDto {
     description: string;
     logoUrl?: string;
     imageUrl?: string;
+    website?: string;
 }
 
 export interface UpdateProviderDto {
@@ -50,6 +52,7 @@ export interface UpdateProviderDto {
     description?: string;
     logoUrl?: string;
     imageUrl?: string;
+    website?: string;
 }
 
 export const serviceProvidersApi = {
