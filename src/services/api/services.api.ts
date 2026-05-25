@@ -9,6 +9,7 @@ export interface ServiceFilters {
     minPrice?: number;
     maxPrice?: number;
     location?: string;
+    q?: string;
     verified?: boolean;
     sort?: string;
 }
@@ -43,6 +44,7 @@ export const servicesApi = {
         if (filters?.minPrice) params.append('minPrice', filters.minPrice.toString());
         if (filters?.maxPrice) params.append('maxPrice', filters.maxPrice.toString());
         if (filters?.location) params.append('location', filters.location);
+        if (filters?.q) params.append('q', filters.q);
         if (filters?.verified !== undefined) params.append('verified', filters.verified.toString());
         if (filters?.sort) params.append('sort', filters.sort);
 

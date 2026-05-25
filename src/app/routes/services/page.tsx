@@ -62,26 +62,25 @@ function ServicesContent() {
     // Search form state
     const [searchLocation, setSearchLocation] = useState('');
     const [searchType, setSearchType] = useState('');
-    const [searchBudget, setSearchBudget] = useState('');
+    const [searchServiceName, setSearchServiceName] = useState('');
 
     // Clear all filters
     const clearAllFilters = () => {
         setSearchLocation('');
         setSearchType('');
-        setSearchBudget('');
+        setSearchServiceName('');
         setPage(1);
         router.push('/routes/services');
     };
 
     // Remove a specific filter
-    const removeFilter = (filterName: 'location' | 'category' | 'maxPrice') => {
+    const removeFilter = (filterName: 'location' | 'category' | 'q') => {
         const params = new URLSearchParams(searchParams.toString());
         params.delete(filterName);
 
-        // Also clear the corresponding form state
         if (filterName === 'location') setSearchLocation('');
         if (filterName === 'category') setSearchType('');
-        if (filterName === 'maxPrice') setSearchBudget('');
+        if (filterName === 'q') setSearchServiceName('');
 
         setPage(1);
         const queryString = params.toString();
@@ -91,19 +90,19 @@ function ServicesContent() {
     // Get search parameters
     const locationParam = searchParams.get('location');
     const categoryParam = searchParams.get('category');
-    const maxPriceParam = searchParams.get('maxPrice');
+    const serviceNameParam = searchParams.get('q');
 
     // Sync form state with URL params on mount/change
     useEffect(() => {
         if (locationParam) setSearchLocation(locationParam);
         if (categoryParam) setSearchType(categoryParam);
-        if (maxPriceParam) setSearchBudget(maxPriceParam);
-    }, [locationParam, categoryParam, maxPriceParam]);
+        if (serviceNameParam) setSearchServiceName(serviceNameParam);
+    }, [locationParam, categoryParam, serviceNameParam]);
 
     useEffect(() => {
         fetchServices();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, searchLocation, searchType, searchBudget, locationParam, categoryParam, maxPriceParam]);
+    }, [page, searchLocation, searchType, searchServiceName, locationParam, categoryParam, serviceNameParam]);
 
     const fetchServices = async () => {
         try {
@@ -120,11 +119,11 @@ function ServicesContent() {
             // Use form state for real-time filtering, URL params take precedence if present
             const location = locationParam || searchLocation.trim();
             const category = categoryParam || searchType;
-            const maxPrice = maxPriceParam || searchBudget;
+            const serviceName = serviceNameParam || searchServiceName.trim();
 
             if (location) filters.location = location;
             if (category) filters.category = category;
-            if (maxPrice) filters.maxPrice = parseInt(maxPrice);
+            if (serviceName) filters.q = serviceName;
 
             const response = await servicesApi.getAll(filters);
 
@@ -164,7 +163,7 @@ function ServicesContent() {
         const params = new URLSearchParams();
         if (searchLocation.trim()) params.append('location', searchLocation.trim());
         if (searchType) params.append('category', searchType);
-        if (searchBudget) params.append('maxPrice', searchBudget);
+        if (searchServiceName.trim()) params.append('q', searchServiceName.trim());
 
         setPage(1);
         const queryString = params.toString();
@@ -179,8 +178,8 @@ function ServicesContent() {
         setSearchType(value);
     };
 
-    const handleBudgetChange = (value: string) => {
-        setSearchBudget(value);
+    const handleServiceNameChange = (value: string) => {
+        setSearchServiceName(value);
     };
 
     return (
@@ -254,24 +253,21 @@ function ServicesContent() {
                                     </select>
                                 </div>
 
-                                {/* Budget */}
+                                {/* Service Name */}
                                 <div>
                                     <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
                                         <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                         </svg>
-                                        Budget (USD)
+                                        Service Name
                                     </label>
-                                    <div className="relative">
-                                        <span className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium text-sm sm:text-base">$</span>
-                                        <input
-                                            type="number"
-                                            value={searchBudget}
-                                            onChange={(e) => handleBudgetChange(e.target.value)}
-                                            placeholder="Max budget"
-                                            className="w-full h-11 sm:h-12 pl-7 sm:pl-8 pr-3 sm:pr-4 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-600 bg-white placeholder-gray-400 hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                                        />
-                                    </div>
+                                    <input
+                                        type="text"
+                                        value={searchServiceName}
+                                        onChange={(e) => handleServiceNameChange(e.target.value)}
+                                        placeholder="Search by service name"
+                                        className="w-full h-11 sm:h-12 px-3 sm:px-4 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-600 bg-white placeholder-gray-400 hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                    />
                                 </div>
 
                                 {/* Search Button */}
@@ -289,7 +285,7 @@ function ServicesContent() {
             {/* Services Grid */}
             <div className="container-app pt-8 sm:pt-12 md:pt-32 pb-8 sm:pb-12 px-4">
                 {/* Show active filters */}
-                {(locationParam || categoryParam || maxPriceParam) && (
+                {(locationParam || categoryParam || serviceNameParam) && (
                     <div className="mb-4 sm:mb-6 bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
                         <div className="flex items-center justify-between mb-2">
                             <h3 className="font-semibold text-sm sm:text-base text-gray-900">Active Filters:</h3>
@@ -326,12 +322,12 @@ function ServicesContent() {
                                     </svg>
                                 </button>
                             )}
-                            {maxPriceParam && (
+                            {serviceNameParam && (
                                 <button
-                                    onClick={() => removeFilter('maxPrice')}
+                                    onClick={() => removeFilter('q')}
                                     className="bg-white px-3 py-1 rounded-full text-sm border border-blue-300 flex items-center gap-1.5 hover:bg-blue-100 transition-colors group"
                                 >
-                                    Max Budget: ${maxPriceParam}
+                                    Service: {serviceNameParam}
                                     <svg className="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                     </svg>

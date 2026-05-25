@@ -19,6 +19,7 @@ export interface User {
   /** Admin approval — only this should drive the platform "Verified" badge */
   verificationStatus?: 'pending' | 'verified' | 'rejected';
   phoneVerified: boolean;
+  website?: string;
   blocked: boolean;
   blockedReason?: string;
   blockedAt?: string;
