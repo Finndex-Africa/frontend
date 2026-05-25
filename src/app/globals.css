@@ -427,7 +427,7 @@ body:has(.auth-page-shell) {
 
 body:has(.auth-page-shell) main {
   min-height: 0;
-  height: calc(100dvh - 4rem);
+  height: 100dvh;
   overflow: hidden;
   padding-top: 0;
   padding-bottom: 0;
