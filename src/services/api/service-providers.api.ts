@@ -1,8 +1,18 @@
 import { apiClient } from '@/lib/api-client';
 
+export interface ServiceProviderProfileUser {
+    _id: string;
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    idVerified?: boolean;
+    idVerifiedAt?: string;
+}
+
 export interface ServiceProviderProfile {
     _id: string;
-    userId: string;
+    userId: string | ServiceProviderProfileUser;
     businessName: string;
     serviceTypes: string[];
     location: string;
@@ -12,8 +22,8 @@ export interface ServiceProviderProfile {
     certifications: string[];
     photos: string[];
     description: string;
-    verificationStatus: string;
-    verified: boolean;
+    verificationStatus?: string;
+    verified?: boolean;
     verifiedAt?: string;
     logoUrl?: string;
     imageUrl?: string;
