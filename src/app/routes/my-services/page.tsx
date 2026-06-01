@@ -125,7 +125,10 @@ export default function MyServicesPage() {
             fetchMyServices();
             showToast({
                 title: 'Success!',
-                description: 'Service created successfully',
+                description:
+                    createdService.status === 'pending'
+                        ? 'Service submitted! It will go live after admin approval.'
+                        : 'Service created successfully',
                 variant: 'success'
             });
         } catch (error: any) {
