@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { usersApi } from '@/services/api/users.api';
 import { mediaApi } from '@/services/api/media.api';
 import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
+import { getProviderProfileUser, isUserIdVerified } from '@/lib/user-verification';
 import { serviceProvidersApi, type ServiceProviderProfile, type UpdateProviderDto } from '@/services/api/service-providers.api';
 import ServiceProviderOnboarding from '@/components/ServiceProviderOnboarding';
 
@@ -684,17 +685,19 @@ export default function ProfilePage() {
                                                 Verification Status
                                             </label>
                                             <div className="flex items-center gap-3 px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl group-hover:border-purple-300 transition-colors">
-                                                <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                                                    providerProfile.verificationStatus === 'verified'
-                                                        ? 'bg-green-100 text-green-700'
-                                                        : providerProfile.verificationStatus === 'pending' || providerProfile.verificationStatus === 'pending_verification'
-                                                        ? 'bg-yellow-100 text-yellow-700'
-                                                        : 'bg-gray-100 text-gray-700'
-                                                }`}>
-                                                    {providerProfile.verificationStatus === 'verified'
-                                                        ? 'Verified'
-                                                        : (providerProfile.verificationStatus || 'Pending').replace(/_/g, ' ')}
-                                                </span>
+                                                {(() => {
+                                                    const profileUser = getProviderProfileUser(providerProfile, user);
+                                                    const idVerified = isUserIdVerified(profileUser);
+                                                    return (
+                                                        <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                                                            idVerified
+                                                                ? 'bg-green-100 text-green-700'
+                                                                : 'bg-amber-100 text-amber-700'
+                                                        }`}>
+                                                            {idVerified ? 'Verified' : 'Pending'}
+                                                        </span>
+                                                    );
+                                                })()}
                                             </div>
                                         </div>
 
