@@ -136,8 +136,8 @@ export default function PropertyCard({
     };
 
     const imageContainerClass = compact
-        ? "relative w-full rounded-2xl overflow-hidden shadow-sm aspect-[4/5] sm:aspect-[4/3] md:aspect-square mb-2"
-        : "relative w-full rounded-2xl overflow-hidden shadow-sm aspect-[4/5] md:aspect-square mb-3";
+        ? "relative w-full rounded-2xl overflow-hidden shadow-sm aspect-[5/4] sm:aspect-[4/3] md:aspect-square mb-2"
+        : "relative w-full rounded-2xl overflow-hidden shadow-sm aspect-[5/4] md:aspect-square mb-3";
 
     return (
         <Link href={`/routes/property/${p.id}`} className="group cursor-pointer block">

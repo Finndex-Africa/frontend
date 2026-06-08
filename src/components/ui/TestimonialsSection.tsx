@@ -2,6 +2,20 @@ import TestimonialCard from "./TestimonialCard";
 
 const testimonials = [
     {
+        name: "Aïssatou Diallo",
+        role: "Property Owner",
+        content: "FindAfriq made it incredibly easy to list my property. Within weeks, I had multiple interested tenants. The platform is user-friendly and the support team is excellent!",
+        rating: 5,
+        avatarUrl: "https://images.unsplash.com/photo-1769636930016-5d9f0ca653aa?auto=format&fit=crop&w=200&h=200&q=80",
+    },
+    {
+        name: "Fine Living Cleaning Service",
+        role: "Service Provider",
+        content: "Using FindAfriq has been smooth and easy. From creating our profile to listing our services, the platform made everything simple to navigate. We're excited about the visibility and opportunities it brings to our business.",
+        rating: 5,
+        avatarUrl: "/images/partners/fine living.jpeg",
+    },
+    {
         name: "A. Mohammed Kromah",
         role: "FindAfriq Agent",
         content:
@@ -32,7 +46,7 @@ export default function TestimonialsSection() {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {testimonials.map((testimonial, index) => (
                         <TestimonialCard key={index} {...testimonial} />
                     ))}

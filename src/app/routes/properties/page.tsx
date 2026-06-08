@@ -285,7 +285,7 @@ function PropertiesContent() {
                 </div>
             </section>
 
-            <div className="relative z-[5] mt-4 sm:mt-6 md:mt-28 pb-4">
+            <div className="relative z-[5] mt-10 sm:mt-12 md:mt-28 pb-4">
                 <VerifiedTrustedBanner />
             </div>
 

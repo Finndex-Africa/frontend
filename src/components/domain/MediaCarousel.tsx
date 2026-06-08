@@ -82,7 +82,7 @@ export default function MediaCarousel({ media }: MediaCarouselProps) {
             {/* Mobile — swipeable carousel */}
             <div className="md:hidden">
                 <div
-                    className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gray-100"
+                    className="relative aspect-[5/4] rounded-2xl overflow-hidden bg-gray-100"
                     onTouchStart={handleTouchStart}
                     onTouchEnd={handleTouchEnd}
                     onClick={() => openLightbox(currentImageIndex)}
@@ -144,7 +144,7 @@ export default function MediaCarousel({ media }: MediaCarouselProps) {
                                 key={`thumb-${item.src}-${index}`}
                                 type="button"
                                 onClick={() => goTo(index)}
-                                className={`relative aspect-[4/3] flex-1 overflow-hidden rounded-xl bg-gray-100 transition-all ${
+                                className={`relative aspect-[5/4] flex-1 overflow-hidden rounded-xl bg-gray-100 transition-all ${
                                     index === currentImageIndex
                                         ? "ring-2 ring-blue-600 ring-offset-1"
                                         : "opacity-90"
@@ -162,7 +162,7 @@ export default function MediaCarousel({ media }: MediaCarouselProps) {
                             <button
                                 type="button"
                                 onClick={() => openLightbox(THUMB_VISIBLE)}
-                                className="relative aspect-[4/3] flex-1 overflow-hidden rounded-xl bg-gray-100"
+                                className="relative aspect-[5/4] flex-1 overflow-hidden rounded-xl bg-gray-100"
                             >
                                 <SafeImage
                                     src={media[THUMB_VISIBLE].src}
