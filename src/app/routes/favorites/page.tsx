@@ -33,6 +33,7 @@ function adaptPropertyToCard(apiProperty: ApiProperty): Property {
         location: apiProperty.location,
         price: `$${apiProperty.price}`,
         imageUrl: apiProperty.images?.[0] || defaultPropertyImage,
+        imageUrls: apiProperty.images?.length ? apiProperty.images : [defaultPropertyImage],
         amenities,
         rating: apiProperty.rating ? Number(apiProperty.rating.toFixed(2)) : undefined,
         distance: undefined,

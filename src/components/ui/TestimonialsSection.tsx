@@ -2,33 +2,21 @@ import TestimonialCard from "./TestimonialCard";
 
 const testimonials = [
     {
-        name: "Aïssatou Diallo",
-        role: "Property Owner",
-        content: "FindAfriq made it incredibly easy to list my property. Within weeks, I had multiple interested tenants. The platform is user-friendly and the support team is excellent!",
+        name: "A. Mohammed Kromah",
+        role: "FindAfriq Agent",
+        content:
+            "My experience with FindAfriq has been great. The platform has helped me connect landlords with people searching for apartments and rooms while improving my communication and networking skills. I'm proud to be part of the team and excited to continue growing with FindAfriq.",
         rating: 5,
-        avatarUrl: "https://images.unsplash.com/photo-1769636930016-5d9f0ca653aa?auto=format&fit=crop&w=200&h=200&q=80"
+        avatarUrl: "/images/testimonials/Mohammed.jpeg",
     },
     {
-        name: "Fine Living Cleaning Service",
-        role: "Service Provider",
-        content: "Using FindAfriq has been smooth and easy. From creating our profile to listing our services, the platform made everything simple to navigate. We're excited about the visibility and opportunities it brings to our business.",
+        name: "Lawrence S.D. Daywhea",
+        role: "FindAfriq Agent",
+        content:
+            "Being a verified agent has shown me the opportunities digital platforms create. I'm grateful to be part of FindAfriq and committed to supporting its mission of connecting people with verified properties including apartments and offices.",
         rating: 5,
-        avatarUrl: "/images/partners/fine living.jpeg"
+        avatarUrl: "/images/testimonials/lawrence.jpeg",
     },
-    {
-        name: "Aminata Kamara",
-        role: "Home Seeker",
-        content: "Finding a home in Monrovia was stressful until I discovered FindAfriq. The search filters made it easy to find exactly what I needed, and all properties were verified!",
-        rating: 5,
-        avatarUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&h=200&q=80"
-    },
-    {
-        name: "Nia Okafor",
-        role: "Property Manager",
-        content: "Managing multiple properties became much simpler with FindAfriq. The dashboard is intuitive and I can track everything in one place.",
-        rating: 5,
-        avatarUrl: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=200&h=200&q=80"
-    }
 ];
 
 export default function TestimonialsSection() {
@@ -44,12 +32,9 @@ export default function TestimonialsSection() {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
                     {testimonials.map((testimonial, index) => (
-                        <TestimonialCard
-                            key={index}
-                            {...testimonial}
-                        />
+                        <TestimonialCard key={index} {...testimonial} />
                     ))}
                 </div>
             </div>

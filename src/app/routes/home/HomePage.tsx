@@ -5,6 +5,7 @@ import PropertyCard, {
 } from "../../../components/domain/PropertyCard";
 import ServiceCard, { Service } from "../../../components/domain/ServiceCard";
 import SearchBar from "../../../components/ui/SearchBar";
+import VerifiedTrustedBanner from "../../../components/ui/VerifiedTrustedBanner";
 import AdvertisementBanner from "../../../components/ui/AdvertisementBanner";
 import TestimonialsSection from "../../../components/ui/TestimonialsSection";
 import PartnerLogos from "../../../components/ui/PartnerLogos";
@@ -64,6 +65,7 @@ const adaptPropertyToCard = (apiProperty: ApiProperty): Property => {
     location: apiProperty.location,
     price: `$${apiProperty.price}`,
     imageUrl: apiProperty.images?.[0] || defaultImage,
+    imageUrls: apiProperty.images?.length ? apiProperty.images : [defaultImage],
     amenities,
     rating: apiProperty.rating
       ? Number(apiProperty.rating.toFixed(2))
@@ -275,6 +277,10 @@ export default function HomePage() {
         </div>
       </section>
 
+      <div className="relative z-[5] mt-4 sm:mt-6 md:mt-28 pb-4">
+        <VerifiedTrustedBanner />
+      </div>
+
       {/* Trusted by Leading Organizations and Service Providers - disabled for now */}
       {false && (
         <section className="container-app pt-40 sm:pt-44 md:pt-48 pb-6">
@@ -285,11 +291,8 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* Spacer — matches top padding after hero on Properties page */}
-      <div className="pt-8 sm:pt-12 md:pt-32" aria-hidden="true" />
-
       {/* Property Grid */}
-      <div className="container-app py-12">
+      <div className="container-app pt-6 pb-12">
         <h2 className="text-2xl font-semibold text-gray-900 mb-8">
           Explore available properties
         </h2>

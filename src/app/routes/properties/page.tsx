@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import PropertyCard, { Property } from "../../../components/domain/PropertyCard";
+import VerifiedTrustedBanner from "../../../components/ui/VerifiedTrustedBanner";
 import Pagination from "../../../components/ui/Pagination";
 import { propertiesApi } from "@/services/api";
 import { Property as ApiProperty } from "@/types/dashboard";
@@ -42,6 +43,7 @@ const adaptPropertyToCard = (apiProperty: ApiProperty): Property => {
         location: apiProperty.location,
         price: `$${apiProperty.price}`,
         imageUrl: apiProperty.images?.[0] || defaultImage,
+        imageUrls: apiProperty.images?.length ? apiProperty.images : [defaultImage],
         amenities,
         rating: apiProperty.rating ? Number(apiProperty.rating.toFixed(2)) : undefined,
         distance: undefined,
@@ -283,8 +285,12 @@ function PropertiesContent() {
                 </div>
             </section>
 
+            <div className="relative z-[5] mt-4 sm:mt-6 md:mt-28 pb-4">
+                <VerifiedTrustedBanner />
+            </div>
+
             {/* Properties Grid */}
-            <div className="container-app pt-8 sm:pt-12 md:pt-32 pb-8 sm:pb-12 px-4">
+            <div className="container-app pt-6 pb-8 sm:pb-12 px-4">
                 {/* Show active filters */}
                 {(locationParam || typeParam || maxPriceParam) && (
                     <div className="mb-4 sm:mb-6 bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
