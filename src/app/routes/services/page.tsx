@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import ServiceCard, { Service } from "../../../components/domain/ServiceCard";
+import VerifiedTrustedBanner from "../../../components/ui/VerifiedTrustedBanner";
 import Pagination from "../../../components/ui/Pagination";
 import { servicesApi } from "@/services/api";
 import { Service as ApiService } from "@/types/dashboard";
@@ -282,8 +283,12 @@ function ServicesContent() {
                 </div>
             </section>
 
+            <div className="relative z-[5] mt-10 sm:mt-12 md:mt-28 pb-4">
+                <VerifiedTrustedBanner />
+            </div>
+
             {/* Services Grid */}
-            <div className="container-app pt-8 sm:pt-12 md:pt-32 pb-8 sm:pb-12 px-4">
+            <div className="container-app pt-6 pb-8 sm:pb-12 px-4">
                 {/* Show active filters */}
                 {(locationParam || categoryParam || serviceNameParam) && (
                     <div className="mb-4 sm:mb-6 bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
