@@ -24,7 +24,7 @@ const expectedSubmitData = {
     location: "Nairobi, Kenya",
     price: 50000,
     propertyType: "Apartment", // Mapped from type
-    rooms: 2, // Mapped from bedrooms
+    bedrooms: 2,
     bathrooms: 1,
     area: 100,
     furnished: true,
@@ -38,14 +38,14 @@ console.log("Expected Submit Data:", expectedSubmitData);
 // Verify mapping
 const mappingCorrect = 
     expectedSubmitData.propertyType === formData.type &&
-    expectedSubmitData.rooms === formData.bedrooms;
+    expectedSubmitData.bedrooms === formData.bedrooms;
 
 console.log("Mapping Correct:", mappingCorrect);
 
 /**
  * CRITICAL MAPPINGS:
  * - form.type -> api.propertyType
- * - form.bedrooms -> api.rooms
+ * - form.bedrooms -> api.bedrooms
  * 
  * All other fields should match exactly
  */

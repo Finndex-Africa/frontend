@@ -34,7 +34,9 @@ export default function PropertyCard({
     // Format price with thousand separators
     const formatPrice = (price: string) => {
         const numericPrice = price.replace(/[^0-9]/g, '');
-        return '$' + parseInt(numericPrice).toLocaleString();
+        const value = parseInt(numericPrice, 10);
+        if (!Number.isFinite(value)) return 'Price unavailable';
+        return '$' + value.toLocaleString();
     };
 
     return (

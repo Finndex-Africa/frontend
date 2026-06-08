@@ -281,6 +281,11 @@ export default function MyServicesPage() {
         setDeleteConfirm(serviceId);
     };
 
+    const getStatusLabel = (status: string) => {
+        if (status === 'pending') return 'Under Review';
+        return status.charAt(0).toUpperCase() + status.slice(1);
+    };
+
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'active':
@@ -486,7 +491,7 @@ export default function MyServicesPage() {
                                             </div>
                                             <div className="flex items-center gap-2 ml-4">
                                                 <span className={`px-3 py-1.5 rounded-full text-xs font-bold ${getStatusColor(service.status || 'pending')} shadow-sm`}>
-                                                    {service.status ? service.status.charAt(0).toUpperCase() + service.status.slice(1) : 'Pending'}
+                                                    {getStatusLabel(service.status || 'pending')}
                                                 </span>
                                             </div>
                                         </div>
@@ -658,9 +663,23 @@ export default function MyServicesPage() {
                                 <div>
                                     <h3 className="text-2xl font-bold text-gray-900 mb-2">{selectedService.title}</h3>
                                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(selectedService.status || 'pending')}`}>
-                                        {selectedService.status ? selectedService.status.charAt(0).toUpperCase() + selectedService.status.slice(1) : 'Pending'}
+                                        {getStatusLabel(selectedService.status || 'pending')}
                                     </span>
                                 </div>
+
+                                {selectedService.status === 'rejected' && (
+                                    <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+                                        <p className="text-xs font-semibold text-red-800 uppercase tracking-wide mb-1">
+                                            Rejection Reason
+                                        </p>
+                                        <p className="text-sm text-red-900 leading-relaxed">
+                                            {typeof selectedService.rejectionReason === 'string' &&
+                                            selectedService.rejectionReason.trim()
+                                                ? selectedService.rejectionReason.trim()
+                                                : 'No rejection reason was provided. Please contact support for details.'}
+                                        </p>
+                                    </div>
+                                )}
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>

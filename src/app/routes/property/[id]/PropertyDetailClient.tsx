@@ -15,6 +15,7 @@ import ChatBox from "@/components/dashboard/ChatBox";
 import ReviewsList from "@/components/reviews/ReviewsList";
 import { isUserVerifiedByAdmin } from "@/lib/user-verification";
 import { getUserDisplayName } from '@/lib/display-name';
+import { getPropertyOwnerRegistrationLabel } from '@/lib/user-type-label';
 
 const LOCAL_PROPERTY_IMAGE = '/images/properties/pexels-photo-323780.jpeg';
 
@@ -527,7 +528,7 @@ export default function PropertyDetail() {
                                                     )}
                                                 </div>
                                                 <p className="text-gray-500 text-xs">
-                                                    Registered {property.agentId ? 'agent' : 'landlord'} on FindAfriq
+                                                    Registered {getPropertyOwnerRegistrationLabel(property)} on FindAfriq
                                                 </p>
                                                 {ownerEmail ? (
                                                     <p className="text-gray-500 text-xs mt-1 truncate">{ownerEmail}</p>

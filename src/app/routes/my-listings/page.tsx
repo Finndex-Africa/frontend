@@ -22,6 +22,11 @@ function getPropertyTypeLabel(p: ApiProperty): string {
   return (p.propertyType || p.type || "").trim() || "—";
 }
 
+function getStatusLabel(status: string): string {
+  if (status === "pending") return "Under Review";
+  return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
 /** Amenity rows from API (objects with label, optional icon); skips empty arrays / invalid items. */
 function getAmenityRowsFromApi(
   property: ApiProperty,
@@ -188,6 +193,16 @@ function EditPropertyModal({
       return;
     }
 
+    if (formData.bedrooms === undefined || formData.bedrooms === null) {
+      showToast.error("Please enter the number of bedrooms.");
+      return;
+    }
+
+    if (formData.bathrooms === undefined || formData.bathrooms === null) {
+      showToast.error("Please enter the number of bathrooms.");
+      return;
+    }
+
     setLoading(true);
     try {
       // Upload new images if any
@@ -214,15 +229,11 @@ function EditPropertyModal({
         propertyType: formData.propertyType || "",
         furnished:
           formData.furnished === undefined ? false : formData.furnished, // Always include furnished
+        bedrooms: Number(formData.bedrooms),
+        bathrooms: Number(formData.bathrooms),
       };
 
       // Add optional fields if they have values
-      if (formData.bedrooms !== undefined && formData.bedrooms !== null) {
-        submitData.rooms = Number(formData.bedrooms);
-      }
-      if (formData.bathrooms !== undefined && formData.bathrooms !== null) {
-        submitData.bathrooms = Number(formData.bathrooms);
-      }
       if (formData.area) {
         submitData.area = Number(formData.area);
       }
@@ -488,28 +499,32 @@ function EditPropertyModal({
           <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Bedrooms
+                Bedrooms <span className="text-red-500">*</span>
               </label>
               <input
                 type="number"
                 name="bedrooms"
-                value={formData.bedrooms || ""}
+                value={formData.bedrooms ?? ""}
                 onChange={handleChange}
+                required
+                min={0}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="0"
+                placeholder="e.g., 3"
               />
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Bathrooms
+                Bathrooms <span className="text-red-500">*</span>
               </label>
               <input
                 type="number"
                 name="bathrooms"
-                value={formData.bathrooms || ""}
+                value={formData.bathrooms ?? ""}
                 onChange={handleChange}
+                required
+                min={0}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="0"
+                placeholder="e.g., 2"
               />
             </div>
             <div>
@@ -596,7 +611,14 @@ function EditPropertyModal({
           </button>
           <button
             onClick={handleSubmit}
-            disabled={loading || listingImageTotal < MIN_PROPERTY_LISTING_IMAGES}
+            disabled={
+              loading ||
+              listingImageTotal < MIN_PROPERTY_LISTING_IMAGES ||
+              formData.bedrooms === undefined ||
+              formData.bedrooms === null ||
+              formData.bathrooms === undefined ||
+              formData.bathrooms === null
+            }
             className="flex-1 px-6 py-3 text-white bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading
@@ -634,15 +656,22 @@ function PropertyModal({
     return [];
   })();
 
+  const rejectionReason =
+    typeof property.rejectionReason === "string"
+      ? property.rejectionReason.trim()
+      : "";
+
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-in fade-in zoom-in duration-200">
-        {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-gray-900">{property.title}</h2>
+      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl animate-in fade-in zoom-in duration-200">
+        {/* Header — fixed; only the body below scrolls */}
+        <div className="shrink-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center rounded-t-2xl">
+          <h2 className="text-xl font-bold text-gray-900 pr-4 line-clamp-2">
+            {property.title}
+          </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-gray-500 hover:text-gray-700 transition-colors shrink-0"
           >
             <svg
               className="w-6 h-6"
@@ -661,7 +690,18 @@ function PropertyModal({
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 min-h-0">
+          {property.status === "rejected" && (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+              <p className="text-xs font-semibold text-red-800 uppercase tracking-wide mb-1">
+                Rejection Reason
+              </p>
+              <p className="text-sm text-red-900 leading-relaxed">
+                {rejectionReason ||
+                  "No rejection reason was provided. Please contact support for details."}
+              </p>
+            </div>
+          )}
           {/* Property photos */}
           {imageUrls.length > 0 ? (
             <div>
@@ -732,8 +772,7 @@ function PropertyModal({
                         : "bg-gray-100 text-gray-800"
                 }`}
               >
-                {property.status.charAt(0).toUpperCase() +
-                  property.status.slice(1)}
+                {getStatusLabel(property.status)}
               </span>
             </div>
           </div>
@@ -849,7 +888,7 @@ function PropertyModal({
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-4">
+        <div className="shrink-0 bg-gray-50 border-t border-gray-200 p-4 rounded-b-2xl">
           <button
             onClick={onClose}
             className="w-full px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-lg font-medium transition-colors"
@@ -905,9 +944,9 @@ export default function MyListingsPage() {
     fetchProperties();
   }, [router]);
 
-  const fetchProperties = async () => {
+  const fetchProperties = async (options?: { silent?: boolean }) => {
     try {
-      setIsLoading(true);
+      if (!options?.silent) setIsLoading(true);
       setError(null);
       const response = await propertiesApi.getMyProperties();
       setProperties(response.data || []);
@@ -921,7 +960,7 @@ export default function MyListingsPage() {
       );
       setProperties([]);
     } finally {
-      setIsLoading(false);
+      if (!options?.silent) setIsLoading(false);
     }
   };
 
@@ -978,15 +1017,11 @@ export default function MyListingsPage() {
       );
       console.log("Update response:", response);
 
-      // Update local state
-      setProperties(
-        properties.map((p) =>
-          p._id === selectedEditProperty._id ? { ...p, ...submitData } : p,
-        ),
-      );
+      await fetchProperties({ silent: true });
 
       setShowEditModal(false);
       setSelectedEditProperty(null);
+      showToast.success("Property updated successfully.");
     } catch (err: any) {
       console.error("Failed to update property:", err);
       showToast.error(
@@ -1411,8 +1446,7 @@ export default function MyListingsPage() {
                     <span
                       className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm ${getStatusColor(property.status)}`}
                     >
-                      {property.status.charAt(0).toUpperCase() +
-                        property.status.slice(1)}
+                      {getStatusLabel(property.status)}
                     </span>
                   </div>
                   {/* Image count badge */}

@@ -75,9 +75,12 @@ export function ServiceForm({
             return;
         }
 
+        const existingImageUrls = fileList
+            .filter((f) => f.status !== 'error' && f.url && !f.originFileObj)
+            .map((f) => f.url as string);
+
         console.log('🎯 About to call onSubmit (frontend)...');
-        // DON'T add existingImages here - let parent handle it!
-        onSubmit(values, filesToUpload);
+        onSubmit({ ...values, existingImages: existingImageUrls }, filesToUpload);
         console.log('✅ onSubmit called!');
     };
 
