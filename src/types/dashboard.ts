@@ -22,6 +22,7 @@ export interface Service {
     price?: number;
     priceUnit?: string;
     status: 'pending' | 'active' | 'rejected' | 'inactive';
+    rejectionReason?: string;
     verified?: boolean;
     verificationStatus?: 'pending' | 'verified' | 'rejected';
     rating?: number;
@@ -42,6 +43,7 @@ export interface Property {
     location: string;
     price: number;
     status: 'pending' | 'approved' | 'rejected' | 'rented' | 'archived' | 'suspended';
+    rejectionReason?: string;
     bedrooms?: number;
     bathrooms?: number;
     rooms?: number;

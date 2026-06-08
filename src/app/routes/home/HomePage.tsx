@@ -18,6 +18,7 @@ import {
   Service as ApiService,
 } from "@/types/dashboard";
 import { useAuth } from "@/providers";
+import { normalizeApiEntityList } from "@/lib/normalize-api-entity";
 
 const partnerLogos = [
   { name: "Partner 1", logoUrl: "/images/partners/partner1.jpeg" },
@@ -184,7 +185,9 @@ export default function HomePage() {
           sort: "-createdAt", // Sort by most recent first
         });
         // Handle both response structures: response.data.data or response.data
-        const propertiesData = response.data?.data || response.data;
+        const propertiesData = normalizeApiEntityList<ApiProperty>(
+          response.data?.data || response.data,
+        );
         const adaptedProperties = propertiesData.map(adaptPropertyToCard);
         setProperties(adaptedProperties);
         setPropertiesError(null);

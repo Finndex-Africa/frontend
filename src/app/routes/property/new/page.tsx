@@ -98,6 +98,16 @@ export default function NewPropertyPage() {
             return;
         }
 
+        if (formData.bedrooms === '') {
+            showToast.error('Please enter the number of bedrooms.');
+            return;
+        }
+
+        if (formData.bathrooms === '') {
+            showToast.error('Please enter the number of bathrooms.');
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -124,8 +134,8 @@ export default function NewPropertyPage() {
                 location: formData.location,
                 price: Number(formData.price),
                 propertyType: formData.propertyType,
-                bedrooms: formData.bedrooms ? Number(formData.bedrooms) : undefined,
-                bathrooms: formData.bathrooms ? Number(formData.bathrooms) : undefined,
+                bedrooms: Number(formData.bedrooms),
+                bathrooms: Number(formData.bathrooms),
                 area: formData.area ? Number(formData.area) : undefined,
                 furnished: formData.furnished,
                 images: imageUrls,
@@ -270,13 +280,14 @@ export default function NewPropertyPage() {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Bedrooms
+                                    Bedrooms <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="number"
                                     name="bedrooms"
                                     value={formData.bedrooms}
                                     onChange={handleChange}
+                                    required
                                     min="0"
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     placeholder="e.g., 3"
@@ -285,13 +296,14 @@ export default function NewPropertyPage() {
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Bathrooms
+                                    Bathrooms <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="number"
                                     name="bathrooms"
                                     value={formData.bathrooms}
                                     onChange={handleChange}
+                                    required
                                     min="0"
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     placeholder="e.g., 2"
@@ -398,7 +410,12 @@ export default function NewPropertyPage() {
                     <div className="flex items-center gap-4 pt-6 border-t border-gray-200">
                         <button
                             type="submit"
-                            disabled={loading || imageFiles.length < MIN_PROPERTY_LISTING_IMAGES}
+                            disabled={
+                                loading ||
+                                imageFiles.length < MIN_PROPERTY_LISTING_IMAGES ||
+                                formData.bedrooms === '' ||
+                                formData.bathrooms === ''
+                            }
                             className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                         >
                             {loading ? 'Creating...' : 'Create Property'}

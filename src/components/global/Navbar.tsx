@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from "react";
 import AdvertiseModal from "../modals/AdvertiseModal";
 import AgentApplicationModal from "../modals/AgentApplicationModal";
 import { useAuth } from "@/providers";
+import { getLoggedInUserTypeLabel } from "@/lib/user-type-label";
 import { notificationsApi } from "@/services/api/notifications.api";
 
 const DASHBOARD_URL =
@@ -38,6 +39,7 @@ export default function Navbar() {
   const [isMounted, setIsMounted] = useState(false);
   const [userName, setUserName] = useState("User");
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
+  const [userType, setUserType] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
@@ -59,15 +61,21 @@ export default function Navbar() {
     const user = localStorage.getItem("user") || sessionStorage.getItem("user");
     setIsLoggedIn(!!token && role !== "guest");
 
-    // Get user name and avatar
+    // Get user name, avatar, and userType (userType drives Agent vs Landlord label)
     if (user) {
       try {
         const userData = JSON.parse(user);
         setUserName(userData.firstName || "User");
         setUserAvatar(userData.avatar || null);
+        setUserType(
+          typeof userData.userType === "string" ? userData.userType : null,
+        );
       } catch (e) {
         console.error("Failed to parse user data:", e);
+        setUserType(null);
       }
+    } else {
+      setUserType(null);
     }
 
     // Fetch notifications if logged in
@@ -483,12 +491,8 @@ export default function Navbar() {
                           <p className="text-white font-semibold text-sm truncate">
                             {userName}
                           </p>
-                          <p className="text-blue-100 text-xs capitalize">
-                            {role === "home_seeker"
-                              ? "Home Seeker"
-                              : role === "provider"
-                                ? "Service Provider"
-                                : role}
+                          <p className="text-blue-100 text-xs">
+                            {getLoggedInUserTypeLabel(userType, role)}
                           </p>
                         </div>
                       </div>
@@ -1121,8 +1125,8 @@ export default function Navbar() {
                         <p className="text-sm font-semibold text-gray-900 truncate">
                           Hello, {userName}
                         </p>
-                        <p className="text-xs text-gray-600 mt-0.5 capitalize">
-                          {role?.replace("_", " ")}
+                        <p className="text-xs text-gray-600 mt-0.5">
+                          {getLoggedInUserTypeLabel(userType, role)}
                         </p>
                       </div>
                     </div>

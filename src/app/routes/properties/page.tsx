@@ -8,6 +8,7 @@ import Pagination from "../../../components/ui/Pagination";
 import { propertiesApi } from "@/services/api";
 import { Property as ApiProperty } from "@/types/dashboard";
 import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
+import { normalizeApiEntityList } from "@/lib/normalize-api-entity";
 
 // Adapter function to convert API data to component types
 const adaptPropertyToCard = (apiProperty: ApiProperty): Property => {
@@ -131,7 +132,9 @@ function PropertiesContent() {
             // Handle both response structures:
             // New: { success, data: [...], pagination: {...} }
             // Old: { success, data: { data: [...], pagination: {...} } }
-            const propertiesData = response.data?.data || response.data;
+            const propertiesData = normalizeApiEntityList<ApiProperty>(
+                response.data?.data || response.data,
+            );
             const paginationData = response.pagination || response.data?.pagination;
 
             const adaptedProperties = propertiesData.map(adaptPropertyToCard);
