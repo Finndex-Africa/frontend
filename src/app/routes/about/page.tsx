@@ -366,7 +366,7 @@ export default function About() {
                         </div>
                         <div className="rounded-xl border border-gray-200 p-5">
                             <div className="text-xs font-semibold text-gray-500 uppercase">Email</div>
-                            <div className="mt-2 font-semibold text-gray-900">findafriq@gmail.com</div>
+                            <div className="mt-2 font-semibold text-gray-900">info@findafriq.com</div>
                         </div>
                     </div>
                     <div className="mt-8 flex flex-wrap gap-3">

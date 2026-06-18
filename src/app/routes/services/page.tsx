@@ -4,6 +4,8 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import ServiceCard, { Service } from "../../../components/domain/ServiceCard";
+import SearchBar from "../../../components/ui/SearchBar";
+import HeroVerifiedBadge from "../../../components/ui/HeroVerifiedBadge";
 import VerifiedTrustedBanner from "../../../components/ui/VerifiedTrustedBanner";
 import Pagination from "../../../components/ui/Pagination";
 import { servicesApi } from "@/services/api";
@@ -93,38 +95,36 @@ function ServicesContent() {
     const categoryParam = searchParams.get('category');
     const serviceNameParam = searchParams.get('q');
 
-    // Sync form state with URL params on mount/change
+    // Sync form state with URL params
     useEffect(() => {
-        if (locationParam) setSearchLocation(locationParam);
-        if (categoryParam) setSearchType(categoryParam);
-        if (serviceNameParam) setSearchServiceName(serviceNameParam);
+        setSearchLocation(locationParam || '');
+        setSearchType(categoryParam || '');
+        setSearchServiceName(serviceNameParam || '');
+    }, [locationParam, categoryParam, serviceNameParam]);
+
+    useEffect(() => {
+        setPage(1);
     }, [locationParam, categoryParam, serviceNameParam]);
 
     useEffect(() => {
         fetchServices();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, searchLocation, searchType, searchServiceName, locationParam, categoryParam, serviceNameParam]);
+    }, [page, locationParam, categoryParam, serviceNameParam]);
 
     const fetchServices = async () => {
         try {
             setLoading(true);
 
-            // Build filters object
-            const filters: any = {
+            const filters: Record<string, unknown> = {
                 page,
                 limit,
                 status: 'active',
-                sort: '-createdAt'  // Sort by most recent first
+                sort: '-createdAt',
             };
 
-            // Use form state for real-time filtering, URL params take precedence if present
-            const location = locationParam || searchLocation.trim();
-            const category = categoryParam || searchType;
-            const serviceName = serviceNameParam || searchServiceName.trim();
-
-            if (location) filters.location = location;
-            if (category) filters.category = category;
-            if (serviceName) filters.q = serviceName;
+            if (locationParam) filters.location = locationParam;
+            if (categoryParam) filters.category = categoryParam;
+            if (serviceNameParam) filters.q = serviceNameParam;
 
             const response = await servicesApi.getAll(filters);
 
@@ -157,37 +157,11 @@ function ServicesContent() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-
-        // Build URL params from form state
-        const params = new URLSearchParams();
-        if (searchLocation.trim()) params.append('location', searchLocation.trim());
-        if (searchType) params.append('category', searchType);
-        if (searchServiceName.trim()) params.append('q', searchServiceName.trim());
-
-        setPage(1);
-        const queryString = params.toString();
-        router.push(`/routes/services${queryString ? `?${queryString}` : ''}`);
-    };
-
-    const handleLocationChange = (value: string) => {
-        setSearchLocation(value);
-    };
-
-    const handleTypeChange = (value: string) => {
-        setSearchType(value);
-    };
-
-    const handleServiceNameChange = (value: string) => {
-        setSearchServiceName(value);
-    };
-
     return (
         <div className="min-h-screen bg-white">
             {/* Hero Section with Search Overlay */}
-            <section className="relative h-[500px] sm:h-[450px] md:h-[400px] w-full overflow-visible pb-32 sm:pb-20 md:pb-0">
-                <div className="absolute inset-0 overflow-hidden h-[300px] sm:h-[350px] md:h-[400px]">
+            <section className="relative z-20 w-full overflow-visible pb-3 md:h-[400px] md:pb-0">
+                <div className="absolute inset-0 overflow-hidden">
                     <Image
                         src="/images/services/cleaning1.jpeg"
                         alt="Services Hero"
@@ -197,93 +171,29 @@ function ServicesContent() {
                     />
                     <div className="absolute inset-0 bg-black/40" />
                 </div>
-                <div className="relative z-[5] h-[300px] sm:h-[350px] md:h-[400px] flex flex-col items-center justify-center text-center text-white px-4">
-                    <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold max-w-4xl leading-tight mb-2 sm:mb-4">
+                <div className="relative z-[5] flex flex-col items-center justify-center px-4 pt-20 pb-2 text-center text-white md:h-[400px] md:pt-0 md:pb-0">
+                    <h1 className="mb-2 max-w-4xl text-xl font-extrabold leading-tight sm:text-3xl md:mb-4 md:text-5xl">
                         Find Trusted Services
                     </h1>
-                    <p className="text-base sm:text-lg md:text-xl text-white/90 mb-4 sm:mb-8">
+                    <p className="mb-2 text-sm text-white/90 sm:text-lg md:mb-4 md:text-xl">
                         Connect with verified service providers for all your needs
                     </p>
+                    <HeroVerifiedBadge />
                 </div>
 
-                {/* Search Bar Overlay - positioned to overlap on desktop, inline on mobile */}
-                <div className="absolute bottom-0 left-0 right-0 md:translate-y-1/2 z-[10] px-4">
+                <div className="relative z-30 isolate px-4 pb-3 md:absolute md:bottom-0 md:left-0 md:right-0 md:translate-y-1/2 md:pb-0">
                     <div className="container-app max-w-5xl mx-auto">
-                        <form onSubmit={handleSearch} className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 border border-gray-200">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 items-end">
-                                {/* Location */}
-                                <div>
-                                    <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
-                                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                        Location
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={searchLocation}
-                                        onChange={(e) => handleLocationChange(e.target.value)}
-                                        placeholder="City or area (e.g. Thinker's Village)"
-                                        className="w-full h-11 sm:h-12 px-3 sm:px-4 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-600 bg-white placeholder-gray-400 hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                                    />
-                                </div>
-
-                                {/* Service Type */}
-                                <div>
-                                    <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
-                                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                        </svg>
-                                        Service Type
-                                    </label>
-                                    <select
-                                        value={searchType}
-                                        onChange={(e) => handleTypeChange(e.target.value)}
-                                        className="w-full h-11 sm:h-12 px-3 sm:px-4 pr-8 sm:pr-10 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-600 bg-white appearance-none cursor-pointer hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                                    >
-                                        <option value="">Select type</option>
-                                        <option value="electrical">Electrical</option>
-                                        <option value="plumbing">Plumbing</option>
-                                        <option value="cleaning">Cleaning</option>
-                                        <option value="painting_decoration">Painting</option>
-                                        <option value="carpentry_furniture">Carpentry</option>
-                                        <option value="moving_logistics">Moving</option>
-                                        <option value="security_services">Security</option>
-                                        <option value="maintenance">Maintenance</option>
-                                    </select>
-                                </div>
-
-                                {/* Service Name */}
-                                <div>
-                                    <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
-                                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                        </svg>
-                                        Service Name
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={searchServiceName}
-                                        onChange={(e) => handleServiceNameChange(e.target.value)}
-                                        placeholder="Search by service name"
-                                        className="w-full h-11 sm:h-12 px-3 sm:px-4 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-600 bg-white placeholder-gray-400 hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                                    />
-                                </div>
-
-                                {/* Search Button */}
-                                <div className="sm:col-span-2 md:col-span-1">
-                                    <button type="submit" className="w-full h-11 sm:h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg text-sm sm:text-base">
-                                        Search
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
+                        <SearchBar
+                            variant="services"
+                            initialLocation={locationParam || ''}
+                            initialType={categoryParam || ''}
+                            initialServiceName={serviceNameParam || ''}
+                        />
                     </div>
                 </div>
             </section>
 
-            <div className="relative z-[5] mt-10 sm:mt-12 md:mt-28 pb-4">
+            <div className="relative z-0 mt-4 md:mt-28 pb-4">
                 <VerifiedTrustedBanner />
             </div>
 

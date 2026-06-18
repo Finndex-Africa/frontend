@@ -145,8 +145,8 @@ export default function PrivacyPolicyPage() {
             <LegalSection title="14. Contact">
                 <p>
                     Questions about privacy:{' '}
-                    <a href="mailto:findafriq@gmail.com" className="text-[#0000FF] font-medium hover:underline">
-                        findafriq@gmail.com
+                    <a href="mailto:info@findafriq.com" className="text-[#0000FF] font-medium hover:underline">
+                        info@findafriq.com
                     </a>
                 </p>
             </LegalSection>

@@ -1,4 +1,4 @@
-import { apiClient, PaginatedResponse } from '@/lib/api-client';
+import { apiClient, ApiSuccessResponse, PaginatedResponse } from '@/lib/api-client';
 import { Booking } from '@/types/dashboard';
 
 export interface BookingFilters {
@@ -8,6 +8,7 @@ export interface BookingFilters {
     userId?: string;
     serviceId?: string;
     providerId?: string;
+    scope?: 'customer' | 'provider';
 }
 
 export interface CreateBookingDto {
@@ -18,6 +19,35 @@ export interface CreateBookingDto {
     notes?: string;
     serviceLocation?: string;
     serviceAddress?: string;
+    providerId?: string;
+    paymentMethod?: string;
+}
+
+const PROVIDER_ROLES = new Set(['service_provider', 'provider', 'landlord', 'agent']);
+
+export function isProviderRole(role: string | undefined | null): boolean {
+    return PROVIDER_ROLES.has((role || '').toLowerCase());
+}
+
+export function parseBookingsList(response: ApiSuccessResponse<Booking[] | PaginatedResponse<Booking>>): Booking[] {
+    const payload = response.data;
+    if (Array.isArray(payload)) return payload;
+    if (payload && Array.isArray((payload as PaginatedResponse<Booking>).data)) {
+        return (payload as PaginatedResponse<Booking>).data;
+    }
+    return [];
+}
+
+function buildBookingQuery(filters?: BookingFilters): string {
+    const params = new URLSearchParams();
+    if (filters?.page) params.append('page', filters.page.toString());
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+    if (filters?.status) params.append('status', filters.status);
+    if (filters?.userId) params.append('userId', filters.userId);
+    if (filters?.serviceId) params.append('serviceId', filters.serviceId);
+    if (filters?.providerId) params.append('providerId', filters.providerId);
+    if (filters?.scope) params.append('scope', filters.scope);
+    return params.toString();
 }
 
 export interface UpdateBookingDto extends Partial<CreateBookingDto> {
@@ -25,17 +55,34 @@ export interface UpdateBookingDto extends Partial<CreateBookingDto> {
 }
 
 export const bookingsApi = {
-    // Get all bookings with filters and pagination
+    // Get all bookings with filters and pagination (admin / scoped queries)
     getAll: async (filters?: BookingFilters) => {
-        const params = new URLSearchParams();
-        if (filters?.page) params.append('page', filters.page.toString());
-        if (filters?.limit) params.append('limit', filters.limit.toString());
-        if (filters?.status) params.append('status', filters.status);
-        if (filters?.userId) params.append('userId', filters.userId);
-        if (filters?.serviceId) params.append('serviceId', filters.serviceId);
-        if (filters?.providerId) params.append('providerId', filters.providerId);
+        const query = buildBookingQuery(filters);
+        return apiClient.get<PaginatedResponse<Booking>>(`/bookings${query ? `?${query}` : ''}`);
+    },
 
-        return apiClient.get<PaginatedResponse<Booking>>(`/bookings?${params.toString()}`);
+    // Bookings the logged-in user made as a customer
+    getMyBookings: async (filters?: Omit<BookingFilters, 'scope' | 'providerId'>) => {
+        const query = buildBookingQuery(filters);
+        return apiClient.get<Booking[] | PaginatedResponse<Booking>>(
+            `/bookings/my-bookings${query ? `?${query}` : ''}`,
+        );
+    },
+
+    // Bookings sent to the logged-in provider/landlord/agent
+    getProviderBookings: async (filters?: Omit<BookingFilters, 'scope' | 'userId'>) => {
+        const query = buildBookingQuery(filters);
+        return apiClient.get<Booking[] | PaginatedResponse<Booking>>(
+            `/bookings/provider-bookings${query ? `?${query}` : ''}`,
+        );
+    },
+
+    // Fetch the correct list for the current user's role
+    getForCurrentUser: async (role: string | undefined | null, filters?: BookingFilters) => {
+        if (isProviderRole(role)) {
+            return bookingsApi.getProviderBookings(filters);
+        }
+        return bookingsApi.getMyBookings(filters);
     },
 
     // Get single booking by ID

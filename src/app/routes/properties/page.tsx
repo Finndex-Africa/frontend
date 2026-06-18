@@ -4,6 +4,8 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import PropertyCard, { Property } from "../../../components/domain/PropertyCard";
+import SearchBar from "../../../components/ui/SearchBar";
+import HeroVerifiedBadge from "../../../components/ui/HeroVerifiedBadge";
 import VerifiedTrustedBanner from "../../../components/ui/VerifiedTrustedBanner";
 import Pagination from "../../../components/ui/Pagination";
 import { propertiesApi } from "@/services/api";
@@ -96,38 +98,36 @@ function PropertiesContent() {
     const typeParam = searchParams.get('type');
     const maxPriceParam = searchParams.get('maxPrice');
 
-    // Sync form state with URL params on mount/change
+    // Sync form state with URL params
     useEffect(() => {
-        if (locationParam) setSearchLocation(locationParam);
-        if (typeParam) setSearchType(typeParam);
-        if (maxPriceParam) setSearchBudget(maxPriceParam);
+        setSearchLocation(locationParam || '');
+        setSearchType(typeParam || '');
+        setSearchBudget(maxPriceParam || '');
+    }, [locationParam, typeParam, maxPriceParam]);
+
+    useEffect(() => {
+        setPage(1);
     }, [locationParam, typeParam, maxPriceParam]);
 
     useEffect(() => {
         fetchProperties();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, searchLocation, searchType, searchBudget, locationParam, typeParam, maxPriceParam]);
+    }, [page, locationParam, typeParam, maxPriceParam]);
 
     const fetchProperties = async () => {
         try {
             setLoading(true);
 
-            // Build filters object
-            const filters: any = {
+            const filters: Record<string, unknown> = {
                 page,
                 limit,
                 status: 'approved',
-                sort: '-createdAt'  // Sort by most recent first
+                sort: '-createdAt',
             };
 
-            // Use form state for real-time filtering, URL params take precedence if present
-            const location = locationParam || searchLocation.trim();
-            const type = typeParam || searchType;
-            const maxPrice = maxPriceParam || searchBudget;
-
-            if (location) filters.location = location;
-            if (type) filters.propertyType = type;
-            if (maxPrice) filters.maxPrice = parseInt(maxPrice);
+            if (locationParam) filters.location = locationParam;
+            if (typeParam) filters.propertyType = typeParam;
+            if (maxPriceParam) filters.maxPrice = parseInt(maxPriceParam);
 
             const response = await propertiesApi.getAll(filters);
 
@@ -162,37 +162,11 @@ function PropertiesContent() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-
-        // Build URL params from form state
-        const params = new URLSearchParams();
-        if (searchLocation.trim()) params.append('location', searchLocation.trim());
-        if (searchType) params.append('type', searchType);
-        if (searchBudget) params.append('maxPrice', searchBudget);
-
-        setPage(1);
-        const queryString = params.toString();
-        router.push(`/routes/properties${queryString ? `?${queryString}` : ''}`);
-    };
-
-    const handleLocationChange = (value: string) => {
-        setSearchLocation(value);
-    };
-
-    const handleTypeChange = (value: string) => {
-        setSearchType(value);
-    };
-
-    const handleBudgetChange = (value: string) => {
-        setSearchBudget(value);
-    };
-
     return (
         <div className="min-h-screen bg-white">
             {/* Hero Section with Search Overlay */}
-            <section className="relative h-[500px] sm:h-[450px] md:h-[400px] w-full overflow-visible pb-32 sm:pb-20 md:pb-0">
-                <div className="absolute inset-0 overflow-hidden h-[300px] sm:h-[350px] md:h-[400px]">
+            <section className="relative z-20 w-full overflow-visible pb-3 md:h-[400px] md:pb-0">
+                <div className="absolute inset-0 overflow-hidden">
                     <Image
                         src="/images/properties/pexels-photo-323780.jpeg"
                         alt="Properties Hero"
@@ -202,90 +176,29 @@ function PropertiesContent() {
                     />
                     <div className="absolute inset-0 bg-black/40" />
                 </div>
-                <div className="relative z-[5] h-[300px] sm:h-[350px] md:h-[400px] flex flex-col items-center justify-center text-center text-white px-4">
-                    <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold max-w-4xl leading-tight mb-2 sm:mb-4">
+                <div className="relative z-[5] flex flex-col items-center justify-center px-4 pt-20 pb-2 text-center text-white md:h-[400px] md:pt-0 md:pb-0">
+                    <h1 className="mb-2 max-w-4xl text-xl font-extrabold leading-tight sm:text-3xl md:mb-4 md:text-5xl">
                         Find Verified Properties
                     </h1>
-                    <p className="text-base sm:text-lg md:text-xl text-white/90 mb-4 sm:mb-8">
+                    <p className="mb-2 text-sm text-white/90 sm:text-lg md:mb-4 md:text-xl">
                         Discover the perfect property from our collection of verified listings
                     </p>
+                    <HeroVerifiedBadge />
                 </div>
 
-                {/* Search Bar Overlay - positioned to overlap on desktop, inline on mobile */}
-                <div className="absolute bottom-0 left-0 right-0 md:translate-y-1/2 z-[10] px-4">
+                <div className="relative z-30 isolate px-4 pb-3 md:absolute md:bottom-0 md:left-0 md:right-0 md:translate-y-1/2 md:pb-0">
                     <div className="container-app max-w-5xl mx-auto">
-                        <form onSubmit={handleSearch} className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 border border-gray-200">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 items-end">
-                                {/* Location */}
-                                <div>
-                                    <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
-                                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                        Location
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={searchLocation}
-                                        onChange={(e) => handleLocationChange(e.target.value)}
-                                        placeholder="City or area (e.g. Thinker's Village)"
-                                        className="w-full h-11 sm:h-12 px-3 sm:px-4 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-600 bg-white placeholder-gray-400 hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                                    />
-                                </div>
-
-                                {/* Property Type */}
-                                <div>
-                                    <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
-                                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                                        </svg>
-                                        Property Type
-                                    </label>
-                                    <select
-                                        value={searchType}
-                                        onChange={(e) => handleTypeChange(e.target.value)}
-                                        className="w-full h-11 sm:h-12 px-3 sm:px-4 pr-8 sm:pr-10 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-600 bg-white appearance-none cursor-pointer hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                                    >
-                                        <option value="">Select type</option>
-                                        <option value="Apartment">Apartment</option>
-                                        <option value="Office Space">Office Space</option>
-                                    </select>
-                                </div>
-
-                                {/* Budget */}
-                                <div>
-                                    <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
-                                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        Budget (USD)
-                                    </label>
-                                    <div className="relative">
-                                        <span className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium text-sm sm:text-base">$</span>
-                                        <input
-                                            type="number"
-                                            value={searchBudget}
-                                            onChange={(e) => handleBudgetChange(e.target.value)}
-                                            placeholder="Max budget"
-                                            className="w-full h-11 sm:h-12 pl-7 sm:pl-8 pr-3 sm:pr-4 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-600 bg-white placeholder-gray-400 hover:border-gray-400 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Search Button */}
-                                <div className="sm:col-span-2 md:col-span-1">
-                                    <button type="submit" className="w-full h-11 sm:h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg text-sm sm:text-base">
-                                        Search
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
+                        <SearchBar
+                            variant="properties"
+                            initialLocation={locationParam || ''}
+                            initialType={typeParam || ''}
+                            initialBudget={maxPriceParam || ''}
+                        />
                     </div>
                 </div>
             </section>
 
-            <div className="relative z-[5] mt-10 sm:mt-12 md:mt-28 pb-4">
+            <div className="relative z-0 mt-4 md:mt-28 pb-4">
                 <VerifiedTrustedBanner />
             </div>
 

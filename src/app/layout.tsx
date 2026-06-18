@@ -7,6 +7,7 @@ import ConditionalFooter from "../components/global/ConditionalFooter";
 import WhatsAppFloat from "../components/global/WhatsAppFloat";
 import TestingDisclaimer from "../components/global/TestingDisclaimer";
 import LaunchCelebrationOverlay from "../components/global/LaunchCelebrationOverlay";
+import CookieConsent from "../components/global/CookieConsent";
 import { Providers } from "../providers";
 
 // Primary (Headings): Whitney Bold
@@ -58,7 +59,9 @@ export const metadata: Metadata = {
       { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
       { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
-    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
     shortcut: ["/favicon.ico"],
   },
   openGraph: {
@@ -109,15 +112,16 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <Providers>
-            <ConditionalNavbar />
-            <main className="min-h-screen pt-16 md:pt-0 pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
-                {children}
-            </main>
-            <MobileBottomNav />
-            <ConditionalFooter />
-            <WhatsAppFloat />
-            <TestingDisclaimer />
-            <LaunchCelebrationOverlay />
+          <ConditionalNavbar />
+          <main className="min-h-screen pt-16 md:pt-0 pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
+            {children}
+          </main>
+          <MobileBottomNav />
+          <ConditionalFooter />
+          <WhatsAppFloat />
+          <TestingDisclaimer />
+          <LaunchCelebrationOverlay />
+          <CookieConsent />
         </Providers>
       </body>
     </html>

@@ -25,7 +25,8 @@ interface Notification {
 
 export default function Navbar() {
   const [showAdvertiseModal, setShowAdvertiseModal] = useState(false);
-  const [showAgentApplicationModal, setShowAgentApplicationModal] = useState(false);
+  const [showAgentApplicationModal, setShowAgentApplicationModal] =
+    useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);

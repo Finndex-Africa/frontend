@@ -1,11 +1,33 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
-import { bookingsApi } from '@/services/api/bookings.api';
+import { bookingsApi, isProviderRole, parseBookingsList } from '@/services/api/bookings.api';
 import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
-import { Booking, Service } from '@/types/dashboard';
+import { Booking, Property, Service } from '@/types/dashboard';
+
+type BookingParticipant = {
+    _id: string;
+    name?: string;
+    email?: string;
+    phone?: string;
+    avatar?: string;
+};
+
+function getBookingParticipant(
+    ref: string | BookingParticipant | undefined | null,
+): BookingParticipant | null {
+    if (typeof ref === 'object' && ref !== null) return ref;
+    return null;
+}
+
+function getParticipantDisplayName(participant: BookingParticipant | null): string {
+    if (!participant) return 'Customer';
+    if (participant.name?.trim()) return participant.name.trim();
+    if (participant.email) return participant.email.split('@')[0];
+    return 'Customer';
+}
 
 export default function BookingsPage() {
     const router = useRouter();
@@ -17,29 +39,56 @@ export default function BookingsPage() {
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [userRole, setUserRole] = useState<string>('');
     const [actionLoading, setActionLoading] = useState<string | null>(null);
+    const [showRejectForm, setShowRejectForm] = useState(false);
+    const [rejectReason, setRejectReason] = useState('');
+    const modalScrollRef = useRef<HTMLDivElement>(null);
+    const rejectFormRef = useRef<HTMLDivElement>(null);
 
-    const isProvider = ['service_provider', 'landlord', 'agent'].includes(userRole);
+    const isProvider = isProviderRole(userRole);
 
     useEffect(() => {
-        // Check if user is logged in
+        if (!showRejectForm) return;
+
+        const scrollToRejectForm = () => {
+            const modal = modalScrollRef.current;
+            const form = rejectFormRef.current;
+
+            if (form) {
+                form.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }
+
+            if (modal) {
+                modal.scrollTo({ top: modal.scrollHeight, behavior: 'smooth' });
+            }
+        };
+
+        const frame = requestAnimationFrame(() => {
+            scrollToRejectForm();
+        });
+
+        return () => cancelAnimationFrame(frame);
+    }, [showRejectForm]);
+
+    useEffect(() => {
         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         if (!token) {
             router.push('/routes/login');
             return;
         }
 
-        // Get user role
         const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+        let role = '';
         if (userStr) {
             try {
                 const userData = JSON.parse(userStr);
-                setUserRole(userData.userType || userData.role || '');
+                role = userData.userType || userData.role || '';
+                setUserRole(role);
             } catch (e) {
                 console.error('Failed to parse user data:', e);
             }
         }
 
-        fetchBookings();
+        fetchBookings(role);
     }, [router]);
 
     useEffect(() => {
@@ -51,13 +100,11 @@ export default function BookingsPage() {
         }
     }, [statusFilter, bookings]);
 
-    const fetchBookings = async () => {
+    const fetchBookings = async (role: string) => {
         try {
             setIsLoading(true);
-            const response = await bookingsApi.getAll({ limit: 100 });
-            // API returns { success: true, data: [...], pagination: {} } or { data: { data: [], pagination } }
-            const bookingsData = Array.isArray(response.data) ? response.data : (response.data as any)?.data || [];
-            setBookings(bookingsData);
+            const response = await bookingsApi.getForCurrentUser(role, { limit: 100 });
+            setBookings(parseBookingsList(response));
         } catch (error) {
             console.error('Failed to fetch bookings:', error);
         } finally {
@@ -65,40 +112,62 @@ export default function BookingsPage() {
         }
     };
 
+    const getListingDetails = (booking: Booking): Service | Property | null => {
+        if (typeof booking.serviceId === 'object' && booking.serviceId !== null) {
+            return booking.serviceId;
+        }
+        return null;
+    };
+
+    const getListingTitle = (booking: Booking) => {
+        return getListingDetails(booking)?.title || (isProvider ? 'Incoming booking' : 'Booking');
+    };
+
+    const getListingDescription = (booking: Booking) => {
+        return getListingDetails(booking)?.description || '';
+    };
+
+    const isPropertyBooking = (booking: Booking) => {
+        const listing = getListingDetails(booking);
+        return Boolean(listing && 'propertyType' in listing);
+    };
+
+    const getCustomer = (booking: Booking) => getBookingParticipant(booking.userId);
+
+    const getCustomerName = (booking: Booking) => {
+        return getParticipantDisplayName(getCustomer(booking));
+    };
+
+    const getRejectionReason = (booking: Booking) => {
+        return booking.rejectionReason?.trim() || booking.cancellationReason?.trim() || '';
+    };
+
     const getStatusColor = (status: Booking['status']) => {
         const colors = {
-            pending: 'bg-yellow-100 text-yellow-800',
-            confirmed: 'bg-blue-100 text-blue-800',
-            in_progress: 'bg-indigo-100 text-indigo-800',
+            pending: 'bg-amber-100 text-amber-800',
+            confirmed: 'bg-green-100 text-green-800',
+            in_progress: 'bg-amber-100 text-amber-800',
             completed: 'bg-green-100 text-green-800',
             cancelled: 'bg-red-100 text-red-800',
-            rejected: 'bg-gray-100 text-gray-800',
+            rejected: 'bg-red-100 text-red-800',
         };
         return colors[status] || 'bg-gray-100 text-gray-800';
     };
 
-    const getServiceTitle = (booking: Booking) => {
-        if (typeof booking.serviceId === 'object' && booking.serviceId !== null) {
-            return (booking.serviceId as Service).title;
-        }
-        return 'Service';
-    };
-
-    const getServiceDescription = (booking: Booking) => {
-        if (typeof booking.serviceId === 'object' && booking.serviceId !== null) {
-            return (booking.serviceId as Service).description;
-        }
-        return '';
-    };
+    const refreshBookings = () => fetchBookings(userRole);
 
     const handleViewDetails = (booking: Booking) => {
         setSelectedBooking(booking);
+        setShowRejectForm(false);
+        setRejectReason('');
         setShowDetailsModal(true);
     };
 
     const handleCloseModal = () => {
         setShowDetailsModal(false);
         setSelectedBooking(null);
+        setShowRejectForm(false);
+        setRejectReason('');
     };
 
     const handleConfirmBooking = async (bookingId: string) => {
@@ -107,9 +176,8 @@ export default function BookingsPage() {
             setActionLoading(bookingId);
             await bookingsApi.confirm(bookingId);
             toast.success('Booking confirmed successfully');
-            await fetchBookings();
-            setShowDetailsModal(false);
-            setSelectedBooking(null);
+            await refreshBookings();
+            handleCloseModal();
         } catch (error: any) {
             console.error('Failed to confirm booking:', error);
             toast.error(getUserFriendlyErrorMessage(error, 'Failed to confirm booking. Please try again.'));
@@ -119,16 +187,18 @@ export default function BookingsPage() {
     };
 
     const handleRejectBooking = async (bookingId: string) => {
-        const reason = prompt('Please provide a reason for rejection:');
-        if (!reason) return;
+        const reason = rejectReason.trim();
+        if (!reason) {
+            toast.error('Please provide a reason for rejection');
+            return;
+        }
         if (actionLoading) return;
         try {
             setActionLoading(bookingId);
             await bookingsApi.reject(bookingId, reason);
             toast.success('Booking rejected');
-            await fetchBookings();
-            setShowDetailsModal(false);
-            setSelectedBooking(null);
+            await refreshBookings();
+            handleCloseModal();
         } catch (error: any) {
             console.error('Failed to reject booking:', error);
             toast.error(getUserFriendlyErrorMessage(error, 'Failed to reject booking. Please try again.'));
@@ -145,7 +215,7 @@ export default function BookingsPage() {
             setActionLoading(bookingId);
             await bookingsApi.cancel(bookingId, reason);
             toast.success('Booking cancelled');
-            await fetchBookings();
+            await refreshBookings();
             setShowDetailsModal(false);
             setSelectedBooking(null);
         } catch (error: any) {
@@ -172,8 +242,14 @@ export default function BookingsPage() {
             <Toaster position="top-right" />
             <div className="container-app px-4 max-w-7xl mx-auto">
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900">My Bookings</h1>
-                    <p className="mt-2 text-gray-600">View and manage your service bookings</p>
+                    <h1 className="text-3xl font-bold text-gray-900">
+                        {isProvider ? 'Incoming Bookings' : 'My Bookings'}
+                    </h1>
+                    <p className="mt-2 text-gray-600">
+                        {isProvider
+                            ? 'View and manage booking requests from customers'
+                            : 'View and manage your property and service bookings'}
+                    </p>
                 </div>
 
                 {/* Filter Tabs */}
@@ -218,16 +294,26 @@ export default function BookingsPage() {
                         </h3>
                         <p className="mt-2 text-gray-600">
                             {statusFilter === 'all'
-                                ? 'Book a service to see your bookings here'
+                                ? isProvider
+                                    ? 'Booking requests from customers will appear here'
+                                    : 'Book a property or service to see your bookings here'
                                 : `You don't have any ${statusFilter} bookings`}
                         </p>
-                        {statusFilter === 'all' && (
-                            <button
-                                onClick={() => router.push('/routes/services')}
-                                className="mt-6 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
-                            >
-                                Browse Services
-                            </button>
+                        {statusFilter === 'all' && !isProvider && (
+                            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                                <button
+                                    onClick={() => router.push('/routes/properties')}
+                                    className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                                >
+                                    Browse Properties
+                                </button>
+                                <button
+                                    onClick={() => router.push('/routes/services')}
+                                    className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors"
+                                >
+                                    Browse Services
+                                </button>
+                            </div>
                         )}
                     </div>
                 ) : (
@@ -238,7 +324,7 @@ export default function BookingsPage() {
                                     <div className="flex-1">
                                         <div className="flex items-center gap-3 mb-2">
                                             <h3 className="text-lg font-semibold text-gray-900">
-                                                {getServiceTitle(booking)}
+                                                {getListingTitle(booking)}
                                             </h3>
                                             <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
                                                 {booking.status.replace('_', ' ')}
@@ -246,11 +332,31 @@ export default function BookingsPage() {
                                         </div>
 
                                         <div className="space-y-2 text-sm text-gray-600">
+                                            {isProvider && (
+                                                <div className="flex items-center gap-2">
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                    </svg>
+                                                    <span>
+                                                        From {getCustomerName(booking)}
+                                                        {getCustomer(booking)?.email ? ` (${getCustomer(booking)!.email})` : ''}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            <div className="flex items-center gap-2">
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                                </svg>
+                                                <span>{isPropertyBooking(booking) ? 'Property booking' : 'Service booking'}</span>
+                                            </div>
                                             <div className="flex items-center gap-2">
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                 </svg>
-                                                <span>{new Date(booking.scheduledDate).toLocaleDateString()} - {booking.duration}h duration</span>
+                                                <span>
+                                                    {new Date(booking.scheduledDate).toLocaleDateString()} - {booking.duration}
+                                                    {isPropertyBooking(booking) ? ' months' : 'h duration'}
+                                                </span>
                                             </div>
                                             {booking.serviceLocation && (
                                                 <div className="flex items-center gap-2">
@@ -304,6 +410,7 @@ export default function BookingsPage() {
                     onClick={handleCloseModal}
                 >
                     <div
+                        ref={modalScrollRef}
                         className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-slideUp"
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -327,15 +434,17 @@ export default function BookingsPage() {
 
                         {/* Modal Content */}
                         <div className="p-6 space-y-6">
-                            {/* Service Information */}
+                            {/* Listing Information */}
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-3">Service Information</h3>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                                    {isPropertyBooking(selectedBooking) ? 'Property Information' : 'Service Information'}
+                                </h3>
                                 <div className="bg-gray-50 rounded-lg p-4 space-y-2">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <p className="font-medium text-gray-900">{getServiceTitle(selectedBooking)}</p>
-                                            {getServiceDescription(selectedBooking) && (
-                                                <p className="text-sm text-gray-600 mt-1">{getServiceDescription(selectedBooking)}</p>
+                                            <p className="font-medium text-gray-900">{getListingTitle(selectedBooking)}</p>
+                                            {getListingDescription(selectedBooking) && (
+                                                <p className="text-sm text-gray-600 mt-1">{getListingDescription(selectedBooking)}</p>
                                             )}
                                         </div>
                                         <div className="text-right">
@@ -345,6 +454,42 @@ export default function BookingsPage() {
                                     </div>
                                 </div>
                             </div>
+
+                            {isProvider && (() => {
+                                const customer = getCustomer(selectedBooking);
+                                if (!customer) return null;
+                                return (
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-gray-900 mb-3">Customer Information</h3>
+                                        <div className="bg-gray-50 rounded-lg p-4 flex items-start gap-4">
+                                            {customer.avatar ? (
+                                                <img
+                                                    src={customer.avatar}
+                                                    alt={getParticipantDisplayName(customer)}
+                                                    className="w-14 h-14 rounded-full object-cover border border-gray-200 shrink-0"
+                                                />
+                                            ) : (
+                                                <div className="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                                                    <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                    </svg>
+                                                </div>
+                                            )}
+                                            <div className="space-y-1 min-w-0">
+                                                <p className="font-medium text-gray-900">{getParticipantDisplayName(customer)}</p>
+                                                {customer.email && (
+                                                    <p className="text-sm text-gray-600 break-all">{customer.email}</p>
+                                                )}
+                                                {(customer.phone || selectedBooking.contactPhone) && (
+                                                    <p className="text-sm text-gray-600">
+                                                        {customer.phone || selectedBooking.contactPhone}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
 
                             {/* Booking Details */}
                             <div>
@@ -371,7 +516,10 @@ export default function BookingsPage() {
                                         </svg>
                                         <div>
                                             <p className="text-sm font-medium text-gray-500">Duration</p>
-                                            <p className="text-gray-900">{selectedBooking.duration} hour{selectedBooking.duration > 1 ? 's' : ''}</p>
+                                            <p className="text-gray-900">
+                                                {selectedBooking.duration}
+                                                {isPropertyBooking(selectedBooking) ? ' months' : ` hour${selectedBooking.duration > 1 ? 's' : ''}`}
+                                            </p>
                                         </div>
                                     </div>
 
@@ -425,6 +573,15 @@ export default function BookingsPage() {
                                 </div>
                             )}
 
+                            {selectedBooking.status === 'rejected' && getRejectionReason(selectedBooking) && (
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Rejection Reason</h3>
+                                    <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                                        <p className="text-gray-700">{getRejectionReason(selectedBooking)}</p>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Timestamps */}
                             <div className="pt-4 border-t border-gray-200">
                                 <div className="grid grid-cols-2 gap-4 text-sm">
@@ -440,6 +597,26 @@ export default function BookingsPage() {
                                     )}
                                 </div>
                             </div>
+
+                            {showRejectForm && isProvider && selectedBooking.status === 'pending' && (
+                                <div
+                                    ref={rejectFormRef}
+                                    className="rounded-lg border border-red-200 bg-red-50 p-4 scroll-mb-24"
+                                >
+                                    <label htmlFor="reject-reason" className="block text-sm font-semibold text-gray-900 mb-2">
+                                        Reason for rejection
+                                    </label>
+                                    <textarea
+                                        id="reject-reason"
+                                        value={rejectReason}
+                                        onChange={(e) => setRejectReason(e.target.value)}
+                                        placeholder="Explain why you are rejecting this booking..."
+                                        rows={4}
+                                        className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-200"
+                                        autoFocus
+                                    />
+                                </div>
+                            )}
                         </div>
 
                         {/* Modal Footer */}
@@ -452,20 +629,45 @@ export default function BookingsPage() {
                             </button>
                             {selectedBooking.status === 'pending' && isProvider && (
                                 <>
-                                    <button
-                                        onClick={() => handleRejectBooking(selectedBooking._id)}
-                                        disabled={actionLoading === selectedBooking._id}
-                                        className="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50"
-                                    >
-                                        {actionLoading === selectedBooking._id ? 'Processing...' : 'Reject'}
-                                    </button>
-                                    <button
-                                        onClick={() => handleConfirmBooking(selectedBooking._id)}
-                                        disabled={actionLoading === selectedBooking._id}
-                                        className="px-6 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50"
-                                    >
-                                        {actionLoading === selectedBooking._id ? 'Processing...' : 'Confirm'}
-                                    </button>
+                                    {showRejectForm ? (
+                                        <>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setShowRejectForm(false);
+                                                    setRejectReason('');
+                                                }}
+                                                disabled={actionLoading === selectedBooking._id}
+                                                className="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium disabled:opacity-50"
+                                            >
+                                                Back
+                                            </button>
+                                            <button
+                                                onClick={() => handleRejectBooking(selectedBooking._id)}
+                                                disabled={actionLoading === selectedBooking._id || !rejectReason.trim()}
+                                                className="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50"
+                                            >
+                                                {actionLoading === selectedBooking._id ? 'Processing...' : 'Submit Rejection'}
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <button
+                                                onClick={() => setShowRejectForm(true)}
+                                                disabled={actionLoading === selectedBooking._id}
+                                                className="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50"
+                                            >
+                                                Reject
+                                            </button>
+                                            <button
+                                                onClick={() => handleConfirmBooking(selectedBooking._id)}
+                                                disabled={actionLoading === selectedBooking._id}
+                                                className="px-6 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50"
+                                            >
+                                                {actionLoading === selectedBooking._id ? 'Processing...' : 'Confirm'}
+                                            </button>
+                                        </>
+                                    )}
                                 </>
                             )}
                             {selectedBooking.status === 'pending' && !isProvider && (
