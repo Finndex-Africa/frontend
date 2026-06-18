@@ -122,9 +122,10 @@ export interface ApiResponse<T> {
 
 export interface Booking {
     _id: string;
-    serviceId: string | Service;
-    userId: string | { _id: string; name: string; email: string; phone?: string; avatar?: string };
-    providerId: string | { _id: string; name: string; email: string; phone?: string; avatar?: string };
+    /** Service or property details when populated by the backend */
+    serviceId: string | Service | Property;
+    userId: string | { _id: string; name?: string; email?: string; phone?: string; avatar?: string };
+    providerId: string | { _id: string; name?: string; email?: string; phone?: string; avatar?: string };
     scheduledDate: string;
     duration: number; // Duration in hours
     notes?: string;
@@ -138,6 +139,7 @@ export interface Booking {
     paymentReference?: string;
     paidAt?: string;
     cancellationReason?: string;
+    rejectionReason?: string;
     cancelledAt?: string;
     completedAt?: string;
     confirmedAt?: string;

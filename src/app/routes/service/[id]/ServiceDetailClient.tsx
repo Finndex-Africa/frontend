@@ -170,7 +170,8 @@ export default function ServiceDetail() {
         try {
             setSubmitting(true);
 
-            const bookingPayload = {
+            const providerId = extractProviderUserId(service);
+            const bookingPayload: Record<string, unknown> = {
                 serviceId: service._id,
                 scheduledDate: new Date(bookingData.scheduledDate).toISOString(),
                 duration: parseInt(bookingData.duration),
@@ -180,6 +181,7 @@ export default function ServiceDetail() {
                 notes: bookingData.notes || `Service booking for ${service.title}. Duration: ${bookingData.duration} hours.`,
                 paymentMethod: 'pending'
             };
+            if (providerId) bookingPayload.providerId = providerId;
 
             const response = await apiClient.post('/bookings', bookingPayload);
 
@@ -483,14 +485,11 @@ export default function ServiceDetail() {
                 </div>
 
                 {/* RIGHT SIDE */}
-                <div className="min-h-screen">
-                    <div className="max-w-sm mx-auto">
-                        <aside>
-                            <div className="sticky top-24">
-                                {/* CONTACT CARD */}
-                                <div className="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
-                                    {/* Price Section */}
-                                    <div className="p-6 bg-linear-to-br from-blue-50 to-white">
+                <div className="lg:col-span-1">
+                    <div className="mx-auto max-w-sm lg:flex lg:flex-col lg:h-full">
+                        <aside className="lg:sticky lg:top-[calc(4rem+0.75rem)] lg:z-30 shrink-0">
+                            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
+                                <div className="bg-linear-to-br from-blue-50 to-white p-6">
                                         <div className="flex items-baseline gap-1.5">
                                             <div className="text-4xl font-bold text-gray-900">
                                                 {hasListPrice ? `$${Number(service.price).toLocaleString()}` : 'Contact for Price'}
@@ -529,20 +528,22 @@ export default function ServiceDetail() {
                                             {!currentUser && <Lock className="w-3.5 h-3.5" />}
                                         </button>
                                     </div>
+                            </div>
+                        </aside>
 
-                                    {/* Message Section - Only show if user is not the service provider */}
-                                    {!currentUser ? (
-                                        <div className="border-t border-gray-100 p-6 text-center bg-gray-50">
+                        <div className="mt-4 space-y-4 lg:flex-1">
+                        {!currentUser ? (
+                            <div className="rounded-xl border border-gray-200 bg-white p-6 text-center shadow-lg">
                                             <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
                                                 <MessageCircle className="w-7 h-7 text-gray-500" />
                                             </div>
                                             <p className="text-sm font-medium text-gray-900 mb-2">Message the Service Provider</p>
                                             <p className="text-xs text-gray-500 mb-4">Sign in to start a conversation</p>
-                                            <button className="w-full h-10 text-sm font-semibold bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-colors shadow-sm">
+                                            <button className="h-10 w-full rounded-lg bg-gray-900 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-gray-800">
                                                 Sign In to Chat
                                             </button>
-                                        </div>
-                                    ) : currentUser ? (
+                            </div>
+                        ) : currentUser ? (
                                         (() => {
                                             // Use providerId if available, otherwise fall back to provider, agentId or landlordId
                                             // Handle both populated objects (with _id) and direct string IDs
@@ -586,7 +587,7 @@ export default function ServiceDetail() {
                                             }
 
                                             return (
-                                                <div className="border-t border-gray-100 p-5">
+                                                <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-lg">
                                                     <div className="flex items-center gap-3 mb-4">
                                                         <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center">
                                                             <MessageCircle className="w-4.5 h-4.5 text-blue-600" />
@@ -603,17 +604,14 @@ export default function ServiceDetail() {
                                                 </div>
                                             );
                                         })()
-                                    ) : null}
-                                </div>
+                        ) : null}
 
-                                {/* Info Card */}
-                                <div className="mt-4 bg-blue-50 border border-blue-200 rounded-xl p-4">
-                                    <p className="text-xs text-blue-900 font-medium">
-                                        💡 <span className="font-semibold">Tip:</span> Contact the service provider to discuss your requirements. Response time is usually within 24 hours.
-                                    </p>
-                                </div>
-                            </div>
-                        </aside>
+                        <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+                            <p className="text-xs font-medium text-blue-900">
+                                💡 <span className="font-semibold">Tip:</span> Contact the service provider to discuss your requirements. Response time is usually within 24 hours.
+                            </p>
+                        </div>
+                        </div>
                     </div>
                 </div>
             </section>

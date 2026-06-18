@@ -123,8 +123,8 @@ export function LegalContactCard() {
                 Tel: +231 779 922 382 · WhatsApp: +231 886 149 219
                 <br />
                 Email:{' '}
-                <a href="mailto:findafriq@gmail.com" className="text-[#0000FF] font-medium hover:underline">
-                    findafriq@gmail.com
+                <a href="mailto:info@findafriq.com" className="text-[#0000FF] font-medium hover:underline">
+                    info@findafriq.com
                 </a>
                 <br />
                 FB, LinkedIn &amp; YouTube: @Findafriq ·{' '}

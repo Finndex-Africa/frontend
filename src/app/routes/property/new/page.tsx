@@ -32,6 +32,7 @@ const AMENITY_OPTIONS = [
 export default function NewPropertyPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [formError, setFormError] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -109,6 +110,7 @@ export default function NewPropertyPage() {
         }
 
         setLoading(true);
+        setFormError(null);
 
         try {
             // Upload images first
@@ -148,7 +150,10 @@ export default function NewPropertyPage() {
             router.push('/routes/my-listings');
         } catch (error: any) {
             console.error('Failed to create property:', error);
-            showToast.error(getUserFriendlyErrorMessage(error, 'Failed to create property. Please try again.'));
+            const msg = getUserFriendlyErrorMessage(error, 'Failed to create property. Please try again.');
+            setFormError(msg);
+            showToast.error(msg);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         } finally {
             setLoading(false);
         }
@@ -172,6 +177,22 @@ export default function NewPropertyPage() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-8">
+                    {formError && (
+                        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+                            <svg className="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div className="flex-1">
+                                <p className="text-sm font-semibold text-red-800 mb-0.5">Unable to create property</p>
+                                <p className="text-sm text-red-700">{formError}</p>
+                            </div>
+                            <button type="button" onClick={() => setFormError(null)} className="text-red-400 hover:text-red-600 p-0.5">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    )}
                     {/* Basic Information */}
                     <div className="mb-8">
                         <h2 className="text-xl font-semibold text-gray-900 mb-4">Basic Information</h2>

@@ -202,8 +202,8 @@ export default function TermsPage() {
                 <ul className="list-none space-y-1 text-gray-700 pl-0">
                     <li>
                         Email:{' '}
-                        <a href="mailto:findafriq@gmail.com" className="text-[#0000FF] font-medium hover:underline">
-                            findafriq@gmail.com
+                        <a href="mailto:info@findafriq.com" className="text-[#0000FF] font-medium hover:underline">
+                            info@findafriq.com
                         </a>
                     </li>
                     <li>

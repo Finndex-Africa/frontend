@@ -329,6 +329,11 @@ export default function AuthPage() {
                         </option>
                       ))}
                     </select>
+                    {userType === "ServiceProvider" && (
+                      <p className="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 leading-relaxed">
+                        Service providers should use their registered business name when creating an account.
+                      </p>
+                    )}
                   </div>
                 )}
 

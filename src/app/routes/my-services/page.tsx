@@ -20,6 +20,7 @@ export default function MyServicesPage() {
     const [modalMode, setModalMode] = useState<ModalMode>(null);
     const [selectedService, setSelectedService] = useState<ApiService | null>(null);
     const [submitting, setSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
     const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
     const [unpublishConfirm, setUnpublishConfirm] = useState<ApiService | null>(null);
     const router = useRouter();
@@ -27,6 +28,10 @@ export default function MyServicesPage() {
     useEffect(() => {
         fetchMyServices();
     }, []);
+
+    useEffect(() => {
+        setSubmitError(null);
+    }, [modalMode]);
 
     const fetchMyServices = async () => {
         try {
@@ -51,6 +56,7 @@ export default function MyServicesPage() {
     const handleCreateService = async (values: any, files: File[]) => {
         try {
             setSubmitting(true);
+            setSubmitError(null);
 
             console.log('📥 Frontend page - received values:', values);
             console.log('📸 Frontend page - files to upload:', files.length);
@@ -133,9 +139,11 @@ export default function MyServicesPage() {
             });
         } catch (error: any) {
             console.error('Failed to create service:', error);
+            const msg = getUserFriendlyErrorMessage(error, 'Failed to create service. Please try again.');
+            setSubmitError(msg);
             showToast({
                 title: 'Error',
-                description: getUserFriendlyErrorMessage(error, 'Failed to create service. Please try again.'),
+                description: msg,
                 variant: 'error'
             });
         } finally {
@@ -148,6 +156,7 @@ export default function MyServicesPage() {
 
         try {
             setSubmitting(true);
+            setSubmitError(null);
 
             // Upload new images if any
             const newImageUrls: string[] = [];
@@ -206,9 +215,11 @@ export default function MyServicesPage() {
             });
         } catch (error: any) {
             console.error('Failed to update service:', error);
+            const msg = getUserFriendlyErrorMessage(error, 'Failed to update service. Please try again.');
+            setSubmitError(msg);
             showToast({
                 title: 'Error',
-                description: getUserFriendlyErrorMessage(error, 'Failed to update service. Please try again.'),
+                description: msg,
                 variant: 'error'
             });
         } finally {
@@ -603,12 +614,31 @@ export default function MyServicesPage() {
                             </button>
                         </div>
                         <div className="p-6 sm:p-8 overflow-y-auto max-h-[calc(90vh-100px)]">
+                            {submitError && (
+                                <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+                                    <svg className="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <div className="flex-1">
+                                        <p className="text-sm font-semibold text-red-800 mb-0.5">
+                                            {modalMode === 'create' ? 'Unable to create service' : 'Unable to update service'}
+                                        </p>
+                                        <p className="text-sm text-red-700">{submitError}</p>
+                                    </div>
+                                    <button type="button" onClick={() => setSubmitError(null)} className="text-red-400 hover:text-red-600 p-0.5">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            )}
                             <ServiceForm
                                 initialValues={modalMode === 'edit' ? selectedService || undefined : undefined}
                                 onSubmit={modalMode === 'create' ? handleCreateService : handleUpdateService}
                                 onCancel={() => {
                                     setModalMode(null);
                                     setSelectedService(null);
+                                    setSubmitError(null);
                                 }}
                                 loading={submitting}
                             />
