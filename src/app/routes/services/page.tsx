@@ -171,29 +171,39 @@ function ServicesContent() {
                     />
                     <div className="absolute inset-0 bg-black/40" />
                 </div>
-                <div className="relative z-[5] flex flex-col items-center justify-center px-4 pt-20 pb-2 text-center text-white md:h-[400px] md:pt-0 md:pb-0">
-                    <h1 className="mb-2 max-w-4xl text-xl font-extrabold leading-tight sm:text-3xl md:mb-4 md:text-5xl">
-                        Find Trusted Services
-                    </h1>
-                    <p className="mb-2 text-sm text-white/90 sm:text-lg md:mb-4 md:text-xl">
-                        Connect with verified service providers for all your needs
-                    </p>
-                    <HeroVerifiedBadge />
-                </div>
+                <div className="relative z-[5] flex flex-col md:h-[400px]">
+                    <div className="flex flex-col items-center justify-center px-4 pt-20 pb-2 text-center text-white md:flex-1 md:pt-0 md:pb-0">
+                        <HeroVerifiedBadge />
+                        <h1 className="mb-2 max-w-4xl text-xl font-extrabold leading-tight sm:text-3xl md:mb-4 md:text-5xl">
+                            Find Trusted Services
+                        </h1>
+                        <p className="mb-2 text-sm text-white/90 sm:text-lg md:mb-4 md:text-xl">
+                            Connect with verified service providers for all your needs
+                        </p>
+                        <div className="mx-auto mt-4 hidden w-full max-w-3xl md:block">
+                            <SearchBar
+                                variant="services"
+                                initialLocation={locationParam || ''}
+                                initialType={categoryParam || ''}
+                                initialServiceName={serviceNameParam || ''}
+                            />
+                        </div>
+                    </div>
 
-                <div className="relative z-30 isolate px-4 pb-3 md:absolute md:bottom-0 md:left-0 md:right-0 md:translate-y-1/2 md:pb-0">
-                    <div className="container-app max-w-5xl mx-auto">
-                        <SearchBar
-                            variant="services"
-                            initialLocation={locationParam || ''}
-                            initialType={categoryParam || ''}
-                            initialServiceName={serviceNameParam || ''}
-                        />
+                    <div className="relative z-30 isolate px-4 pb-3 md:hidden">
+                        <div className="container-app max-w-5xl mx-auto">
+                            <SearchBar
+                                variant="services"
+                                initialLocation={locationParam || ''}
+                                initialType={categoryParam || ''}
+                                initialServiceName={serviceNameParam || ''}
+                            />
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <div className="relative z-0 mt-4 md:mt-28 pb-4">
+            <div className="relative z-0 mt-4 md:mt-8 pb-4">
                 <VerifiedTrustedBanner />
             </div>
 
