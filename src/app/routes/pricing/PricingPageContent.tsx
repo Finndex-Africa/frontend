@@ -5,10 +5,9 @@ import { useState } from 'react';
 import { Check, X } from 'lucide-react';
 import { LegalContactCard } from '@/components/legal/LegalDocLayout';
 
-type TabId = 'seeker' | 'landlord' | 'provider';
+type TabId = 'landlord' | 'provider';
 
 const TAB_LABEL: Record<TabId, string> = {
-    seeker: 'Home Seeker',
     landlord: 'Landlord/Agent',
     provider: 'Service Providers',
 };
@@ -31,16 +30,43 @@ function FeatureRow({ ok, label, muted }: { ok: boolean; label: string; muted?: 
     );
 }
 
+function ComingSoonModal({ onClose }: { onClose: () => void }) {
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
+            <div
+                className="relative w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl text-center"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
+                    <span className="text-3xl">🚧</span>
+                </div>
+                <h2 className="text-xl font-bold text-gray-900 font-heading">Payment Coming Soon</h2>
+                <p className="mt-3 text-sm text-gray-600 leading-relaxed">
+                    We are not accepting payment now. Payment integration is coming soon and will be available in a future update.
+                </p>
+                <button
+                    onClick={onClose}
+                    className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-brand-blue px-5 py-3 text-sm font-bold text-white shadow-md transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/60"
+                >
+                    Got it
+                </button>
+            </div>
+        </div>
+    );
+}
+
 function PricingCard({
     name,
     price,
     priceCaption,
     rows,
+    onGetStarted,
 }: {
     name: string;
     price: string;
     priceCaption: string;
     rows: { ok: boolean; label: string }[];
+    onGetStarted: () => void;
 }) {
     return (
         <div className={cardShell}>
@@ -53,49 +79,38 @@ function PricingCard({
                     <FeatureRow key={row.label} ok={row.ok} label={row.label} muted={!row.ok} />
                 ))}
             </ul>
-            <Link
-                href="/routes/login"
+            <button
+                onClick={onGetStarted}
                 className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-brand-yellow px-5 py-3.5 text-center text-sm font-bold text-brand-blue shadow-md transition hover:brightness-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
             >
                 Get started
-            </Link>
+            </button>
         </div>
     );
 }
 
-const SEEKER_SHARED: { ok: true; label: string }[] = [
-    { ok: true, label: 'Contact providers directly' },
-    { ok: true, label: 'Access to agent listings' },
-    { ok: true, label: 'Unlimited searches' },
-    { ok: true, label: 'Free account access' },
-    { ok: true, label: 'Save favorite listings' },
-    { ok: true, label: 'One-time authorization' },
-    { ok: true, label: 'Secure property access' },
-    { ok: true, label: 'Verification' },
-    { ok: true, label: 'Team support' },
-];
-
-function HomeSeekerCards() {
+function CustomPricingCard({
+    rows,
+}: {
+    rows: { ok: boolean; label: string }[];
+}) {
     return (
-        <div className="grid gap-6 md:grid-cols-3">
-            <PricingCard
-                name="Basic"
-                price="$20"
-                priceCaption="Per property. Access fee (1–2 rooms). Prices in USD."
-                rows={[{ ok: true, label: 'Access fee (1–2 rooms)' }, ...SEEKER_SHARED]}
-            />
-            <PricingCard
-                name="Pro"
-                price="$30"
-                priceCaption="Per property. Access fee (3–4 rooms). Prices in USD."
-                rows={[{ ok: true, label: 'Access fee (3–4 rooms)' }, ...SEEKER_SHARED]}
-            />
-            <PricingCard
-                name="Premium"
-                price="$40"
-                priceCaption="Per property. Access fee (5+ rooms). Prices in USD."
-                rows={[{ ok: true, label: 'Access fee (5+ rooms)' }, ...SEEKER_SHARED]}
-            />
+        <div className={cardShell}>
+            <h3 className="text-center text-xl font-bold font-heading tracking-tight">Custom</h3>
+            <div className="my-4 border-t border-white/25" />
+            <p className="text-center text-4xl sm:text-[2.75rem] font-extrabold text-brand-yellow leading-none">Custom</p>
+            <p className="mt-2 text-center text-xs sm:text-sm text-white/85">Tailored solutions for your unique needs.</p>
+            <ul className="mt-6 flex-1 space-y-2.5">
+                {rows.map((row) => (
+                    <FeatureRow key={row.label} ok={row.ok} label={row.label} muted={!row.ok} />
+                ))}
+            </ul>
+            <Link
+                href="/routes/about#contact"
+                className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-brand-yellow px-5 py-3.5 text-center text-sm font-bold text-brand-blue shadow-md transition hover:brightness-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+            >
+                Contact us
+            </Link>
         </div>
     );
 }
@@ -116,14 +131,15 @@ const LANDLORD_BASE_INCLUDED: { ok: true; label: string }[] = [
     { ok: true, label: 'Team support' },
 ];
 
-function LandlordCards() {
+function LandlordCards({ onGetStarted }: { onGetStarted: () => void }) {
     return (
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
             <PricingCard
                 name="Basic"
                 price="$2"
                 priceCaption="Per property listing. Prices in USD."
                 rows={[...LANDLORD_BASE_INCLUDED, ...LANDLORD_BASIC_EXCLUDED]}
+                onGetStarted={onGetStarted}
             />
             <PricingCard
                 name="Pro"
@@ -135,6 +151,7 @@ function LandlordCards() {
                     { ok: false, label: 'Marketing promotion' },
                     { ok: false, label: 'Premium badge' },
                 ]}
+                onGetStarted={onGetStarted}
             />
             <PricingCard
                 name="Premium"
@@ -145,6 +162,18 @@ function LandlordCards() {
                     { ok: true, label: 'Top search placement (1 month)' },
                     { ok: true, label: 'Marketing promotion (7 days)' },
                     { ok: true, label: 'Premium badge' },
+                ]}
+                onGetStarted={onGetStarted}
+            />
+            <CustomPricingCard
+                rows={[
+                    { ok: true, label: 'Everything in Premium' },
+                    { ok: true, label: 'Top search placement (custom)' },
+                    { ok: true, label: 'Marketing promotion (custom)' },
+                    { ok: true, label: 'Featured listings' },
+                    { ok: true, label: 'Priority support' },
+                    { ok: true, label: 'Account manager' },
+                    { ok: true, label: 'Custom solutions' },
                 ]}
             />
         </div>
@@ -160,9 +189,9 @@ const PROVIDER_COMMON_INCLUDED = [
     'Team support',
 ];
 
-function ServiceProviderCards() {
+function ServiceProviderCards({ onGetStarted }: { onGetStarted: () => void }) {
     return (
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
             <PricingCard
                 name="Basic"
                 price="$10"
@@ -174,6 +203,7 @@ function ServiceProviderCards() {
                     { ok: false, label: 'Marketing promotion (7 days)' },
                     { ok: false, label: 'Premium badge' },
                 ]}
+                onGetStarted={onGetStarted}
             />
             <PricingCard
                 name="Pro"
@@ -186,6 +216,7 @@ function ServiceProviderCards() {
                     { ok: false, label: 'Marketing promotion (7 days)' },
                     { ok: false, label: 'Premium badge' },
                 ]}
+                onGetStarted={onGetStarted}
             />
             <PricingCard
                 name="Premium"
@@ -198,28 +229,40 @@ function ServiceProviderCards() {
                     { ok: true, label: 'Marketing promotion (7 days)' },
                     { ok: true, label: 'Premium badge' },
                 ]}
+                onGetStarted={onGetStarted}
+            />
+            <CustomPricingCard
+                rows={[
+                    { ok: true, label: 'Services listing (custom)' },
+                    ...PROVIDER_COMMON_INCLUDED.map((label) => ({ ok: true as const, label })),
+                    { ok: true, label: 'Top search placement (custom)' },
+                    { ok: true, label: 'Marketing promotion (custom)' },
+                    { ok: true, label: 'Premium badge' },
+                ]}
             />
         </div>
     );
 }
 
 export default function PricingPageContent() {
-    const [tab, setTab] = useState<TabId>('seeker');
+    const [tab, setTab] = useState<TabId>('landlord');
+    const [showModal, setShowModal] = useState(false);
 
     const headings: Record<TabId, string> = {
-        seeker: 'Home Seeker Packages and Pricing',
         landlord: 'Landlord/Agent Packages and Pricing',
         provider: 'Service Provider Packages and Pricing',
     };
 
     return (
         <div className="min-h-screen bg-blue-50">
+            {showModal && <ComingSoonModal onClose={() => setShowModal(false)} />}
+
             <header className="relative px-4 pt-12 pb-10 sm:pt-16 sm:pb-12 text-center">
                 <h1 className="text-3xl sm:text-4xl md:text-[2.35rem] font-extrabold text-brand-blue tracking-tight font-heading px-2">
                     {headings[tab]}
                 </h1>
                 <p className="mt-3 max-w-2xl mx-auto text-sm sm:text-base text-gray-700 leading-relaxed">
-                    Transparent pricing for home seekers, landlords/agents, and service providers.
+                    Transparent pricing for landlords/agents and service providers.
                 </p>
 
                 <div className="mt-8 flex justify-center px-2">
@@ -248,11 +291,10 @@ export default function PricingPageContent() {
                 </div>
             </header>
 
-            <div className="container-app px-4 pb-14 sm:pb-16 max-w-6xl mx-auto space-y-12">
+            <div className="container-app px-4 pb-14 sm:pb-16 max-w-7xl mx-auto space-y-12">
                 <div role="tabpanel">
-                    {tab === 'seeker' && <HomeSeekerCards />}
-                    {tab === 'landlord' && <LandlordCards />}
-                    {tab === 'provider' && <ServiceProviderCards />}
+                    {tab === 'landlord' && <LandlordCards onGetStarted={() => setShowModal(true)} />}
+                    {tab === 'provider' && <ServiceProviderCards onGetStarted={() => setShowModal(true)} />}
                 </div>
 
                 <div className="rounded-2xl border border-brand-blue/20 bg-brand-blue p-6 sm:p-8 text-white shadow-lg">
