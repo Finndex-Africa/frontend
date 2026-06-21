@@ -754,6 +754,67 @@ export default function PropertyDetail() {
                     )}
                   </div>
 
+                  {/* Agent Fee Section */}
+                  {property.agentId && (() => {
+                    const bedrooms = property.bedrooms != null ? property.bedrooms : property.rooms;
+                    let agentFee = 20;
+                    let bedroomLabel = "1–2 bedrooms";
+                    if (bedrooms != null) {
+                      if (bedrooms >= 5) {
+                        agentFee = 40;
+                        bedroomLabel = "5+ bedrooms";
+                      } else if (bedrooms >= 3) {
+                        agentFee = 30;
+                        bedroomLabel = "3–4 bedrooms";
+                      }
+                    }
+                    return (
+                      <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4 space-y-3">
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Payment Details</p>
+
+                        {/* Agent Fee row */}
+                        <div className="flex items-start gap-3 p-3 rounded-lg border border-gray-100 bg-gray-50">
+                          <div className="shrink-0 w-9 h-9 rounded-full bg-green-100 flex items-center justify-center">
+                            <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-sm font-semibold text-gray-900">Agent Fee</span>
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Automatically calculated</span>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-0.5">For {bedroomLabel}, the agent fee is ${agentFee}</p>
+                            <p className="text-xs text-gray-400 mt-0.5">This fee is paid to the listing agent.</p>
+                          </div>
+                          <span className="shrink-0 text-base font-bold text-green-600">${agentFee}</span>
+                        </div>
+
+                        {/* Payment coming soon notice */}
+                        <div className="flex items-start gap-3 p-3 rounded-lg border border-amber-200 bg-amber-50">
+                          <div className="shrink-0 w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center">
+                            <span className="text-white text-sm font-bold">!</span>
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-amber-800">Payment Integration Coming Soon!</p>
+                            <p className="text-xs text-amber-700 mt-0.5">You&apos;ll pay the total amount directly to the agent. Please contact the agent for payment instructions.</p>
+                          </div>
+                        </div>
+
+                        {/* Total */}
+                        <div className="flex items-center justify-between px-1">
+                          <div className="flex items-center gap-2">
+                            <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            <span className="text-sm font-semibold text-gray-700">Total Amount to Pay Agent</span>
+                          </div>
+                          <span className="text-base font-bold text-gray-900">${agentFee}</span>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
                   {/* Status Badge */}
                   {property.status !== "approved" &&
                     statusConfig[property.status] && (
