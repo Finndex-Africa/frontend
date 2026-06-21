@@ -15,7 +15,10 @@ import ChatBox from "@/components/dashboard/ChatBox";
 import ReviewsList from "@/components/reviews/ReviewsList";
 import { isUserVerifiedByAdmin } from "@/lib/user-verification";
 import { getUserDisplayName } from "@/lib/display-name";
-import { getPropertyOwnerRegistrationLabel } from "@/lib/user-type-label";
+import {
+  getPropertyOwnerRegistrationLabel,
+  isAgentListedProperty,
+} from "@/lib/user-type-label";
 
 const LOCAL_PROPERTY_IMAGE = "/images/properties/pexels-photo-323780.jpeg";
 
@@ -755,7 +758,7 @@ export default function PropertyDetail() {
                   </div>
 
                   {/* Agent Fee Section */}
-                  {property.agentId && (() => {
+                  {isAgentListedProperty(property) && (() => {
                     const bedrooms = property.bedrooms != null ? property.bedrooms : property.rooms;
                     let agentFee = 20;
                     let bedroomLabel = "1–2 bedrooms";

@@ -42,3 +42,11 @@ export function getPropertyOwnerRegistrationLabel(property: {
   if (property.agentId) return 'Agent';
   return 'Landlord';
 }
+
+/** Whether a property was posted by an agent (used for agent fee, labels, etc.). */
+export function isAgentListedProperty(property: {
+  landlordId?: unknown;
+  agentId?: unknown;
+}): boolean {
+  return getPropertyOwnerRegistrationLabel(property) === 'Agent';
+}
