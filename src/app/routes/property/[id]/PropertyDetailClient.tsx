@@ -183,7 +183,7 @@ export default function PropertyDetail() {
   const getWhatsAppUrl = () => {
     if (!property) return "https://wa.me/";
     let phone = "";
-    const owner = property.agentId || property.landlordId;
+    const owner = property.landlordId || property.agentId;
     if (owner && typeof owner === "object") {
       phone = (owner as { phone?: string }).phone || "";
     }
@@ -259,7 +259,7 @@ export default function PropertyDetail() {
       console.log("Booking response:", response);
 
       if (response.success) {
-        const posterType = property.agentId ? "agent" : "landlord";
+        const posterType = getPropertyOwnerRegistrationLabel(property).toLowerCase();
         toast.success(
           `Booking request submitted successfully! The ${posterType} will contact you soon.`,
         );
@@ -374,7 +374,7 @@ export default function PropertyDetail() {
         text: fullMessage,
       });
 
-      const posterType = property.agentId ? "agent" : "landlord";
+      const posterType = getPropertyOwnerRegistrationLabel(property).toLowerCase();
       toast.success(
         `Message sent successfully! The ${posterType} will respond to you soon.`,
       );
@@ -420,6 +420,10 @@ export default function PropertyDetail() {
     property.images && property.images.length > 0
       ? property.images
       : getDefaultImages(property.type);
+
+  const ownerLabel = getPropertyOwnerRegistrationLabel(property);
+  const ownerLabelLower = ownerLabel.toLowerCase();
+  const ownerLabelPlural = ownerLabelLower === "agent" ? "agents" : "landlords";
 
   const media = images.map((src) => ({ type: "image" as const, src }));
 
@@ -869,7 +873,7 @@ export default function PropertyDetail() {
                     </svg>
                     <span>
                       {currentUser
-                        ? `WhatsApp ${property.agentId ? "Agent" : "Landlord"}`
+                        ? `WhatsApp ${ownerLabel}`
                         : "Sign in to WhatsApp"}
                     </span>
                     {!currentUser && <Lock className="w-3.5 h-3.5" />}
@@ -886,7 +890,7 @@ export default function PropertyDetail() {
                   <MessageCircle className="w-7 h-7 text-gray-500" />
                 </div>
                 <p className="text-sm font-medium text-gray-900 mb-2">
-                  Message the {property.agentId ? "Agent" : "Landlord"}
+                  Message the {ownerLabel}
                 </p>
                 <p className="text-xs text-gray-500 mb-4">
                   Sign in to start a conversation
@@ -935,7 +939,7 @@ export default function PropertyDetail() {
                         <MessageCircle className="w-4.5 h-4.5 text-blue-600" />
                       </div>
                       <span className="text-sm font-semibold text-gray-900">
-                        Message {property.agentId ? "Agent" : "Landlord"}
+                        Message {ownerLabel}
                       </span>
                     </div>
                     <ChatBox
@@ -1279,7 +1283,7 @@ export default function PropertyDetail() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-2xl font-bold text-gray-900">
-                  Contact {property.agentId ? "Agent" : "Landlord"}
+                  Contact {ownerLabel}
                 </h3>
                 <p className="text-sm text-gray-600 mt-1">
                   Send a direct message
@@ -1332,7 +1336,7 @@ export default function PropertyDetail() {
               <div className="bg-green-50 border border-green-200 rounded-xl p-4">
                 <p className="text-sm text-green-900">
                   ✅ <span className="font-semibold">Quick Response:</span> Most{" "}
-                  {property.agentId ? "agents" : "landlords"} respond within 24
+                  {ownerLabelPlural} respond within 24
                   hours
                 </p>
               </div>
