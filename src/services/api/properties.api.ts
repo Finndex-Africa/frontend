@@ -29,6 +29,10 @@ export interface CreatePropertyDto {
     amenities?: Array<{ icon: string; label: string; description?: string }>;
     availableFrom?: string;
     availableTo?: string;
+    mapCoordinates?: {
+        lat: number;
+        lng: number;
+    };
 }
 
 export interface UpdatePropertyDto extends Partial<CreatePropertyDto> {}

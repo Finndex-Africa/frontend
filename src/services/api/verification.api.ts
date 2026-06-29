@@ -1,5 +1,8 @@
 import { apiClient } from '@/lib/api-client';
 
+export const AGENT_AGREEMENT_PDF_URL =
+    "https://finndexafrica.sfo3.cdn.digitaloceanspaces.com/undefined/FindAfriq%20Agent%20Agreement.pdf";
+
 export interface IdVerification {
     _id: string;
     userId: string;
@@ -9,6 +12,7 @@ export interface IdVerification {
     idBackImage?: string;
     selfieImage?: string;
     businessRegistrationCertificate?: string;
+    signedAgentAgreement?: string;
     status: 'pending' | 'approved' | 'rejected' | 'expired';
     rejectionReason?: string;
     createdAt: string;
@@ -25,6 +29,7 @@ export interface SubmitIdVerificationDto {
     address?: string;
     expiryDate?: string;
     businessRegistrationCertificate?: string;
+    signedAgentAgreement?: string;
 }
 
 export const verificationApi = {

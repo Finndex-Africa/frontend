@@ -8,6 +8,7 @@ import Image from "next/image";
 import { MIN_PROPERTY_LISTING_IMAGES } from "@/lib/property-images";
 import { showToast } from "@/lib/toast";
 import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
+import { geocodeAddress } from "@/lib/google-maps";
 
 function getBedroomDisplay(p: ApiProperty): string {
   const n = p.bedrooms ?? p.rooms;
@@ -249,6 +250,10 @@ function EditPropertyModal({
       }
       if (formData.availableTo) {
         submitData.availableTo = new Date(formData.availableTo).toISOString();
+      }
+      const mapCoordinates = await geocodeAddress(formData.location || "");
+      if (mapCoordinates) {
+        submitData.mapCoordinates = mapCoordinates;
       }
       submitData.images = finalImages;
 

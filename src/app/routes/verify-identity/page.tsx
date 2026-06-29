@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { verificationApi, type IdVerification, type SubmitIdVerificationDto } from "@/services/api/verification.api";
+import { verificationApi, type IdVerification, type SubmitIdVerificationDto, AGENT_AGREEMENT_PDF_URL } from "@/services/api/verification.api";
 import { mediaApi } from "@/services/api/media.api";
 import { AuthService } from "@/services/auth.service";
 import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
@@ -10,6 +10,11 @@ import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 function isServiceProviderRole(role: string | undefined): boolean {
     const r = (role || "").toLowerCase();
     return r === "service_provider" || r === "provider" || r === "vendor";
+}
+
+function isAgentRole(role: string | undefined): boolean {
+    const r = (role || "").toLowerCase();
+    return r === "agent";
 }
 
 const ID_TYPES = [
@@ -27,7 +32,9 @@ export default function VerifyIdentityPage() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [isServiceProvider, setIsServiceProvider] = useState(false);
+    const [isAgent, setIsAgent] = useState(false);
     const [businessCertIsPdf, setBusinessCertIsPdf] = useState(false);
+    const [agentAgreementIsPdf, setAgentAgreementIsPdf] = useState(false);
 
     const [form, setForm] = useState<SubmitIdVerificationDto>({
         idType: "national_id",
@@ -37,17 +44,20 @@ export default function VerifyIdentityPage() {
         selfieImage: "",
         fullName: "",
         businessRegistrationCertificate: "",
+        signedAgentAgreement: "",
     });
 
     const [uploadingFront, setUploadingFront] = useState(false);
     const [uploadingBack, setUploadingBack] = useState(false);
     const [uploadingSelfie, setUploadingSelfie] = useState(false);
     const [uploadingBusinessCert, setUploadingBusinessCert] = useState(false);
+    const [uploadingAgentAgreement, setUploadingAgentAgreement] = useState(false);
 
     const frontRef = useRef<HTMLInputElement>(null);
     const backRef = useRef<HTMLInputElement>(null);
     const selfieRef = useRef<HTMLInputElement>(null);
     const businessCertRef = useRef<HTMLInputElement>(null);
+    const agentAgreementRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -57,6 +67,7 @@ export default function VerifyIdentityPage() {
         }
         const user = AuthService.getInstance().getUser();
         setIsServiceProvider(isServiceProviderRole(user?.role));
+        setIsAgent(isAgentRole(user?.role));
         loadExisting();
     }, [router]);
 
@@ -70,6 +81,16 @@ export default function VerifyIdentityPage() {
                 businessRegistrationCertificate: existing.businessRegistrationCertificate,
             }));
             setBusinessCertIsPdf(/\.pdf(\?|#|$)/i.test(existing.businessRegistrationCertificate));
+        }
+        if (
+            existing?.signedAgentAgreement &&
+            (existing.status === "rejected" || existing.status === "expired")
+        ) {
+            setForm((p) => ({
+                ...p,
+                signedAgentAgreement: existing.signedAgentAgreement,
+            }));
+            setAgentAgreementIsPdf(/\.pdf(\?|#|$)/i.test(existing.signedAgentAgreement));
         }
     }, [existing]);
 
@@ -87,7 +108,7 @@ export default function VerifyIdentityPage() {
 
     const handleUpload = async (
         file: File,
-        field: "idFrontImage" | "idBackImage" | "selfieImage" | "businessRegistrationCertificate",
+        field: "idFrontImage" | "idBackImage" | "selfieImage" | "businessRegistrationCertificate" | "signedAgentAgreement",
         setUploading: (v: boolean) => void,
     ) => {
         setUploading(true);
@@ -98,9 +119,12 @@ export default function VerifyIdentityPage() {
             if (field === "businessRegistrationCertificate") {
                 setBusinessCertIsPdf(file.type === "application/pdf");
             }
+            if (field === "signedAgentAgreement") {
+                setAgentAgreementIsPdf(file.type === "application/pdf");
+            }
         } catch (err: any) {
             const fallback =
-                field === "businessRegistrationCertificate"
+                field === "businessRegistrationCertificate" || field === "signedAgentAgreement"
                     ? "Failed to upload document. Please check that the file is under 10MB and is JPG, PNG, GIF, WebP, or PDF, then try again."
                     : "Failed to upload image. Please check that the file is under 10MB and is JPG, PNG, GIF, or WebP, then try again.";
             setError(getUserFriendlyErrorMessage(err, fallback));
@@ -126,12 +150,19 @@ export default function VerifyIdentityPage() {
             setError("Please upload your business registration certificate.");
             return;
         }
+        if (isAgent && !form.signedAgentAgreement?.trim()) {
+            setError("Please upload your signed Agent Agreement.");
+            return;
+        }
 
         setSubmitting(true);
         try {
             const payload: SubmitIdVerificationDto = { ...form };
             if (!isServiceProvider) {
                 delete payload.businessRegistrationCertificate;
+            }
+            if (!isAgent) {
+                delete payload.signedAgentAgreement;
             }
             await verificationApi.submit(payload);
             setSuccess("Your ID has been submitted for verification. You will be notified once it's reviewed.");
@@ -166,6 +197,8 @@ export default function VerifyIdentityPage() {
                         Upload a government-issued ID so our team can verify your account.
                         {isServiceProvider &&
                             " Service providers must also submit a business registration certificate."}
+                        {isAgent &&
+                            " Agents must download, sign, and upload the Agent Agreement."}
                     </p>
 
                     {/* Existing verification status */}
@@ -348,6 +381,69 @@ export default function VerifyIdentityPage() {
                                             )
                                         ) : (
                                             <span className="text-gray-500">Click to upload business registration certificate</span>
+                                        )}
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Signed Agent Agreement (agents only) */}
+                            {isAgent && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Signed Agent Agreement <span className="text-red-500">*</span>
+                                    </label>
+                                    <p className="text-xs text-gray-500 mb-3">
+                                        Download the Agent Agreement, sign it, then upload the signed copy (PDF or image).
+                                    </p>
+                                    <a
+                                        href={AGENT_AGREEMENT_PDF_URL}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 mb-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+                                    >
+                                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        Download Agent Agreement
+                                    </a>
+                                    <input
+                                        ref={agentAgreementRef}
+                                        type="file"
+                                        accept="image/*,.pdf,application/pdf"
+                                        className="hidden"
+                                        onChange={(e) => {
+                                            const f = e.target.files?.[0];
+                                            if (f) handleUpload(f, "signedAgentAgreement", setUploadingAgentAgreement);
+                                        }}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => agentAgreementRef.current?.click()}
+                                        disabled={uploadingAgentAgreement}
+                                        className="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors"
+                                    >
+                                        {uploadingAgentAgreement ? (
+                                            <span className="text-blue-600">Uploading...</span>
+                                        ) : form.signedAgentAgreement ? (
+                                            agentAgreementIsPdf ? (
+                                                <a
+                                                    href={form.signedAgentAgreement}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-600 font-medium hover:underline"
+                                                    onClick={(ev) => ev.stopPropagation()}
+                                                >
+                                                    Signed agreement uploaded — click to open
+                                                </a>
+                                            ) : (
+                                                <img
+                                                    src={form.signedAgentAgreement}
+                                                    alt="Signed Agent Agreement"
+                                                    className="max-h-40 mx-auto rounded"
+                                                />
+                                            )
+                                        ) : (
+                                            <span className="text-gray-500">Click to upload signed Agent Agreement</span>
                                         )}
                                     </button>
                                 </div>
