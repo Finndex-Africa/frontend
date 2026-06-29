@@ -19,6 +19,7 @@ import {
   getPropertyOwnerRegistrationLabel,
   isAgentListedProperty,
 } from "@/lib/user-type-label";
+import { buildGoogleMapsEmbedUrlAsync } from "@/lib/google-maps";
 
 const LOCAL_PROPERTY_IMAGE = "/images/properties/pexels-photo-323780.jpeg";
 
@@ -121,6 +122,7 @@ export default function PropertyDetail() {
     contactPhone: "",
     message: "",
   });
+  const [mapEmbedUrl, setMapEmbedUrl] = useState<string | null>(null);
 
   useEffect(() => {
     // Get current user from storage
@@ -149,6 +151,26 @@ export default function PropertyDetail() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [propertyId]);
+
+  useEffect(() => {
+    if (!property) {
+      setMapEmbedUrl(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    buildGoogleMapsEmbedUrlAsync({
+      location: property.location,
+      mapCoordinates: property.mapCoordinates,
+    }).then((url) => {
+      if (!cancelled) setMapEmbedUrl(url);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [property]);
 
   const fetchProperty = async () => {
     try {
@@ -568,14 +590,21 @@ export default function PropertyDetail() {
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
               Where you&apos;ll be
             </h2>
-            <div className="w-full h-56 rounded-lg overflow-hidden border border-gray-200">
-              <iframe
-                src={`https://www.google.com/maps?q=${encodeURIComponent(property.location)}&output=embed`}
-                width="100%"
-                height="100%"
-                loading="lazy"
-                className="border-0"
-              ></iframe>
+            <div className="w-full h-56 rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
+              {mapEmbedUrl ? (
+                <iframe
+                  src={mapEmbedUrl}
+                  width="100%"
+                  height="100%"
+                  loading="lazy"
+                  className="border-0"
+                  title={`Map showing ${property.location}`}
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                  Loading map...
+                </div>
+              )}
             </div>
           </section>
 

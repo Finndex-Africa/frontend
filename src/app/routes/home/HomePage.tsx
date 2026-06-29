@@ -250,10 +250,10 @@ export default function HomePage() {
       <section className="relative z-20 w-full overflow-visible pb-3 md:h-[400px] md:pb-0">
         <div className="absolute inset-0 overflow-hidden">
           <Image
-            src="/images/properties/pexels-photo-323780.jpeg"
+            src="/images/properties/bg.jpeg"
             alt="Hero"
             fill
-            className="object-cover"
+            className="object-cover object-[center_30%]"
             priority
           />
           <div className="absolute inset-0 bg-black/40" />

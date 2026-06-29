@@ -63,6 +63,10 @@ export interface Property {
     priceUnit?: string;
     availableFrom?: string;
     availableTo?: string;
+    mapCoordinates?: {
+        lat: number;
+        lng: number;
+    };
     createdAt: string;
     updatedAt: string;
 }

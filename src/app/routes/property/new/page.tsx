@@ -8,6 +8,7 @@ import { mediaApi } from '@/services/api/media.api';
 import { MIN_PROPERTY_LISTING_IMAGES } from '@/lib/property-images';
 import { showToast } from '@/lib/toast';
 import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
+import { geocodeAddress } from '@/lib/google-maps';
 
 // Amenity options used for form and API payload (backend expects { icon, label })
 const AMENITY_OPTIONS = [
@@ -130,6 +131,8 @@ export default function NewPropertyPage() {
                 })
                 : undefined;
 
+            const mapCoordinates = await geocodeAddress(formData.location);
+
             const propertyData = {
                 title: formData.title,
                 description: formData.description,
@@ -142,6 +145,7 @@ export default function NewPropertyPage() {
                 furnished: formData.furnished,
                 images: imageUrls,
                 amenities: amenitiesPayload,
+                ...(mapCoordinates ? { mapCoordinates } : {}),
             };
 
             await propertiesApi.create(propertyData);
