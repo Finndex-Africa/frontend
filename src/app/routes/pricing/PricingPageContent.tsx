@@ -115,20 +115,55 @@ function CustomPricingCard({
     );
 }
 
-const LANDLORD_BASIC_EXCLUDED = [
-    { ok: false as const, label: 'Top search placement' },
-    { ok: false as const, label: 'Marketing promotion' },
-    { ok: false as const, label: 'Premium badge' },
+const LANDLORD_BASIC_ROWS: { ok: boolean; label: string }[] = [
+    { ok: true, label: 'Up to 20 property listings' },
+    { ok: true, label: 'Listing management dashboard' },
+    { ok: true, label: 'Standard search visibility' },
+    { ok: true, label: 'Unlimited property inquiries' },
+    { ok: true, label: 'Property sharing' },
+    { ok: true, label: 'WhatsApp contact integration' },
+    { ok: true, label: 'Direct contact with home seekers' },
+    { ok: true, label: 'Verified badge' },
+    { ok: true, label: 'Email notifications' },
+    { ok: true, label: 'Basic customer support' },
+    { ok: false, label: 'Featured listings' },
+    { ok: false, label: 'Top search placement' },
+    { ok: false, label: 'Marketing promotion' },
+    { ok: false, label: 'Premium badge' },
 ];
 
-const LANDLORD_BASE_INCLUDED: { ok: true; label: string }[] = [
-    { ok: true, label: 'Property listing' },
-    { ok: true, label: 'Property visibility' },
-    { ok: true, label: 'Unlimited inquiries' },
-    { ok: true, label: 'Direct home seeker contact' },
-    { ok: true, label: 'Free account access' },
-    { ok: true, label: 'Verification' },
-    { ok: true, label: 'Team support' },
+const LANDLORD_PRO_ROWS: { ok: boolean; label: string }[] = [
+    { ok: true, label: 'Up to 40 property listings' },
+    { ok: true, label: 'Listing management dashboard' },
+    { ok: true, label: 'Standard search visibility' },
+    { ok: true, label: 'Unlimited property inquiries' },
+    { ok: true, label: 'Property sharing' },
+    { ok: true, label: 'WhatsApp contact integration' },
+    { ok: true, label: 'Direct contact with home seekers' },
+    { ok: true, label: 'Verified badge' },
+    { ok: true, label: 'Email notifications' },
+    { ok: true, label: 'Featured listings' },
+    { ok: true, label: 'Top search placement' },
+    { ok: true, label: 'Priority customer support' },
+    { ok: false, label: 'Marketing promotion' },
+    { ok: false, label: 'Premium badge' },
+];
+
+const LANDLORD_PREMIUM_ROWS: { ok: boolean; label: string }[] = [
+    { ok: true, label: 'Unlimited property listings' },
+    { ok: true, label: 'Listing management dashboard' },
+    { ok: true, label: 'Standard search visibility' },
+    { ok: true, label: 'Unlimited property inquiries' },
+    { ok: true, label: 'Property sharing' },
+    { ok: true, label: 'WhatsApp contact integration' },
+    { ok: true, label: 'Direct contact with home seekers' },
+    { ok: true, label: 'Verified badge' },
+    { ok: true, label: 'Email notifications' },
+    { ok: true, label: 'Featured listings' },
+    { ok: true, label: 'Top search placement' },
+    { ok: true, label: 'Premium badge' },
+    { ok: true, label: 'Marketing promotion' },
+    { ok: true, label: 'Premium support' },
 ];
 
 function LandlordCards({ onGetStarted }: { onGetStarted: () => void }) {
@@ -136,57 +171,86 @@ function LandlordCards({ onGetStarted }: { onGetStarted: () => void }) {
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
             <PricingCard
                 name="Basic"
-                price="$2"
-                priceCaption="Per property listing. Prices in USD."
-                rows={[...LANDLORD_BASE_INCLUDED, ...LANDLORD_BASIC_EXCLUDED]}
+                price="$10"
+                priceCaption="Per month. Prices in USD."
+                rows={LANDLORD_BASIC_ROWS}
                 onGetStarted={onGetStarted}
             />
             <PricingCard
                 name="Pro"
-                price="$5"
-                priceCaption="Per property. Prices in USD."
-                rows={[
-                    ...LANDLORD_BASE_INCLUDED,
-                    { ok: true, label: 'Top search placement (7 days)' },
-                    { ok: false, label: 'Marketing promotion' },
-                    { ok: false, label: 'Premium badge' },
-                ]}
+                price="$20"
+                priceCaption="Per month. Prices in USD."
+                rows={LANDLORD_PRO_ROWS}
                 onGetStarted={onGetStarted}
             />
             <PricingCard
                 name="Premium"
-                price="$10"
-                priceCaption="Per property. Prices in USD."
-                rows={[
-                    ...LANDLORD_BASE_INCLUDED,
-                    { ok: true, label: 'Top search placement (1 month)' },
-                    { ok: true, label: 'Marketing promotion (7 days)' },
-                    { ok: true, label: 'Premium badge' },
-                ]}
+                price="$30"
+                priceCaption="Per month. Prices in USD."
+                rows={LANDLORD_PREMIUM_ROWS}
                 onGetStarted={onGetStarted}
             />
             <CustomPricingCard
                 rows={[
-                    { ok: true, label: 'Everything in Premium' },
-                    { ok: true, label: 'Top search placement (custom)' },
-                    { ok: true, label: 'Marketing promotion (custom)' },
-                    { ok: true, label: 'Featured listings' },
-                    { ok: true, label: 'Priority support' },
-                    { ok: true, label: 'Account manager' },
-                    { ok: true, label: 'Custom solutions' },
+                    { ok: true, label: 'Dedicated account manager' },
+                    { ok: true, label: 'Banner promotion' },
+                    { ok: true, label: 'Platform advertising (Ads)' },
+                    { ok: true, label: 'Homepage feature placement' },
                 ]}
             />
         </div>
     );
 }
 
-const PROVIDER_COMMON_INCLUDED = [
-    'Business profile',
-    'Customer inquiries',
-    'Service visibility',
-    'Free account access',
-    'Verification',
-    'Team support',
+const PROVIDER_BASIC_ROWS: { ok: boolean; label: string }[] = [
+    { ok: true, label: 'Up to 5 service listings' },
+    { ok: true, label: 'Listing management dashboard' },
+    { ok: true, label: 'Unlimited service inquiries' },
+    { ok: true, label: 'Service sharing' },
+    { ok: true, label: 'WhatsApp contact integration' },
+    { ok: true, label: 'Direct contact with customers' },
+    { ok: true, label: 'Verified business badge' },
+    { ok: true, label: 'Standard search visibility' },
+    { ok: true, label: 'Email notifications' },
+    { ok: true, label: 'Basic support' },
+    { ok: false, label: 'Featured service listings' },
+    { ok: false, label: 'Top search placement' },
+    { ok: false, label: 'Marketing promotion' },
+    { ok: false, label: 'Premium badge' },
+];
+
+const PROVIDER_PRO_ROWS: { ok: boolean; label: string }[] = [
+    { ok: true, label: 'Up to 10 service listings' },
+    { ok: true, label: 'Listing management dashboard' },
+    { ok: true, label: 'Unlimited service inquiries' },
+    { ok: true, label: 'Service sharing' },
+    { ok: true, label: 'WhatsApp contact integration' },
+    { ok: true, label: 'Direct contact with customers' },
+    { ok: true, label: 'Verified business badge' },
+    { ok: true, label: 'Standard search visibility' },
+    { ok: true, label: 'Email notifications' },
+    { ok: true, label: 'Featured service listings' },
+    { ok: true, label: 'Top search placement' },
+    { ok: true, label: 'Priority support' },
+    { ok: false, label: 'Marketing promotion' },
+    { ok: false, label: 'Premium badge' },
+];
+
+const PROVIDER_PREMIUM_ROWS: { ok: boolean; label: string }[] = [
+    { ok: true, label: 'Unlimited service listings' },
+    { ok: true, label: 'Listing management dashboard' },
+    { ok: true, label: 'Unlimited service inquiries' },
+    { ok: true, label: 'Service sharing' },
+    { ok: true, label: 'WhatsApp contact integration' },
+    { ok: true, label: 'Direct contact with customers' },
+    { ok: true, label: 'Verified business badge' },
+    { ok: true, label: 'Standard search visibility' },
+    { ok: true, label: 'Email notifications' },
+    { ok: true, label: 'Featured service listings' },
+    { ok: true, label: 'Top search placement' },
+    { ok: true, label: 'Premium badge' },
+    { ok: true, label: 'Marketing promotion' },
+    { ok: true, label: 'Premium support' },
 ];
 
 function ServiceProviderCards({ onGetStarted }: { onGetStarted: () => void }) {
@@ -194,50 +258,31 @@ function ServiceProviderCards({ onGetStarted }: { onGetStarted: () => void }) {
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
             <PricingCard
                 name="Basic"
-                price="$10"
-                priceCaption="Monthly subscription-based. Prices in USD."
-                rows={[
-                    { ok: true, label: 'Services listing (3 services)' },
-                    ...PROVIDER_COMMON_INCLUDED.map((label) => ({ ok: true as const, label })),
-                    { ok: false, label: 'Top search placement (1 month)' },
-                    { ok: false, label: 'Marketing promotion (7 days)' },
-                    { ok: false, label: 'Premium badge' },
-                ]}
+                price="$20"
+                priceCaption="Per month. Prices in USD."
+                rows={PROVIDER_BASIC_ROWS}
                 onGetStarted={onGetStarted}
             />
             <PricingCard
                 name="Pro"
                 price="$30"
-                priceCaption="Monthly subscription-based. Prices in USD."
-                rows={[
-                    { ok: true, label: 'Services listing (5 services)' },
-                    ...PROVIDER_COMMON_INCLUDED.map((label) => ({ ok: true as const, label })),
-                    { ok: true, label: 'Top search placement (1 month)' },
-                    { ok: false, label: 'Marketing promotion (7 days)' },
-                    { ok: false, label: 'Premium badge' },
-                ]}
+                priceCaption="Per month. Prices in USD."
+                rows={PROVIDER_PRO_ROWS}
                 onGetStarted={onGetStarted}
             />
             <PricingCard
                 name="Premium"
                 price="$50"
-                priceCaption="Monthly subscription-based. Prices in USD."
-                rows={[
-                    { ok: true, label: 'Services listing (5+ services)' },
-                    ...PROVIDER_COMMON_INCLUDED.map((label) => ({ ok: true as const, label })),
-                    { ok: true, label: 'Top search placement (1 month)' },
-                    { ok: true, label: 'Marketing promotion (7 days)' },
-                    { ok: true, label: 'Premium badge' },
-                ]}
+                priceCaption="Per month. Prices in USD."
+                rows={PROVIDER_PREMIUM_ROWS}
                 onGetStarted={onGetStarted}
             />
             <CustomPricingCard
                 rows={[
-                    { ok: true, label: 'Services listing (custom)' },
-                    ...PROVIDER_COMMON_INCLUDED.map((label) => ({ ok: true as const, label })),
-                    { ok: true, label: 'Top search placement (custom)' },
-                    { ok: true, label: 'Marketing promotion (custom)' },
-                    { ok: true, label: 'Premium badge' },
+                    { ok: true, label: 'Dedicated account manager' },
+                    { ok: true, label: 'Banner promotion' },
+                    { ok: true, label: 'Platform advertising (Ads)' },
+                    { ok: true, label: 'Homepage feature placement' },
                 ]}
             />
         </div>
@@ -262,7 +307,7 @@ export default function PricingPageContent() {
                     {headings[tab]}
                 </h1>
                 <p className="mt-3 max-w-2xl mx-auto text-sm sm:text-base text-gray-700 leading-relaxed">
-                    Transparent pricing for landlords/agents and service providers.
+                    Affordable, flexible monthly subscription plans designed to help you grow your business, increase visibility, and connect with more customers.
                 </p>
 
                 <div className="mt-8 flex justify-center px-2">
