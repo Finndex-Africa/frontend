@@ -294,7 +294,7 @@ export default function PricingPageContent() {
     const [showModal, setShowModal] = useState(false);
 
     const headings: Record<TabId, string> = {
-        landlord: 'Landlord/Agent Packages and Pricing',
+        landlord: 'Landlord, Agent & Real Estate Agency Packages and Pricing',
         provider: 'Service Provider Packages and Pricing',
     };
 
