@@ -18,6 +18,9 @@ const SERVICE_TYPES = [
     { value: 'moving_logistics', label: 'Moving & Logistics', icon: '🚚' },
     { value: 'security_services', label: 'Security Services', icon: '🛡️' },
     { value: 'sanitation_services', label: 'Sanitation Services', icon: '🗑️' },
+    { value: 'catering', label: 'Catering', icon: '🍽️' },
+    { value: 'construction', label: 'Construction', icon: '🏗️' },
+    { value: 'laundry', label: 'Laundry', icon: '🧺' },
 ];
 
 export default function ServiceProviderOnboarding({ isOpen, onClose, onSuccess }: ServiceProviderOnboardingProps) {

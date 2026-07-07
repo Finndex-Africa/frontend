@@ -19,13 +19,14 @@ import Image from "next/image";
 import { useAuth } from "@/providers";
 import type { Role } from "@/providers";
 
-type UserType = "HomeSeeker" | "Agent" | "Landlord" | "ServiceProvider";
+type UserType = "HomeSeeker" | "Agent" | "RealEstateAgency" | "Landlord" | "ServiceProvider";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 const USER_TYPES: { value: UserType; label: string; description: string }[] = [
   { value: "HomeSeeker", label: "Home Seeker", description: "Find properties & services" },
   { value: "Agent", label: "Agent", description: "List and manage properties" },
+  { value: "RealEstateAgency", label: "Real Estate Agency", description: "List and manage properties as an agency" },
   { value: "Landlord", label: "Landlord", description: "Rent out your properties" },
   { value: "ServiceProvider", label: "Service Provider", description: "Offer trusted services" },
 ];
@@ -92,6 +93,7 @@ export default function AuthPage() {
         const roleMap: Record<string, Role> = {
           admin: "admin",
           agent: "landlord",
+          real_estate_agency: "landlord",
           landlord: "landlord",
           service_provider: "provider",
           vendor: "provider",
@@ -109,6 +111,7 @@ export default function AuthPage() {
         const userTypeMap: Record<UserType, string> = {
           HomeSeeker: "home_seeker",
           Agent: "agent",
+          RealEstateAgency: "real_estate_agency",
           Landlord: "landlord",
           ServiceProvider: "service_provider",
         };

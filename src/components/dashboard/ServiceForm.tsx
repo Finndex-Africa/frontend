@@ -186,6 +186,9 @@ export function ServiceForm({
                                 <Select.Option value="security_services">🔒 Security Services</Select.Option>
                                 <Select.Option value="sanitation_services">♻️ Sanitation Services</Select.Option>
                                 <Select.Option value="maintenance">🔨 Maintenance</Select.Option>
+                                <Select.Option value="catering">🍽️ Catering</Select.Option>
+                                <Select.Option value="construction">🏗️ Construction</Select.Option>
+                                <Select.Option value="laundry">🧺 Laundry</Select.Option>
                                 <Select.Option value="other">📦 Other</Select.Option>
                             </Select>
                         </Form.Item>

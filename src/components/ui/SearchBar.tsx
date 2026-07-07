@@ -21,6 +21,9 @@ const SERVICE_CATEGORIES = [
   { value: "moving_logistics", label: "Moving & Logistics" },
   { value: "security_services", label: "Security Services" },
   { value: "maintenance", label: "Maintenance" },
+  { value: "catering", label: "Catering" },
+  { value: "construction", label: "Construction" },
+  { value: "laundry", label: "Laundry" },
 ];
 
 export type SearchBarVariant = "home" | "properties" | "services";

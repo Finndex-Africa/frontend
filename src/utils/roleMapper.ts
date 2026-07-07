@@ -4,7 +4,7 @@
  */
 
 type FrontendRole = 'guest' | 'seeker' | 'landlord' | 'provider' | 'admin';
-type BackendRole = 'guest' | 'home_seeker' | 'landlord' | 'agent' | 'service_provider' | 'admin';
+type BackendRole = 'guest' | 'home_seeker' | 'landlord' | 'agent' | 'real_estate_agency' | 'service_provider' | 'admin';
 
 /**
  * Map frontend role to backend role
@@ -29,6 +29,7 @@ export function toFrontendRole(backendRole: BackendRole): FrontendRole {
     home_seeker: 'seeker',
     landlord: 'landlord',
     agent: 'landlord', // Agent has same privileges as landlord
+    real_estate_agency: 'landlord', // Real estate agency has same privileges as agent
     service_provider: 'provider',
     admin: 'admin',
   };
