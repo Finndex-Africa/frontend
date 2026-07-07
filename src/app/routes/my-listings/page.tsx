@@ -9,6 +9,7 @@ import { MIN_PROPERTY_LISTING_IMAGES } from "@/lib/property-images";
 import { showToast } from "@/lib/toast";
 import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 import { geocodeAddress } from "@/lib/google-maps";
+import { isAgentLikeUserType } from "@/lib/agent-user-types";
 
 function getBedroomDisplay(p: ApiProperty): string {
   const n = p.bedrooms ?? p.rooms;
@@ -72,11 +73,13 @@ function EditPropertyModal({
   isOpen,
   onClose,
   onSave,
+  canSetAgentFee,
 }: {
   property: ApiProperty | null;
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: Partial<ApiProperty>) => Promise<void>;
+  canSetAgentFee?: boolean;
 }) {
   const [formData, setFormData] = useState<Partial<ApiProperty>>({});
   const [loading, setLoading] = useState(false);
@@ -133,6 +136,7 @@ function EditPropertyModal({
         furnished: property.furnished || false,
         availableFrom: formattedAvailableFrom,
         availableTo: formattedAvailableTo,
+        agentFee: property.agentFee,
       });
       setImages(property.images || []);
       setNewImageFiles([]);
@@ -209,6 +213,11 @@ function EditPropertyModal({
       return;
     }
 
+    if (canSetAgentFee && (formData.agentFee === undefined || formData.agentFee === null)) {
+      showToast.error("Please enter your agent fee.");
+      return;
+    }
+
     setLoading(true);
     try {
       // Upload new images if any
@@ -250,6 +259,9 @@ function EditPropertyModal({
       }
       if (formData.availableTo) {
         submitData.availableTo = new Date(formData.availableTo).toISOString();
+      }
+      if (canSetAgentFee && formData.agentFee != null) {
+        submitData.agentFee = Number(formData.agentFee);
       }
       const mapCoordinates = await geocodeAddress(formData.location || "");
       if (mapCoordinates) {
@@ -519,6 +531,32 @@ function EditPropertyModal({
               </select>
             </div>
           </div>
+
+          {canSetAgentFee && (
+            <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-4">
+              <h3 className="text-sm font-semibold text-gray-900 mb-1">Agent Fee</h3>
+              <p className="text-xs text-gray-600 mb-3">
+                Set the fee you charge for this listing. It will be shown to home seekers on the property page.
+              </p>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Your Agent Fee (USD) <span className="text-red-500">*</span>
+              </label>
+              <div className="flex items-center max-w-xs">
+                <span className="text-gray-500 mr-2">$</span>
+                <input
+                  type="number"
+                  name="agentFee"
+                  value={formData.agentFee ?? ""}
+                  onChange={handleChange}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="0"
+                  min="0"
+                  step="0.01"
+                  required
+                />
+              </div>
+            </div>
+          )}
 
           {/* Bedrooms & Bathrooms & Area */}
           <div className="grid grid-cols-3 gap-4">
@@ -939,6 +977,7 @@ export default function MyListingsPage() {
   const [selectedEditProperty, setSelectedEditProperty] =
     useState<ApiProperty | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [canSetAgentFee, setCanSetAgentFee] = useState(false);
   const [unpublishConfirm, setUnpublishConfirm] = useState<ApiProperty | null>(
     null,
   );
@@ -956,11 +995,16 @@ export default function MyListingsPage() {
     if (user) {
       try {
         const userData = JSON.parse(user);
-        // Only landlords and agents can have listings
-        if (userData.userType !== "agent" && userData.userType !== "landlord") {
+        // Only landlords, agents, and real estate agencies can have listings
+        if (
+          userData.userType !== "agent" &&
+          userData.userType !== "real_estate_agency" &&
+          userData.userType !== "landlord"
+        ) {
           router.push("/");
           return;
         }
+        setCanSetAgentFee(isAgentLikeUserType(userData.userType || userData.role));
       } catch (e) {
         console.error("Failed to parse user data:", e);
       }
@@ -1652,6 +1696,7 @@ export default function MyListingsPage() {
         isOpen={showEditModal}
         onClose={() => setShowEditModal(false)}
         onSave={handleSaveProperty}
+        canSetAgentFee={canSetAgentFee}
       />
 
       {/* Unpublish Confirmation Modal */}

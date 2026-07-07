@@ -14,7 +14,7 @@ function isServiceProviderRole(role: string | undefined): boolean {
 
 function isAgentRole(role: string | undefined): boolean {
     const r = (role || "").toLowerCase();
-    return r === "agent";
+    return r === "agent" || r === "real_estate_agency";
 }
 
 const ID_TYPES = [

@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { propertiesApi } from '@/services/api';
 import { mediaApi } from '@/services/api/media.api';
 import { MIN_PROPERTY_LISTING_IMAGES } from '@/lib/property-images';
+import { isAgentLikeUserType } from '@/lib/agent-user-types';
 import { showToast } from '@/lib/toast';
 import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
 import { geocodeAddress } from '@/lib/google-maps';
@@ -34,6 +35,7 @@ export default function NewPropertyPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
+    const [canSetAgentFee, setCanSetAgentFee] = useState(false);
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -44,10 +46,23 @@ export default function NewPropertyPage() {
         bathrooms: '',
         area: '',
         furnished: false,
+        agentFee: '',
     });
     const [amenities, setAmenities] = useState<string[]>([]);
     const [imageFiles, setImageFiles] = useState<File[]>([]);
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+
+    useEffect(() => {
+        const user = localStorage.getItem('user') || sessionStorage.getItem('user');
+        if (user) {
+            try {
+                const userData = JSON.parse(user);
+                setCanSetAgentFee(isAgentLikeUserType(userData.userType || userData.role));
+            } catch {
+                setCanSetAgentFee(false);
+            }
+        }
+    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
@@ -110,6 +125,11 @@ export default function NewPropertyPage() {
             return;
         }
 
+        if (canSetAgentFee && formData.agentFee === '') {
+            showToast.error('Please enter your agent fee.');
+            return;
+        }
+
         setLoading(true);
         setFormError(null);
 
@@ -146,6 +166,9 @@ export default function NewPropertyPage() {
                 images: imageUrls,
                 amenities: amenitiesPayload,
                 ...(mapCoordinates ? { mapCoordinates } : {}),
+                ...(canSetAgentFee && formData.agentFee !== ''
+                    ? { agentFee: Number(formData.agentFee) }
+                    : {}),
             };
 
             await propertiesApi.create(propertyData);
@@ -295,6 +318,29 @@ export default function NewPropertyPage() {
                                     </label>
                                 </div>
                             </div>
+
+                            {canSetAgentFee && (
+                                <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/50 p-4">
+                                    <h3 className="text-sm font-semibold text-gray-900 mb-1">Agent Fee</h3>
+                                    <p className="text-xs text-gray-600 mb-3">
+                                        Set the fee you charge for this listing. It will be shown to home seekers on the property page.
+                                    </p>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Your Agent Fee (USD) <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="number"
+                                        name="agentFee"
+                                        value={formData.agentFee}
+                                        onChange={handleChange}
+                                        required
+                                        min="0"
+                                        step="0.01"
+                                        className="w-full max-w-xs px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        placeholder="e.g., 150"
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
 

@@ -445,7 +445,10 @@ export default function PropertyDetail() {
 
   const ownerLabel = getPropertyOwnerRegistrationLabel(property);
   const ownerLabelLower = ownerLabel.toLowerCase();
-  const ownerLabelPlural = ownerLabelLower === "agent" ? "agents" : "landlords";
+  const ownerLabelPlural =
+    ownerLabelLower === "agent" || ownerLabelLower === "real estate agency"
+      ? "agents"
+      : "landlords";
 
   const media = images.map((src) => ({ type: "image" as const, src }));
 
@@ -791,20 +794,7 @@ export default function PropertyDetail() {
                   </div>
 
                   {/* Agent Fee Section */}
-                  {isAgentListedProperty(property) && (() => {
-                    const bedrooms = property.bedrooms != null ? property.bedrooms : property.rooms;
-                    let agentFee = 20;
-                    let bedroomLabel = "1–2 bedrooms";
-                    if (bedrooms != null) {
-                      if (bedrooms >= 5) {
-                        agentFee = 40;
-                        bedroomLabel = "5+ bedrooms";
-                      } else if (bedrooms >= 3) {
-                        agentFee = 30;
-                        bedroomLabel = "3–4 bedrooms";
-                      }
-                    }
-                    return (
+                  {isAgentListedProperty(property) && property.agentFee != null && property.agentFee > 0 && (
                       <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4 space-y-3">
                         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Payment Details</p>
 
@@ -818,12 +808,11 @@ export default function PropertyDetail() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="text-sm font-semibold text-gray-900">Agent Fee</span>
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Automatically calculated</span>
                             </div>
-                            <p className="text-xs text-gray-500 mt-0.5">For {bedroomLabel}, the agent fee is ${agentFee}</p>
+                            <p className="text-xs text-gray-500 mt-0.5">Fee set by the listing {ownerLabelLower}.</p>
                             <p className="text-xs text-gray-400 mt-0.5">This fee is paid to the listing agent.</p>
                           </div>
-                          <span className="shrink-0 text-base font-bold text-green-600">${agentFee}</span>
+                          <span className="shrink-0 text-base font-bold text-green-600">${property.agentFee.toLocaleString()}</span>
                         </div>
 
                         {/* Payment coming soon notice */}
@@ -845,11 +834,10 @@ export default function PropertyDetail() {
                             </svg>
                             <span className="text-sm font-semibold text-gray-700">Total Amount to Pay Agent</span>
                           </div>
-                          <span className="text-base font-bold text-gray-900">${agentFee}</span>
+                          <span className="text-base font-bold text-gray-900">${property.agentFee.toLocaleString()}</span>
                         </div>
                       </div>
-                    );
-                  })()}
+                  )}
 
                   {/* Status Badge */}
                   {property.status !== "approved" &&

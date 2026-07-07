@@ -109,6 +109,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         const roleMap: Record<string, Role> = {
           admin: "admin",
           agent: "landlord",
+          real_estate_agency: "landlord",
           landlord: "landlord",
           service_provider: "provider",
           vendor: "provider", // alias for service_provider

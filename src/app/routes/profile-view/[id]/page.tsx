@@ -383,7 +383,7 @@ export default function PublicProfileView() {
                 )}
 
                 {/* Additional Info for Landlords/Agents */}
-                {!serviceProvider && (user.role === 'landlord' || user.userType === 'landlord' || user.userType === 'agent') && (
+                {!serviceProvider && (user.role === 'landlord' || user.userType === 'landlord' || user.userType === 'agent' || user.userType === 'real_estate_agency') && (
                     <div className="mt-6 bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                         <div className="text-center py-8">
                             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -392,16 +392,24 @@ export default function PublicProfileView() {
                                 </svg>
                             </div>
                             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                {user.userType === 'agent' ? 'Registered Agent' : 'Registered Landlord'}
+                                {user.userType === 'real_estate_agency'
+                                    ? 'Registered Real Estate Agency'
+                                    : user.userType === 'agent'
+                                      ? 'Registered Agent'
+                                      : 'Registered Landlord'}
                             </h3>
                             <p className="text-gray-600">
                                 {isUserVerifiedByAdmin(user)
-                                    ? user.userType === 'agent'
-                                        ? 'This user is a verified property agent on FindAfriq.'
-                                        : 'This user is a verified landlord on FindAfriq.'
-                                    : user.userType === 'agent'
-                                      ? 'This user is a registered property agent on FindAfriq.'
-                                      : 'This user is a registered landlord on FindAfriq.'}
+                                    ? user.userType === 'real_estate_agency'
+                                        ? 'This user is a verified real estate agency on FindAfriq.'
+                                        : user.userType === 'agent'
+                                          ? 'This user is a verified property agent on FindAfriq.'
+                                          : 'This user is a verified landlord on FindAfriq.'
+                                    : user.userType === 'real_estate_agency'
+                                      ? 'This user is a registered real estate agency on FindAfriq.'
+                                      : user.userType === 'agent'
+                                        ? 'This user is a registered property agent on FindAfriq.'
+                                        : 'This user is a registered landlord on FindAfriq.'}
                             </p>
                         </div>
                     </div>

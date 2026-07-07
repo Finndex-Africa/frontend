@@ -25,6 +25,7 @@ interface PropertyFormProps {
     onSubmit: (values: Partial<Property>, files: File[]) => void;
     onCancel: () => void;
     loading?: boolean;
+    canSetAgentFee?: boolean;
 }
 
 export function PropertyForm({
@@ -32,6 +33,7 @@ export function PropertyForm({
     onSubmit,
     onCancel,
     loading,
+    canSetAgentFee = false,
 }: PropertyFormProps) {
     const [form] = Form.useForm();
     const [fileList, setFileList] = useState<UploadFile[]>([]);
@@ -170,6 +172,26 @@ export function PropertyForm({
                         </Form.Item>
                     </Col>
                 </Row>
+                {canSetAgentFee && (
+                    <Row gutter={16} style={{ marginTop: '8px' }}>
+                        <Col xs={24} sm={12}>
+                            <Form.Item
+                                name="agentFee"
+                                label="Agent Fee (USD)"
+                                rules={[{ required: true, message: 'Please enter your agent fee' }]}
+                            >
+                                <InputNumber
+                                    size="large"
+                                    style={{ width: '100%', borderRadius: '8px' }}
+                                    placeholder="0"
+                                    min={0}
+                                    formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                    parser={(value) => value?.replace(/\$\s?|(,*)/g, '') as any}
+                                />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                )}
             </div>
 
             <Divider style={{ margin: '24px 0' }} />

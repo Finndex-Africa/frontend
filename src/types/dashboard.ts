@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'agent' | 'landlord' | 'service_provider' | 'home_seeker' | 'guest' | 'seeker' | 'provider';
+export type UserRole = 'admin' | 'agent' | 'real_estate_agency' | 'landlord' | 'service_provider' | 'home_seeker' | 'guest' | 'seeker' | 'provider';
 
 export enum ServiceCategory {
     ELECTRICAL = 'electrical',
@@ -10,6 +10,9 @@ export enum ServiceCategory {
     SECURITY_SERVICES = 'security_services',
     SANITATION_SERVICES = 'sanitation_services',
     MAINTENANCE = 'maintenance',
+    CATERING = 'catering',
+    CONSTRUCTION = 'construction',
+    LAUNDRY = 'laundry',
     OTHER = 'other'
 }
 
@@ -63,6 +66,7 @@ export interface Property {
     priceUnit?: string;
     availableFrom?: string;
     availableTo?: string;
+    agentFee?: number;
     mapCoordinates?: {
         lat: number;
         lng: number;
