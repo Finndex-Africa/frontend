@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { advertisementsApi, propertiesApi } from "@/services/api";
-import AgentApplicationModal from "@/components/modals/AgentApplicationModal";
+import UserReportModal from "@/components/modals/UserReportModal";
 
 interface Advertisement {
     _id: string;
@@ -30,7 +30,7 @@ export default function AdvertisementBanner() {
         totalServices: 0,
         totalUsers: 0,
     });
-    const [showAgentApplicationModal, setShowAgentApplicationModal] = useState(false);
+    const [showUserReportModal, setShowUserReportModal] = useState(false);
 
     useEffect(() => {
         fetchAdvertisements();
@@ -124,19 +124,18 @@ export default function AdvertisementBanner() {
                             {/* Left Content */}
                             <div className="text-white space-y-6">
                                 <h2 className="text-3xl md:text-4xl font-bold">
-                                    Become an Agent
+                                    Connecting you Seamlessly
                                 </h2>
                                 <p className="text-lg text-white/95">
-                                    Are you passionate about your community and eager to earn while making an impact?
-                                    Join our agents network and start earning today
+                                    Find verified properties and trusted service providers across Africa — all in one place.
                                 </p>
                                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
                                     <button
                                         type="button"
-                                        onClick={() => setShowAgentApplicationModal(true)}
+                                        onClick={() => setShowUserReportModal(true)}
                                         className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors text-center"
                                     >
-                                        Get Started
+                                        Report
                                     </button>
                                     <a
                                         href="/routes/about"
@@ -190,9 +189,9 @@ export default function AdvertisementBanner() {
                     </div>
                 </div>
                 </div>
-                <AgentApplicationModal
-                    open={showAgentApplicationModal}
-                    onClose={() => setShowAgentApplicationModal(false)}
+                <UserReportModal
+                    open={showUserReportModal}
+                    onClose={() => setShowUserReportModal(false)}
                 />
             </>
         );

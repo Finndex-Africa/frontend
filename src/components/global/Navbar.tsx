@@ -5,7 +5,7 @@ import Button from "../ui/Button";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import AdvertiseModal from "../modals/AdvertiseModal";
-import AgentApplicationModal from "../modals/AgentApplicationModal";
+import UserReportModal from "../modals/UserReportModal";
 import { useAuth } from "@/providers";
 import { getLoggedInUserTypeLabel } from "@/lib/user-type-label";
 import { notificationsApi } from "@/services/api/notifications.api";
@@ -25,7 +25,7 @@ interface Notification {
 
 export default function Navbar() {
   const [showAdvertiseModal, setShowAdvertiseModal] = useState(false);
-  const [showAgentApplicationModal, setShowAgentApplicationModal] =
+  const [showUserReportModal, setShowUserReportModal] =
     useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -320,9 +320,9 @@ export default function Navbar() {
             <button
               type="button"
               className="btn bg-transparent text-gray-700 hover:bg-gray-100 px-4 text-sm font-semibold"
-              onClick={() => setShowAgentApplicationModal(true)}
+              onClick={() => setShowUserReportModal(true)}
             >
-              Become an Agent
+              Report
             </button>
             <Button
               variant="ghost"
@@ -1088,11 +1088,11 @@ export default function Navbar() {
                   type="button"
                   className="btn bg-transparent text-gray-700 hover:bg-gray-100 px-4 text-sm font-semibold w-full justify-start!"
                   onClick={() => {
-                    setShowAgentApplicationModal(true);
+                    setShowUserReportModal(true);
                     setShowMobileMenu(false);
                   }}
                 >
-                  Become an Agent
+                  Report
                 </button>
                 <Button
                   variant="ghost"
@@ -1742,9 +1742,9 @@ export default function Navbar() {
         onClose={() => setShowAdvertiseModal(false)}
       />
 
-      <AgentApplicationModal
-        open={showAgentApplicationModal}
-        onClose={() => setShowAgentApplicationModal(false)}
+      <UserReportModal
+        open={showUserReportModal}
+        onClose={() => setShowUserReportModal(false)}
       />
 
       {/* Notification Details Modal */}
