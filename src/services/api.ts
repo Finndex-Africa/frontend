@@ -10,7 +10,7 @@ export * from './api/media.api';
 export * from './api/advertisements.api';
 export * from './api/messages.api';
 export * from './api/verification.api';
-export * from './api/agent-applications.api';
+export * from './api/user-reports.api';
 
 export interface ApiError {
   message: string;
