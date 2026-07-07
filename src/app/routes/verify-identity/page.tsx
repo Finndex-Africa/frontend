@@ -12,9 +12,16 @@ function isServiceProviderRole(role: string | undefined): boolean {
     return r === "service_provider" || r === "provider" || r === "vendor";
 }
 
-function isAgentRole(role: string | undefined): boolean {
-    const r = (role || "").toLowerCase();
-    return r === "agent" || r === "real_estate_agency";
+function isRealEstateAgencyRole(role: string | undefined): boolean {
+    return (role || "").toLowerCase() === "real_estate_agency";
+}
+
+function isAgentOnlyRole(role: string | undefined): boolean {
+    return (role || "").toLowerCase() === "agent";
+}
+
+function needsBusinessRegistration(role: string | undefined): boolean {
+    return isServiceProviderRole(role) || isRealEstateAgencyRole(role);
 }
 
 const ID_TYPES = [
@@ -32,7 +39,8 @@ export default function VerifyIdentityPage() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [isServiceProvider, setIsServiceProvider] = useState(false);
-    const [isAgent, setIsAgent] = useState(false);
+    const [isRealEstateAgency, setIsRealEstateAgency] = useState(false);
+    const [isAgentOnly, setIsAgentOnly] = useState(false);
     const [businessCertIsPdf, setBusinessCertIsPdf] = useState(false);
     const [agentAgreementIsPdf, setAgentAgreementIsPdf] = useState(false);
 
@@ -66,8 +74,10 @@ export default function VerifyIdentityPage() {
             return;
         }
         const user = AuthService.getInstance().getUser();
-        setIsServiceProvider(isServiceProviderRole(user?.role));
-        setIsAgent(isAgentRole(user?.role));
+        const accountRole = user?.role;
+        setIsServiceProvider(isServiceProviderRole(accountRole));
+        setIsRealEstateAgency(isRealEstateAgencyRole(accountRole));
+        setIsAgentOnly(isAgentOnlyRole(accountRole));
         loadExisting();
     }, [router]);
 
@@ -146,11 +156,11 @@ export default function VerifyIdentityPage() {
             setError("Please upload the front of your ID.");
             return;
         }
-        if (isServiceProvider && !form.businessRegistrationCertificate?.trim()) {
+        if (needsBusinessRegistration(AuthService.getInstance().getUser()?.role) && !form.businessRegistrationCertificate?.trim()) {
             setError("Please upload your business registration certificate.");
             return;
         }
-        if (isAgent && !form.signedAgentAgreement?.trim()) {
+        if (isAgentOnly && !form.signedAgentAgreement?.trim()) {
             setError("Please upload your signed Agent Agreement.");
             return;
         }
@@ -158,10 +168,11 @@ export default function VerifyIdentityPage() {
         setSubmitting(true);
         try {
             const payload: SubmitIdVerificationDto = { ...form };
-            if (!isServiceProvider) {
+            const accountRole = AuthService.getInstance().getUser()?.role;
+            if (!needsBusinessRegistration(accountRole)) {
                 delete payload.businessRegistrationCertificate;
             }
-            if (!isAgent) {
+            if (!isAgentOnlyRole(accountRole)) {
                 delete payload.signedAgentAgreement;
             }
             await verificationApi.submit(payload);
@@ -197,7 +208,9 @@ export default function VerifyIdentityPage() {
                         Upload a government-issued ID so our team can verify your account.
                         {isServiceProvider &&
                             " Service providers must also submit a business registration certificate."}
-                        {isAgent &&
+                        {isRealEstateAgency &&
+                            " Real estate agencies must also submit a business registration certificate."}
+                        {isAgentOnly &&
                             " Agents must download, sign, and upload the Agent Agreement."}
                     </p>
 
@@ -334,8 +347,8 @@ export default function VerifyIdentityPage() {
                                 </button>
                             </div>
 
-                            {/* Business registration certificate (service providers only) */}
-                            {isServiceProvider && (
+                            {/* Business registration certificate (service providers & real estate agencies) */}
+                            {(isServiceProvider || isRealEstateAgency) && (
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Business Registration Certificate <span className="text-red-500">*</span>
@@ -386,8 +399,8 @@ export default function VerifyIdentityPage() {
                                 </div>
                             )}
 
-                            {/* Signed Agent Agreement (agents only) */}
-                            {isAgent && (
+                            {/* Signed Agent Agreement (agents only — not real estate agencies) */}
+                            {isAgentOnly && (
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Signed Agent Agreement <span className="text-red-500">*</span>
