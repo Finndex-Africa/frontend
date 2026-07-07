@@ -59,7 +59,7 @@ export default function VerifiedTrustedBanner() {
                             Verified &amp; Trusted
                         </h2>
                         <p className="mt-0.5 text-xs leading-snug text-gray-700 sm:text-sm">
-                            All listings and service providers are verified for your peace of mind.
+                            All listings are verified and trusted for your peace of mind.
                         </p>
                     </div>
                 </div>

@@ -121,7 +121,7 @@ export default function AuthPage() {
             password,
             phone,
             firstName,
-            lastName,
+            lastName: userType === "RealEstateAgency" ? (lastName.trim() || firstName.trim()) : lastName,
             userType: userTypeMap[userType],
           };
           if (userType === "ServiceProvider" && website.trim()) {
@@ -337,6 +337,11 @@ export default function AuthPage() {
                         Service providers should use their registered business name when creating an account.
                       </p>
                     )}
+                    {userType === "RealEstateAgency" && (
+                      <p className="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 leading-relaxed">
+                        Please use your agency name when creating an account, not your personal name.
+                      </p>
+                    )}
                   </div>
                 )}
 
@@ -344,7 +349,7 @@ export default function AuthPage() {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1.5">
-                        First Name
+                        {userType === "RealEstateAgency" ? "Agency Name" : "First Name"}
                       </label>
                       <input
                         id="firstName"
@@ -354,22 +359,22 @@ export default function AuthPage() {
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         className={inputClass.replace("pl-11", "px-4")}
-                        placeholder="First name"
+                        placeholder={userType === "RealEstateAgency" ? "Agency name" : "First name"}
                       />
                     </div>
                     <div>
                       <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1.5">
-                        Last Name
+                        {userType === "RealEstateAgency" ? "Additional Name (optional)" : "Last Name"}
                       </label>
                       <input
                         id="lastName"
                         name="lastName"
                         type="text"
-                        required
+                        required={userType !== "RealEstateAgency"}
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
                         className={inputClass.replace("pl-11", "px-4")}
-                        placeholder="Last name"
+                        placeholder={userType === "RealEstateAgency" ? "Optional" : "Last name"}
                       />
                     </div>
                   </div>

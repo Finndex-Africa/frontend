@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { advertisementsApi, propertiesApi } from "@/services/api";
-import UserReportModal from "@/components/modals/UserReportModal";
 
 interface Advertisement {
     _id: string;
@@ -30,7 +30,6 @@ export default function AdvertisementBanner() {
         totalServices: 0,
         totalUsers: 0,
     });
-    const [showUserReportModal, setShowUserReportModal] = useState(false);
 
     useEffect(() => {
         fetchAdvertisements();
@@ -127,16 +126,15 @@ export default function AdvertisementBanner() {
                                     Connecting you Seamlessly
                                 </h2>
                                 <p className="text-lg text-white/95">
-                                    Find verified properties and trusted service providers across Africa — all in one place.
+                                    The smarter way to find verified properties and trusted service providers seamlessly.
                                 </p>
                                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowUserReportModal(true)}
+                                    <Link
+                                        href="/routes/login"
                                         className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors text-center"
                                     >
-                                        Report
-                                    </button>
+                                        Get Started
+                                    </Link>
                                     <a
                                         href="/routes/about"
                                         className="inline-block border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors text-center"
@@ -189,10 +187,6 @@ export default function AdvertisementBanner() {
                     </div>
                 </div>
                 </div>
-                <UserReportModal
-                    open={showUserReportModal}
-                    onClose={() => setShowUserReportModal(false)}
-                />
             </>
         );
     }
