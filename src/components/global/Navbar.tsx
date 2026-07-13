@@ -49,7 +49,7 @@ export default function Navbar() {
     { href: "/", label: "Discover" },
     { href: "/routes/properties", label: "Properties" },
     { href: "/routes/services", label: "Services" },
-    { href: "/routes/pricing", label: "Pricing" },
+    { href: "/routes/buy-and-sell", label: "Buy & Sell", isNew: true },
   ];
   const router = useRouter();
 
@@ -309,9 +309,14 @@ export default function Navbar() {
               <Link
                 key={l.href}
                 href={l.href}
-                className="text-sm font-semibold text-gray-700 hover:text-gray-900"
+                className={`text-sm font-semibold flex items-center gap-1.5 ${l.isNew ? "text-blue-600 hover:text-blue-700" : "text-gray-700 hover:text-gray-900"}`}
               >
                 {l.label}
+                {l.isNew && (
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-600 text-white leading-none">
+                    New
+                  </span>
+                )}
               </Link>
             ))}
           </nav>
@@ -1075,10 +1080,15 @@ export default function Navbar() {
                 <Link
                   key={l.href}
                   href={l.href}
-                  className="block py-2 text-base font-semibold text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg px-3 transition-colors text-left"
+                  className={`flex items-center gap-2 py-2 text-base font-semibold hover:bg-gray-50 rounded-lg px-3 transition-colors text-left ${l.isNew ? "text-blue-600 hover:text-blue-700" : "text-gray-700 hover:text-gray-900"}`}
                   onClick={() => setShowMobileMenu(false)}
                 >
                   {l.label}
+                  {l.isNew && (
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-600 text-white leading-none">
+                      New
+                    </span>
+                  )}
                 </Link>
               ))}
 

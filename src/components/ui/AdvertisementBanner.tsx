@@ -16,7 +16,6 @@ interface Advertisement {
 interface PlatformStats {
     totalProperties: number;
     totalServices: number;
-    totalUsers: number;
 }
 
 const FINDAFRIQ_INTRO_EMBED_SRC = 'https://www.youtube.com/embed/W7e_E5S_YKA';
@@ -28,7 +27,6 @@ export default function AdvertisementBanner() {
     const [stats, setStats] = useState<PlatformStats>({
         totalProperties: 0,
         totalServices: 0,
-        totalUsers: 0,
     });
 
     useEffect(() => {
@@ -77,7 +75,6 @@ export default function AdvertisementBanner() {
                     totalProperties: response.data.approvedProperties || response.data.totalProperties || 0,
                     totalServices:
                         response.data.totalServices ?? response.data.totalServiceProviders ?? 0,
-                    totalUsers: response.data.totalUsers || 0,
                 });
             }
         } catch (error) {
@@ -136,15 +133,15 @@ export default function AdvertisementBanner() {
                                         Get Started
                                     </Link>
                                     <a
-                                        href="/routes/about"
+                                        href="/routes/how-it-works"
                                         className="inline-block border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors text-center"
                                     >
-                                        Learn More
+                                        How It Works
                                     </a>
                                 </div>
 
                             {/* Stats */}
-                            <div className="grid grid-cols-3 gap-4 pt-8 border-t border-white/20">
+                            <div className="grid grid-cols-2 gap-4 pt-8 border-t border-white/20">
                                 <div>
                                     <div className="text-3xl font-bold">{formatNumber(stats.totalProperties)}</div>
                                     <div className="text-sm text-white/90">Properties Listed</div>
@@ -152,10 +149,6 @@ export default function AdvertisementBanner() {
                                 <div>
                                     <div className="text-3xl font-bold">{formatNumber(stats.totalServices)}</div>
                                     <div className="text-sm text-white/90">Services Listed</div>
-                                </div>
-                                <div>
-                                    <div className="text-3xl font-bold">{formatNumber(stats.totalUsers)}</div>
-                                    <div className="text-sm text-white/90">Total Users</div>
                                 </div>
                             </div>
                         </div>

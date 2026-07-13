@@ -47,6 +47,7 @@ export default function Footer() {
                     <ul className="space-y-2 text-gray-600">
                         <li><a href="/routes/properties" className="hover:text-gray-900 transition-colors">Properties</a></li>
                         <li><a href="/routes/services" className="hover:text-gray-900 transition-colors">Services</a></li>
+                        <li><a href="/routes/how-it-works" className="hover:text-gray-900 transition-colors">How It Works</a></li>
                     </ul>
                 </div>
                 <div>
