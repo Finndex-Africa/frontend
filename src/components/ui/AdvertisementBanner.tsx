@@ -141,13 +141,13 @@ export default function AdvertisementBanner() {
                                 </div>
 
                             {/* Stats */}
-                            <div className="grid grid-cols-2 gap-4 pt-8 border-t border-white/20">
+                            <div className="flex gap-10 pt-8 border-t border-white/20">
                                 <div>
-                                    <div className="text-3xl font-bold">{formatNumber(stats.totalProperties)}</div>
+                                    <div className="text-3xl font-extrabold">{formatNumber(stats.totalProperties)}</div>
                                     <div className="text-sm text-white/90">Properties Listed</div>
                                 </div>
                                 <div>
-                                    <div className="text-3xl font-bold">{formatNumber(stats.totalServices)}</div>
+                                    <div className="text-3xl font-extrabold">{formatNumber(stats.totalServices)}</div>
                                     <div className="text-sm text-white/90">Services Listed</div>
                                 </div>
                             </div>
