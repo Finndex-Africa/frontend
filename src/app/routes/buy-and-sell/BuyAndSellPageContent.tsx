@@ -22,6 +22,8 @@ export default function BuyAndSellPageContent() {
   const [modalState, setModalState] = useState<ModalState>("idle");
   const [modalMessage, setModalMessage] = useState("");
   const [emailInput, setEmailInput] = useState("");
+  const [nameInput, setNameInput] = useState("");
+  const [phoneInput, setPhoneInput] = useState("");
   const [emailError, setEmailError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -47,11 +49,13 @@ export default function BuyAndSellPageContent() {
       submitNotification({
         email: storedUser.email || "",
         phoneNumber: storedUser.phoneNumber,
-        username: storedUser.username,
+        username: storedUser.username || storedUser.firstName,
         isUser: true,
       });
     } else {
       setEmailInput("");
+      setNameInput("");
+      setPhoneInput("");
       setEmailError("");
       setModalState("email-prompt");
     }
@@ -97,12 +101,19 @@ export default function BuyAndSellPageContent() {
       return;
     }
     setEmailError("");
-    submitNotification({ email: trimmed, isUser: false });
+    submitNotification({
+      email: trimmed,
+      username: nameInput.trim() || undefined,
+      phoneNumber: phoneInput.trim() || undefined,
+      isUser: false,
+    });
   };
 
   const closeModal = () => {
     setModalState("idle");
     setEmailInput("");
+    setNameInput("");
+    setPhoneInput("");
     setEmailError("");
     setModalMessage("");
   };
@@ -312,30 +323,72 @@ export default function BuyAndSellPageContent() {
                     </p>
                   </div>
                 </div>
-                <form onSubmit={handleEmailSubmit} noValidate>
-                  <label
-                    htmlFor="notify-email"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Email address
-                  </label>
-                  <input
-                    id="notify-email"
-                    type="email"
-                    value={emailInput}
-                    onChange={(e) => {
-                      setEmailInput(e.target.value);
-                      setEmailError("");
-                    }}
-                    placeholder="you@example.com"
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    disabled={isSubmitting}
-                    autoFocus
-                  />
-                  {emailError && (
-                    <p className="mt-1 text-xs text-red-600">{emailError}</p>
-                  )}
-                  <div className="flex gap-3 mt-4">
+                <form onSubmit={handleEmailSubmit} noValidate className="space-y-3">
+                  {/* Email — required */}
+                  <div>
+                    <label
+                      htmlFor="notify-email"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Email address <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      id="notify-email"
+                      type="email"
+                      value={emailInput}
+                      onChange={(e) => {
+                        setEmailInput(e.target.value);
+                        setEmailError("");
+                      }}
+                      placeholder="you@example.com"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      disabled={isSubmitting}
+                      autoFocus
+                    />
+                    {emailError && (
+                      <p className="mt-1 text-xs text-red-600">{emailError}</p>
+                    )}
+                  </div>
+
+                  {/* Name — optional */}
+                  <div>
+                    <label
+                      htmlFor="notify-name"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Name <span className="text-gray-400 font-normal">(optional)</span>
+                    </label>
+                    <input
+                      id="notify-name"
+                      type="text"
+                      value={nameInput}
+                      onChange={(e) => setNameInput(e.target.value)}
+                      placeholder="John Doe"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+
+                  {/* Phone — optional */}
+                  <div>
+                    <label
+                      htmlFor="notify-phone"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Phone number <span className="text-gray-400 font-normal">(optional)</span>
+                    </label>
+                    <input
+                      id="notify-phone"
+                      type="tel"
+                      value={phoneInput}
+                      onChange={(e) => setPhoneInput(e.target.value)}
+                      placeholder="+250788000000"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+
+                  <div className="flex gap-3 pt-1">
                     <button
                       type="button"
                       onClick={closeModal}
