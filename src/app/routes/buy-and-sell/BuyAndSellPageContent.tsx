@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import axios from "axios";
+import { trackWaitlistSignup } from "@/lib/analytics";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
@@ -70,6 +71,7 @@ export default function BuyAndSellPageContent() {
     setIsSubmitting(true);
     try {
       await axios.post(`${API_URL}/notify-me`, body);
+      trackWaitlistSignup("buy_and_sell");
       setModalMessage(
         "You're on the list! We'll notify you when the Buy & Sell feature is live."
       );

@@ -15,6 +15,14 @@ type ConsentState = {
 const CONSENT_KEY = 'findafriq_cookie_consent';
 const CONSENT_VERSION = '1';
 
+function updateGAConsent(consentData: ConsentState) {
+    if (typeof window === 'undefined' || typeof window.gtag !== 'function') return;
+    window.gtag('consent', 'update', {
+        analytics_storage: consentData.analytics ? 'granted' : 'denied',
+        ad_storage: consentData.marketing ? 'granted' : 'denied',
+    });
+}
+
 export default function CookieConsent() {
     const [visible, setVisible] = useState(false);
     const [showDetails, setShowDetails] = useState(false);
@@ -39,6 +47,8 @@ export default function CookieConsent() {
                 const timer = setTimeout(() => setVisible(true), 800);
                 return () => clearTimeout(timer);
             }
+            // Restore GA consent state on page load
+            updateGAConsent(parsed as ConsentState);
         } catch {
             const timer = setTimeout(() => setVisible(true), 800);
             return () => clearTimeout(timer);
@@ -50,6 +60,7 @@ export default function CookieConsent() {
             CONSENT_KEY,
             JSON.stringify({ ...consentData, version: CONSENT_VERSION, timestamp: Date.now() })
         );
+        updateGAConsent(consentData);
         setVisible(false);
     };
 

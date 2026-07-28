@@ -6,6 +6,7 @@ import { verificationApi, type IdVerification, type SubmitIdVerificationDto, AGE
 import { mediaApi } from "@/services/api/media.api";
 import { AuthService } from "@/services/auth.service";
 import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
+import { trackIdentityVerificationStarted, trackIdentityVerificationSubmitted } from "@/lib/analytics";
 
 function isServiceProviderRole(role: string | undefined): boolean {
     const r = (role || "").toLowerCase();
@@ -78,6 +79,7 @@ export default function VerifyIdentityPage() {
         setIsServiceProvider(isServiceProviderRole(accountRole));
         setIsRealEstateAgency(isRealEstateAgencyRole(accountRole));
         setIsAgentOnly(isAgentOnlyRole(accountRole));
+        trackIdentityVerificationStarted(accountRole);
         loadExisting();
     }, [router]);
 
@@ -176,6 +178,10 @@ export default function VerifyIdentityPage() {
                 delete payload.signedAgentAgreement;
             }
             await verificationApi.submit(payload);
+            trackIdentityVerificationSubmitted({
+                role: AuthService.getInstance().getUser()?.role,
+                idType: form.idType,
+            });
             setSuccess("Your ID has been submitted for verification. You will be notified once it's reviewed.");
             loadExisting();
         } catch (err: any) {

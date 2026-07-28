@@ -7,6 +7,7 @@ import { AuthService } from '@/services/auth.service';
 import Modal from '@/components/ui/Modal';
 import { showToast } from '@/lib/toast';
 import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
+import { trackReviewSubmitted } from '@/lib/analytics';
 
 interface ReviewFormProps {
     itemType: 'property' | 'service';
@@ -66,6 +67,7 @@ export default function ReviewForm({ itemType, itemId, itemTitle, onSuccess }: R
             };
 
             await reviewsApi.create(reviewData);
+            trackReviewSubmitted({ type: itemType, rating });
             showToast.success('Review submitted successfully!');
 
             // Reset form

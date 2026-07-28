@@ -4,6 +4,7 @@ import { useRef, useState, useCallback } from "react";
 import { useBookmarks } from "@/providers";
 import { SafeImage } from "@/components/ui/SafeImage";
 import ShareButton from "@/components/ui/ShareButton";
+import { trackListingBookmarked } from "@/lib/analytics";
 
 export type Property = {
     id: string;
@@ -181,6 +182,11 @@ export default function PropertyCard({
                             e.preventDefault();
                             e.stopPropagation();
                             toggle(p.id, "property");
+                            trackListingBookmarked({
+                                id: p.id,
+                                type: "property",
+                                action: saved ? "remove" : "add",
+                            });
                         }}
                         className={`hover:scale-110 transition-transform bg-white/10 backdrop-blur-sm rounded-full ${
                             compact ? "p-1" : "p-2"

@@ -18,6 +18,7 @@ import {
 import Image from "next/image";
 import { useAuth } from "@/providers";
 import type { Role } from "@/providers";
+import { trackLogin, trackSignUp, type UserType as AnalyticsUserType } from "@/lib/analytics";
 
 type UserType = "HomeSeeker" | "Agent" | "RealEstateAgency" | "Landlord" | "ServiceProvider";
 
@@ -105,6 +106,7 @@ export default function AuthPage() {
           ""
         ).toLowerCase();
         setRole(roleMap[userRole] || "guest");
+        trackLogin();
         setLoading(false);
         router.replace("/");
       } else {
@@ -147,6 +149,7 @@ export default function AuthPage() {
         setSuccessMessage(
           "Registration successful! Please check your email to verify your account.",
         );
+        trackSignUp(userType as AnalyticsUserType);
         setLoading(false);
 
         setEmail("");

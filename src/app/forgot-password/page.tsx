@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Mail, ArrowLeft } from 'lucide-react';
 import { AuthService } from '@/services/auth.service';
+import { trackPasswordResetRequested } from '@/lib/analytics';
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState('');
@@ -19,6 +20,7 @@ export default function ForgotPasswordPage() {
         try {
             const authService = AuthService.getInstance();
             await authService.forgotPassword(email);
+            trackPasswordResetRequested();
             setSuccess(true);
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Failed to send reset email. Please try again.');

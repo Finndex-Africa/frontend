@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Check, X } from 'lucide-react';
 import { LegalContactCard } from '@/components/legal/LegalDocLayout';
+import { trackPricingPlanClicked } from '@/lib/analytics';
 
 type TabId = 'landlord' | 'provider';
 
@@ -66,7 +67,7 @@ function PricingCard({
     price: string;
     priceCaption: string;
     rows: { ok: boolean; label: string }[];
-    onGetStarted: () => void;
+    onGetStarted: (plan: string) => void;
 }) {
     return (
         <div className={cardShell}>
@@ -80,7 +81,7 @@ function PricingCard({
                 ))}
             </ul>
             <button
-                onClick={onGetStarted}
+                onClick={() => onGetStarted(name)}
                 className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-brand-yellow px-5 py-3.5 text-center text-sm font-bold text-brand-blue shadow-md transition hover:brightness-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
             >
                 Get started
@@ -166,7 +167,7 @@ const LANDLORD_PREMIUM_ROWS: { ok: boolean; label: string }[] = [
     { ok: true, label: 'Premium support' },
 ];
 
-function LandlordCards({ onGetStarted }: { onGetStarted: () => void }) {
+function LandlordCards({ onGetStarted }: { onGetStarted: (plan: string) => void }) {
     return (
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
             <PricingCard
@@ -253,7 +254,7 @@ const PROVIDER_PREMIUM_ROWS: { ok: boolean; label: string }[] = [
     { ok: true, label: 'Premium support' },
 ];
 
-function ServiceProviderCards({ onGetStarted }: { onGetStarted: () => void }) {
+function ServiceProviderCards({ onGetStarted }: { onGetStarted: (plan: string) => void }) {
     return (
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
             <PricingCard
@@ -292,6 +293,11 @@ function ServiceProviderCards({ onGetStarted }: { onGetStarted: () => void }) {
 export default function PricingPageContent() {
     const [tab, setTab] = useState<TabId>('landlord');
     const [showModal, setShowModal] = useState(false);
+
+    const handleGetStarted = (plan: string) => {
+        trackPricingPlanClicked({ plan, audience: tab });
+        setShowModal(true);
+    };
 
     const headings: Record<TabId, string> = {
         landlord: 'Landlord, Agent & Real Estate Agency Packages and Pricing',
@@ -338,8 +344,8 @@ export default function PricingPageContent() {
 
             <div className="container-app px-4 pb-14 sm:pb-16 max-w-7xl mx-auto space-y-12">
                 <div role="tabpanel">
-                    {tab === 'landlord' && <LandlordCards onGetStarted={() => setShowModal(true)} />}
-                    {tab === 'provider' && <ServiceProviderCards onGetStarted={() => setShowModal(true)} />}
+                    {tab === 'landlord' && <LandlordCards onGetStarted={handleGetStarted} />}
+                    {tab === 'provider' && <ServiceProviderCards onGetStarted={handleGetStarted} />}
                 </div>
 
                 <div className="rounded-2xl border border-brand-blue/20 bg-brand-blue p-6 sm:p-8 text-white shadow-lg">

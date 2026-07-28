@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { AuthService } from '@/services/auth.service';
+import { trackPasswordResetCompleted } from '@/lib/analytics';
 
 function ResetPasswordForm() {
     const searchParams = useSearchParams();
@@ -42,6 +43,7 @@ function ResetPasswordForm() {
         try {
             const authService = AuthService.getInstance();
             await authService.resetPassword(token, newPassword);
+            trackPasswordResetCompleted();
             setSuccess(true);
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Failed to reset password. The link may have expired.');

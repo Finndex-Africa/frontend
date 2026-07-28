@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Search, MapPin, Home, Briefcase, DollarSign, X, SlidersHorizontal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { trackSearch, trackFilterCleared } from "@/lib/analytics";
 
 const PROPERTY_TYPES = [
   { value: "Apartment", label: "Apartment" },
@@ -99,6 +100,15 @@ export default function SearchBar({
     if (resolvedTab === "homes" && budget) params.append("maxPrice", budget);
     if (resolvedTab === "services" && serviceName.trim()) params.append("q", serviceName.trim());
 
+    trackSearch({
+      type: resolvedTab,
+      location: location.trim() || undefined,
+      propertyType: resolvedTab === "homes" ? type || undefined : undefined,
+      category: resolvedTab === "services" ? type || undefined : undefined,
+      budget: resolvedTab === "homes" ? budget || undefined : undefined,
+      serviceName: resolvedTab === "services" ? serviceName.trim() || undefined : undefined,
+    });
+
     const queryString = params.toString();
     router.push(`${getTargetPath()}${queryString ? `?${queryString}` : ""}`);
   };
@@ -119,6 +129,7 @@ export default function SearchBar({
     setIsOpen(false);
 
     if (variant === "properties" || variant === "services") {
+      trackFilterCleared(variant === "services" ? "services" : "properties");
       router.push(getTargetPath());
     }
   };
