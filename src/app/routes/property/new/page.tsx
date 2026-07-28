@@ -10,6 +10,7 @@ import { isAgentLikeUserType } from '@/lib/agent-user-types';
 import { showToast } from '@/lib/toast';
 import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
 import { geocodeAddress } from '@/lib/google-maps';
+import { trackListingCreated } from '@/lib/analytics';
 
 // Amenity options used for form and API payload (backend expects { icon, label })
 const AMENITY_OPTIONS = [
@@ -173,6 +174,7 @@ export default function NewPropertyPage() {
 
             await propertiesApi.create(propertyData);
 
+            trackListingCreated({ type: "property", category: propertyData.propertyType });
             showToast.success('Property created successfully! It will be reviewed by admin.');
             router.push('/routes/my-listings');
         } catch (error: any) {

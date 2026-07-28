@@ -20,6 +20,15 @@ import {
   isAgentListedProperty,
 } from "@/lib/user-type-label";
 import { buildGoogleMapsEmbedUrlAsync } from "@/lib/google-maps";
+import {
+  trackListingViewed,
+  trackBookingModalOpened,
+  trackBookingSubmitted,
+  trackWhatsAppClick,
+  trackContactModalOpened,
+  trackChatStarted,
+} from "@/lib/analytics";
+import { useScrollDepth } from "@/lib/hooks/useScrollDepth";
 
 const LOCAL_PROPERTY_IMAGE = "/images/properties/pexels-photo-323780.jpeg";
 
@@ -104,6 +113,8 @@ export default function PropertyDetail() {
   const params = useParams();
   const propertyId = params?.id as string;
 
+  useScrollDepth();
+
   const [property, setProperty] = useState<ApiProperty | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -178,6 +189,14 @@ export default function PropertyDetail() {
       const { data } = await propertiesApi.getById(propertyId);
       setProperty(data);
       setError(null);
+      trackListingViewed({
+        id: propertyId,
+        type: "property",
+        title: data.title,
+        location: data.location,
+        price: data.price,
+        category: data.type,
+      });
     } catch (error) {
       console.error("Error fetching property:", error);
       setError("Failed to load property details. Please try again later.");
@@ -191,6 +210,7 @@ export default function PropertyDetail() {
       window.location.href = "/routes/login";
       return;
     }
+    trackBookingModalOpened({ listingId: propertyId, listingType: "property" });
     setShowBookingModal(true);
   };
 
@@ -199,6 +219,7 @@ export default function PropertyDetail() {
       window.location.href = "/routes/login";
       return;
     }
+    trackContactModalOpened({ listingId: propertyId, listingType: "property" });
     setShowContactModal(true);
   };
 
@@ -223,6 +244,7 @@ export default function PropertyDetail() {
       window.location.href = "/routes/login";
       return;
     }
+    trackWhatsAppClick({ listingId: propertyId, listingType: "property" });
     window.open(getWhatsAppUrl(), "_blank", "noopener,noreferrer");
   };
 
@@ -282,6 +304,12 @@ export default function PropertyDetail() {
 
       if (response.success) {
         const posterType = getPropertyOwnerRegistrationLabel(property).toLowerCase();
+        trackBookingSubmitted({
+          listingId: propertyId,
+          listingType: "property",
+          rentalPeriod: bookingData.rentalPeriod,
+          scheduledDate: bookingData.moveInDate,
+        });
         toast.success(
           `Booking request submitted successfully! The ${posterType} will contact you soon.`,
         );
@@ -389,6 +417,8 @@ export default function PropertyDetail() {
         toast.error("Could not start conversation. Please try again.");
         return;
       }
+
+      trackChatStarted({ sourcePage: "property_detail" });
 
       const fullMessage = `${subject ? `[${subject}] ` : ""}${message}\n\nFrom: ${currentUser.firstName || "User"}${currentUser.email ? ` (${currentUser.email})` : ""}`;
       await apiClient.post("/messages/send", {

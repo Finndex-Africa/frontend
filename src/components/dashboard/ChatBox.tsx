@@ -13,6 +13,7 @@ import {
 } from "stream-chat-react";
 import type { StreamChat, Channel as ChannelType } from "stream-chat";
 import "stream-chat-react/dist/css/v2/index.css";
+import { trackChatStarted } from "@/lib/analytics";
 
 interface ChatBoxProps {
     userId: string;
@@ -93,6 +94,7 @@ export default function ChatBox({ userId, landlordId, propertyId }: ChatBoxProps
     }, [userId, landlordId, propertyId, retryCount, isInitialized]);
 
     const handleStartConversation = () => {
+        trackChatStarted({});
         setIsInitialized(true);
     };
 

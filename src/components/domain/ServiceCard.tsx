@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useBookmarks } from "@/providers";
 import { SafeImage } from "@/components/ui/SafeImage";
 import ShareButton from "@/components/ui/ShareButton";
+import { trackListingBookmarked } from "@/lib/analytics";
 
 export type Service = {
     id: string;
@@ -63,6 +64,11 @@ export default function ServiceCard({ service, compact = false }: { service: Ser
                                 e.preventDefault();
                                 e.stopPropagation();
                                 toggle(service.id, "service");
+                                trackListingBookmarked({
+                                    id: service.id,
+                                    type: "service",
+                                    action: saved ? "remove" : "add",
+                                });
                             }}
                             className={`bg-white/10 backdrop-blur-sm rounded-full hover:scale-110 transition-transform ${
                                 compact ? 'p-1' : 'p-2'

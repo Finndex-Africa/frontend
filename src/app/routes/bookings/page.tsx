@@ -6,6 +6,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { bookingsApi, isProviderRole, parseBookingsList } from '@/services/api/bookings.api';
 import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
 import { Booking, Property, Service } from '@/types/dashboard';
+import { trackBookingConfirmed, trackBookingRejected, trackBookingCancelled } from '@/lib/analytics';
 
 type BookingParticipant = {
     _id: string;
@@ -175,6 +176,7 @@ export default function BookingsPage() {
         try {
             setActionLoading(bookingId);
             await bookingsApi.confirm(bookingId);
+            trackBookingConfirmed(bookingId);
             toast.success('Booking confirmed successfully');
             await refreshBookings();
             handleCloseModal();
@@ -196,6 +198,7 @@ export default function BookingsPage() {
         try {
             setActionLoading(bookingId);
             await bookingsApi.reject(bookingId, reason);
+            trackBookingRejected(bookingId, reason);
             toast.success('Booking rejected');
             await refreshBookings();
             handleCloseModal();
@@ -214,6 +217,7 @@ export default function BookingsPage() {
         try {
             setActionLoading(bookingId);
             await bookingsApi.cancel(bookingId, reason);
+            trackBookingCancelled(bookingId, isProvider ? 'provider' : 'customer');
             toast.success('Booking cancelled');
             await refreshBookings();
             setShowDetailsModal(false);

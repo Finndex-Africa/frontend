@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { authService } from "@/services/api";
+import { trackEmailVerified } from "@/lib/analytics";
 
 function VerifyEmailContent() {
     const searchParams = useSearchParams();
@@ -25,6 +26,7 @@ function VerifyEmailContent() {
                 const response = await authService.verifyEmail(token);
                 setStatus('success');
                 setMessage(response.data?.message || 'Email verified successfully! You can now log in.');
+                trackEmailVerified();
 
                 // Redirect to login after 3 seconds
                 setTimeout(() => {

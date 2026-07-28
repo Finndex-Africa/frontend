@@ -8,6 +8,7 @@ import Image from "next/image";
 import { MIN_PROPERTY_LISTING_IMAGES } from "@/lib/property-images";
 import { showToast } from "@/lib/toast";
 import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
+import { trackListingEdited, trackListingUnpublished } from "@/lib/analytics";
 import { geocodeAddress } from "@/lib/google-maps";
 import { isAgentLikeUserType } from "@/lib/agent-user-types";
 
@@ -1088,6 +1089,7 @@ export default function MyListingsPage() {
 
       await fetchProperties({ silent: true });
 
+      trackListingEdited({ id: selectedEditProperty._id, type: "property" });
       setShowEditModal(false);
       setSelectedEditProperty(null);
       showToast.success("Property updated successfully.");
@@ -1115,6 +1117,7 @@ export default function MyListingsPage() {
         ),
       );
 
+      trackListingUnpublished({ id: unpublishConfirm._id, type: "property" });
       setUnpublishConfirm(null);
       // Show success notification with custom styled div
       showCustomNotification(

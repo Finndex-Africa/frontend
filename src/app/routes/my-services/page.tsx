@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { ServiceForm } from '@/components/dashboard/ServiceForm';
 import { useToast } from '@/components/ui/Toast';
 import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
+import { trackListingCreated, trackListingEdited } from '@/lib/analytics';
 
 type ModalMode = 'create' | 'edit' | 'view' | null;
 
@@ -127,6 +128,7 @@ export default function MyServicesPage() {
 
             console.log('✅ Service created:', createdService);
 
+            trackListingCreated({ type: "service", category: values.category });
             setModalMode(null);
             fetchMyServices();
             showToast({
@@ -199,6 +201,7 @@ export default function MyServicesPage() {
                 s._id === selectedService._id ? updatedService : s
             ));
 
+            trackListingEdited({ id: selectedService._id, type: "service" });
             setModalMode(null);
             setSelectedService(null);
 

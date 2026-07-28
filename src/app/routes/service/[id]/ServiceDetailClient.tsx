@@ -15,6 +15,14 @@ import ReviewsList from "@/components/reviews/ReviewsList";
 import { isUserVerifiedByAdmin } from "@/lib/user-verification";
 import { getUserDisplayName } from '@/lib/display-name';
 import { serviceProvidersApi, type ServiceProviderProfile } from '@/services/api/service-providers.api';
+import {
+    trackListingViewed,
+    trackBookingModalOpened,
+    trackBookingSubmitted,
+    trackWhatsAppClick,
+    trackChatStarted,
+} from "@/lib/analytics";
+import { useScrollDepth } from "@/lib/hooks/useScrollDepth";
 
 const LOCAL_SERVICE_IMAGE = '/images/services/cleaning1.jpeg';
 
@@ -23,6 +31,8 @@ const getDefaultImages = (_category: string) => [LOCAL_SERVICE_IMAGE];
 export default function ServiceDetail() {
     const params = useParams();
     const serviceId = params?.id as string;
+
+    useScrollDepth();
 
     const [service, setService] = useState<ApiService | null>(null);
     const [loading, setLoading] = useState(true);
@@ -72,6 +82,14 @@ export default function ServiceDetail() {
             const { data } = await servicesApi.getById(serviceId);
             setService(data);
             setError(null);
+            trackListingViewed({
+                id: serviceId,
+                type: "service",
+                title: data.title,
+                location: data.location,
+                price: typeof data.price === 'number' ? data.price : undefined,
+                category: data.category,
+            });
 
             const providerUserId = extractProviderUserId(data);
             if (providerUserId) {
@@ -116,6 +134,7 @@ export default function ServiceDetail() {
             window.location.href = '/routes/login';
             return;
         }
+        trackBookingModalOpened({ listingId: serviceId, listingType: "service" });
         setShowBookingModal(true);
     };
 
@@ -138,6 +157,7 @@ export default function ServiceDetail() {
             window.location.href = '/routes/login';
             return;
         }
+        trackWhatsAppClick({ listingId: serviceId, listingType: "service" });
         window.open(getWhatsAppUrl(), '_blank', 'noopener,noreferrer');
     };
 
@@ -187,6 +207,11 @@ export default function ServiceDetail() {
 
             if (response.success) {
                 toast.success('Service booking submitted successfully! The provider will contact you soon.');
+                trackBookingSubmitted({
+                    listingId: serviceId,
+                    listingType: "service",
+                    scheduledDate: bookingData.scheduledDate,
+                });
                 setShowBookingModal(false);
                 setBookingData({
                     scheduledDate: '',

@@ -9,6 +9,7 @@ import TestingDisclaimer from "../components/global/TestingDisclaimer";
 import LaunchCelebrationOverlay from "../components/global/LaunchCelebrationOverlay";
 import CookieConsent from "../components/global/CookieConsent";
 import { Providers } from "../providers";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 // Primary (Headings): Whitney Bold
 const whitneyBold = localFont({
@@ -123,6 +124,9 @@ export default function RootLayout({
           <LaunchCelebrationOverlay />
           <CookieConsent />
         </Providers>
+        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+        )}
       </body>
     </html>
   );
