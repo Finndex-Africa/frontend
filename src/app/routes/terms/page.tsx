@@ -23,7 +23,7 @@ export default function TermsPage() {
 
             <LegalSection title="1. About FindAfriq">
                 <p>FindAfriq is a digital platform that connects:</p>
-                <BulletList items={['Landlord', 'Real estate agents', 'Home seekers', 'Service providers']} />
+                <BulletList items={['Landlord', 'Real estate agents', 'Seekers', 'Service providers']} />
                 <p>We facilitate listings, visibility, and connections but do not act as a direct party in transactions.</p>
             </LegalSection>
 
@@ -47,7 +47,7 @@ export default function TermsPage() {
                         'Must ensure properties are legitimate and available',
                     ]}
                 />
-                <LegalSubheading>b. Home seekers</LegalSubheading>
+                <LegalSubheading>b. Seekers</LegalSubheading>
                 <BulletList
                     items={[
                         'Can browse listings and contact agents',
@@ -73,7 +73,7 @@ export default function TermsPage() {
                 <LegalSubheading>4.2 Platform authorization fee</LegalSubheading>
                 <BulletList
                     items={[
-                        'Paid by home seekers based on property size',
+                        'Paid by seekers based on property size',
                         'This fee grants access to agent services via the platform',
                         'This is not a rental payment or commission',
                     ]}

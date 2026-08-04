@@ -18,6 +18,7 @@ import { getUserDisplayName } from "@/lib/display-name";
 import {
   getPropertyOwnerRegistrationLabel,
   isAgentListedProperty,
+  shouldShowAgentFee,
 } from "@/lib/user-type-label";
 import { buildGoogleMapsEmbedUrlAsync } from "@/lib/google-maps";
 import {
@@ -708,6 +709,11 @@ export default function PropertyDetail() {
                 const showVerifiedBadge =
                   isUserVerifiedByAdmin(ownerForVerification);
 
+                const isAdminOwner =
+                  ownerForVerification &&
+                  ((ownerForVerification as Record<string, unknown>).userType === 'admin' ||
+                    (ownerForVerification as Record<string, unknown>).role === 'admin');
+
                 return (
                   <>
                     <h2 className="text-lg font-semibold text-gray-900 mb-4">
@@ -752,9 +758,9 @@ export default function PropertyDetail() {
                           )}
                         </div>
                         <p className="text-gray-500 text-xs">
-                          Registered{" "}
-                          {getPropertyOwnerRegistrationLabel(property)} on
-                          FindAfriq
+                          {isAdminOwner
+                            ? "FindAfriq Admin"
+                            : `Registered ${getPropertyOwnerRegistrationLabel(property)} on FindAfriq`}
                         </p>
                         {ownerEmail ? (
                           <p className="text-gray-500 text-xs mt-1 truncate">
@@ -824,7 +830,7 @@ export default function PropertyDetail() {
                   </div>
 
                   {/* Agent Fee Section */}
-                  {isAgentListedProperty(property) && property.agentFee != null && property.agentFee > 0 && (
+                  {shouldShowAgentFee(property) && (
                       <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4 space-y-3">
                         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Payment Details</p>
 
@@ -842,7 +848,7 @@ export default function PropertyDetail() {
                             <p className="text-xs text-gray-500 mt-0.5">Fee set by the listing {ownerLabelLower}.</p>
                             <p className="text-xs text-gray-400 mt-0.5">This fee is paid to the listing agent.</p>
                           </div>
-                          <span className="shrink-0 text-base font-bold text-green-600">${property.agentFee.toLocaleString()}</span>
+                          <span className="shrink-0 text-base font-bold text-green-600">${(property.agentFee ?? 0).toLocaleString()}</span>
                         </div>
 
                         {/* Payment coming soon notice */}
@@ -864,7 +870,7 @@ export default function PropertyDetail() {
                             </svg>
                             <span className="text-sm font-semibold text-gray-700">Total Amount to Pay Agent</span>
                           </div>
-                          <span className="text-base font-bold text-gray-900">${property.agentFee.toLocaleString()}</span>
+                          <span className="text-base font-bold text-gray-900">${(property.agentFee ?? 0).toLocaleString()}</span>
                         </div>
                       </div>
                   )}

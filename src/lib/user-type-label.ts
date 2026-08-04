@@ -16,10 +16,10 @@ export function getLoggedInUserTypeLabel(
   if (normalized === 'real_estate_agency') return 'Real Estate Agency';
   if (normalized === 'landlord') return 'Landlord';
   if (normalized === 'service_provider') return 'Service Provider';
-  if (normalized === 'home_seeker') return 'Home Seeker';
+  if (normalized === 'home_seeker') return 'Seeker';
   if (normalized === 'admin') return 'Admin';
 
-  if (authRole === 'home_seeker' || authRole === 'seeker') return 'Home Seeker';
+  if (authRole === 'home_seeker' || authRole === 'seeker') return 'Seeker';
   if (authRole === 'provider') return 'Service Provider';
   if (authRole === 'landlord') return 'Landlord';
   if (authRole === 'admin') return 'Admin';
@@ -53,4 +53,29 @@ export function isAgentListedProperty(property: {
 }): boolean {
   const label = getPropertyOwnerRegistrationLabel(property);
   return label === 'Agent' || label === 'Real Estate Agency';
+}
+
+/** Whether a property was posted by an admin user. */
+export function isAdminListedProperty(property: {
+  landlordId?: unknown;
+}): boolean {
+  const landlordType = readUserType(property.landlordId);
+  return landlordType === 'admin' || landlordType === 'admin_property';
+}
+
+/**
+ * Whether the agent fee section should be displayed for a property.
+ * - Always show for agent / real-estate-agency listings that have a fee.
+ * - Show for admin-listed properties only when published (status === 'approved').
+ */
+export function shouldShowAgentFee(property: {
+  landlordId?: unknown;
+  agentId?: unknown;
+  agentFee?: number | null;
+  status?: string;
+}): boolean {
+  if (property.agentFee == null || property.agentFee <= 0) return false;
+  if (isAgentListedProperty(property)) return true;
+  if (isAdminListedProperty(property) && property.status === 'approved') return true;
+  return false;
 }

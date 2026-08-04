@@ -529,7 +529,7 @@ export default function Navbar() {
                         </button>
                       )}
 
-                      {/* Home Seeker Menu */}
+                      {/* Seeker Menu */}
                       {role === "home_seeker" && (
                         <>
                           <button
@@ -1169,7 +1169,7 @@ export default function Navbar() {
                       </Button>
                     )}
 
-                    {/* Home Seeker Menu */}
+                    {/* Seeker Menu */}
                     {role === "home_seeker" && (
                       <>
                         <Button

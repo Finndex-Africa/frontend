@@ -25,7 +25,7 @@ type UserType = "HomeSeeker" | "Agent" | "RealEstateAgency" | "Landlord" | "Serv
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 const USER_TYPES: { value: UserType; label: string; description: string }[] = [
-  { value: "HomeSeeker", label: "Home Seeker", description: "Find properties & services" },
+  { value: "HomeSeeker", label: "Seeker", description: "Find properties & services" },
   { value: "Agent", label: "Agent", description: "List and manage properties" },
   { value: "RealEstateAgency", label: "Real Estate Agency", description: "List and manage properties as an agency" },
   { value: "Landlord", label: "Landlord", description: "Rent out your properties" },

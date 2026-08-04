@@ -26,7 +26,7 @@ export default function About() {
                             About FindAfriq
                         </h1>
                         <p className="mt-4 text-white/85 text-base sm:text-lg leading-relaxed">
-                            FindAfriq is a digital real estate and services platform that connects home seekers with landlords, agents, and verified service providers.
+                            FindAfriq is a digital real estate and services platform that connects seekers with verified properties and trusted service providers seamlessly.
                         </p>
                         <div className="mt-7 flex flex-wrap gap-3">
                             <Link
@@ -62,7 +62,7 @@ export default function About() {
                             <div className="mt-4 space-y-4 text-gray-700 leading-relaxed">
                                 <p>
                                     We provide a trusted digital marketplace where landlords and agents can list verified properties,
-                                    home seekers can discover available rental homes, and service providers can connect with people who need their services.
+                                    seekers can discover available rental homes, and service providers can connect with people who need their services.
                                 </p>
                                 <p>
                                     Our goal is to eliminate stress, fraud, and inefficiencies in the rental housing and services market by using technology
@@ -76,11 +76,11 @@ export default function About() {
                                 <div className="text-sm font-semibold text-blue-700">Our story</div>
                                 <p className="mt-2 text-gray-700 leading-relaxed text-sm sm:text-[15px]">
                                     FindAfriq is a digital real estate and services
-                                    platform that connects home seekers with
-                                    landlords, agents and services providers.
+                                    platform that connects seekers with verified
+                                    properties and trusted service providers seamlessly.
                                     We provide a trusted digital marketplace
                                     where landlords and agents can list verified
-                                    properties, home seekers can easily discover
+                                    properties, seekers can easily discover
                                     available rental properties, and housing
                                     service providers can connect with people
                                     who need their services.
@@ -115,7 +115,7 @@ export default function About() {
                         <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 p-6">
                             <h3 className="text-xl font-bold text-gray-900">Our Mission</h3>
                             <p className="mt-2 text-gray-700 leading-relaxed text-sm sm:text-[15px]">
-                                To connect home seekers with landlords, agents, and service providers in one seamless platform.
+                                To connect seekers with verified properties and trusted service providers in one seamless platform.
                             </p>
                         </div>
                         <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 p-6">
@@ -217,7 +217,7 @@ export default function About() {
                 <div className="mt-7 grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {[
                         {
-                            title: 'Home Seekers',
+                            title: 'Seekers',
                             text: 'Browse and discover reliable and verified rental homes in your city.',
                         },
                         {

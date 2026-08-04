@@ -3,7 +3,7 @@ import Link from "next/link";
 export const metadata = {
   title: "How It Works | FindAfriq",
   description:
-    "Learn how FindAfriq connects home seekers with verified landlords and trusted service providers — in just a few simple steps.",
+    "Learn how FindAfriq connects seekers with verified properties and trusted service providers — in just a few simple steps.",
 };
 
 const seekerSteps = [
@@ -123,11 +123,11 @@ export default function HowItWorksPage() {
         </div>
       </section>
 
-      {/* For Home Seekers */}
+      {/* For Seekers */}
       <section className="container-app py-16 px-4">
         <div className="text-center mb-12">
           <span className="inline-block bg-blue-50 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full mb-3 uppercase tracking-wide">
-            For Home Seekers &amp; Clients
+            For Seekers &amp; Clients
           </span>
           <h2 className="text-3xl font-bold text-gray-900">
             Find what you&apos;re looking for in 4 steps
