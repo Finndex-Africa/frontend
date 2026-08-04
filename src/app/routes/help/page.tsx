@@ -19,7 +19,7 @@ const FAQ_SECTIONS: FaqSection[] = [
                 key: 'g1',
                 question: 'What is FindAfriq?',
                 answer:
-                    'FindAfriq is a digital real estate and services platform that connects home seekers with landlords, agents and service providers, making it easier to search, find, and connect in one place.',
+                    'FindAfriq is a digital real estate and services platform that connects seekers with verified properties and trusted service providers seamlessly.',
             },
             {
                 key: 'g2',

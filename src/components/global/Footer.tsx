@@ -21,7 +21,7 @@ export default function Footer() {
                             className="object-contain object-left"
                         />
                     </div>
-                    <p className="text-gray-600 mt-2">A digital real estate and services platform that connects home Seekers with landlords, agents and services providers.</p>
+                    <p className="text-gray-600 mt-2">A digital real estate and services platform that connects seekers with verified properties and trusted service providers seamlessly.</p>
 
                     {/* Social Media Icons */}
                     <div className="flex gap-4 mt-6">

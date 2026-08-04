@@ -325,7 +325,7 @@ export default function NewPropertyPage() {
                                 <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/50 p-4">
                                     <h3 className="text-sm font-semibold text-gray-900 mb-1">Agent Fee</h3>
                                     <p className="text-xs text-gray-600 mb-3">
-                                        Set the fee you charge for this listing. It will be shown to home seekers on the property page.
+                                        Set the fee you charge for this listing. It will be shown to seekers on the property page.
                                     </p>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         Your Agent Fee (USD) <span className="text-red-500">*</span>

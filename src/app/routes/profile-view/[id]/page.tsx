@@ -86,8 +86,8 @@ export default function PublicProfileView() {
             agent: { label: 'Agent', bg: 'bg-amber-100', text: 'text-amber-700' },
             real_estate_agency: { label: 'Real Estate Agent', bg: 'bg-amber-100', text: 'text-amber-700' },
             admin: { label: 'Admin', bg: 'bg-slate-200', text: 'text-slate-800' },
-            home_seeker: { label: 'Home Seeker', bg: 'bg-gray-100', text: 'text-gray-700' },
-            seeker: { label: 'Home Seeker', bg: 'bg-gray-100', text: 'text-gray-700' },
+            home_seeker: { label: 'Seeker', bg: 'bg-gray-100', text: 'text-gray-700' },
+            seeker: { label: 'Seeker', bg: 'bg-gray-100', text: 'text-gray-700' },
         };
 
         const role = (user.userType || user.role || 'home_seeker').toLowerCase();

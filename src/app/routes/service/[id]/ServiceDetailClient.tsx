@@ -389,6 +389,11 @@ export default function ServiceDetail() {
 
                             const showProviderVerifiedBadge = isUserVerifiedByAdmin(providerUserObj);
 
+                            const isAdminProvider =
+                                providerUserObj &&
+                                ((providerUserObj as Record<string, unknown>).userType === 'admin' ||
+                                    (providerUserObj as Record<string, unknown>).role === 'admin');
+
                             return (
                                 <>
                                     <h2 className="text-lg font-semibold text-gray-900 mb-4">Managed By</h2>
@@ -440,7 +445,11 @@ export default function ServiceDetail() {
                                                     ) : null}
                                                 </div>
                                                 <p className="text-gray-500 text-xs">
-                                                    {providerIdValue ? 'Registered service provider on FindAfriq' : 'Provider information not available'}
+                                                    {isAdminProvider
+                                                        ? 'FindAfriq Admin'
+                                                        : providerIdValue
+                                                            ? 'Registered service provider on FindAfriq'
+                                                            : 'Provider information not available'}
                                                 </p>
                                                 {providerEmail && (
                                                     <p className="text-gray-500 text-xs mt-1 flex items-center gap-1">

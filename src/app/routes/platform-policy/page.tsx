@@ -29,7 +29,7 @@ export default function PlatformPolicyPage() {
 
             <LegalSection title="2. Scope">
                 <p>This policy applies to all users of FindAfriq, including:</p>
-                <BulletList items={['Landlords', 'Real Estate Agents', 'Home Seekers', 'Service Providers']} />
+                <BulletList items={['Landlords', 'Real Estate Agents', 'Seekers', 'Service Providers']} />
             </LegalSection>
 
             <LegalSection title="3. Core platform principles">
@@ -123,7 +123,7 @@ export default function PlatformPolicyPage() {
                     ]}
                 />
 
-                <LegalSubheading>6.3 Home seekers</LegalSubheading>
+                <LegalSubheading>6.3 Seekers</LegalSubheading>
                 <PolicyTable
                     headers={['Violation', 'Penalty']}
                     rows={[
@@ -150,7 +150,7 @@ export default function PlatformPolicyPage() {
                 <BulletList
                     items={[
                         'Listing Fees (Basic, Pro, Premium): Non-refundable after publication',
-                        'Authorization Fees (Home Seekers): Non-transferable and non-refundable',
+                        'Authorization Fees (Seekers): Non-transferable and non-refundable',
                         'Subscriptions (Service Providers): No refunds for unused periods; suspension does not extend subscription duration',
                     ]}
                 />

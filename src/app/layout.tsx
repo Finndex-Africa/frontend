@@ -28,7 +28,7 @@ const whitneyMedium = localFont({
 const SITE_URL = "https://findafriq.com";
 const SITE_NAME = "FindAfriq";
 const SITE_DESCRIPTION =
-  "FindAfriq is a digital real estate and services platform that connects home seekers with landlords, agents, and trusted service providers across Africa.";
+  "FindAfriq is a digital real estate and services platform that connects seekers with verified properties and trusted service providers seamlessly.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
