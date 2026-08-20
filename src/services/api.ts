@@ -2,6 +2,7 @@
 export * from './api/auth.api';
 export * from './api/properties.api';
 export * from './api/services.api';
+export * from './api/buy-sell.api';
 export * from './api/bookings.api';
 export * from './api/users.api';
 export * from './api/notifications.api';
