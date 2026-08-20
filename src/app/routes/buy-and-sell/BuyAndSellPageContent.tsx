@@ -182,10 +182,17 @@ export default function BuyAndSellPageContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<BuySellCategory | "all">("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchInput, setSearchInput] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
+  // Search inputs (uncommitted until Search is clicked)
+  const [locationInput, setLocationInput] = useState("");
+  const [categoryInput, setCategoryInput] = useState<BuySellCategory | "all">("all");
+  const [maxBudgetInput, setMaxBudgetInput] = useState("");
+
+  // Committed filter state (triggers fetch)
+  const [locationFilter, setLocationFilter] = useState("");
+  const [maxBudget, setMaxBudget] = useState<number | undefined>(undefined);
 
   const fetchListings = useCallback(async () => {
     setLoading(true);
@@ -196,7 +203,8 @@ export default function BuyAndSellPageContent() {
         limit: 12,
         status: "approved",
         ...(activeCategory !== "all" ? { category: activeCategory } : {}),
-        ...(searchQuery ? { q: searchQuery } : {}),
+        ...(locationFilter ? { location: locationFilter } : {}),
+        ...(maxBudget ? { maxPrice: maxBudget } : {}),
       });
       setListings(res.data ?? []);
       setTotalPages(res.pagination?.totalPages ?? 1);
@@ -205,7 +213,7 @@ export default function BuyAndSellPageContent() {
     } finally {
       setLoading(false);
     }
-  }, [page, activeCategory, searchQuery]);
+  }, [page, activeCategory, locationFilter, maxBudget]);
 
   useEffect(() => {
     fetchListings();
@@ -213,12 +221,25 @@ export default function BuyAndSellPageContent() {
 
   const handleCategoryChange = (cat: BuySellCategory | "all") => {
     setActiveCategory(cat);
+    setCategoryInput(cat);
     setPage(1);
   };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setSearchQuery(searchInput.trim());
+    setActiveCategory(categoryInput);
+    setLocationFilter(locationInput.trim());
+    setMaxBudget(maxBudgetInput ? Number(maxBudgetInput) : undefined);
+    setPage(1);
+  };
+
+  const handleClearSearch = () => {
+    setLocationInput("");
+    setCategoryInput("all");
+    setMaxBudgetInput("");
+    setActiveCategory("all");
+    setLocationFilter("");
+    setMaxBudget(undefined);
     setPage(1);
   };
 
@@ -240,27 +261,83 @@ export default function BuyAndSellPageContent() {
               Land, houses, and fairly used household items — all in one trusted marketplace.
             </p>
 
-            {/* Search */}
-            <form onSubmit={handleSearch} className="flex gap-2">
+            {/* Search filters */}
+            <form onSubmit={handleSearch} className="bg-white rounded-xl p-3 shadow-sm flex flex-col sm:flex-row gap-2">
+              {/* Location */}
               <div className="flex-1 relative">
-                <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
                 <input
                   type="text"
-                  value={searchInput}
-                  onChange={e => setSearchInput(e.target.value)}
-                  placeholder="Search land, houses, items..."
-                  className="w-full pl-10 pr-4 py-3 rounded-lg text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  value={locationInput}
+                  onChange={e => setLocationInput(e.target.value)}
+                  placeholder="Location (e.g. Monrovia)"
+                  className="w-full pl-9 pr-3 py-2.5 rounded-lg text-sm text-gray-900 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
               </div>
+
+              {/* Category type */}
+              <select
+                value={categoryInput}
+                onChange={e => setCategoryInput(e.target.value as BuySellCategory | "all")}
+                className="sm:w-40 px-3 py-2.5 rounded-lg text-sm text-gray-700 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white cursor-pointer"
+              >
+                <option value="all">All Types</option>
+                <option value="land">Land</option>
+                <option value="house">House</option>
+                <option value="household_item">Household Item</option>
+              </select>
+
+              {/* Max budget */}
+              <div className="relative sm:w-40">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">$</span>
+                <input
+                  type="number"
+                  value={maxBudgetInput}
+                  onChange={e => setMaxBudgetInput(e.target.value)}
+                  placeholder="Max budget"
+                  min={0}
+                  className="w-full pl-6 pr-3 py-2.5 rounded-lg text-sm text-gray-900 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
+
               <button
                 type="submit"
-                className="px-5 py-3 bg-yellow-400 hover:bg-yellow-300 text-blue-900 font-semibold rounded-lg text-sm transition-colors"
+                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-sm transition-colors whitespace-nowrap"
               >
                 Search
               </button>
             </form>
+
+            {/* Active filter chips */}
+            {(locationFilter || maxBudget || activeCategory !== "all") && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {locationFilter && (
+                  <span className="inline-flex items-center gap-1 bg-white/20 text-white text-xs px-2.5 py-1 rounded-full">
+                    📍 {locationFilter}
+                  </span>
+                )}
+                {activeCategory !== "all" && (
+                  <span className="inline-flex items-center gap-1 bg-white/20 text-white text-xs px-2.5 py-1 rounded-full">
+                    {activeCategory === "land" ? "🏞️ Land" : activeCategory === "house" ? "🏠 House" : "📦 Household Item"}
+                  </span>
+                )}
+                {maxBudget && (
+                  <span className="inline-flex items-center gap-1 bg-white/20 text-white text-xs px-2.5 py-1 rounded-full">
+                    💰 Max ${maxBudget.toLocaleString()}
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="text-white/70 hover:text-white text-xs underline"
+                >
+                  Clear all
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -311,15 +388,15 @@ export default function BuyAndSellPageContent() {
         </div>
 
         {/* Active search indicator */}
-        {searchQuery && (
-          <div className="flex items-center gap-2 mb-4 text-sm text-gray-600">
-            <span>Results for <strong>&ldquo;{searchQuery}&rdquo;</strong></span>
+        {(locationFilter || maxBudget || activeCategory !== "all") && (
+          <div className="flex flex-wrap items-center gap-2 mb-4 text-sm text-gray-600">
+            <span>Showing filtered results</span>
             <button
               type="button"
-              onClick={() => { setSearchQuery(""); setSearchInput(""); setPage(1); }}
+              onClick={handleClearSearch}
               className="text-blue-600 hover:underline"
             >
-              Clear
+              Clear filters
             </button>
           </div>
         )}
@@ -346,8 +423,8 @@ export default function BuyAndSellPageContent() {
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No listings found</h3>
             <p className="text-gray-500 text-sm">
-              {searchQuery
-                ? `No results for "${searchQuery}". Try a different search.`
+              {(locationFilter || maxBudget || activeCategory !== "all")
+                ? "No results match your filters. Try adjusting your search."
                 : "No listings in this category yet. Check back soon."}
             </p>
           </div>

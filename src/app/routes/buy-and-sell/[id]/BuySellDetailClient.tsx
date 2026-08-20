@@ -140,6 +140,9 @@ export default function BuySellDetailClient() {
   const [mapEmbedUrl, setMapEmbedUrl] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [bookingData, setBookingData] = useState({ viewingDate: "", contactPhone: "", message: "" });
+  const [bookingSubmitting, setBookingSubmitting] = useState(false);
   const [currentUser, setCurrentUser] = useState<{
     id: string;
     firstName?: string;
@@ -160,6 +163,7 @@ export default function BuySellDetailClient() {
           email: u.email,
           phone: u.phone,
         });
+        if (u.phone) setBookingData(prev => ({ ...prev, contactPhone: u.phone }));
       } catch {}
     }
   }, []);
@@ -193,6 +197,64 @@ export default function BuySellDetailClient() {
     }).then((url) => { if (!cancelled) setMapEmbedUrl(url); });
     return () => { cancelled = true; };
   }, [listing]);
+
+  // ── Book Viewing ──────────────────────────────────────────────────────────
+  const handleSubmitBooking = async () => {
+    if (!currentUser || !listing || bookingSubmitting) return;
+    if (!bookingData.contactPhone.trim()) {
+      toast.error("Please provide your contact phone number");
+      return;
+    }
+    if (!bookingData.viewingDate) {
+      toast.error("Please select a preferred viewing date");
+      return;
+    }
+    if (new Date(bookingData.viewingDate) <= new Date()) {
+      toast.error("Viewing date must be in the future");
+      return;
+    }
+    try {
+      setBookingSubmitting(true);
+
+      // Resolve seller ID — mirrors the property detail resolveId pattern
+      const resolveId = (
+        ref: string | { _id?: string; id?: string } | undefined,
+      ): string => {
+        if (!ref) return "";
+        if (typeof ref === "string") return ref;
+        return ref._id || ref.id || "";
+      };
+      const resolvedSellerId =
+        resolveId(listing.sellerId as string | { _id?: string; id?: string } | undefined);
+
+      const bookingPayload: Record<string, unknown> = {
+        serviceId: listing._id,
+        scheduledDate: new Date(bookingData.viewingDate).toISOString(),
+        duration: 1,
+        contactPhone: bookingData.contactPhone,
+        notes:
+          bookingData.message ||
+          `Viewing request for "${listing.title}" in ${listing.location}.`,
+        serviceLocation: listing.location,
+        serviceAddress: listing.location,
+        paymentMethod: "pending",
+      };
+      if (resolvedSellerId) bookingPayload.providerId = resolvedSellerId;
+
+      const response = await apiClient.post("/bookings", bookingPayload);
+      if (response.success) {
+        toast.success("Viewing request submitted! The seller will contact you soon.");
+        setShowBookingModal(false);
+        setBookingData(prev => ({ ...prev, viewingDate: "", message: "" }));
+      } else {
+        throw new Error(response.message || "Failed to submit viewing request");
+      }
+    } catch (err: any) {
+      toast.error(getUserFriendlyErrorMessage(err, "Failed to submit request. Please try again."));
+    } finally {
+      setBookingSubmitting(false);
+    }
+  };
 
   // ── WhatsApp helper ───────────────────────────────────────────────────────
   const handleWhatsApp = () => {
@@ -271,16 +333,16 @@ export default function BuySellDetailClient() {
 
   const seller = resolveSeller(listing);
   const sellerName = seller
-    ? getUserDisplayName(seller as Record<string, unknown>, seller.email || "Seller")
+    ? getUserDisplayName(seller as unknown as Record<string, unknown>, seller.email || "Seller")
     : "Seller";
   const sellerInitial = sellerName.charAt(0).toUpperCase();
   const sellerAvatar = seller?.avatar || "";
   const sellerId = seller?._id || (typeof listing.sellerId === "string" ? listing.sellerId : "");
   const isOwnListing = sellerId === currentUser?.id;
-  const showVerified = isUserVerifiedByAdmin(seller as any);
+  const showVerified = isUserVerifiedByAdmin(seller as unknown as { verificationStatus?: string; verified?: boolean });
   const isAdminSeller =
     seller &&
-    ((seller as any).userType === "admin" || (seller as any).role === "admin");
+    (seller.userType === "admin" || (seller as unknown as Record<string, unknown>).role === "admin");
 
   const categoryLabel = CATEGORY_LABEL[listing.category] || listing.category;
   const isApproved = listing.status === "approved";
@@ -538,21 +600,20 @@ export default function BuySellDetailClient() {
                     {!currentUser && <Lock className="w-3.5 h-3.5" />}
                   </button>
 
-                  {/* Contact seller */}
+                  {/* Book Viewing */}
                   {isApproved && (
                     <button
                       type="button"
                       onClick={() => {
                         if (!currentUser) { window.location.href = "/routes/login"; return; }
-                        setShowContactModal(true);
+                        setShowBookingModal(true);
                       }}
-                      className="w-full h-12 text-sm font-semibold border-2 border-blue-600 text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+                      className="w-full h-12 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      <span>{currentUser ? "Contact Seller" : "Sign in to Contact"}</span>
+                      <span>{currentUser ? "Book Viewing Now" : "Sign in to Book"}</span>
                       {!currentUser && <Lock className="w-3.5 h-3.5" />}
                     </button>
                   )}
@@ -602,6 +663,129 @@ export default function BuySellDetailClient() {
           </div>
         </div>
       </section>
+
+      {/* ── Book Viewing modal ──────────────────────────────────────────── */}
+      {showBookingModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-xl sm:rounded-2xl max-w-lg w-full shadow-2xl max-h-[95vh] overflow-y-auto">
+            {/* Header */}
+            <div className="sticky top-0 bg-blue-600 px-4 sm:px-6 py-4 sm:py-5 rounded-t-xl sm:rounded-t-2xl">
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0 pr-2">
+                  <h3 className="text-lg sm:text-2xl font-bold text-white truncate">Book a Viewing</h3>
+                  <p className="text-xs sm:text-sm text-blue-100 mt-1">Schedule a time to view this listing</p>
+                </div>
+                <button
+                  onClick={() => setShowBookingModal(false)}
+                  className="text-white/80 hover:text-white hover:bg-white/10 rounded-full p-2 transition-all"
+                  disabled={bookingSubmitting}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="p-4 sm:p-6 space-y-4">
+              {/* Listing summary */}
+              <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start gap-3">
+                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center shrink-0">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <p className="font-semibold text-gray-900 text-sm truncate">{listing?.title}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{listing?.location}</p>
+                  <p className="text-base font-bold text-blue-600 mt-1">${listing?.price.toLocaleString()}</p>
+                </div>
+              </div>
+
+              {/* Preferred viewing date */}
+              <div>
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-2">
+                  <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Preferred Viewing Date <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={bookingData.viewingDate}
+                  onChange={e => setBookingData(prev => ({ ...prev, viewingDate: e.target.value }))}
+                  min={new Date().toISOString().split("T")[0]}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  required
+                />
+              </div>
+
+              {/* Contact phone */}
+              <div>
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-2">
+                  <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                  Contact Phone <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="tel"
+                  value={bookingData.contactPhone}
+                  onChange={e => setBookingData(prev => ({ ...prev, contactPhone: e.target.value }))}
+                  placeholder="+231 886 149 219"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                />
+              </div>
+
+              {/* Message */}
+              <div>
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-2">
+                  <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                  </svg>
+                  Message <span className="text-xs font-normal text-gray-500">(Optional)</span>
+                </label>
+                <textarea
+                  rows={3}
+                  value={bookingData.message}
+                  onChange={e => setBookingData(prev => ({ ...prev, message: e.target.value }))}
+                  placeholder="Any specific time preference or questions for the seller..."
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
+                />
+              </div>
+
+              <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4 text-sm text-blue-800">
+                The seller will receive your request and contact you to confirm the viewing details.
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="sticky bottom-0 bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 rounded-b-xl sm:rounded-b-2xl border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <button
+                  className="w-full sm:flex-1 h-11 text-sm font-semibold bg-white hover:bg-gray-100 text-gray-700 rounded-xl border-2 border-gray-300 transition-all order-2 sm:order-1"
+                  onClick={() => setShowBookingModal(false)}
+                  disabled={bookingSubmitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="w-full sm:flex-[2] h-11 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2 order-1 sm:order-2"
+                  onClick={handleSubmitBooking}
+                  disabled={bookingSubmitting}
+                >
+                  {bookingSubmitting ? (
+                    <><svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/></svg>Submitting…</>
+                  ) : (
+                    <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>Submit Viewing Request</>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Contact modal ────────────────────────────────────────────────── */}
       {showContactModal && (

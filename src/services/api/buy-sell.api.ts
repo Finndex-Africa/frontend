@@ -51,6 +51,16 @@ export const buySellApi = {
     return apiClient.patch<BuySellListing>(`/buy-sell/${id}`, data);
   },
 
+  /** Unpublish (suspend) a listing — removes it from public listings. */
+  unpublish: async (id: string) => {
+    return apiClient.patch<BuySellListing>(`/buy-sell/${id}/unpublish`, {});
+  },
+
+  /** Republish a suspended listing — resubmits it for admin approval. */
+  republish: async (id: string) => {
+    return apiClient.patch<BuySellListing>(`/buy-sell/${id}/republish`, {});
+  },
+
   /** Delete a listing (seller or admin). */
   delete: async (id: string) => {
     return apiClient.delete<void>(`/buy-sell/${id}`);
