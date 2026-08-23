@@ -78,7 +78,7 @@ export function trackFilterCleared(source: "properties" | "services"): void {
 // ---------------------------------------------------------------------------
 // 3. Listing engagement
 // ---------------------------------------------------------------------------
-export type ListingType = "property" | "service";
+export type ListingType = "property" | "service" | "buy-sell";
 
 export function trackListingViewed(params: {
   id: string;

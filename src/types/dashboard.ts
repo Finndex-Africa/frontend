@@ -34,6 +34,7 @@ export interface Service {
     provider?: string | { _id: string; name: string; email: string };
     agentId?: string | { _id: string; name: string; email: string };
     landlordId?: string | { _id: string; name: string; email: string };
+    isBookmarked?: boolean;
     createdAt: string;
     updatedAt: string;
 }
@@ -67,6 +68,7 @@ export interface Property {
     availableFrom?: string;
     availableTo?: string;
     agentFee?: number;
+    isBookmarked?: boolean;
     mapCoordinates?: {
         lat: number;
         lng: number;

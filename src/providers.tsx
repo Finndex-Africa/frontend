@@ -2,7 +2,6 @@
 import React, {
   createContext,
   useContext,
-  useMemo,
   useState,
   useEffect,
 } from "react";
@@ -27,67 +26,11 @@ export function useAuth() {
   return ctx;
 }
 
-// Bookmarks: saved items with type so we can show them on Favorites page
-export type BookmarkType = "property" | "service";
-export type BookmarkItem = { id: string; type: BookmarkType };
-const STORAGE_PREFIX = "findafriq-bookmarks";
-
-type BookmarkContextType = {
-  bookmarks: BookmarkItem[];
-  toggle: (id: string, type: BookmarkType) => void;
-  has: (id: string) => boolean;
-};
-const BookmarkContext = createContext<BookmarkContextType | null>(null);
-export function useBookmarks() {
-  const ctx = useContext(BookmarkContext);
-  if (!ctx) throw new Error("useBookmarks must be used inside Providers");
-  return ctx;
-}
-
-function getStorageKey(): string {
-  if (typeof window === "undefined") return STORAGE_PREFIX;
-  try {
-    const raw = localStorage.getItem("user") || sessionStorage.getItem("user");
-    if (raw) {
-      const u = JSON.parse(raw);
-      const uid = u?.id || u?._id;
-      if (uid) return `${STORAGE_PREFIX}-${uid}`;
-    }
-  } catch {
-    /* ignore */
-  }
-  return STORAGE_PREFIX;
-}
-
-function loadBookmarks(): BookmarkItem[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(getStorageKey());
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(
-      (x: unknown): x is BookmarkItem =>
-        typeof x === "object" &&
-        x !== null &&
-        "id" in x &&
-        "type" in x &&
-        ((x as BookmarkItem).type === "property" ||
-          (x as BookmarkItem).type === "service"),
-    );
-  } catch {
-    return [];
-  }
-}
+// Kept for backwards compat — bookmark state is now managed per-card via /api/bookmarks
+export type BookmarkType = "property" | "service" | "buy-sell";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [role, setRoleState] = useState<Role>("guest");
-  const [bookmarks, setBookmarks] = useState<BookmarkItem[]>([]);
-
-  // Reload bookmarks when user changes (login/logout)
-  useEffect(() => {
-    setBookmarks(loadBookmarks());
-  }, [role]);
 
   // Restore role from localStorage on mount
   useEffect(() => {
@@ -142,34 +85,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const bookmarkApi = useMemo<BookmarkContextType>(
-    () => ({
-      bookmarks,
-      toggle: (id, type) => {
-        setBookmarks((prev) => {
-          const next = prev.some((x) => x.id === id)
-            ? prev.filter((x) => x.id !== id)
-            : [...prev, { id, type }];
-          try {
-            localStorage.setItem(getStorageKey(), JSON.stringify(next));
-          } catch {
-            // ignore
-          }
-          return next;
-        });
-      },
-      has: (id) => bookmarks.some((x) => x.id === id),
-    }),
-    [bookmarks],
-  );
-
   return (
     <>
       <AntdWarningSuppress />
       <AuthContext.Provider value={{ role, setRole }}>
-        <BookmarkContext.Provider value={bookmarkApi}>
-          <ToastProvider>{children}</ToastProvider>
-        </BookmarkContext.Provider>
+        <ToastProvider>{children}</ToastProvider>
       </AuthContext.Provider>
     </>
   );

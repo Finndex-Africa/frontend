@@ -9,10 +9,10 @@ import { MIN_PROPERTY_LISTING_IMAGES } from '@/lib/property-images';
 import { showToast } from '@/lib/toast';
 import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
 import { geocodeAddress } from '@/lib/google-maps';
+import { isAgentLikeUserType } from '@/lib/agent-user-types';
 import type {
     BuySellCategory,
     LandSubcategory,
-    HouseSubcategory,
     HouseholdItemSubcategory,
     LandUnit,
     ItemCondition,
@@ -56,7 +56,6 @@ const defaultLand = {
 const defaultHouse = {
     title: '', description: '', price: '', location: '',
     bedrooms: '', bathrooms: '', propertyType: '',
-    houseSubcategory: '' as HouseSubcategory | '',
 };
 
 const defaultItem = {
@@ -86,10 +85,21 @@ export default function NewBuySellPage() {
     const [imageFiles, setImageFiles] = useState<File[]>([]);
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
+    // Agent fee
+    const [canSetAgentFee, setCanSetAgentFee] = useState(false);
+    const [agentFee, setAgentFee] = useState('');
+
     // Auth guard
     useEffect(() => {
         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         if (!token) router.push('/routes/login');
+        const user = localStorage.getItem('user') || sessionStorage.getItem('user');
+        if (user) {
+            try {
+                const userData = JSON.parse(user);
+                setCanSetAgentFee(isAgentLikeUserType(userData.userType || userData.role));
+            } catch { /* ignore */ }
+        }
     }, [router]);
 
     // ── Image handlers ──────────────────────────────────────────────────────
@@ -174,7 +184,8 @@ export default function NewBuySellPage() {
                     ...(landData.landSubcategory ? { landSubcategory: landData.landSubcategory as LandSubcategory } : {}),
                     ...(landData.whatsappNumber ? { whatsappNumber: landData.whatsappNumber } : {}),
                     ...(mapCoordinates ? { mapCoordinates } : {}),
-                });
+                    ...(canSetAgentFee && agentFee ? { agentFee: Number(agentFee) } : {}),
+                } as any);
             } else if (selectedCategory === 'house') {
                 if (!houseData.bedrooms || !houseData.bathrooms || !houseData.propertyType) {
                     showToast.error('Please fill in all required house fields.');
@@ -198,10 +209,10 @@ export default function NewBuySellPage() {
                     bedrooms: Number(houseData.bedrooms),
                     bathrooms: Number(houseData.bathrooms),
                     propertyType: houseData.propertyType,
-                    ...(houseData.houseSubcategory ? { houseSubcategory: houseData.houseSubcategory as HouseSubcategory } : {}),
                     ...(amenitiesPayload ? { amenities: amenitiesPayload } : {}),
                     ...(mapCoordinates ? { mapCoordinates } : {}),
-                });
+                    ...(canSetAgentFee && agentFee ? { agentFee: Number(agentFee) } : {}),
+                } as any);
             } else if (selectedCategory === 'household_item') {
                 const mapCoordinates = await geocodeAddress(itemData.location);
                 await buySellApi.create({
@@ -233,6 +244,29 @@ export default function NewBuySellPage() {
     };
 
     // ── Shared: image section ───────────────────────────────────────────────
+    const AgentFeeSection = () => canSetAgentFee ? (
+        <div className="mb-8 p-6 bg-amber-50 border border-amber-200 rounded-xl">
+            <h2 className="text-lg font-semibold text-amber-800 mb-1 flex items-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Agent Fee (Optional)
+            </h2>
+            <p className="text-sm text-amber-700 mb-4">As an agent or real estate agency, you can set an access fee for this listing.</p>
+            <div className="relative max-w-xs">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
+                <input
+                    type="number"
+                    value={agentFee}
+                    onChange={e => setAgentFee(e.target.value)}
+                    min={0}
+                    placeholder="e.g. 500"
+                    className="w-full pl-7 pr-4 py-3 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent bg-white"
+                />
+            </div>
+        </div>
+    ) : null;
+
     const ImageSection = () => (
         <div className="mb-8">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Images</h2>
@@ -522,6 +556,7 @@ export default function NewBuySellPage() {
                                     </div>
                                 </div>
 
+                                <AgentFeeSection />
                                 <ImageSection />
                                 <SubmitRow />
                             </>
@@ -629,21 +664,6 @@ export default function NewBuySellPage() {
                                             </div>
                                         </div>
 
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                House Subcategory
-                                            </label>
-                                            <select
-                                                value={houseData.houseSubcategory}
-                                                onChange={e => setHouseData(p => ({ ...p, houseSubcategory: e.target.value as HouseSubcategory | '' }))}
-                                                className="w-full max-w-xs px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            >
-                                                <option value="">Select (optional)</option>
-                                                <option value="duplex">Duplex</option>
-                                                <option value="apartment">Apartment</option>
-                                                <option value="commercial">Commercial</option>
-                                            </select>
-                                        </div>
                                     </div>
                                 </div>
 
@@ -677,6 +697,7 @@ export default function NewBuySellPage() {
                                     </div>
                                 </div>
 
+                                <AgentFeeSection />
                                 <ImageSection />
                                 <SubmitRow />
                             </>
@@ -810,6 +831,7 @@ export default function NewBuySellPage() {
                                     </div>
                                 </div>
 
+                                <AgentFeeSection />
                                 <ImageSection />
                                 <SubmitRow />
                             </>

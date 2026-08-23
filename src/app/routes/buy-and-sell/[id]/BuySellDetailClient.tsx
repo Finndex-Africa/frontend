@@ -7,6 +7,9 @@ import { Lock, MessageCircle } from "lucide-react";
 import MediaCarousel from "@/components/domain/MediaCarousel";
 import ShareButton from "@/components/ui/ShareButton";
 import ChatBox from "@/components/dashboard/ChatBox";
+import ReviewsList from "@/components/reviews/ReviewsList";
+import ReviewForm from "@/components/reviews/ReviewForm";
+import { bookmarksApi } from "@/services/api/bookmarks.api";
 import { buySellApi } from "@/services/api/buy-sell.api";
 import { messagesApi } from "@/services/api";
 import { apiClient } from "@/lib/api-client";
@@ -134,6 +137,14 @@ export default function BuySellDetailClient() {
   const params = useParams();
   const listingId = params?.id as string;
 
+  // Increment to force ReviewsList remount + refetch after a new review is submitted
+  const [reviewsKey, setReviewsKey] = useState(0);
+
+  // Backend bookmark state
+  const [isSaved, setIsSaved] = useState(false);
+  const [bookmarkId, setBookmarkId] = useState<string | null>(null);
+  const [savingBookmark, setSavingBookmark] = useState(false);
+
   const [listing, setListing] = useState<BuySellListing | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -168,6 +179,38 @@ export default function BuySellDetailClient() {
     }
   }, []);
 
+  // ── Check bookmark status ──────────────────────────────────────────────────
+  useEffect(() => {
+    if (!listingId) return;
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    if (!token) return;
+    bookmarksApi.check("buy-sell", listingId)
+      .then(res => {
+        setIsSaved(res.isSaved ?? false);
+        setBookmarkId(res.bookmarkId ?? null);
+      })
+      .catch(() => { /* not critical */ });
+  }, [listingId]);
+
+  const handleToggleSave = async () => {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    if (!token) { window.location.href = "/routes/login"; return; }
+    setSavingBookmark(true);
+    const prev = isSaved;
+    setIsSaved(!prev); // optimistic
+    try {
+      const result = await bookmarksApi.toggle("buy-sell", listingId);
+      setIsSaved(result.bookmarked);
+      setBookmarkId(result.bookmarkId ?? null);
+      toast.success(result.bookmarked ? "Saved to favorites!" : "Removed from saved listings");
+    } catch {
+      setIsSaved(prev); // revert
+      toast.error("Failed to update saved listings. Please try again.");
+    } finally {
+      setSavingBookmark(false);
+    }
+  };
+
   // ── Fetch listing ─────────────────────────────────────────────────────────
   const fetchListing = useCallback(async () => {
     if (!listingId) return;
@@ -175,6 +218,10 @@ export default function BuySellDetailClient() {
       setLoading(true);
       const res = await buySellApi.getById(listingId);
       setListing(res.data);
+      // Seed bookmark state from listing response (backend sets isBookmarked per-user)
+      if (res.data?.isBookmarked !== undefined) {
+        setIsSaved(res.data.isBookmarked);
+      }
       setError(null);
     } catch (err) {
       setError("Failed to load listing. Please try again later.");
@@ -433,11 +480,28 @@ export default function BuySellDetailClient() {
               {listing.location}
             </p>
 
-            <div className="mt-4">
+            <div className="mt-4 flex items-center gap-3 flex-wrap">
               <ShareButton
                 title={listing.title}
                 text={`Check out this listing: ${listing.title} in ${listing.location}`}
               />
+              {/* Favorite button — backed by /api/bookmarks */}
+              <button
+                type="button"
+                disabled={savingBookmark}
+                aria-label={isSaved ? "Remove from favorites" : "Save to favorites"}
+                onClick={handleToggleSave}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all text-sm font-medium ${isSaved ? "border-red-300 bg-red-50 text-red-600" : "border-gray-200 bg-white text-gray-600 hover:bg-red-50 hover:border-red-300 hover:text-red-600"} disabled:opacity-60`}
+              >
+                <svg
+                  className={`w-4 h-4 ${isSaved ? "fill-red-500 stroke-red-500" : "fill-none stroke-gray-500"}`}
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                {savingBookmark ? "..." : isSaved ? "Saved" : "Save"}
+              </button>
             </div>
           </header>
 
@@ -503,6 +567,20 @@ export default function BuySellDetailClient() {
             </div>
           </section>
 
+          {/* Agent Fee */}
+          {(listing as any).agentFee != null && (
+            <section className="rounded-xl border border-amber-200 bg-amber-50 p-5">
+              <div className="flex items-center gap-2 mb-1">
+                <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h2 className="text-base font-semibold text-amber-800">Agent Access Fee</h2>
+              </div>
+              <p className="text-2xl font-bold text-amber-700">${(listing as any).agentFee.toLocaleString()}</p>
+              <p className="text-xs text-amber-600 mt-1">Set by the listing agent or real estate agency</p>
+            </section>
+          )}
+
           {/* Seller / Managed By */}
           {seller && (
             <section>
@@ -550,6 +628,24 @@ export default function BuySellDetailClient() {
               </button>
             </section>
           )}
+
+          {/* Reviews */}
+          <section>
+            <ReviewForm
+              itemType="buy-sell"
+              itemId={listingId}
+              itemTitle={listing.title}
+              onSuccess={() => setReviewsKey(k => k + 1)}
+            />
+            <div className="mt-6">
+              <ReviewsList
+                key={reviewsKey}
+                itemType="buy-sell"
+                itemId={listingId}
+                itemTitle={listing.title}
+              />
+            </div>
+          </section>
         </div>
 
         {/* ═══ RIGHT COLUMN ══════════════════════════════════════════════ */}
@@ -575,6 +671,12 @@ export default function BuySellDetailClient() {
                     </div>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">Listed price · negotiable</p>
+
+                  {(listing as any).agentFee != null && (
+                    <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded-md mt-2">
+                      Agent fee: ${(listing as any).agentFee.toLocaleString()}
+                    </p>
+                  )}
 
                   {/* Category badge in card */}
                   <div className={`mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${CATEGORY_COLOR[listing.category] || "bg-gray-100 text-gray-700"}`}>

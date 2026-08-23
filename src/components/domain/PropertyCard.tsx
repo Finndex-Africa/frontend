@@ -1,10 +1,11 @@
 "use client";
 import Link from "next/link";
 import { useRef, useState, useCallback } from "react";
-import { useBookmarks } from "@/providers";
+import { useRouter } from "next/navigation";
 import { SafeImage } from "@/components/ui/SafeImage";
 import ShareButton from "@/components/ui/ShareButton";
 import { trackListingBookmarked } from "@/lib/analytics";
+import { bookmarksApi } from "@/services/api/bookmarks.api";
 
 export type Property = {
     id: string;
@@ -19,6 +20,8 @@ export type Property = {
     dates?: string;
     /** Property type for badge (e.g. "Apartment", "Office Space") - set when posting listing */
     propertyType?: string;
+    /** Initial bookmark state from the API listing response */
+    isBookmarked?: boolean;
 };
 
 function PropertyImageCarousel({
@@ -119,13 +122,17 @@ export default function PropertyCard({
     p,
     badge,
     compact = false,
+    onUnbookmark,
 }: {
     p: Property;
     badge?: string;
     compact?: boolean;
+    /** Called after the item is successfully unbookmarked — useful for removing from a saved list */
+    onUnbookmark?: () => void;
 }) {
-    const { toggle, has } = useBookmarks();
-    const saved = has(p.id);
+    const router = useRouter();
+    const [saved, setSaved] = useState(p.isBookmarked ?? false);
+    const [toggling, setToggling] = useState(false);
     const displayBadge = badge ?? p.propertyType;
     const images = p.imageUrls?.length ? p.imageUrls : [p.imageUrl];
 
@@ -163,7 +170,9 @@ export default function PropertyCard({
                                 : "top-3 left-3 px-2.5 py-1 text-[11px]"
                         }`}
                     >
-                        {displayBadge}
+                        {displayBadge.toLowerCase().includes("for rent") || displayBadge.toLowerCase().includes("for sale")
+                            ? displayBadge
+                            : `${displayBadge} for Rent`}
                     </div>
                 )}
                 <div
@@ -177,18 +186,28 @@ export default function PropertyCard({
                         text={`Check out this property: ${p.title} in ${p.location}`}
                     />
                     <button
-                        aria-label="Bookmark"
-                        onClick={(e) => {
+                        aria-label={saved ? "Remove from favorites" : "Save to favorites"}
+                        disabled={toggling}
+                        onClick={async (e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            toggle(p.id, "property");
-                            trackListingBookmarked({
-                                id: p.id,
-                                type: "property",
-                                action: saved ? "remove" : "add",
-                            });
+                            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+                            if (!token) { router.push("/routes/login"); return; }
+                            setToggling(true);
+                            const prev = saved;
+                            setSaved(!prev);
+                            try {
+                                const result = await bookmarksApi.toggle("property", p.id);
+                                setSaved(result.bookmarked);
+                                trackListingBookmarked({ id: p.id, type: "property", action: result.bookmarked ? "add" : "remove" });
+                                if (!result.bookmarked) onUnbookmark?.();
+                            } catch {
+                                setSaved(prev);
+                            } finally {
+                                setToggling(false);
+                            }
                         }}
-                        className={`hover:scale-110 transition-transform bg-white/10 backdrop-blur-sm rounded-full ${
+                        className={`hover:scale-110 transition-transform bg-white/10 backdrop-blur-sm rounded-full disabled:opacity-60 ${
                             compact ? "p-1" : "p-2"
                         }`}
                     >

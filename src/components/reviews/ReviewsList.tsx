@@ -8,7 +8,7 @@ import { reviewsApi, Review, RatingDistribution } from '@/services/api/reviews.a
 import { showToast } from '@/lib/toast';
 
 interface ReviewsListProps {
-    itemType: 'property' | 'service';
+    itemType: 'property' | 'service' | 'buy-sell';
     itemId: string;
     itemTitle?: string;
 }

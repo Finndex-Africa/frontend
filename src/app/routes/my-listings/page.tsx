@@ -1166,9 +1166,13 @@ export default function MyListingsPage() {
         const isPropertyUser =
           userType === "agent" ||
           userType === "real_estate_agency" ||
-          userType === "landlord";
+          userType === "landlord" ||
+          userType === "home_seeker" ||
+          userType === "seeker";
         setCanSeeRentals(isPropertyUser);
-        setMainTab(isPropertyUser ? "rentals" : "buy_sell");
+        // Agents/landlords default to rentals; seekers default to buy_sell
+        const defaultsToRentals = userType === "agent" || userType === "real_estate_agency" || userType === "landlord";
+        setMainTab(defaultsToRentals ? "rentals" : "buy_sell");
         setCanSetAgentFee(isAgentLikeUserType(userType));
       } catch (e) {
         console.error("Failed to parse user data:", e);

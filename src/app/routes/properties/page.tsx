@@ -51,6 +51,7 @@ const adaptPropertyToCard = (apiProperty: ApiProperty): Property => {
         distance: undefined,
         dates: apiProperty.availableFrom ? `Available from ${new Date(apiProperty.availableFrom).toLocaleDateString()}` : undefined,
         propertyType: propertyType || undefined,
+        isBookmarked: apiProperty.isBookmarked,
     };
 };
 

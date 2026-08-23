@@ -53,6 +53,8 @@ export interface BuySellListing {
   mapCoordinates?: { lat: number; lng: number };
   createdAt: string;
   updatedAt: string;
+  /** Set by the API when the requesting user has bookmarked this listing */
+  isBookmarked?: boolean;
 
   // ── Land fields ──────────────────────────────────────────────────────────
   landSubcategory?: LandSubcategory;

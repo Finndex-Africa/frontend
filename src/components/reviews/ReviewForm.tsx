@@ -10,7 +10,7 @@ import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
 import { trackReviewSubmitted } from '@/lib/analytics';
 
 interface ReviewFormProps {
-    itemType: 'property' | 'service';
+    itemType: 'property' | 'service' | 'buy-sell';
     itemId: string;
     itemTitle?: string;
     onSuccess?: () => void;

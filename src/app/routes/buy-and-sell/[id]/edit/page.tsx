@@ -8,11 +8,11 @@ import { mediaApi } from '@/services/api/media.api';
 import { showToast } from '@/lib/toast';
 import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
 import { geocodeAddress } from '@/lib/google-maps';
+import { isAgentLikeUserType } from '@/lib/agent-user-types';
 import type {
     BuySellCategory,
     BuySellListing,
     LandSubcategory,
-    HouseSubcategory,
     HouseholdItemSubcategory,
     LandUnit,
     ItemCondition,
@@ -78,7 +78,6 @@ export default function EditBuySellPage() {
     const [houseData, setHouseData] = useState({
         title: '', description: '', price: '', location: '',
         bedrooms: '', bathrooms: '', propertyType: '',
-        houseSubcategory: '' as HouseSubcategory | '',
     });
     const [amenities, setAmenities] = useState<string[]>([]);
 
@@ -95,16 +94,28 @@ export default function EditBuySellPage() {
     const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
     const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
 
+    // ── Agent fee ──────────────────────────────────────────────────────────
+    const [canSetAgentFee, setCanSetAgentFee] = useState(false);
+    const [agentFee, setAgentFee] = useState('');
+
     // ── Auth guard ─────────────────────────────────────────────────────────
     useEffect(() => {
         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         if (!token) { router.push('/routes/login'); return; }
+        const user = localStorage.getItem('user') || sessionStorage.getItem('user');
+        if (user) {
+            try {
+                const userData = JSON.parse(user);
+                setCanSetAgentFee(isAgentLikeUserType(userData.userType || userData.role));
+            } catch { /* ignore */ }
+        }
     }, [router]);
 
     // ── Fetch listing and populate form ───────────────────────────────────
     const populateForm = useCallback((listing: BuySellListing) => {
         setCategory(listing.category);
         setExistingImages(listing.images ?? []);
+        if ((listing as any).agentFee != null) setAgentFee(String((listing as any).agentFee));
 
         if (listing.category === 'land') {
             setLandData({
@@ -128,7 +139,6 @@ export default function EditBuySellPage() {
                 bedrooms: listing.bedrooms?.toString() ?? '',
                 bathrooms: listing.bathrooms?.toString() ?? '',
                 propertyType: listing.propertyType ?? '',
-                houseSubcategory: (listing.houseSubcategory as HouseSubcategory | '') ?? '',
             });
             // Restore amenities
             const savedAmenities = (listing.amenities ?? []).map((a: { label: string }) => a.label);
@@ -243,6 +253,7 @@ export default function EditBuySellPage() {
                     ...(landData.landSubcategory ? { landSubcategory: landData.landSubcategory } : {}),
                     ...(landData.whatsappNumber ? { whatsappNumber: landData.whatsappNumber } : {}),
                     ...(mapCoordinates ? { mapCoordinates } : {}),
+                    ...(canSetAgentFee && agentFee ? { agentFee: Number(agentFee) } : {}),
                 };
             } else if (category === 'house') {
                 if (!houseData.bedrooms || !houseData.bathrooms || !houseData.propertyType) {
@@ -264,9 +275,9 @@ export default function EditBuySellPage() {
                     bedrooms: Number(houseData.bedrooms),
                     bathrooms: Number(houseData.bathrooms),
                     propertyType: houseData.propertyType,
-                    ...(houseData.houseSubcategory ? { houseSubcategory: houseData.houseSubcategory } : {}),
                     amenities: amenitiesPayload,
                     ...(mapCoordinates ? { mapCoordinates } : {}),
+                    ...(canSetAgentFee && agentFee ? { agentFee: Number(agentFee) } : {}),
                 };
             } else if (category === 'household_item') {
                 const mapCoordinates = await geocodeAddress(itemData.location);
@@ -299,6 +310,30 @@ export default function EditBuySellPage() {
             setSaving(false);
         }
     };
+
+    // ── Agent fee section ──────────────────────────────────────────────────
+    const AgentFeeSection = () => canSetAgentFee ? (
+        <div className="mb-8 p-6 bg-amber-50 border border-amber-200 rounded-xl">
+            <h2 className="text-lg font-semibold text-amber-800 mb-1 flex items-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Agent Fee (Optional)
+            </h2>
+            <p className="text-sm text-amber-700 mb-4">As an agent or real estate agency, you can set an access fee for this listing.</p>
+            <div className="relative max-w-xs">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
+                <input
+                    type="number"
+                    value={agentFee}
+                    onChange={e => setAgentFee(e.target.value)}
+                    min={0}
+                    placeholder="e.g. 500"
+                    className="w-full pl-7 pr-4 py-3 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent bg-white"
+                />
+            </div>
+        </div>
+    ) : null;
 
     // ── Image section (shared between all categories) ──────────────────────
     const ImageSection = () => {
@@ -620,6 +655,7 @@ export default function EditBuySellPage() {
                                     </div>
                                 </div>
                             </div>
+                            <AgentFeeSection />
                             <ImageSection />
                             <SubmitRow />
                         </>
@@ -724,19 +760,6 @@ export default function EditBuySellPage() {
                                         </div>
                                     </div>
 
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">House Subcategory</label>
-                                        <select
-                                            value={houseData.houseSubcategory}
-                                            onChange={e => setHouseData(p => ({ ...p, houseSubcategory: e.target.value as HouseSubcategory | '' }))}
-                                            className="w-full max-w-xs px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        >
-                                            <option value="">Select (optional)</option>
-                                            <option value="duplex">Duplex</option>
-                                            <option value="apartment">Apartment</option>
-                                            <option value="commercial">Commercial</option>
-                                        </select>
-                                    </div>
                                 </div>
                             </div>
 
@@ -770,6 +793,7 @@ export default function EditBuySellPage() {
                                 </div>
                             </div>
 
+                            <AgentFeeSection />
                             <ImageSection />
                             <SubmitRow />
                         </>
@@ -900,6 +924,7 @@ export default function EditBuySellPage() {
                                 </div>
                             </div>
 
+                            <AgentFeeSection />
                             <ImageSection />
                             <SubmitRow />
                         </>

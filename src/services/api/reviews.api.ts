@@ -1,5 +1,7 @@
 import { apiClient, ApiSuccessResponse, PaginationMeta } from '@/lib/api-client';
 
+export type ReviewItemType = 'property' | 'service' | 'buy-sell';
+
 export interface Review {
     _id: string;
     userId: {
@@ -9,7 +11,7 @@ export interface Review {
         email: string;
         avatar?: string;
     };
-    itemType: 'property' | 'service';
+    itemType: ReviewItemType;
     itemId: string;
     rating: number;
     text: string;
@@ -29,7 +31,7 @@ export interface Review {
 }
 
 export interface CreateReviewDto {
-    itemType: 'property' | 'service';
+    itemType: ReviewItemType;
     itemId: string;
     rating: number;
     text: string;
@@ -77,9 +79,9 @@ export const reviewsApi = {
         return apiClient.post<Review>('/reviews', data);
     },
 
-    // Get reviews for a specific item (property or service)
+    // Get reviews for a specific item (property, service, or buy-sell)
     getByItem: async (
-        itemType: 'property' | 'service',
+        itemType: ReviewItemType,
         itemId: string,
         filters?: FilterReviewDto
     ): Promise<ApiSuccessResponse<Review[]> & { pagination?: PaginationMeta }> => {
@@ -106,7 +108,7 @@ export const reviewsApi = {
 
     // Get average rating for an item
     getAverageRating: async (
-        itemType: 'property' | 'service',
+        itemType: ReviewItemType,
         itemId: string
     ): Promise<ApiSuccessResponse<{ averageRating: number; reviewCount: number }>> => {
         return apiClient.get<{ averageRating: number; reviewCount: number }>(
@@ -116,7 +118,7 @@ export const reviewsApi = {
 
     // Get rating distribution for an item
     getRatingDistribution: async (
-        itemType: 'property' | 'service',
+        itemType: ReviewItemType,
         itemId: string
     ): Promise<ApiSuccessResponse<RatingDistribution>> => {
         return apiClient.get<RatingDistribution>(

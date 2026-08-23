@@ -1,11 +1,14 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { buySellApi } from "@/services/api";
 import { SafeImage } from "@/components/ui/SafeImage";
 import ShareButton from "@/components/ui/ShareButton";
+import SearchBar from "@/components/ui/SearchBar";
+import { bookmarksApi } from "@/services/api/bookmarks.api";
 import type { BuySellListing, BuySellCategory } from "@/types/buy-sell";
 import { getUserDisplayName } from "@/lib/display-name";
 
@@ -65,12 +68,41 @@ function BuySellCard({ listing }: { listing: BuySellListing }) {
   const images = listing.images?.length ? listing.images : [];
   const firstImage = images[0];
 
+  // ── Bookmark state ──────────────────────────────────────────────────────
+  // isBookmarked is pre-resolved by the parent (bulk fetch) — same pattern as PropertyCard
+  const [saved, setSaved] = useState(listing.isBookmarked ?? false);
+  const [toggling, setToggling] = useState(false);
+
+  // Sync when parent updates isBookmarked (e.g. after bulk fetch resolves)
+  useEffect(() => {
+    if (listing.isBookmarked !== undefined) setSaved(listing.isBookmarked);
+  }, [listing.isBookmarked]);
+
+  const handleToggleSave = useCallback(async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    if (!token) { window.location.href = "/routes/login"; return; }
+    setToggling(true);
+    const prev = saved;
+    setSaved(!prev);
+    try {
+      const result = await bookmarksApi.toggle("buy-sell", listing._id);
+      setSaved(result.bookmarked);
+    } catch {
+      setSaved(prev);
+    } finally {
+      setToggling(false);
+    }
+  }, [listing._id, saved]);
+  // ───────────────────────────────────────────────────────────────────────
+
   const categoryLabel =
     listing.category === "land"
-      ? "Land"
+      ? "Land for Sale"
       : listing.category === "house"
-        ? "House"
-        : "Item";
+        ? "House for Sale"
+        : "Item for Sale";
 
   const categoryColor =
     listing.category === "land"
@@ -117,8 +149,23 @@ function BuySellCard({ listing }: { listing: BuySellListing }) {
         <span className={`absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-md ${categoryColor}`}>
           {categoryLabel}
         </span>
-        {/* Share button */}
-        <div className="absolute top-3 right-3">
+        {/* Action buttons — heart + share */}
+        <div className="absolute top-3 right-3 flex items-center gap-1.5">
+          {/* Heart / favorite */}
+          <button
+            aria-label={saved ? "Remove from favorites" : "Save to favorites"}
+            disabled={toggling}
+            onClick={handleToggleSave}
+            className="p-1.5 bg-white/15 backdrop-blur-sm rounded-full hover:scale-110 transition-transform disabled:opacity-60"
+          >
+            <svg
+              className={`w-4 h-4 ${saved ? "fill-red-500 stroke-red-500" : "fill-none stroke-white"}`}
+              strokeWidth={2.5}
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          </button>
           <ShareButton
             compact
             dropdownRight
@@ -154,6 +201,11 @@ function BuySellCard({ listing }: { listing: BuySellListing }) {
             </span>
           )}
         </div>
+        {(listing as any).agentFee != null && (
+          <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded-md mt-2">
+            Agent fee: ${(listing as any).agentFee.toLocaleString()}
+          </p>
+        )}
         <p className="text-xs text-gray-400 mt-2 truncate">By {sellerName}</p>
       </div>
     </Link>
@@ -175,39 +227,116 @@ function SkeletonCard() {
   );
 }
 
+// ─── Pagination ─────────────────────────────────────────────────────────────
+
+function Pagination({ page, totalPages, onPage }: { page: number; totalPages: number; onPage: (p: number) => void }) {
+  if (totalPages <= 1) return null;
+
+  const pages: (number | "…")[] = [];
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) pages.push(i);
+  } else {
+    pages.push(1);
+    if (page > 3) pages.push("…");
+    for (let i = Math.max(2, page - 1); i <= Math.min(totalPages - 1, page + 1); i++) pages.push(i);
+    if (page < totalPages - 2) pages.push("…");
+    pages.push(totalPages);
+  }
+
+  return (
+    <div className="flex items-center justify-center gap-1 mt-10 flex-wrap">
+      <button
+        onClick={() => onPage(page - 1)}
+        disabled={page === 1}
+        className="px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+      >
+        ← Previous
+      </button>
+      {pages.map((p, i) =>
+        p === "…" ? (
+          <span key={`ellipsis-${i}`} className="px-2 text-gray-400 text-sm">…</span>
+        ) : (
+          <button
+            key={p}
+            onClick={() => onPage(p as number)}
+            className={`min-w-[36px] h-9 rounded-lg border text-sm font-medium transition-colors ${
+              p === page
+                ? "bg-blue-600 text-white border-blue-600"
+                : "border-gray-200 text-gray-700 hover:bg-gray-50"
+            }`}
+          >
+            {p}
+          </button>
+        )
+      )}
+      <button
+        onClick={() => onPage(page + 1)}
+        disabled={page === totalPages}
+        className="px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+      >
+        Next →
+      </button>
+    </div>
+  );
+}
+
 // ─── Main component ─────────────────────────────────────────────────────────
 
 export default function BuyAndSellPageContent() {
   const [listings, setListings] = useState<BuySellListing[]>([]);
+  const searchParams = useSearchParams();
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeCategory, setActiveCategory] = useState<BuySellCategory | "all">("all");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  // Search inputs (uncommitted until Search is clicked)
-  const [locationInput, setLocationInput] = useState("");
-  const [categoryInput, setCategoryInput] = useState<BuySellCategory | "all">("all");
-  const [maxBudgetInput, setMaxBudgetInput] = useState("");
+  // Filter state — initialised from URL params so SearchBar navigation works
+  const [activeCategory, setActiveCategory] = useState<BuySellCategory | "all">(
+    () => (searchParams.get("category") as BuySellCategory) || "all"
+  );
+  const [locationFilter, setLocationFilter] = useState(() => searchParams.get("location") ?? "");
+  const [maxBudget, setMaxBudget] = useState<number | undefined>(
+    () => (searchParams.get("maxBudget") ? Number(searchParams.get("maxBudget")) : undefined)
+  );
 
-  // Committed filter state (triggers fetch)
-  const [locationFilter, setLocationFilter] = useState("");
-  const [maxBudget, setMaxBudget] = useState<number | undefined>(undefined);
+  // Keep filter state in sync when URL params change (e.g. user navigates via SearchBar)
+  useEffect(() => {
+    setActiveCategory((searchParams.get("category") as BuySellCategory) || "all");
+    setLocationFilter(searchParams.get("location") ?? "");
+    setMaxBudget(searchParams.get("maxBudget") ? Number(searchParams.get("maxBudget")) : undefined);
+    setPage(1);
+  }, [searchParams]);
 
   const fetchListings = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await buySellApi.getAll({
-        page,
-        limit: 12,
-        status: "approved",
-        ...(activeCategory !== "all" ? { category: activeCategory } : {}),
-        ...(locationFilter ? { location: locationFilter } : {}),
-        ...(maxBudget ? { maxPrice: maxBudget } : {}),
-      });
-      setListings(res.data ?? []);
-      setTotalPages(res.pagination?.totalPages ?? 1);
+      const token = typeof window !== "undefined"
+        ? (localStorage.getItem("token") || sessionStorage.getItem("token"))
+        : null;
+
+      // Fetch listings + saved IDs in parallel (one bulk call, not one per card)
+      const [res, savedItems] = await Promise.allSettled([
+        buySellApi.getAll({
+          page,
+          limit: 20,
+          status: "approved",
+          ...(activeCategory !== "all" ? { category: activeCategory } : {}),
+          ...(locationFilter ? { location: locationFilter } : {}),
+          ...(maxBudget ? { maxPrice: maxBudget } : {}),
+        }),
+        token ? bookmarksApi.getAll("buy-sell") : Promise.resolve([]),
+      ]);
+
+      const items = res.status === "fulfilled" ? (res.value.data ?? []) : [];
+      const saved = savedItems.status === "fulfilled" ? savedItems.value : [];
+      const savedSet = new Set(saved.map((s) => s.listing._id));
+
+      // Merge isBookmarked into each listing — same as how propertiesApi/servicesApi work
+      setListings(items.map((l) => ({ ...l, isBookmarked: savedSet.has(l._id) })));
+      setTotalPages(res.status === "fulfilled" ? (res.value.pagination?.totalPages ?? 1) : 1);
+      if (res.status === "rejected") setError("Failed to load listings. Please try again.");
     } catch {
       setError("Failed to load listings. Please try again.");
     } finally {
@@ -221,25 +350,6 @@ export default function BuyAndSellPageContent() {
 
   const handleCategoryChange = (cat: BuySellCategory | "all") => {
     setActiveCategory(cat);
-    setCategoryInput(cat);
-    setPage(1);
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setActiveCategory(categoryInput);
-    setLocationFilter(locationInput.trim());
-    setMaxBudget(maxBudgetInput ? Number(maxBudgetInput) : undefined);
-    setPage(1);
-  };
-
-  const handleClearSearch = () => {
-    setLocationInput("");
-    setCategoryInput("all");
-    setMaxBudgetInput("");
-    setActiveCategory("all");
-    setLocationFilter("");
-    setMaxBudget(undefined);
     setPage(1);
   };
 
@@ -247,100 +357,89 @@ export default function BuyAndSellPageContent() {
     <div className="min-h-screen bg-gray-50">
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section className="bg-blue-600 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-white via-transparent to-transparent" />
-        <div className="relative container-app px-4 py-14 sm:py-20">
-          <div className="max-w-2xl">
-            <span className="inline-block bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full mb-4 uppercase tracking-wide border border-white/30">
+      <section className="relative z-20 w-full overflow-visible pb-3 md:h-[400px] md:pb-0">
+        {/* Background image */}
+        <div className="absolute inset-0 overflow-hidden">
+          <Image
+            src="/images/buysell/bg.jpeg"
+            alt="Buy & Sell Marketplace"
+            fill
+            className="object-cover object-center"
+            priority
+          />
+          <div className="absolute inset-0 bg-black/50" />
+        </div>
+
+        <div className="relative z-[5] flex flex-col md:h-[400px]">
+          {/* Hero text + desktop search */}
+          <div className="flex flex-col items-center justify-center px-4 pt-20 pb-4 text-center text-white md:flex-1 md:pt-0 md:pb-0">
+            <span className="inline-block bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full mb-3 uppercase tracking-wide border border-white/30">
               Marketplace
             </span>
-            <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight mb-4">
-              Buy &amp; Sell on <span className="text-yellow-300">FindAfriq</span>
+            <h1 className="max-w-3xl mx-auto font-extrabold drop-shadow-lg text-2xl leading-snug sm:text-3xl sm:leading-snug md:text-5xl md:leading-tight mb-3">
+              Buy &amp; Sell on FindAfriq
             </h1>
-            <p className="text-white/80 text-base sm:text-lg mb-8">
+            <p className="text-white/80 text-sm sm:text-base mb-6 max-w-xl">
               Land, houses, and fairly used household items — all in one trusted marketplace.
             </p>
 
-            {/* Search filters */}
-            <form onSubmit={handleSearch} className="bg-white rounded-xl p-3 shadow-sm flex flex-col sm:flex-row gap-2">
-              {/* Location */}
-              <div className="flex-1 relative">
-                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <input
-                  type="text"
-                  value={locationInput}
-                  onChange={e => setLocationInput(e.target.value)}
-                  placeholder="Location (e.g. Monrovia)"
-                  className="w-full pl-9 pr-3 py-2.5 rounded-lg text-sm text-gray-900 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-              </div>
+            {/* Desktop search (in hero) */}
+            <div className="mx-auto mt-2 hidden w-full max-w-3xl md:block">
+              <SearchBar
+                variant="buy-sell"
+                initialLocation={locationFilter}
+                initialType={activeCategory !== "all" ? activeCategory : ""}
+                initialBudget={maxBudget ? String(maxBudget) : ""}
+              />
+            </div>
+          </div>
 
-              {/* Category type */}
-              <select
-                value={categoryInput}
-                onChange={e => setCategoryInput(e.target.value as BuySellCategory | "all")}
-                className="sm:w-40 px-3 py-2.5 rounded-lg text-sm text-gray-700 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white cursor-pointer"
-              >
-                <option value="all">All Types</option>
-                <option value="land">Land</option>
-                <option value="house">House</option>
-                <option value="household_item">Household Item</option>
-              </select>
-
-              {/* Max budget */}
-              <div className="relative sm:w-40">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">$</span>
-                <input
-                  type="number"
-                  value={maxBudgetInput}
-                  onChange={e => setMaxBudgetInput(e.target.value)}
-                  placeholder="Max budget"
-                  min={0}
-                  className="w-full pl-6 pr-3 py-2.5 rounded-lg text-sm text-gray-900 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-sm transition-colors whitespace-nowrap"
-              >
-                Search
-              </button>
-            </form>
-
-            {/* Active filter chips */}
-            {(locationFilter || maxBudget || activeCategory !== "all") && (
-              <div className="flex flex-wrap gap-2 mt-3">
-                {locationFilter && (
-                  <span className="inline-flex items-center gap-1 bg-white/20 text-white text-xs px-2.5 py-1 rounded-full">
-                    📍 {locationFilter}
-                  </span>
-                )}
-                {activeCategory !== "all" && (
-                  <span className="inline-flex items-center gap-1 bg-white/20 text-white text-xs px-2.5 py-1 rounded-full">
-                    {activeCategory === "land" ? "🏞️ Land" : activeCategory === "house" ? "🏠 House" : "📦 Household Item"}
-                  </span>
-                )}
-                {maxBudget && (
-                  <span className="inline-flex items-center gap-1 bg-white/20 text-white text-xs px-2.5 py-1 rounded-full">
-                    💰 Max ${maxBudget.toLocaleString()}
-                  </span>
-                )}
-                <button
-                  type="button"
-                  onClick={handleClearSearch}
-                  className="text-white/70 hover:text-white text-xs underline"
-                >
-                  Clear all
-                </button>
-              </div>
-            )}
+          {/* Mobile search (below hero text) */}
+          <div className="relative z-30 isolate mt-2 px-4 pb-3 md:hidden">
+            <div className="container-app max-w-5xl mx-auto">
+              <SearchBar
+                variant="buy-sell"
+                initialLocation={locationFilter}
+                initialType={activeCategory !== "all" ? activeCategory : ""}
+                initialBudget={maxBudget ? String(maxBudget) : ""}
+              />
+            </div>
           </div>
         </div>
       </section>
+
+      {/* Active filter chips */}
+      {(locationFilter || maxBudget || activeCategory !== "all") && (
+        <div className="container-app px-4 pt-4">
+          <div className="flex flex-wrap gap-2">
+            {locationFilter && (
+              <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 text-xs px-2.5 py-1 rounded-full">
+                📍 {locationFilter}
+                <button type="button" onClick={() => { setLocationFilter(""); setPage(1); }} className="ml-1 text-blue-400 hover:text-blue-700">×</button>
+              </span>
+            )}
+            {activeCategory !== "all" && (
+              <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 text-xs px-2.5 py-1 rounded-full">
+                {activeCategory === "land" ? "🏞️ Land" : activeCategory === "house" ? "🏠 House" : "📦 Household Item"}
+                <button type="button" onClick={() => { handleCategoryChange("all"); }} className="ml-1 text-blue-400 hover:text-blue-700">×</button>
+              </span>
+            )}
+            {maxBudget && (
+              <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 text-xs px-2.5 py-1 rounded-full">
+                💰 Max ${maxBudget.toLocaleString()}
+                <button type="button" onClick={() => { setMaxBudget(undefined); setPage(1); }} className="ml-1 text-blue-400 hover:text-blue-700">×</button>
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={() => { setActiveCategory("all"); setLocationFilter(""); setMaxBudget(undefined); setPage(1); }}
+              className="text-gray-500 hover:text-gray-700 text-xs underline"
+            >
+              Clear all
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── Browse by Category cards ──────────────────────────────────────── */}
       <section className="container-app px-4 py-10">
@@ -387,24 +486,10 @@ export default function BuyAndSellPageContent() {
           ))}
         </div>
 
-        {/* Active search indicator */}
-        {(locationFilter || maxBudget || activeCategory !== "all") && (
-          <div className="flex flex-wrap items-center gap-2 mb-4 text-sm text-gray-600">
-            <span>Showing filtered results</span>
-            <button
-              type="button"
-              onClick={handleClearSearch}
-              className="text-blue-600 hover:underline"
-            >
-              Clear filters
-            </button>
-          </div>
-        )}
-
         {/* Grid */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 gap-y-6 sm:gap-x-4 sm:gap-y-8">
+            {Array.from({ length: 10 }).map((_, i) => <SkeletonCard key={i} />)}
           </div>
         ) : error ? (
           <div className="text-center py-16">
@@ -429,7 +514,7 @@ export default function BuyAndSellPageContent() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 gap-y-6 sm:gap-x-4 sm:gap-y-8">
             {listings.map(listing => (
               <BuySellCard key={listing._id} listing={listing} />
             ))}
@@ -437,26 +522,8 @@ export default function BuyAndSellPageContent() {
         )}
 
         {/* Pagination */}
-        {!loading && !error && totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-10">
-            <button
-              onClick={() => setPage(p => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-            >
-              Previous
-            </button>
-            <span className="text-sm text-gray-500">
-              Page {page} of {totalPages}
-            </span>
-            <button
-              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              className="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-            >
-              Next
-            </button>
-          </div>
+        {!loading && !error && (
+          <Pagination page={page} totalPages={totalPages} onPage={p => { setPage(p); window.scrollTo({ top: 0, behavior: "smooth" }); }} />
         )}
       </section>
 

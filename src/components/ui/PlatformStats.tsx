@@ -8,6 +8,7 @@ interface Stats {
     approvedProperties: number;
     totalServices: number;
     totalUsers: number;
+    totalBuySell: number;
 }
 
 const DURATION_MS = 1200;
@@ -83,15 +84,22 @@ export default function PlatformStats() {
     useEffect(() => {
         setLoading(true);
         setError(false);
-        fetch(`${API_URL}/properties/public/stats`)
+
+        const fetchStats = fetch(`${API_URL}/properties/public/stats`)
+            .then(res => res.json());
+        const fetchBuySell = fetch(`${API_URL}/buy-sell?page=1&limit=1&status=approved`)
             .then(res => res.json())
-            .then(data => {
+            .catch(() => null);
+
+        Promise.all([fetchStats, fetchBuySell])
+            .then(([data, buySellData]) => {
                 const d = data?.data;
                 if (!d || typeof d !== 'object') {
                     setStats(null);
                     return;
                 }
                 const row = d as Record<string, unknown>;
+                const buySellTotal = buySellData?.pagination?.totalItems ?? buySellData?.data?.pagination?.totalItems ?? 0;
                 setStats({
                     totalProperties: Number(row.totalProperties) || 0,
                     approvedProperties: Number(row.approvedProperties) || 0,
@@ -100,11 +108,12 @@ export default function PlatformStats() {
                             ? Number(row.totalServices) || 0
                             : Number(row.totalServiceProviders) || 0,
                     totalUsers: Number(row.totalUsers) || 0,
+                    totalBuySell: Number(buySellTotal) || 0,
                 });
             })
             .catch(() => {
                 setError(true);
-                setStats({ totalProperties: 0, approvedProperties: 0, totalServices: 0, totalUsers: 0 });
+                setStats({ totalProperties: 0, approvedProperties: 0, totalServices: 0, totalUsers: 0, totalBuySell: 0 });
             })
             .finally(() => setLoading(false));
     }, []);
@@ -126,6 +135,11 @@ export default function PlatformStats() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
     );
+    const ShoppingBagIcon = (
+        <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+        </svg>
+    );
 
     return (
         <div className="bg-white py-6">
@@ -133,7 +147,7 @@ export default function PlatformStats() {
                 <h2 className="text-xl sm:text-2xl font-bold text-center mb-6 text-gray-900">
                     Our Platform at a Glance
                 </h2>
-                <div className="grid grid-cols-3 gap-6 max-w-3xl mx-auto">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-4xl mx-auto">
                     <StatCard
                         icon={HouseIcon}
                         iconBg="bg-blue-100"
@@ -148,6 +162,14 @@ export default function PlatformStats() {
                         value={stats?.totalServices ?? 0}
                         loading={loading}
                         label="Services Listed"
+                        formatNum={formatNum}
+                    />
+                    <StatCard
+                        icon={ShoppingBagIcon}
+                        iconBg="bg-orange-100"
+                        value={stats?.totalBuySell ?? 0}
+                        loading={loading}
+                        label="Buy &amp; Sell Listed"
                         formatNum={formatNum}
                     />
                     <StatCard

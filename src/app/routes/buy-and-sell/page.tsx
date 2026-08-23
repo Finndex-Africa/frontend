@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import BuyAndSellPageContent from "./BuyAndSellPageContent";
 
 export const metadata = {
@@ -7,5 +8,9 @@ export const metadata = {
 };
 
 export default function BuyAndSellPage() {
-  return <BuyAndSellPageContent />;
+  return (
+    <Suspense fallback={null}>
+      <BuyAndSellPageContent />
+    </Suspense>
+  );
 }
