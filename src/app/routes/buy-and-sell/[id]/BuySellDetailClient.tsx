@@ -8,7 +8,6 @@ import MediaCarousel from "@/components/domain/MediaCarousel";
 import ShareButton from "@/components/ui/ShareButton";
 import ChatBox from "@/components/dashboard/ChatBox";
 import ReviewsList from "@/components/reviews/ReviewsList";
-import ReviewForm from "@/components/reviews/ReviewForm";
 import { bookmarksApi } from "@/services/api/bookmarks.api";
 import { buySellApi } from "@/services/api/buy-sell.api";
 import { messagesApi } from "@/services/api";
@@ -567,24 +566,11 @@ export default function BuySellDetailClient() {
             </div>
           </section>
 
-          {/* Agent Fee */}
-          {(listing as any).agentFee != null && (
-            <section className="rounded-xl border border-amber-200 bg-amber-50 p-5">
-              <div className="flex items-center gap-2 mb-1">
-                <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <h2 className="text-base font-semibold text-amber-800">Agent Access Fee</h2>
-              </div>
-              <p className="text-2xl font-bold text-amber-700">${(listing as any).agentFee.toLocaleString()}</p>
-              <p className="text-xs text-amber-600 mt-1">Set by the listing agent or real estate agency</p>
-            </section>
-          )}
 
           {/* Seller / Managed By */}
           {seller && (
             <section>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Sold By</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Listed By</h2>
               <button
                 type="button"
                 onClick={() => { if (sellerId) window.location.href = `/routes/profile-view/${sellerId}`; }}
@@ -631,20 +617,12 @@ export default function BuySellDetailClient() {
 
           {/* Reviews */}
           <section>
-            <ReviewForm
+            <ReviewsList
+              key={reviewsKey}
               itemType="buy-sell"
               itemId={listingId}
               itemTitle={listing.title}
-              onSuccess={() => setReviewsKey(k => k + 1)}
             />
-            <div className="mt-6">
-              <ReviewsList
-                key={reviewsKey}
-                itemType="buy-sell"
-                itemId={listingId}
-                itemTitle={listing.title}
-              />
-            </div>
           </section>
         </div>
 
@@ -670,12 +648,43 @@ export default function BuySellDetailClient() {
                       ${listing.price.toLocaleString()}
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">Listed price · negotiable</p>
+                  <p className="text-xs text-gray-500 mt-1">Listed price</p>
 
                   {(listing as any).agentFee != null && (
-                    <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded-md mt-2">
-                      Agent fee: ${(listing as any).agentFee.toLocaleString()}
-                    </p>
+                    <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4 space-y-3">
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Payment Details</p>
+                      <div className="flex items-start gap-3 p-3 rounded-lg border border-gray-100 bg-gray-50">
+                        <div className="shrink-0 w-9 h-9 rounded-full bg-green-100 flex items-center justify-center">
+                          <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-sm font-semibold text-gray-900">Agent Fee</span>
+                          <p className="text-xs text-gray-500 mt-0.5">Fee set by the listing agent or real estate agency.</p>
+                          <p className="text-xs text-gray-400 mt-0.5">This fee is paid directly to the agent.</p>
+                        </div>
+                        <span className="shrink-0 text-base font-bold text-green-600">${(listing as any).agentFee.toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 rounded-lg border border-amber-200 bg-amber-50">
+                        <div className="shrink-0 w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center">
+                          <span className="text-white text-sm font-bold">!</span>
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-amber-800">Payment Integration Coming Soon!</p>
+                          <p className="text-xs text-amber-700 mt-0.5">Please contact the agent for payment instructions.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between px-1">
+                        <div className="flex items-center gap-2">
+                          <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                          </svg>
+                          <span className="text-sm font-semibold text-gray-700">Total Amount to Pay Agent</span>
+                        </div>
+                        <span className="text-base font-bold text-gray-900">${(listing as any).agentFee.toLocaleString()}</span>
+                      </div>
+                    </div>
                   )}
 
                   {/* Category badge in card */}

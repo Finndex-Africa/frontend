@@ -2,15 +2,14 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
 import Image from "next/image";
 import { buySellApi } from "@/services/api";
-import { SafeImage } from "@/components/ui/SafeImage";
-import ShareButton from "@/components/ui/ShareButton";
 import SearchBar from "@/components/ui/SearchBar";
 import { bookmarksApi } from "@/services/api/bookmarks.api";
+import BuySellCard from "@/components/domain/BuySellCard";
+import HeroVerifiedBadge from "@/components/ui/HeroVerifiedBadge";
+import VerifiedTrustedBanner from "@/components/ui/VerifiedTrustedBanner";
 import type { BuySellListing, BuySellCategory } from "@/types/buy-sell";
-import { getUserDisplayName } from "@/lib/display-name";
 
 // ─── Category config ────────────────────────────────────────────────────────
 
@@ -27,190 +26,6 @@ const CATEGORIES: {
   { value: "household_item", label: "Household Items", icon: "📦", color: "bg-orange-50 text-orange-700", activeColor: "bg-orange-500 text-white" },
 ];
 
-const CATEGORY_HERO_CARDS = [
-  {
-    value: "land" as BuySellCategory,
-    label: "Land",
-    description: "Residential, commercial, beach & farm land",
-    icon: "🏞️",
-    image: "/icons/land.png",
-    color: "bg-green-50 border-green-100",
-    titleColor: "text-green-700",
-  },
-  {
-    value: "house" as BuySellCategory,
-    label: "Houses",
-    description: "Duplexes, apartments & commercial properties",
-    icon: "🏠",
-    image: "/icons/house.png",
-    color: "bg-blue-50 border-blue-100",
-    titleColor: "text-blue-700",
-  },
-  {
-    value: "household_item" as BuySellCategory,
-    label: "Household Items",
-    description: "Furniture, electronics, kitchen items & more",
-    icon: "📦",
-    image: "/icons/items.png",
-    color: "bg-orange-50 border-orange-100",
-    titleColor: "text-orange-600",
-  },
-];
-
-// ─── Listing card ───────────────────────────────────────────────────────────
-
-function BuySellCard({ listing }: { listing: BuySellListing }) {
-  const seller =
-    typeof listing.sellerId === "object" ? listing.sellerId : null;
-  const sellerName = seller
-    ? getUserDisplayName(seller as unknown as Record<string, unknown>, "Seller")
-    : "Seller";
-  const images = listing.images?.length ? listing.images : [];
-  const firstImage = images[0];
-
-  // ── Bookmark state ──────────────────────────────────────────────────────
-  // isBookmarked is pre-resolved by the parent (bulk fetch) — same pattern as PropertyCard
-  const [saved, setSaved] = useState(listing.isBookmarked ?? false);
-  const [toggling, setToggling] = useState(false);
-
-  // Sync when parent updates isBookmarked (e.g. after bulk fetch resolves)
-  useEffect(() => {
-    if (listing.isBookmarked !== undefined) setSaved(listing.isBookmarked);
-  }, [listing.isBookmarked]);
-
-  const handleToggleSave = useCallback(async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-    if (!token) { window.location.href = "/routes/login"; return; }
-    setToggling(true);
-    const prev = saved;
-    setSaved(!prev);
-    try {
-      const result = await bookmarksApi.toggle("buy-sell", listing._id);
-      setSaved(result.bookmarked);
-    } catch {
-      setSaved(prev);
-    } finally {
-      setToggling(false);
-    }
-  }, [listing._id, saved]);
-  // ───────────────────────────────────────────────────────────────────────
-
-  const categoryLabel =
-    listing.category === "land"
-      ? "Land for Sale"
-      : listing.category === "house"
-        ? "House for Sale"
-        : "Item for Sale";
-
-  const categoryColor =
-    listing.category === "land"
-      ? "bg-green-100 text-green-700"
-      : listing.category === "house"
-        ? "bg-blue-100 text-blue-700"
-        : "bg-orange-100 text-orange-700";
-
-  const subtitle =
-    listing.category === "land"
-      ? listing.landSize != null && listing.unit
-        ? `${listing.landSize} ${listing.unit.replace("_", " ")}`
-        : null
-      : listing.category === "house"
-        ? listing.bedrooms != null && listing.bathrooms != null
-          ? `${listing.bedrooms} bed · ${listing.bathrooms} bath`
-          : null
-        : listing.condition
-          ? listing.condition === "fairly_used"
-            ? "Fairly Used"
-            : "New"
-          : null;
-
-  return (
-    <Link
-      href={`/routes/buy-and-sell/${listing._id}`}
-      className="group block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow"
-    >
-      {/* Image */}
-      <div className="relative aspect-4/3 bg-gray-100 overflow-hidden">
-        {firstImage ? (
-          <SafeImage
-            src={firstImage}
-            alt={listing.title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-4xl text-gray-300">
-            {listing.category === "land" ? "🏞️" : listing.category === "house" ? "🏠" : "📦"}
-          </div>
-        )}
-        {/* Category badge */}
-        <span className={`absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-md ${categoryColor}`}>
-          {categoryLabel}
-        </span>
-        {/* Action buttons — heart + share */}
-        <div className="absolute top-3 right-3 flex items-center gap-1.5">
-          {/* Heart / favorite */}
-          <button
-            aria-label={saved ? "Remove from favorites" : "Save to favorites"}
-            disabled={toggling}
-            onClick={handleToggleSave}
-            className="p-1.5 bg-white/15 backdrop-blur-sm rounded-full hover:scale-110 transition-transform disabled:opacity-60"
-          >
-            <svg
-              className={`w-4 h-4 ${saved ? "fill-red-500 stroke-red-500" : "fill-none stroke-white"}`}
-              strokeWidth={2.5}
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-          </button>
-          <ShareButton
-            compact
-            dropdownRight
-            url={`/routes/buy-and-sell/${listing._id}`}
-            title={listing.title}
-            text={`Check out this listing: ${listing.title} in ${listing.location}`}
-          />
-        </div>
-        {/* Image count */}
-        {images.length > 1 && (
-          <span className="absolute bottom-3 right-3 bg-black/50 text-white text-xs px-2 py-0.5 rounded-full">
-            +{images.length - 1}
-          </span>
-        )}
-      </div>
-
-      {/* Info */}
-      <div className="p-4">
-        <h3 className="font-semibold text-gray-900 text-sm leading-snug line-clamp-2 mb-1">
-          {listing.title}
-        </h3>
-        <p className="text-xs text-gray-500 line-clamp-1 mb-1">📍 {listing.location}</p>
-        {subtitle && (
-          <p className="text-xs text-gray-500 mb-2">{subtitle}</p>
-        )}
-        <div className="flex items-center justify-between mt-2">
-          <span className="text-base font-bold text-gray-900">
-            ${listing.price.toLocaleString()}
-          </span>
-          {listing.isPremium && (
-            <span className="text-xs font-semibold text-yellow-700 bg-yellow-50 border border-yellow-200 px-2 py-0.5 rounded-full">
-              Featured
-            </span>
-          )}
-        </div>
-        {(listing as any).agentFee != null && (
-          <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded-md mt-2">
-            Agent fee: ${(listing as any).agentFee.toLocaleString()}
-          </p>
-        )}
-        <p className="text-xs text-gray-400 mt-2 truncate">By {sellerName}</p>
-      </div>
-    </Link>
-  );
-}
 
 // ─── Skeleton card ──────────────────────────────────────────────────────────
 
@@ -373,14 +188,12 @@ export default function BuyAndSellPageContent() {
         <div className="relative z-[5] flex flex-col md:h-[400px]">
           {/* Hero text + desktop search */}
           <div className="flex flex-col items-center justify-center px-4 pt-20 pb-4 text-center text-white md:flex-1 md:pt-0 md:pb-0">
-            <span className="inline-block bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full mb-3 uppercase tracking-wide border border-white/30">
-              Marketplace
-            </span>
-            <h1 className="max-w-3xl mx-auto font-extrabold drop-shadow-lg text-2xl leading-snug sm:text-3xl sm:leading-snug md:text-5xl md:leading-tight mb-3">
+            <HeroVerifiedBadge />
+            <h1 className="max-w-3xl mx-auto font-extrabold drop-shadow-lg text-4xl leading-snug sm:text-5xl sm:leading-snug md:text-6xl md:leading-tight mb-4">
               Buy &amp; Sell on FindAfriq
             </h1>
-            <p className="text-white/80 text-sm sm:text-base mb-6 max-w-xl">
-              Land, houses, and fairly used household items — all in one trusted marketplace.
+            <p className="text-white/85 text-lg sm:text-xl mb-6 max-w-xl">
+              Land, houses, and fairly used household items.
             </p>
 
             {/* Desktop search (in hero) */}
@@ -407,6 +220,11 @@ export default function BuyAndSellPageContent() {
           </div>
         </div>
       </section>
+
+      {/* Verified banner — same as Properties & Services for consistency */}
+      <div className="relative z-0 mt-4 md:mt-8 pb-4">
+        <VerifiedTrustedBanner />
+      </div>
 
       {/* Active filter chips */}
       {(locationFilter || maxBudget || activeCategory !== "all") && (
@@ -441,29 +259,6 @@ export default function BuyAndSellPageContent() {
         </div>
       )}
 
-      {/* ── Browse by Category cards ──────────────────────────────────────── */}
-      <section className="container-app px-4 py-10">
-        <h2 className="text-xl font-bold text-gray-900 mb-6">Browse by Category</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {CATEGORY_HERO_CARDS.map(cat => (
-            <button
-              key={cat.value}
-              type="button"
-              onClick={() => handleCategoryChange(cat.value)}
-              className={`rounded-2xl border p-5 flex flex-row items-start gap-4 text-left transition-all hover:shadow-sm ${cat.color} ${activeCategory === cat.value ? "ring-2 ring-blue-500" : ""}`}
-            >
-              <div className="w-16 h-16 shrink-0">
-                <Image src={cat.image} alt={cat.label} width={64} height={64} className="object-contain w-full h-full" />
-              </div>
-              <div className="flex flex-col gap-1 pt-1">
-                <h3 className={`font-bold text-base ${cat.titleColor}`}>{cat.label}</h3>
-                <p className="text-sm text-gray-600">{cat.description}</p>
-              </div>
-            </button>
-          ))}
-        </div>
-      </section>
-
       {/* ── Listings ─────────────────────────────────────────────────────── */}
       <section className="container-app px-4 pb-16">
 
@@ -488,7 +283,7 @@ export default function BuyAndSellPageContent() {
 
         {/* Grid */}
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 gap-y-6 sm:gap-x-4 sm:gap-y-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-6 sm:gap-x-4 sm:gap-y-8">
             {Array.from({ length: 10 }).map((_, i) => <SkeletonCard key={i} />)}
           </div>
         ) : error ? (
@@ -514,7 +309,7 @@ export default function BuyAndSellPageContent() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 gap-y-6 sm:gap-x-4 sm:gap-y-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-6 sm:gap-x-4 sm:gap-y-8">
             {listings.map(listing => (
               <BuySellCard key={listing._id} listing={listing} />
             ))}

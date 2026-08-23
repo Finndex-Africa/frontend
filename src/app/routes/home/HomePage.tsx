@@ -1,6 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
+import { useState, useEffect } from "react";
 import PropertyCard, {
   Property,
 } from "../../../components/domain/PropertyCard";
@@ -11,8 +10,6 @@ import VerifiedTrustedBanner from "../../../components/ui/VerifiedTrustedBanner"
 import AdvertisementBanner from "../../../components/ui/AdvertisementBanner";
 import TestimonialsSection from "../../../components/ui/TestimonialsSection";
 import PartnerLogos from "../../../components/ui/PartnerLogos";
-import { SafeImage } from "@/components/ui/SafeImage";
-
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { propertiesApi, servicesApi } from "@/services/api";
@@ -26,84 +23,8 @@ import type { BuySellListing } from "@/types/buy-sell";
 import { useAuth } from "@/providers";
 import { normalizeApiEntityList } from "@/lib/normalize-api-entity";
 import { bookmarksApi } from "@/services/api/bookmarks.api";
+import BuySellCard from "@/components/domain/BuySellCard";
 
-/** Minimal buy-sell card with heart button, reused in the homepage marketplace section */
-function HomeBuySellCard({ listing }: { listing: BuySellListing }) {
-  const [saved, setSaved] = useState(listing.isBookmarked ?? false);
-  const [toggling, setToggling] = useState(false);
-
-  // Sync when parent updates isBookmarked (resolves after bulk bookmark fetch)
-  useEffect(() => {
-    if (listing.isBookmarked !== undefined) setSaved(listing.isBookmarked);
-  }, [listing.isBookmarked]);
-
-  const handleToggle = useCallback(async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-    if (!token) { window.location.href = "/routes/login"; return; }
-    setToggling(true);
-    const prev = saved;
-    setSaved(!prev);
-    try {
-      const result = await bookmarksApi.toggle("buy-sell", listing._id);
-      setSaved(result.bookmarked);
-    } catch {
-      setSaved(prev);
-    } finally {
-      setToggling(false);
-    }
-  }, [listing._id, saved]);
-
-  const images = listing.images ?? [];
-  const categoryLabel =
-    listing.category === "land" ? "Land for Sale" :
-    listing.category === "house" ? "House for Sale" : "Item for Sale";
-
-  return (
-    <Link href={`/routes/buy-and-sell/${listing._id}`} className="group block">
-      <div className="relative aspect-4/3 rounded-2xl overflow-hidden bg-gray-100 mb-2 shadow-sm">
-        {images[0] ? (
-          <SafeImage
-            src={images[0]}
-            alt={listing.title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-4xl text-gray-300">
-            {listing.category === "land" ? "🏞️" : listing.category === "house" ? "🏠" : "📦"}
-          </div>
-        )}
-        <span className={`absolute top-2 left-2 text-xs font-semibold px-2 py-0.5 rounded-md ${
-          listing.category === "land" ? "bg-green-100 text-green-700" :
-          listing.category === "house" ? "bg-blue-100 text-blue-700" :
-          "bg-orange-100 text-orange-700"
-        }`}>
-          {categoryLabel}
-        </span>
-        {/* Heart button — matches PropertyCard / ServiceCard style */}
-        <button
-          aria-label={saved ? "Remove from favorites" : "Save to favorites"}
-          disabled={toggling}
-          onClick={handleToggle}
-          className="absolute top-1.5 right-1.5 p-1 bg-white/10 backdrop-blur-sm rounded-full hover:scale-110 transition-transform disabled:opacity-60"
-        >
-          <svg
-            className={`w-4 h-4 ${saved ? "fill-red-500 stroke-red-500" : "fill-none stroke-white"}`}
-            strokeWidth={2.5}
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-          </svg>
-        </button>
-      </div>
-      <h3 className="text-[12px] sm:text-[14px] font-medium text-gray-900 line-clamp-1">{listing.title}</h3>
-      <p className="text-[11px] sm:text-[13px] text-gray-500 line-clamp-1">{listing.location}</p>
-      <p className="text-[12px] sm:text-[15px] font-semibold text-gray-900 mt-0.5">${listing.price.toLocaleString()}</p>
-    </Link>
-  );
-}
 
 const partnerLogos = [
   { name: "Partner 1", logoUrl: "/images/partners/partner1.jpeg" },
@@ -338,7 +259,7 @@ export default function HomePage() {
 
         // Fetch listings + saved IDs in parallel (one bulk call, not one per card)
         const [res, savedItems] = await Promise.allSettled([
-          buySellApi.getAll({ page: 1, limit: 6, status: "approved" }),
+          buySellApi.getAll({ page: 1, limit: 10, status: "approved" }),
           token ? bookmarksApi.getAll("buy-sell") : Promise.resolve([]),
         ]);
 
@@ -437,11 +358,6 @@ export default function HomePage() {
       <div className="container-app pt-6 pb-12">
         <div className="flex items-center gap-3 mb-8">
           <h2 className="text-2xl font-semibold text-gray-900">Explore available properties</h2>
-          {listingCounts && listingCounts.properties > 0 && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 border border-blue-100 px-3 py-0.5 text-sm font-semibold text-blue-700">
-              {listingCounts.properties.toLocaleString()} listed
-            </span>
-          )}
         </div>
         {loadingProperties ? (
           <div className="flex justify-center items-center py-20">
@@ -487,18 +403,10 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Advertisement Banner */}
-      <AdvertisementBanner />
-
       {/* Services Section */}
       <div className="container-app py-12">
         <div className="flex items-center gap-3 mb-8">
           <h2 className="text-2xl font-semibold text-gray-900">Explore trusted service providers</h2>
-          {listingCounts && listingCounts.services > 0 && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-purple-50 border border-purple-100 px-3 py-0.5 text-sm font-semibold text-purple-700">
-              {listingCounts.services.toLocaleString()} listed
-            </span>
-          )}
         </div>
         {loadingServices ? (
           <div className="flex justify-center items-center py-20">
@@ -551,33 +459,20 @@ export default function HomePage() {
 
       {/* Buy & Sell Section */}
       <div className="container-app pt-12 pb-6">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <h2 className="text-2xl font-semibold text-gray-900">Buy &amp; Sell Marketplace</h2>
-            {listingCounts && listingCounts.buySell > 0 && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-orange-50 border border-orange-100 px-3 py-0.5 text-sm font-semibold text-orange-700">
-                {listingCounts.buySell.toLocaleString()} listed
-              </span>
-            )}
-          </div>
-          <Link
-            href="/routes/buy-and-sell"
-            className="text-sm font-semibold text-blue-600 hover:text-blue-700 border border-blue-200 hover:border-blue-400 px-4 py-2 rounded-lg transition-colors"
-          >
-            View All →
-          </Link>
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold text-gray-900">Buy &amp; Sell Marketplace</h2>
         </div>
 
         {loadingBuySell ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 gap-y-6 sm:gap-x-4">
-            {Array.from({ length: 6 }).map((_, i) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 gap-y-6 sm:gap-x-4 sm:gap-y-8">
+            {Array.from({ length: 10 }).map((_, i) => (
               <div key={i} className="bg-gray-100 rounded-2xl animate-pulse aspect-4/3" />
             ))}
           </div>
         ) : buySellListings.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 gap-y-6 sm:gap-x-4 sm:gap-y-8">
             {buySellListings.map(listing => (
-              <HomeBuySellCard key={listing._id} listing={listing} />
+              <BuySellCard key={listing._id} listing={listing} />
             ))}
           </div>
         ) : (
@@ -599,6 +494,9 @@ export default function HomePage() {
           </button>
         </div>
       </div>
+
+      {/* Advertisement Banner — Connecting you Seamlessly */}
+      <AdvertisementBanner />
 
       {/* Testimonials Section */}
       <TestimonialsSection />

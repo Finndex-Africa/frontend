@@ -150,6 +150,12 @@ export default function NewBuySellPage() {
             return;
         }
 
+        // Agent fee is mandatory for agents / real estate agencies
+        if (canSetAgentFee && !agentFee) {
+            showToast.error('Agent fee is required. Please enter the agent fee amount.');
+            return;
+        }
+
         setLoading(true);
         setFormError(null);
 
@@ -227,7 +233,8 @@ export default function NewBuySellPage() {
                     warranty: itemData.warranty,
                     deliveryAvailable: itemData.deliveryAvailable,
                     ...(mapCoordinates ? { mapCoordinates } : {}),
-                });
+                    ...(canSetAgentFee && agentFee ? { agentFee: Number(agentFee) } : {}),
+                } as any);
             }
 
             showToast.success('Listing created successfully! It will be reviewed by our team.');
@@ -244,26 +251,25 @@ export default function NewBuySellPage() {
     };
 
     // ── Shared: image section ───────────────────────────────────────────────
-    const AgentFeeSection = () => canSetAgentFee ? (
-        <div className="mb-8 p-6 bg-amber-50 border border-amber-200 rounded-xl">
-            <h2 className="text-lg font-semibold text-amber-800 mb-1 flex items-center gap-2">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Agent Fee (Optional)
-            </h2>
-            <p className="text-sm text-amber-700 mb-4">As an agent or real estate agency, you can set an access fee for this listing.</p>
-            <div className="relative max-w-xs">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
-                <input
-                    type="number"
-                    value={agentFee}
-                    onChange={e => setAgentFee(e.target.value)}
-                    min={0}
-                    placeholder="e.g. 500"
-                    className="w-full pl-7 pr-4 py-3 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent bg-white"
-                />
-            </div>
+    const agentFeeJsx = canSetAgentFee ? (
+        <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/50 p-4 mb-8">
+            <h3 className="text-sm font-semibold text-gray-900 mb-1">Agent Fee</h3>
+            <p className="text-xs text-gray-600 mb-3">
+                Set the fee you charge for this listing. It will be shown to buyers on the listing page.
+            </p>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+                Your Agent Fee (USD) <span className="text-red-500">*</span>
+            </label>
+            <input
+                type="number"
+                value={agentFee}
+                onChange={e => setAgentFee(e.target.value)}
+                required
+                min="0"
+                step="0.01"
+                className="w-full max-w-xs px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="e.g., 500"
+            />
         </div>
     ) : null;
 
@@ -556,7 +562,7 @@ export default function NewBuySellPage() {
                                     </div>
                                 </div>
 
-                                <AgentFeeSection />
+                                {agentFeeJsx}
                                 <ImageSection />
                                 <SubmitRow />
                             </>
@@ -697,7 +703,7 @@ export default function NewBuySellPage() {
                                     </div>
                                 </div>
 
-                                <AgentFeeSection />
+                                {agentFeeJsx}
                                 <ImageSection />
                                 <SubmitRow />
                             </>
@@ -831,7 +837,7 @@ export default function NewBuySellPage() {
                                     </div>
                                 </div>
 
-                                <AgentFeeSection />
+                                {agentFeeJsx}
                                 <ImageSection />
                                 <SubmitRow />
                             </>
