@@ -16,6 +16,7 @@ interface Advertisement {
 interface PlatformStats {
     totalProperties: number;
     totalServices: number;
+    totalBuySell: number;
 }
 
 const FINDAFRIQ_INTRO_EMBED_SRC = 'https://www.youtube.com/embed/W7e_E5S_YKA';
@@ -27,6 +28,7 @@ export default function AdvertisementBanner() {
     const [stats, setStats] = useState<PlatformStats>({
         totalProperties: 0,
         totalServices: 0,
+        totalBuySell: 0,
     });
 
     useEffect(() => {
@@ -69,17 +71,27 @@ export default function AdvertisementBanner() {
 
     const fetchStats = async () => {
         try {
-            const response = await propertiesApi.getStats();
-            if (response.data) {
-                setStats({
-                    totalProperties: response.data.approvedProperties || response.data.totalProperties || 0,
-                    totalServices:
-                        response.data.totalServices ?? response.data.totalServiceProviders ?? 0,
-                });
-            }
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+            const [statsResponse, buySellResponse] = await Promise.allSettled([
+                propertiesApi.getStats(),
+                fetch(`${API_URL}/buy-sell?page=1&limit=1&status=approved`).then(r => r.json()).catch(() => null),
+            ]);
+
+            const statsData = statsResponse.status === 'fulfilled' ? statsResponse.value.data : null;
+            const buySellData = buySellResponse.status === 'fulfilled' ? buySellResponse.value : null;
+            const buySellTotal =
+                buySellData?.pagination?.totalItems ??
+                buySellData?.data?.pagination?.totalItems ?? 0;
+
+            setStats({
+                totalProperties: statsData ? (statsData.approvedProperties || statsData.totalProperties || 0) : 0,
+                totalServices: statsData
+                    ? (statsData.totalServices ?? statsData.totalServiceProviders ?? 0)
+                    : 0,
+                totalBuySell: Number(buySellTotal) || 0,
+            });
         } catch (error) {
             console.error('Failed to fetch platform stats:', error);
-            // Keep default fallback values if fetch fails
         }
     };
 
@@ -141,7 +153,7 @@ export default function AdvertisementBanner() {
                                 </div>
 
                             {/* Stats */}
-                            <div className="flex gap-10 pt-8 border-t border-white/20">
+                            <div className="flex flex-wrap gap-8 pt-8 border-t border-white/20">
                                 <div>
                                     <div className="text-3xl font-extrabold">{formatNumber(stats.totalProperties)}</div>
                                     <div className="text-sm text-white/90">Properties Listed</div>
@@ -149,6 +161,10 @@ export default function AdvertisementBanner() {
                                 <div>
                                     <div className="text-3xl font-extrabold">{formatNumber(stats.totalServices)}</div>
                                     <div className="text-sm text-white/90">Services Listed</div>
+                                </div>
+                                <div>
+                                    <div className="text-3xl font-extrabold">{formatNumber(stats.totalBuySell)}</div>
+                                    <div className="text-sm text-white/90">Buy &amp; Sell Listed</div>
                                 </div>
                             </div>
                         </div>

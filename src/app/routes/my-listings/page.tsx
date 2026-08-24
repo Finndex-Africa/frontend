@@ -1,16 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { propertiesApi } from "@/services/api";
+import Link from "next/link";
+import { propertiesApi, buySellApi } from "@/services/api";
 import { Property as ApiProperty } from "@/types/dashboard";
+import type { BuySellListing } from "@/types/buy-sell";
 import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { MIN_PROPERTY_LISTING_IMAGES } from "@/lib/property-images";
 import { showToast } from "@/lib/toast";
 import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 import { trackListingEdited, trackListingUnpublished } from "@/lib/analytics";
 import { geocodeAddress } from "@/lib/google-maps";
 import { isAgentLikeUserType } from "@/lib/agent-user-types";
+import { getUserDisplayName } from "@/lib/display-name";
 
 function getBedroomDisplay(p: ApiProperty): string {
   const n = p.bedrooms ?? p.rooms;
@@ -965,8 +969,143 @@ function PropertyModal({
   );
 }
 
+// ─── Buy & Sell listing card (used inside the B&S tab) ────────────────────
+
+function BuySellListingCard({
+  listing,
+  onDelete,
+  onUnpublish,
+  onRepublish,
+  onView,
+}: {
+  listing: BuySellListing;
+  onDelete: (id: string) => void;
+  onUnpublish: (id: string) => void;
+  onRepublish: (id: string) => void;
+  onView: (listing: BuySellListing) => void;
+}) {
+  const firstImage = listing.images?.[0];
+  const categoryLabel =
+    listing.category === "land" ? "Land" :
+    listing.category === "house" ? "House" : "Item";
+
+  const categoryColor =
+    listing.category === "land" ? "bg-green-100 text-green-700" :
+    listing.category === "house" ? "bg-blue-100 text-blue-700" :
+    "bg-orange-100 text-orange-700";
+
+  const subtitle =
+    listing.category === "land" && listing.landSize != null && listing.unit
+      ? `${listing.landSize} ${listing.unit.replace("_", " ")}`
+      : listing.category === "house" && listing.bedrooms != null && listing.bathrooms != null
+        ? `${listing.bedrooms} bed · ${listing.bathrooms} bath`
+        : listing.category === "household_item" && listing.condition
+          ? listing.condition === "fairly_used" ? "Fairly Used" : "New"
+          : null;
+
+  const statusColors: Record<string, string> = {
+    pending: "bg-yellow-100 text-yellow-800",
+    approved: "bg-green-100 text-green-800",
+    rejected: "bg-red-100 text-red-800",
+    suspended: "bg-gray-100 text-gray-800",
+  };
+
+  const statusLabel = (s: string) =>
+    s === "pending" ? "Under Review" : s.charAt(0).toUpperCase() + s.slice(1);
+
+  return (
+    <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100">
+      {/* Image */}
+      <div className="relative h-48 bg-gray-100 overflow-hidden">
+        {firstImage ? (
+          <SafeImage src={firstImage} alt={listing.title} fill className="object-cover" />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-4xl text-gray-300">
+            {listing.category === "land" ? "🏞️" : listing.category === "house" ? "🏠" : "📦"}
+          </div>
+        )}
+        <div className="absolute top-3 left-3">
+          <span className={`text-xs font-semibold px-2.5 py-1 rounded-md ${categoryColor}`}>{categoryLabel}</span>
+        </div>
+        <div className="absolute top-3 right-3">
+          <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-lg ${statusColors[listing.status] ?? "bg-gray-100 text-gray-700"}`}>
+            {statusLabel(listing.status)}
+          </span>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-5">
+        <h3 className="text-base font-bold text-gray-900 line-clamp-2 min-h-[3rem] mb-1">{listing.title}</h3>
+        <p className="text-sm text-gray-500 line-clamp-1 mb-1">📍 {listing.location}</p>
+        {subtitle && <p className="text-xs text-gray-500 mb-3">{subtitle}</p>}
+        <div className="flex items-baseline gap-1 mb-4 pb-4 border-b border-gray-100">
+          <span className="text-xl font-bold text-gray-900">${listing.price.toLocaleString()}</span>
+        </div>
+
+        {/* Rejection reason */}
+        {listing.status === "rejected" && listing.rejectionReason && (
+          <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-xs font-semibold text-red-800 mb-0.5">Rejection Reason</p>
+            <p className="text-xs text-red-700">{listing.rejectionReason}</p>
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2">
+            <button
+              onClick={() => onView(listing)}
+              className="flex-1 text-center px-3 py-2 text-sm font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors"
+            >
+              View
+            </button>
+            <Link
+              href={`/routes/buy-and-sell/${listing._id}/edit`}
+              className="flex-1 text-center px-3 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
+            >
+              Edit
+            </Link>
+            <button
+              onClick={() => onDelete(listing._id)}
+              className="px-3 py-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors"
+            >
+              Delete
+            </button>
+          </div>
+          {listing.status === "approved" && (
+            <button
+              onClick={() => onUnpublish(listing._id)}
+              className="w-full px-3 py-2 text-sm font-semibold text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-xl transition-colors"
+            >
+              Unpublish
+            </button>
+          )}
+          {listing.status === "suspended" && (
+            <button
+              onClick={() => onRepublish(listing._id)}
+              className="w-full px-3 py-2 text-sm font-semibold text-green-600 bg-green-50 hover:bg-green-100 rounded-xl transition-colors"
+            >
+              Republish
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main page ─────────────────────────────────────────────────────────────
+
 export default function MyListingsPage() {
   const router = useRouter();
+
+  // ── Main tab ──────────────────────────────────────────────────────────────
+  type MainTab = "rentals" | "buy_sell";
+  const [mainTab, setMainTab] = useState<MainTab>("rentals");
+  const [canSeeRentals, setCanSeeRentals] = useState(false);
+
+  // ── Rentals state ─────────────────────────────────────────────────────────
   const [isLoading, setIsLoading] = useState(true);
   const [properties, setProperties] = useState<ApiProperty[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -983,8 +1122,28 @@ export default function MyListingsPage() {
     null,
   );
 
+  // ── Buy & Sell state ──────────────────────────────────────────────────────
+  const [buySellListings, setBuySellListings] = useState<BuySellListing[]>([]);
+  const [buySellLoading, setBuySellLoading] = useState(false);
+  const [buySellStatusFilter, setBuySellStatusFilter] = useState<string>("all");
+  const [buySellDeleteConfirm, setBuySellDeleteConfirm] = useState<BuySellListing | null>(null);
+  const [buySellUnpublishConfirm, setBuySellUnpublishConfirm] = useState<BuySellListing | null>(null);
+  const [buySellViewListing, setBuySellViewListing] = useState<BuySellListing | null>(null);
+
+  const fetchBuySellListings = useCallback(async (options?: { silent?: boolean }) => {
+    try {
+      if (!options?.silent) setBuySellLoading(true);
+      const res = await buySellApi.getMine();
+      setBuySellListings(res.data ?? []);
+    } catch (err) {
+      console.error("Failed to fetch buy & sell listings:", err);
+    } finally {
+      setBuySellLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    // Check if user is logged in and has appropriate role
+    // Auth guard — all logged-in users can access this page
     const token =
       localStorage.getItem("token") || sessionStorage.getItem("token");
     if (!token) {
@@ -996,23 +1155,33 @@ export default function MyListingsPage() {
     if (user) {
       try {
         const userData = JSON.parse(user);
-        // Only landlords, agents, and real estate agencies can have listings
-        if (
-          userData.userType !== "agent" &&
-          userData.userType !== "real_estate_agency" &&
-          userData.userType !== "landlord"
-        ) {
-          router.push("/");
+        const userType = userData.userType || userData.role || "";
+
+        // Service providers manage their work via /routes/my-services
+        if (userType === "service_provider" || userType === "provider") {
+          router.push("/routes/my-services");
           return;
         }
-        setCanSetAgentFee(isAgentLikeUserType(userData.userType || userData.role));
+
+        const isPropertyUser =
+          userType === "agent" ||
+          userType === "real_estate_agency" ||
+          userType === "landlord" ||
+          userType === "home_seeker" ||
+          userType === "seeker";
+        setCanSeeRentals(isPropertyUser);
+        // Agents/landlords default to rentals; seekers default to buy_sell
+        const defaultsToRentals = userType === "agent" || userType === "real_estate_agency" || userType === "landlord";
+        setMainTab(defaultsToRentals ? "rentals" : "buy_sell");
+        setCanSetAgentFee(isAgentLikeUserType(userType));
       } catch (e) {
         console.error("Failed to parse user data:", e);
       }
     }
 
     fetchProperties();
-  }, [router]);
+    fetchBuySellListings();
+  }, [router, fetchBuySellListings]);
 
   const fetchProperties = async (options?: { silent?: boolean }) => {
     try {
@@ -1167,6 +1336,61 @@ export default function MyListingsPage() {
     }
   };
 
+  // ── Buy & Sell handlers ────────────────────────────────────────────────────
+
+  const handleBuySellDelete = async (id: string) => {
+    try {
+      await buySellApi.delete(id);
+      setBuySellListings(prev => prev.filter(l => l._id !== id));
+      setBuySellDeleteConfirm(null);
+      showToast.success("Listing deleted.");
+    } catch (err) {
+      showToast.error(getUserFriendlyErrorMessage(err, "Failed to delete listing."));
+    }
+  };
+
+  const handleBuySellUnpublish = (id: string) => {
+    const listing = buySellListings.find(l => l._id === id) ?? null;
+    setBuySellUnpublishConfirm(listing);
+  };
+
+  const confirmBuySellUnpublish = async () => {
+    if (!buySellUnpublishConfirm) return;
+    const id = buySellUnpublishConfirm._id;
+    try {
+      await buySellApi.unpublish(id);
+      setBuySellListings(prev => prev.map(l => l._id === id ? { ...l, status: "suspended" } : l));
+      setBuySellUnpublishConfirm(null);
+      showToast.success("Listing unpublished. You can republish it at any time.");
+    } catch (err) {
+      showToast.error(getUserFriendlyErrorMessage(err, "Failed to unpublish listing."));
+    }
+  };
+
+  const handleBuySellRepublish = async (id: string) => {
+    try {
+      await buySellApi.republish(id);
+      setBuySellListings(prev => prev.map(l => l._id === id ? { ...l, status: "pending" } : l));
+      showToast.success("Listing resubmitted for review.");
+    } catch (err) {
+      showToast.error(getUserFriendlyErrorMessage(err, "Failed to republish listing."));
+    }
+  };
+
+  // ── Buy & Sell computed values ─────────────────────────────────────────────
+
+  const filteredBuySell =
+    buySellStatusFilter === "all"
+      ? buySellListings
+      : buySellListings.filter(l => l.status === buySellStatusFilter);
+
+  const buySellStats = {
+    total: buySellListings.length,
+    approved: buySellListings.filter(l => l.status === "approved").length,
+    pending: buySellListings.filter(l => l.status === "pending").length,
+    rejected: buySellListings.filter(l => l.status === "rejected").length,
+  };
+
   const showCustomNotification = (
     type: "success" | "error",
     title: string,
@@ -1226,39 +1450,65 @@ export default function MyListingsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header with Stats */}
+        {/* Header */}
         <div className="mb-10">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-6">
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                My Listings
-              </h1>
-              <p className="text-lg text-gray-600">
-                Manage and track your property portfolio
-              </p>
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">My Listings</h1>
+              <p className="text-lg text-gray-600">Manage everything you&apos;ve posted on FindAfriq</p>
             </div>
-            <button
-              onClick={() => router.push("/routes/property/new")}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            {/* Contextual CTA button */}
+            {mainTab === "rentals" ? (
+              <button
+                onClick={() => router.push("/routes/property/new")}
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              Add New Listing
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Add Rental Listing
+              </button>
+            ) : (
+              <Link
+                href="/routes/buy-and-sell/new"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Post a Listing
+              </Link>
+            )}
+          </div>
+
+          {/* Main tab switcher */}
+          <div className="flex gap-1 bg-gray-200 p-1 rounded-xl w-fit mb-8">
+            {canSeeRentals && (
+              <button
+                onClick={() => setMainTab("rentals")}
+                className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                  mainTab === "rentals"
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                Rentals
+              </button>
+            )}
+            <button
+              onClick={() => setMainTab("buy_sell")}
+              className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                mainTab === "buy_sell"
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              Buy &amp; Sell
             </button>
           </div>
 
-          {/* Stats Cards */}
+          {/* ── Rentals stats ─────────────────────────────────────────── */}
+          {mainTab === "rentals" && canSeeRentals && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white rounded-xl p-5 shadow-md border border-gray-100">
               <div className="flex items-center justify-between">
@@ -1370,7 +1620,69 @@ export default function MyListingsPage() {
               </div>
             </div>
           </div>
+          )} {/* end rentals stats */}
+
+          {/* ── Buy & Sell stats ──────────────────────────────────────── */}
+          {mainTab === "buy_sell" && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-white rounded-xl p-5 shadow-md border border-gray-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Total Listings</p>
+                  <p className="text-3xl font-bold text-gray-900">{buySellStats.total}</p>
+                </div>
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl p-5 shadow-md border border-gray-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Live</p>
+                  <p className="text-3xl font-bold text-green-600">{buySellStats.approved}</p>
+                </div>
+                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl p-5 shadow-md border border-gray-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Pending Review</p>
+                  <p className="text-3xl font-bold text-yellow-600">{buySellStats.pending}</p>
+                </div>
+                <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+                  <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl p-5 shadow-md border border-gray-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Rejected</p>
+                  <p className="text-3xl font-bold text-red-600">{buySellStats.rejected}</p>
+                </div>
+                <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                  <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          )} {/* end buy & sell stats */}
         </div>
+
+        {/* ── Rentals tab content ─────────────────────────────────────────── */}
+        {mainTab === "rentals" && canSeeRentals && (<>
 
         {error && (
           <div className="mb-6 p-5 bg-red-50 border-l-4 border-red-500 rounded-lg shadow-sm">
@@ -1684,7 +1996,82 @@ export default function MyListingsPage() {
             ))}
           </div>
         )}
-      </div>
+
+        </>)} {/* end rentals tab */}
+
+        {/* ── Buy & Sell tab content ──────────────────────────────────────── */}
+        {mainTab === "buy_sell" && (
+          <>
+            {/* Status filter tabs */}
+            <div className="mb-8 bg-white rounded-xl shadow-md p-2 flex flex-wrap gap-2">
+              {["all", "pending", "approved", "rejected", "suspended"].map(status => {
+                const count =
+                  status === "all"
+                    ? buySellListings.length
+                    : buySellListings.filter(l => l.status === status).length;
+                return (
+                  <button
+                    key={status}
+                    onClick={() => setBuySellStatusFilter(status)}
+                    className={`px-4 sm:px-5 py-2.5 font-semibold text-sm rounded-lg whitespace-nowrap transition-all duration-200 ${
+                      buySellStatusFilter === status
+                        ? "bg-blue-600 text-white shadow-md"
+                        : "text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
+                    <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-bold ${
+                      buySellStatusFilter === status ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
+                    }`}>{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Grid */}
+            {buySellLoading ? (
+              <div className="flex justify-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+              </div>
+            ) : filteredBuySell.length === 0 ? (
+              <div className="bg-white rounded-2xl shadow-lg p-16 text-center">
+                <div className="text-5xl mb-4">🛍️</div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  {buySellStatusFilter === "all" ? "No listings yet" : `No ${buySellStatusFilter} listings`}
+                </h3>
+                <p className="text-gray-600 mb-8">
+                  {buySellStatusFilter === "all"
+                    ? "Start by posting your first Buy & Sell listing."
+                    : `You don't have any ${buySellStatusFilter} listings.`}
+                </p>
+                {buySellStatusFilter === "all" && (
+                  <Link
+                    href="/routes/buy-and-sell/new"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 shadow-lg transition-all"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Post Your First Listing
+                  </Link>
+                )}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredBuySell.map(listing => (
+                  <BuySellListingCard
+                    key={listing._id}
+                    listing={listing}
+                    onDelete={id => setBuySellDeleteConfirm(buySellListings.find(l => l._id === id) ?? null)}
+                    onUnpublish={handleBuySellUnpublish}
+                    onRepublish={handleBuySellRepublish}
+                    onView={setBuySellViewListing}
+                  />
+                ))}
+              </div>
+            )}
+          </>
+        )} {/* end buy & sell tab */}
 
       {/* Property Modal */}
       <PropertyModal
@@ -1758,9 +2145,196 @@ export default function MyListingsPage() {
                 Unpublish
               </button>
             </div>
+            </div>
+          </div>
+        )}
+
+      {/* Buy & Sell View Modal */}
+      {buySellViewListing && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            {/* Image */}
+            {buySellViewListing.images?.[0] && (
+              <div className="relative h-52 overflow-hidden rounded-t-2xl">
+                <SafeImage src={buySellViewListing.images[0]} alt={buySellViewListing.title} fill className="object-cover" />
+                <button
+                  onClick={() => setBuySellViewListing(null)}
+                  className="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            )}
+            <div className="p-6">
+              {/* Badges */}
+              <div className="flex flex-wrap gap-2 mb-3">
+                <span className={`text-xs font-semibold px-2.5 py-1 rounded-md ${
+                  buySellViewListing.category === "land" ? "bg-green-100 text-green-700" :
+                  buySellViewListing.category === "house" ? "bg-blue-100 text-blue-700" :
+                  "bg-orange-100 text-orange-700"
+                }`}>
+                  {buySellViewListing.category === "land" ? "Land" : buySellViewListing.category === "house" ? "House" : "Household Item"}
+                </span>
+                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                  buySellViewListing.status === "approved" ? "bg-green-100 text-green-700" :
+                  buySellViewListing.status === "pending" ? "bg-yellow-100 text-yellow-700" :
+                  buySellViewListing.status === "rejected" ? "bg-red-100 text-red-700" :
+                  "bg-gray-100 text-gray-700"
+                }`}>
+                  {buySellViewListing.status === "pending" ? "Under Review" : buySellViewListing.status.charAt(0).toUpperCase() + buySellViewListing.status.slice(1)}
+                </span>
+                {buySellViewListing.isPremium && (
+                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">⭐ Premium</span>
+                )}
+              </div>
+
+              <h3 className="text-xl font-bold text-gray-900 mb-1">{buySellViewListing.title}</h3>
+              <p className="text-sm text-gray-500 mb-3">📍 {buySellViewListing.location}</p>
+              <p className="text-2xl font-bold text-blue-600 mb-4">${buySellViewListing.price.toLocaleString()}</p>
+
+              {/* Details */}
+              <div className="grid grid-cols-2 gap-2 mb-4">
+                {buySellViewListing.category === "land" && buySellViewListing.landSize != null && buySellViewListing.unit && (
+                  <div className="p-2.5 bg-gray-50 rounded-lg text-xs"><span className="font-semibold text-gray-700">Size</span><br />{buySellViewListing.landSize} {buySellViewListing.unit.replace("_", " ")}</div>
+                )}
+                {buySellViewListing.ownershipStatus && (
+                  <div className="p-2.5 bg-gray-50 rounded-lg text-xs"><span className="font-semibold text-gray-700">Ownership</span><br />{buySellViewListing.ownershipStatus}</div>
+                )}
+                {buySellViewListing.bedrooms != null && (
+                  <div className="p-2.5 bg-gray-50 rounded-lg text-xs"><span className="font-semibold text-gray-700">Bedrooms</span><br />{buySellViewListing.bedrooms}</div>
+                )}
+                {buySellViewListing.bathrooms != null && (
+                  <div className="p-2.5 bg-gray-50 rounded-lg text-xs"><span className="font-semibold text-gray-700">Bathrooms</span><br />{buySellViewListing.bathrooms}</div>
+                )}
+                {buySellViewListing.condition && (
+                  <div className="p-2.5 bg-gray-50 rounded-lg text-xs"><span className="font-semibold text-gray-700">Condition</span><br />{buySellViewListing.condition === "fairly_used" ? "Fairly Used" : "New"}</div>
+                )}
+                {buySellViewListing.deliveryAvailable != null && (
+                  <div className="p-2.5 bg-gray-50 rounded-lg text-xs"><span className="font-semibold text-gray-700">Delivery</span><br />{buySellViewListing.deliveryAvailable ? "Available" : "Pickup only"}</div>
+                )}
+              </div>
+
+              {buySellViewListing.description && (
+                <p className="text-sm text-gray-600 mb-4 leading-relaxed line-clamp-3">{buySellViewListing.description}</p>
+              )}
+
+              {/* Rejection reason */}
+              {buySellViewListing.status === "rejected" && buySellViewListing.rejectionReason && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-xs font-semibold text-red-800 mb-0.5">Rejection Reason</p>
+                  <p className="text-xs text-red-700">{buySellViewListing.rejectionReason}</p>
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setBuySellViewListing(null)}
+                  className="flex-1 h-11 text-sm font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-colors"
+                >
+                  Close
+                </button>
+                <Link
+                  href={`/routes/buy-and-sell/${buySellViewListing._id}`}
+                  className="flex-1 h-11 flex items-center justify-center text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors"
+                >
+                  View Full Page
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       )}
+
+      {/* Buy & Sell unpublish confirmation modal */}
+      {buySellUnpublishConfirm && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fadeIn">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 animate-slideUp">
+            <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center">
+              <svg
+                className="w-8 h-8 text-orange-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                />
+              </svg>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-3 text-center">
+              Unpublish Listing?
+            </h3>
+            <p className="text-gray-600 mb-2 text-center font-medium">
+              {buySellUnpublishConfirm.title}
+            </p>
+            <p className="text-gray-500 mb-8 text-center text-sm">
+              This will remove the listing from public view. You can republish it later from your dashboard.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={() => setBuySellUnpublishConfirm(null)}
+                className="flex-1 bg-gray-100 text-gray-700 px-6 py-3.5 rounded-xl hover:bg-gray-200 transition-all duration-200 font-semibold border-2 border-gray-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmBuySellUnpublish}
+                className="flex-1 bg-gradient-to-r from-orange-600 to-orange-700 text-white px-6 py-3.5 rounded-xl hover:from-orange-700 hover:to-orange-800 transition-all duration-200 font-semibold shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-500/40 flex items-center justify-center gap-2"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                  />
+                </svg>
+                Unpublish
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Buy & Sell delete confirmation modal */}
+      {buySellDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8">
+            <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-red-50 flex items-center justify-center text-3xl">🗑️</div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-3 text-center">Delete Listing?</h3>
+            <p className="text-gray-600 mb-2 text-center font-medium">{buySellDeleteConfirm.title}</p>
+            <p className="text-gray-500 mb-8 text-center text-sm">
+              This action cannot be undone. The listing will be permanently removed.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={() => setBuySellDeleteConfirm(null)}
+                className="flex-1 bg-gray-100 text-gray-700 px-6 py-3.5 rounded-xl hover:bg-gray-200 font-semibold border-2 border-gray-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleBuySellDelete(buySellDeleteConfirm._id)}
+                className="flex-1 bg-red-600 text-white px-6 py-3.5 rounded-xl hover:bg-red-700 font-semibold shadow-lg"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      </div>
     </div>
   );
 }

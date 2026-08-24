@@ -10,6 +10,7 @@ import { apiClient } from "@/lib/api-client";
 import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 import { MessageCircle, Calendar, Mail, Lock } from 'lucide-react';
 import ShareButton from '@/components/ui/ShareButton';
+import { bookmarksApi } from "@/services/api/bookmarks.api";
 import ChatBox from "@/components/dashboard/ChatBox";
 import ReviewsList from "@/components/reviews/ReviewsList";
 import { isUserVerifiedByAdmin } from "@/lib/user-verification";
@@ -40,6 +41,38 @@ export default function ServiceDetail() {
     const [currentUser, setCurrentUser] = useState<{ id: string; firstName?: string; email?: string; phone?: string } | null>(null);
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+
+    // Bookmark state — checked on mount so it persists across refreshes
+    const [isSaved, setIsSaved] = useState(false);
+    const [savingBookmark, setSavingBookmark] = useState(false);
+
+    const handleToggleSave = async () => {
+        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+        if (!token) { window.location.href = "/routes/login"; return; }
+        setSavingBookmark(true);
+        const prev = isSaved;
+        setIsSaved(!prev);
+        try {
+            const result = await bookmarksApi.toggle("service", serviceId);
+            setIsSaved(result.bookmarked);
+            toast.success(result.bookmarked ? "Saved to favorites!" : "Removed from saved listings");
+        } catch {
+            setIsSaved(prev);
+            toast.error("Failed to update saved listings.");
+        } finally {
+            setSavingBookmark(false);
+        }
+    };
+
+    // Check bookmark status on mount so button state persists across refreshes
+    useEffect(() => {
+        if (!serviceId) return;
+        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+        if (!token) return;
+        bookmarksApi.check("service", serviceId)
+            .then(res => setIsSaved(res.isSaved ?? false))
+            .catch(() => {});
+    }, [serviceId]);
     const [bookingData, setBookingData] = useState({
         scheduledDate: '',
         duration: '2',
@@ -81,6 +114,8 @@ export default function ServiceDetail() {
             setLoading(true);
             const { data } = await servicesApi.getById(serviceId);
             setService(data);
+            // Seed bookmark state from listing response so it persists immediately on load
+            if (data?.isBookmarked !== undefined) setIsSaved(data.isBookmarked);
             setError(null);
             trackListingViewed({
                 id: serviceId,
@@ -295,11 +330,31 @@ export default function ServiceDetail() {
                                 )}
                             </div>
                         )}
-                        <div className="mt-4">
+                        <div className="mt-4 flex items-center gap-3 flex-wrap">
                             <ShareButton
                                 title={service.title}
                                 text={`Check out this service: ${service.title} in ${service.location}`}
                             />
+                            <button
+                                type="button"
+                                disabled={savingBookmark}
+                                aria-label={isSaved ? "Remove from favorites" : "Save to favorites"}
+                                onClick={handleToggleSave}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all text-sm font-medium disabled:opacity-60 ${
+                                    isSaved
+                                        ? "border-red-300 bg-red-50 text-red-600"
+                                        : "border-gray-200 bg-white text-gray-600 hover:bg-red-50 hover:border-red-300 hover:text-red-600"
+                                }`}
+                            >
+                                <svg
+                                    className={`w-4 h-4 ${isSaved ? "fill-red-500 stroke-red-500" : "fill-none stroke-current"}`}
+                                    strokeWidth={2}
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                </svg>
+                                {savingBookmark ? "..." : isSaved ? "Saved" : "Save"}
+                            </button>
                         </div>
                     </header>
 

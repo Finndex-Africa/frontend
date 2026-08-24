@@ -27,7 +27,13 @@ const SERVICE_CATEGORIES = [
   { value: "laundry", label: "Laundry" },
 ];
 
-export type SearchBarVariant = "home" | "properties" | "services";
+const BUY_SELL_CATEGORIES = [
+  { value: "land", label: "Land" },
+  { value: "house", label: "House" },
+  { value: "household_item", label: "Household Item" },
+];
+
+export type SearchBarVariant = "home" | "properties" | "services" | "buy-sell";
 
 export type SearchBarProps = {
   variant?: SearchBarVariant;
@@ -45,6 +51,7 @@ export default function SearchBar({
   initialServiceName = "",
 }: SearchBarProps) {
   const router = useRouter();
+  const isBuySell = variant === "buy-sell";
   const isServices = variant === "services";
   const activeTab: "homes" | "services" =
     variant === "services" ? "services" : "homes";
@@ -83,9 +90,11 @@ export default function SearchBar({
       ? "/routes/properties"
       : variant === "services"
         ? "/routes/services"
-        : resolvedTab === "homes"
-          ? "/routes/properties"
-          : "/routes/services";
+        : variant === "buy-sell"
+          ? "/routes/buy-and-sell"
+          : resolvedTab === "homes"
+            ? "/routes/properties"
+            : "/routes/services";
 
   const handleSearch = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -93,20 +102,26 @@ export default function SearchBar({
 
     const params = new URLSearchParams();
     if (location.trim()) params.append("location", location.trim());
-    if (type) {
-      const paramName = resolvedTab === "homes" ? "type" : "category";
-      params.append(paramName, type);
+
+    if (isBuySell) {
+      if (type) params.append("category", type);
+      if (budget) params.append("maxBudget", budget);
+    } else {
+      if (type) {
+        const paramName = resolvedTab === "homes" ? "type" : "category";
+        params.append(paramName, type);
+      }
+      if (resolvedTab === "homes" && budget) params.append("maxPrice", budget);
+      if (resolvedTab === "services" && serviceName.trim()) params.append("q", serviceName.trim());
     }
-    if (resolvedTab === "homes" && budget) params.append("maxPrice", budget);
-    if (resolvedTab === "services" && serviceName.trim()) params.append("q", serviceName.trim());
 
     trackSearch({
-      type: resolvedTab,
+      type: isBuySell ? "homes" : resolvedTab,
       location: location.trim() || undefined,
-      propertyType: resolvedTab === "homes" ? type || undefined : undefined,
-      category: resolvedTab === "services" ? type || undefined : undefined,
-      budget: resolvedTab === "homes" ? budget || undefined : undefined,
-      serviceName: resolvedTab === "services" ? serviceName.trim() || undefined : undefined,
+      propertyType: !isBuySell && resolvedTab === "homes" ? type || undefined : undefined,
+      category: isBuySell ? type || undefined : resolvedTab === "services" ? type || undefined : undefined,
+      budget: budget || undefined,
+      serviceName: !isBuySell && resolvedTab === "services" ? serviceName.trim() || undefined : undefined,
     });
 
     const queryString = params.toString();
@@ -128,8 +143,8 @@ export default function SearchBar({
     setServiceName("");
     setIsOpen(false);
 
-    if (variant === "properties" || variant === "services") {
-      trackFilterCleared(variant === "services" ? "services" : "properties");
+    if (variant === "properties" || variant === "services" || variant === "buy-sell") {
+      if (!isBuySell) trackFilterCleared(variant === "services" ? "services" : "properties");
       router.push(getTargetPath());
     }
   };
@@ -138,25 +153,31 @@ export default function SearchBar({
     const parts: string[] = [];
     if (location.trim()) parts.push(location.trim());
     if (type) {
-      parts.push(
-        resolvedTab === "homes"
-          ? PROPERTY_TYPES.find((t) => t.value === type)?.label ?? type
-          : SERVICE_CATEGORIES.find((c) => c.value === type)?.label ?? type,
-      );
+      if (isBuySell) {
+        parts.push(BUY_SELL_CATEGORIES.find((c) => c.value === type)?.label ?? type);
+      } else {
+        parts.push(
+          resolvedTab === "homes"
+            ? PROPERTY_TYPES.find((t) => t.value === type)?.label ?? type
+            : SERVICE_CATEGORIES.find((c) => c.value === type)?.label ?? type,
+        );
+      }
     }
-    if (resolvedTab === "homes" && budget) parts.push(`Max $${budget}`);
-    if (resolvedTab === "services" && serviceName.trim()) parts.push(serviceName.trim());
+    if (budget) parts.push(`Max $${budget}`);
+    if (!isBuySell && resolvedTab === "services" && serviceName.trim()) parts.push(serviceName.trim());
     return parts.join(" · ");
   };
 
   const placeholder =
-    variant === "properties"
-      ? "Search properties, locations..."
-      : variant === "services"
-        ? "Search services, locations..."
-        : "Search properties, locations or services...";
+    variant === "buy-sell"
+      ? "Search listings, locations..."
+      : variant === "properties"
+        ? "Search properties, locations..."
+        : variant === "services"
+          ? "Search services, locations..."
+          : "Search properties, locations or services...";
 
-  const hasFilters = location || type || budget || serviceName;
+  const hasFilters = location || type || budget || (!isBuySell && serviceName);
 
   return (
     <div
@@ -210,7 +231,10 @@ export default function SearchBar({
         {!isOpen && hasFilters && (
           <div className="flex flex-wrap items-center gap-1.5 px-3 pb-2 sm:gap-2 sm:px-5 sm:pb-3">
             <SlidersHorizontal className="h-3.5 w-3.5 text-blue-600" />
-            {!showTabs && (
+            {isBuySell && (
+              <span className="text-xs font-medium text-blue-700">Buy &amp; Sell</span>
+            )}
+            {!showTabs && !isBuySell && (
               <span className="text-xs font-medium text-blue-700">
                 {isServices ? "Services" : "Properties"}
               </span>
@@ -227,17 +251,19 @@ export default function SearchBar({
             )}
             {type && (
               <span className="rounded-full border border-blue-100 bg-blue-50 px-2 py-0.5 text-xs text-blue-700">
-                {resolvedTab === "homes"
-                  ? PROPERTY_TYPES.find((t) => t.value === type)?.label
-                  : SERVICE_CATEGORIES.find((c) => c.value === type)?.label}
+                {isBuySell
+                  ? BUY_SELL_CATEGORIES.find((c) => c.value === type)?.label
+                  : resolvedTab === "homes"
+                    ? PROPERTY_TYPES.find((t) => t.value === type)?.label
+                    : SERVICE_CATEGORIES.find((c) => c.value === type)?.label}
               </span>
             )}
-            {resolvedTab === "homes" && budget && (
+            {budget && (
               <span className="rounded-full border border-blue-100 bg-blue-50 px-2 py-0.5 text-xs text-blue-700">
                 Max ${budget}
               </span>
             )}
-            {resolvedTab === "services" && serviceName && (
+            {!isBuySell && resolvedTab === "services" && serviceName && (
               <span className="rounded-full border border-blue-100 bg-blue-50 px-2 py-0.5 text-xs text-blue-700">
                 {serviceName}
               </span>
@@ -303,12 +329,12 @@ export default function SearchBar({
 
                 <div>
                   <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-gray-600">
-                    {resolvedTab === "homes" ? (
+                    {isBuySell || resolvedTab === "homes" ? (
                       <Home className="h-3.5 w-3.5" />
                     ) : (
                       <Briefcase className="h-3.5 w-3.5" />
                     )}
-                    {resolvedTab === "homes" ? "Property Type" : "Service Category"}
+                    {isBuySell ? "Listing Type" : resolvedTab === "homes" ? "Property Type" : "Service Category"}
                   </label>
                   <select
                     value={type}
@@ -316,7 +342,7 @@ export default function SearchBar({
                     className="h-10 w-full cursor-pointer appearance-none rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-700 transition-colors focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100"
                   >
                     <option value="">All types</option>
-                    {(resolvedTab === "homes" ? PROPERTY_TYPES : SERVICE_CATEGORIES).map((opt) => (
+                    {(isBuySell ? BUY_SELL_CATEGORIES : resolvedTab === "homes" ? PROPERTY_TYPES : SERVICE_CATEGORIES).map((opt) => (
                       <option key={opt.value} value={opt.value}>
                         {opt.label}
                       </option>
@@ -325,7 +351,7 @@ export default function SearchBar({
                 </div>
 
                 <div>
-                  {resolvedTab === "homes" ? (
+                  {isBuySell || resolvedTab === "homes" ? (
                     <>
                       <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-gray-600">
                         <DollarSign className="h-3.5 w-3.5" />
@@ -375,7 +401,7 @@ export default function SearchBar({
                   className="flex h-10 items-center gap-2 rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white shadow-md transition-colors hover:bg-blue-700"
                 >
                   <Search className="h-4 w-4" />
-                  Search {resolvedTab === "homes" ? "Properties" : "Services"}
+                  {isBuySell ? "Search Listings" : resolvedTab === "homes" ? "Search Properties" : "Search Services"}
                 </button>
               </div>
             </form>

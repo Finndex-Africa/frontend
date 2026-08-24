@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 const HIDE_NAV_PREFIXES = ["/routes/login", "/routes/verify-email", "/forgot-password", "/reset-password"];
 
-function IconHome({ active }: { active: boolean }) {
+function IconDiscover({ active }: { active: boolean }) {
     const c = active ? "text-blue-600" : "text-gray-500";
     return (
         <svg className={`w-6 h-6 ${c}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -14,11 +14,11 @@ function IconHome({ active }: { active: boolean }) {
     );
 }
 
-function IconSearch({ active }: { active: boolean }) {
+function IconProperties({ active }: { active: boolean }) {
     const c = active ? "text-blue-600" : "text-gray-500";
     return (
         <svg className={`w-6 h-6 ${c}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
         </svg>
     );
 }
@@ -32,11 +32,11 @@ function IconBriefcase({ active }: { active: boolean }) {
     );
 }
 
-function IconMessages({ active }: { active: boolean }) {
+function IconBuySell({ active }: { active: boolean }) {
     const c = active ? "text-blue-600" : "text-gray-500";
     return (
         <svg className={`w-6 h-6 ${c}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
         </svg>
     );
 }
@@ -57,12 +57,13 @@ export default function MobileBottomNav() {
         return null;
     }
 
-    const homeActive = pathname === "/";
+    const discoverActive = pathname === "/";
     const propertiesActive =
         pathname.startsWith("/routes/properties") || pathname.startsWith("/routes/property");
     const servicesActive =
         pathname.startsWith("/routes/services") || pathname.startsWith("/routes/service");
-    const messagesActive = pathname.startsWith("/routes/messages") || pathname.startsWith("/chat");
+    const buySellActive =
+        pathname.startsWith("/routes/buy-and-sell") || pathname.startsWith("/routes/my-listings");
     const profileActive =
         pathname.startsWith("/routes/profile") || pathname.startsWith("/routes/profile-view");
 
@@ -76,13 +77,9 @@ export default function MobileBottomNav() {
                     href="/"
                     className="flex flex-1 flex-col items-center justify-center gap-0.5 min-w-0 py-1"
                 >
-                    <IconHome active={homeActive} />
-                    <span
-                        className={`text-[10px] font-semibold leading-tight truncate w-full text-center ${
-                            homeActive ? "text-blue-600" : "text-gray-500"
-                        }`}
-                    >
-                        Home
+                    <IconDiscover active={discoverActive} />
+                    <span className={`text-[10px] font-semibold leading-tight truncate w-full text-center ${discoverActive ? "text-blue-600" : "text-gray-500"}`}>
+                        Discover
                     </span>
                 </Link>
 
@@ -90,12 +87,8 @@ export default function MobileBottomNav() {
                     href="/routes/properties"
                     className="flex flex-1 flex-col items-center justify-center gap-0.5 min-w-0 py-1"
                 >
-                    <IconSearch active={propertiesActive} />
-                    <span
-                        className={`text-[10px] font-semibold leading-tight truncate w-full text-center ${
-                            propertiesActive ? "text-blue-600" : "text-gray-500"
-                        }`}
-                    >
+                    <IconProperties active={propertiesActive} />
+                    <span className={`text-[10px] font-semibold leading-tight truncate w-full text-center ${propertiesActive ? "text-blue-600" : "text-gray-500"}`}>
                         Properties
                     </span>
                 </Link>
@@ -105,26 +98,18 @@ export default function MobileBottomNav() {
                     className="flex flex-1 flex-col items-center justify-center gap-0.5 min-w-0 py-1"
                 >
                     <IconBriefcase active={servicesActive} />
-                    <span
-                        className={`text-[10px] font-semibold leading-tight truncate w-full text-center ${
-                            servicesActive ? "text-blue-600" : "text-gray-500"
-                        }`}
-                    >
+                    <span className={`text-[10px] font-semibold leading-tight truncate w-full text-center ${servicesActive ? "text-blue-600" : "text-gray-500"}`}>
                         Services
                     </span>
                 </Link>
 
                 <Link
-                    href="/routes/messages"
+                    href="/routes/buy-and-sell"
                     className="flex flex-1 flex-col items-center justify-center gap-0.5 min-w-0 py-1"
                 >
-                    <IconMessages active={messagesActive} />
-                    <span
-                        className={`text-[10px] font-semibold leading-tight truncate w-full text-center ${
-                            messagesActive ? "text-blue-600" : "text-gray-500"
-                        }`}
-                    >
-                        Messages
+                    <IconBuySell active={buySellActive} />
+                    <span className={`text-[10px] font-semibold leading-tight truncate w-full text-center ${buySellActive ? "text-blue-600" : "text-gray-500"}`}>
+                        Buy &amp; Sell
                     </span>
                 </Link>
 
@@ -133,11 +118,7 @@ export default function MobileBottomNav() {
                     className="flex flex-1 flex-col items-center justify-center gap-0.5 min-w-0 py-1"
                 >
                     <IconProfile active={profileActive} />
-                    <span
-                        className={`text-[10px] font-semibold leading-tight truncate w-full text-center ${
-                            profileActive ? "text-blue-600" : "text-gray-500"
-                        }`}
-                    >
+                    <span className={`text-[10px] font-semibold leading-tight truncate w-full text-center ${profileActive ? "text-blue-600" : "text-gray-500"}`}>
                         Profile
                     </span>
                 </Link>

@@ -1,9 +1,11 @@
 "use client";
 import Link from "next/link";
-import { useBookmarks } from "@/providers";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { SafeImage } from "@/components/ui/SafeImage";
 import ShareButton from "@/components/ui/ShareButton";
 import { trackListingBookmarked } from "@/lib/analytics";
+import { bookmarksApi } from "@/services/api/bookmarks.api";
 
 export type Service = {
     id: string;
@@ -14,15 +16,27 @@ export type Service = {
     imageUrl: string;
     tags: string[];
     badge?: string;
+    /** Initial bookmark state from the API listing response */
+    isBookmarked?: boolean;
     provider?: {
         name: string;
         photo?: string;
     };
 };
 
-export default function ServiceCard({ service, compact = false }: { service: Service; compact?: boolean }) {
-    const { toggle, has } = useBookmarks();
-    const saved = has(service.id);
+export default function ServiceCard({
+    service,
+    compact = false,
+    onUnbookmark,
+}: {
+    service: Service;
+    compact?: boolean;
+    /** Called after the item is successfully unbookmarked — useful for removing from a saved list */
+    onUnbookmark?: () => void;
+}) {
+    const router = useRouter();
+    const [saved, setSaved] = useState(service.isBookmarked ?? false);
+    const [toggling, setToggling] = useState(false);
 
     return (
         <Link href={`/routes/service/${service.id}`} className="group cursor-pointer block">
@@ -59,18 +73,28 @@ export default function ServiceCard({ service, compact = false }: { service: Ser
                             text={`Check out this service: ${service.name} in ${service.location}`}
                         />
                         <button
-                            aria-label="Bookmark"
-                            onClick={(e) => {
+                            aria-label={saved ? "Remove from favorites" : "Save to favorites"}
+                            disabled={toggling}
+                            onClick={async (e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                toggle(service.id, "service");
-                                trackListingBookmarked({
-                                    id: service.id,
-                                    type: "service",
-                                    action: saved ? "remove" : "add",
-                                });
+                                const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+                                if (!token) { router.push("/routes/login"); return; }
+                                setToggling(true);
+                                const prev = saved;
+                                setSaved(!prev);
+                                try {
+                                    const result = await bookmarksApi.toggle("service", service.id);
+                                    setSaved(result.bookmarked);
+                                    trackListingBookmarked({ id: service.id, type: "service", action: result.bookmarked ? "add" : "remove" });
+                                    if (!result.bookmarked) onUnbookmark?.();
+                                } catch {
+                                    setSaved(prev);
+                                } finally {
+                                    setToggling(false);
+                                }
                             }}
-                            className={`bg-white/10 backdrop-blur-sm rounded-full hover:scale-110 transition-transform ${
+                            className={`bg-white/10 backdrop-blur-sm rounded-full hover:scale-110 transition-transform disabled:opacity-60 ${
                                 compact ? 'p-1' : 'p-2'
                             }`}
                         >

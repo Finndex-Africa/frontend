@@ -48,7 +48,8 @@ const adaptServiceToCard = (apiService: ApiService): Service => {
         imageUrl: apiService.images?.[0] || defaultImage,
         tags,
         badge: apiService.category ? apiService.category.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : undefined,
-        provider
+        provider,
+        isBookmarked: apiService.isBookmarked,
     };
 };
 

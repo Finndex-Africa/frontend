@@ -10,17 +10,21 @@ import VerifiedTrustedBanner from "../../../components/ui/VerifiedTrustedBanner"
 import AdvertisementBanner from "../../../components/ui/AdvertisementBanner";
 import TestimonialsSection from "../../../components/ui/TestimonialsSection";
 import PartnerLogos from "../../../components/ui/PartnerLogos";
-
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { propertiesApi, servicesApi } from "@/services/api";
+import { buySellApi } from "@/services/api";
 import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 import {
   Property as ApiProperty,
   Service as ApiService,
 } from "@/types/dashboard";
+import type { BuySellListing } from "@/types/buy-sell";
 import { useAuth } from "@/providers";
 import { normalizeApiEntityList } from "@/lib/normalize-api-entity";
+import { bookmarksApi } from "@/services/api/bookmarks.api";
+import BuySellCard from "@/components/domain/BuySellCard";
+
 
 const partnerLogos = [
   { name: "Partner 1", logoUrl: "/images/partners/partner1.jpeg" },
@@ -76,12 +80,13 @@ const adaptPropertyToCard = (apiProperty: ApiProperty): Property => {
       ? `Available from ${new Date(apiProperty.availableFrom).toLocaleDateString()}`
       : undefined,
     propertyType: propertyType || undefined,
+    isBookmarked: apiProperty.isBookmarked,
   };
 };
 
 const adaptServiceToCard = (apiService: ApiService): Service => {
   // Extract tags from category and description
-  const tags = [apiService.category.replace(/_/g, " ")];
+  const tags = [( apiService.category ?? "").replace(/_/g, " ")].filter(Boolean);
 
   const defaultServiceImages: Record<string, string> = {
     electrical: "/images/services/electricity1.jpeg",
@@ -121,6 +126,7 @@ const adaptServiceToCard = (apiService: ApiService): Service => {
           .replace(/\b\w/g, (c) => c.toUpperCase())
       : undefined,
     provider,
+    isBookmarked: apiService.isBookmarked,
   };
 };
 
@@ -129,10 +135,13 @@ export default function HomePage() {
   const { setRole } = useAuth();
   const [properties, setProperties] = useState<Property[]>([]);
   const [services, setServices] = useState<Service[]>([]);
+  const [buySellListings, setBuySellListings] = useState<BuySellListing[]>([]);
   const [loadingProperties, setLoadingProperties] = useState(true);
   const [loadingServices, setLoadingServices] = useState(true);
+  const [loadingBuySell, setLoadingBuySell] = useState(true);
   const [propertiesError, setPropertiesError] = useState<string | null>(null);
   const [servicesError, setServicesError] = useState<string | null>(null);
+  const [listingCounts, setListingCounts] = useState<{ properties: number; services: number; buySell: number } | null>(null);
 
   // Handle logout from dashboard
   useEffect(() => {
@@ -241,8 +250,57 @@ export default function HomePage() {
       }
     };
 
+    const fetchBuySell = async () => {
+      try {
+        setLoadingBuySell(true);
+        const token = typeof window !== "undefined"
+          ? (localStorage.getItem("token") || sessionStorage.getItem("token"))
+          : null;
+
+        // Fetch listings + saved IDs in parallel (one bulk call, not one per card)
+        const [res, savedItems] = await Promise.allSettled([
+          buySellApi.getAll({ page: 1, limit: 10, status: "approved" }),
+          token ? bookmarksApi.getAll("buy-sell") : Promise.resolve([]),
+        ]);
+
+        const items = res.status === "fulfilled" ? (res.value.data ?? []) : [];
+        const saved = savedItems.status === "fulfilled" ? savedItems.value : [];
+        const savedSet = new Set(saved.map((s) => s.listing._id));
+
+        setBuySellListings(items.map((l) => ({ ...l, isBookmarked: savedSet.has(l._id) })));
+
+        const buySellTotal = res.status === "fulfilled" ? (res.value.pagination?.totalItems ?? 0) : 0;
+        setListingCounts(prev => prev ? { ...prev, buySell: buySellTotal } : { properties: 0, services: 0, buySell: buySellTotal });
+      } catch {
+        setBuySellListings([]);
+      } finally {
+        setLoadingBuySell(false);
+      }
+    };
+
+    const fetchCounts = async () => {
+      try {
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+        const res = await fetch(`${API_URL}/properties/public/stats`);
+        const json = await res.json();
+        const d = json?.data as Record<string, unknown> | undefined;
+        if (!d) return;
+        const properties = Number(d.approvedProperties) || 0;
+        const services = Number(d.totalServices ?? d.totalServiceProviders) || 0;
+        setListingCounts(prev => ({
+          properties,
+          services,
+          buySell: prev?.buySell ?? 0,
+        }));
+      } catch {
+        // non-critical, counts just won't show
+      }
+    };
+
     fetchProperties();
     fetchServices();
+    fetchBuySell();
+    fetchCounts();
   }, []);
   return (
     <div className="min-h-screen bg-white">
@@ -285,6 +343,7 @@ export default function HomePage() {
         <VerifiedTrustedBanner />
       </div>
 
+
       {/* Trusted by Leading Organizations and Service Providers - disabled for now */}
       {false && (
         <section className="container-app pt-40 sm:pt-44 md:pt-48 pb-6">
@@ -297,9 +356,9 @@ export default function HomePage() {
 
       {/* Property Grid */}
       <div className="container-app pt-6 pb-12">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-8">
-          Explore available properties
-        </h2>
+        <div className="flex items-center gap-3 mb-8">
+          <h2 className="text-2xl font-semibold text-gray-900">Explore available properties</h2>
+        </div>
         {loadingProperties ? (
           <div className="flex justify-center items-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 "></div>
@@ -344,14 +403,16 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Advertisement Banner */}
-      <AdvertisementBanner />
+      {/* Divider between Properties and Services */}
+      <div className="container-app">
+        <hr className="border-gray-200" />
+      </div>
 
       {/* Services Section */}
       <div className="container-app py-12">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-8">
-          Explore trusted service providers
-        </h2>
+        <div className="flex items-center gap-3 mb-8">
+          <h2 className="text-2xl font-semibold text-gray-900">Explore trusted service providers</h2>
+        </div>
         {loadingServices ? (
           <div className="flex justify-center items-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -395,6 +456,52 @@ export default function HomePage() {
           </button>
         </div>
       </div>
+
+      {/* Divider */}
+      <div className="container-app">
+        <hr className="border-gray-200" />
+      </div>
+
+      {/* Buy & Sell Section */}
+      <div className="container-app pt-12 pb-6">
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold text-gray-900">Buy &amp; Sell Marketplace</h2>
+        </div>
+
+        {loadingBuySell ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 gap-y-6 sm:gap-x-4 sm:gap-y-8">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className="bg-gray-100 rounded-2xl animate-pulse aspect-4/3" />
+            ))}
+          </div>
+        ) : buySellListings.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 gap-y-6 sm:gap-x-4 sm:gap-y-8">
+            {buySellListings.map(listing => (
+              <BuySellCard key={listing._id} listing={listing} />
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500 text-sm">No buy &amp; sell listings at the moment.</p>
+        )}
+      </div>
+
+      {/* Continue exploring Buy & Sell */}
+      <div>
+        <div className="container-app py-12">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-8">
+            More Buy &amp; Sell listings
+          </h2>
+          <button
+            className="cursor-pointer bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors"
+            onClick={() => router.push("/routes/buy-and-sell")}
+          >
+            Show more listings
+          </button>
+        </div>
+      </div>
+
+      {/* Advertisement Banner — Connecting you Seamlessly */}
+      <AdvertisementBanner />
 
       {/* Testimonials Section */}
       <TestimonialsSection />

@@ -61,12 +61,19 @@ export function SafeImage({
     }
   };
 
+  // Bypass Next.js image optimizer for direct DigitalOcean Spaces URLs to avoid
+  // 500 errors when the optimizer cannot reach the origin server.
+  const isDirectSpacesUrl = typeof imgSrc === 'string' &&
+    imgSrc.includes('digitaloceanspaces.com') &&
+    !imgSrc.includes('cdn.digitaloceanspaces.com');
+
   if (fill) {
     return (
       <Image
         src={imgSrc}
         alt={alt}
         fill
+        unoptimized={isDirectSpacesUrl}
         className={className}
         priority={priority}
         sizes={sizes}
@@ -83,6 +90,7 @@ export function SafeImage({
       alt={alt}
       width={width || 800}
       height={height || 600}
+      unoptimized={isDirectSpacesUrl}
       className={className}
       priority={priority}
       sizes={sizes}
