@@ -403,6 +403,11 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Divider between Properties and Services */}
+      <div className="container-app">
+        <hr className="border-gray-200" />
+      </div>
+
       {/* Services Section */}
       <div className="container-app py-12">
         <div className="flex items-center gap-3 mb-8">

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star } from 'lucide-react';
 import { reviewsApi, CreateReviewDto } from '@/services/api/reviews.api';
 import { AuthService } from '@/services/auth.service';
@@ -24,9 +24,22 @@ export default function ReviewForm({ itemType, itemId, itemTitle, onSuccess }: R
     const [text, setText] = useState('');
     const [errors, setErrors] = useState<{ rating?: string; text?: string }>({});
 
-    const authService = AuthService.getInstance();
-    const isAuthenticated = authService.isAuthenticated();
-    const user = authService.getUser();
+    // Auth state must be resolved after mount — AuthService singleton may be constructed
+    // during SSR with token=null (localStorage unavailable), so isAuthenticated() returns
+    // false even for logged-in users until we re-check from storage on the client.
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [user, setUser] = useState<ReturnType<AuthService['getUser']>>(null);
+    const [authChecked, setAuthChecked] = useState(false);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        if (token) {
+            setIsAuthenticated(true);
+            const authService = AuthService.getInstance();
+            setUser(authService.getUser());
+        }
+        setAuthChecked(true);
+    }, []);
 
     const validateForm = () => {
         const newErrors: { rating?: string; text?: string } = {};
@@ -93,6 +106,9 @@ export default function ReviewForm({ itemType, itemId, itemTitle, onSuccess }: R
         setText('');
         setErrors({});
     };
+
+    // Don't flash "not logged in" while still hydrating
+    if (!authChecked) return null;
 
     if (!isAuthenticated) {
         return (
