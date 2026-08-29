@@ -1,9 +1,11 @@
 import type { MetadataRoute } from "next";
+import { routing } from "@/i18n/routing";
 
 const SITE_URL = "https://findafriq.com";
 
 /**
- * Static sitemap of public-facing routes.
+ * Static sitemap of public-facing routes, emitted once per locale with
+ * hreflang alternates so Google indexes both languages independently.
  *
  * Submitting (or simply having) a sitemap nudges Google to re-crawl the
  * homepage, which is what triggers a favicon re-fetch in search results.
@@ -12,7 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const now = new Date();
 
     const routes: { path: string; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number }[] = [
-        { path: "/", changeFrequency: "weekly", priority: 1.0 },
+        { path: "", changeFrequency: "weekly", priority: 1.0 },
         { path: "/routes/properties", changeFrequency: "daily", priority: 0.9 },
         { path: "/routes/services", changeFrequency: "daily", priority: 0.9 },
         { path: "/routes/about", changeFrequency: "monthly", priority: 0.6 },
@@ -23,10 +25,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
         { path: "/routes/platform-policy", changeFrequency: "yearly", priority: 0.3 },
     ];
 
-    return routes.map((route) => ({
-        url: `${SITE_URL}${route.path}`,
-        lastModified: now,
-        changeFrequency: route.changeFrequency,
-        priority: route.priority,
-    }));
+    return routes.flatMap((route) =>
+        routing.locales.map((locale) => ({
+            url: `${SITE_URL}/${locale}${route.path}`,
+            lastModified: now,
+            changeFrequency: route.changeFrequency,
+            priority: route.priority,
+            alternates: {
+                languages: Object.fromEntries(
+                    routing.locales.map((l) => [l, `${SITE_URL}/${l}${route.path}`]),
+                ),
+            },
+        })),
+    );
 }

@@ -1,12 +1,14 @@
 "use client";
-import Link from "next/link";
 import { useRef, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { useEnumLabel } from "@/lib/enum-labels";
+
 import { SafeImage } from "@/components/ui/SafeImage";
 import ShareButton from "@/components/ui/ShareButton";
 import { trackListingBookmarked } from "@/lib/analytics";
 import { bookmarksApi } from "@/services/api/bookmarks.api";
 
+import { Link, useRouter } from "@/i18n/navigation";
 export type Property = {
     id: string;
     title: string;
@@ -130,6 +132,9 @@ export default function PropertyCard({
     /** Called after the item is successfully unbookmarked — useful for removing from a saved list */
     onUnbookmark?: () => void;
 }) {
+    const t = useTranslations("propertyCard");
+    const locale = useLocale();
+    const propertyTypeLabel = useEnumLabel("propertyTypes");
     const router = useRouter();
     const [saved, setSaved] = useState(p.isBookmarked ?? false);
     const [toggling, setToggling] = useState(false);
@@ -139,8 +144,8 @@ export default function PropertyCard({
     const formatPrice = (price: string) => {
         const numericPrice = price.replace(/[^0-9]/g, "");
         const value = parseInt(numericPrice, 10);
-        if (!Number.isFinite(value)) return "Price unavailable";
-        return "$" + value.toLocaleString();
+        if (!Number.isFinite(value)) return t("priceUnavailable");
+        return "$" + value.toLocaleString(locale);
     };
 
     const imageContainerClass = compact
@@ -170,9 +175,15 @@ export default function PropertyCard({
                                 : "top-3 left-3 px-2.5 py-1 text-[11px]"
                         }`}
                     >
-                        {displayBadge.toLowerCase().includes("for rent") || displayBadge.toLowerCase().includes("for sale")
-                            ? displayBadge
-                            : `${displayBadge} for Rent`}
+                        {(() => {
+                            const lower = displayBadge.toLowerCase();
+                            // Some records already carry the phrase in the type string.
+                            const forSale = lower.includes("for sale");
+                            const bare = displayBadge.replace(/\s*for\s+(rent|sale)\s*$/i, "");
+                            return t(forSale ? "forSale" : "forRent", {
+                                type: propertyTypeLabel(bare),
+                            });
+                        })()}
                     </div>
                 )}
                 <div
@@ -183,10 +194,10 @@ export default function PropertyCard({
                         dropdownRight
                         url={`/routes/property/${p.id}`}
                         title={p.title}
-                        text={`Check out this property: ${p.title} in ${p.location}`}
+                        text={t("shareText", { title: p.title, location: p.location })}
                     />
                     <button
-                        aria-label={saved ? "Remove from favorites" : "Save to favorites"}
+                        aria-label={saved ? t("removeFromFavorites") : t("saveToFavorites")}
                         disabled={toggling}
                         onClick={async (e) => {
                             e.preventDefault();
@@ -274,7 +285,7 @@ export default function PropertyCard({
                         className={`text-gray-500 font-normal ${compact ? "text-[10px] sm:text-[13px]" : "text-[13px]"}`}
                     >
                         {" "}
-                        / month
+                        {t("perMonth")}
                     </span>
                 </div>
             </div>

@@ -1,10 +1,11 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Link from 'next/link';
 import { X, Cookie, ChevronDown, ChevronUp } from 'lucide-react';
 
+import { Link } from '@/i18n/navigation';
 type ConsentState = {
     necessary: true;
     analytics: boolean;
@@ -80,29 +81,31 @@ export default function CookieConsent() {
         saveConsent(consent);
     };
 
+    const t = useTranslations('cookies');
+
     const cookieCategories = [
         {
             key: 'necessary' as const,
-            label: 'Strictly Necessary',
-            description: 'Required for the platform to function. These cannot be disabled.',
+            label: t('necessaryLabel'),
+            description: t('necessaryDesc'),
             required: true,
         },
         {
             key: 'analytics' as const,
-            label: 'Analytics',
-            description: 'Help us understand how visitors use our site so we can improve it.',
+            label: t('analyticsLabel'),
+            description: t('analyticsDesc'),
             required: false,
         },
         {
             key: 'preferences' as const,
-            label: 'Preferences',
-            description: 'Remember your settings and personalize your experience.',
+            label: t('preferencesLabel'),
+            description: t('preferencesDesc'),
             required: false,
         },
         {
             key: 'marketing' as const,
-            label: 'Marketing',
-            description: 'Used to show you relevant ads and measure their effectiveness.',
+            label: t('marketingLabel'),
+            description: t('marketingDesc'),
             required: false,
         },
     ];
@@ -131,23 +134,22 @@ export default function CookieConsent() {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <h3 className="text-base font-semibold text-gray-900 mb-1">
-                                            We use cookies
+                                            {t('title')}
                                         </h3>
                                         <p className="text-sm text-gray-600 leading-relaxed">
-                                            We use cookies to enhance your browsing experience, analyse site traffic, and personalise
-                                            content. By clicking &ldquo;Accept All&rdquo;, you consent to our use of cookies.{' '}
+                                            {t('body')}{' '}
                                             <Link
                                                 href="/routes/privacy"
                                                 className="text-blue-600 hover:underline font-medium"
                                             >
-                                                Learn more
+                                                {t('learnMore')}
                                             </Link>
                                         </p>
                                     </div>
                                     <button
                                         onClick={handleRejectAll}
                                         className="shrink-0 p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
-                                        aria-label="Dismiss"
+                                        aria-label={t('rejectAll')}
                                     >
                                         <X className="w-4 h-4" />
                                     </button>
@@ -159,19 +161,19 @@ export default function CookieConsent() {
                                         onClick={handleAcceptAll}
                                         className="px-5 py-2 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm"
                                     >
-                                        Accept All
+                                        {t('acceptAll')}
                                     </button>
                                     <button
                                         onClick={handleRejectAll}
                                         className="px-5 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-200 transition-colors"
                                     >
-                                        Reject All
+                                        {t('rejectAll')}
                                     </button>
                                     <button
                                         onClick={() => setShowDetails(!showDetails)}
                                         className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1.5 rounded-xl hover:bg-blue-50 transition-colors"
                                     >
-                                        Manage Preferences
+                                        {t('managePreferences')}
                                         {showDetails ? (
                                             <ChevronUp className="w-4 h-4" />
                                         ) : (
@@ -193,7 +195,7 @@ export default function CookieConsent() {
                                     >
                                         <div className="p-5 md:p-6 space-y-3">
                                             <p className="text-xs text-gray-500 mb-4">
-                                                Manage your cookie preferences below. Changes take effect after saving.
+                                                {t('manageIntro')}
                                             </p>
                                             {cookieCategories.map((cat) => (
                                                 <div
@@ -238,7 +240,7 @@ export default function CookieConsent() {
                                                 onClick={handleSavePreferences}
                                                 className="mt-2 w-full md:w-auto px-6 py-2 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors"
                                             >
-                                                Save Preferences
+                                                {t('savePreferences')}
                                             </button>
                                         </div>
                                     </motion.div>

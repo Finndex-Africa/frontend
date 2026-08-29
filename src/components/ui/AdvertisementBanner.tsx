@@ -1,9 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { advertisementsApi, propertiesApi } from "@/services/api";
 
+import { Link } from "@/i18n/navigation";
 interface Advertisement {
     _id: string;
     title: string;
@@ -22,6 +23,7 @@ interface PlatformStats {
 const FINDAFRIQ_INTRO_EMBED_SRC = 'https://www.youtube.com/embed/W7e_E5S_YKA';
 
 export default function AdvertisementBanner() {
+    const t = useTranslations("advertBanner");
     const [advertisements, setAdvertisements] = useState<Advertisement[]>([]);
     const [currentAdIndex, setCurrentAdIndex] = useState(0);
     const [loading, setLoading] = useState(true);
@@ -132,39 +134,39 @@ export default function AdvertisementBanner() {
                             {/* Left Content */}
                             <div className="text-white space-y-6">
                                 <h2 className="text-3xl md:text-4xl font-bold">
-                                    Connecting you Seamlessly
+                                    {t("heading")}
                                 </h2>
                                 <p className="text-lg text-white/95">
-                                    The smarter way to find verified properties and trusted service providers seamlessly.
+                                    {t("body")}
                                 </p>
                                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
                                     <Link
                                         href="/routes/login"
                                         className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors text-center"
                                     >
-                                        Get Started
+                                        {t("getStarted")}
                                     </Link>
-                                    <a
+                                    <Link
                                         href="/routes/how-it-works"
                                         className="inline-block border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors text-center"
                                     >
-                                        How It Works
-                                    </a>
+                                        {t("howItWorks")}
+                                    </Link>
                                 </div>
 
                             {/* Stats */}
                             <div className="flex flex-wrap gap-8 pt-8 border-t border-white/20">
                                 <div>
                                     <div className="text-3xl font-extrabold">{formatNumber(stats.totalProperties)}</div>
-                                    <div className="text-sm text-white/90">Properties Listed</div>
+                                    <div className="text-sm text-white/90">{t("propertiesListed")}</div>
                                 </div>
                                 <div>
                                     <div className="text-3xl font-extrabold">{formatNumber(stats.totalServices)}</div>
-                                    <div className="text-sm text-white/90">Services Listed</div>
+                                    <div className="text-sm text-white/90">{t("servicesListed")}</div>
                                 </div>
                                 <div>
                                     <div className="text-3xl font-extrabold">{formatNumber(stats.totalBuySell)}</div>
-                                    <div className="text-sm text-white/90">Buy &amp; Sell Listed</div>
+                                    <div className="text-sm text-white/90">{t("buySellListed")}</div>
                                 </div>
                             </div>
                         </div>

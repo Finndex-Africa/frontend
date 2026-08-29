@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from "next-intl";
 import { useState, useEffect } from 'react';
 
 export default function TestingDisclaimer() {
@@ -28,6 +29,8 @@ export default function TestingDisclaimer() {
         setVisible(false);
     };
 
+    const t = useTranslations("testingDisclaimer");
+
     if (!visible) return null;
 
     return (
@@ -40,19 +43,24 @@ export default function TestingDisclaimer() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                             </svg>
                         </div>
-                        <h2 className="text-xl font-bold text-white">Testing Mode</h2>
+                        <h2 className="text-xl font-bold text-white">{t("title")}</h2>
                     </div>
                 </div>
 
                 <div className="px-6 py-6">
                     <p className="text-gray-800 text-base leading-relaxed">
-                        Welcome to <span className="font-semibold">FindAfriq</span>. This platform is currently in <span className="font-semibold text-amber-600">testing</span>.
+                        {t.rich("welcome", {
+                            b: (chunks) => <span className="font-semibold">{chunks}</span>,
+                            em: (chunks) => <span className="font-semibold text-amber-600">{chunks}</span>,
+                        })}
                     </p>
                     <p className="text-gray-700 text-sm mt-3 leading-relaxed">
-                        <span className="font-semibold">Properties and services shown on this site are not real.</span> All listings are for demonstration only. We have been receiving enquiries about them please do not make enquiries or transactions based on the content shown.
+                        {t.rich("notReal", {
+                            b: (chunks) => <span className="font-semibold">{chunks}</span>,
+                        })}
                     </p>
                     <p className="text-gray-500 text-xs mt-4">
-                        Thank you for helping us test and improve the platform.
+                        {t("thanks")}
                     </p>
                 </div>
 
@@ -61,7 +69,7 @@ export default function TestingDisclaimer() {
                         onClick={handleDismiss}
                         className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-lg transition-colors text-sm"
                     >
-                        I Understand
+                        {t("understood")}
                     </button>
                 </div>
             </div>

@@ -1,0 +1,11 @@
+allowBuilds:
+  # Native file-watcher addon (pulled in via next-intl's toolchain).
+  '@parcel/watcher': true
+  # Downloads the sentry-cli binary used for sourcemap upload at build time.
+  '@sentry/cli': true
+  # Native SWC bindings.
+  '@swc/core': true
+  # Native image processing — Next.js image optimization needs it in production.
+  sharp: true
+  # napi bindings used by the eslint import resolver.
+  unrs-resolver: true

@@ -1,8 +1,12 @@
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 
 const PATTERN_URL = '/images/patterns/rwanda-cultural-pattern.png';
 
 export default function Footer() {
+    const t = useTranslations('footer');
+
     return (
         <footer className="bg-gray-100">
             {/* Rwanda cultural pattern – full-width divider above footer content */}
@@ -16,12 +20,12 @@ export default function Footer() {
                     <div className="mb-4 relative overflow-hidden rounded-2xl" style={{ width: '300px', height: '72px' }}>
                         <Image
                             src="/images/logos/Footer%20Logo-Findafriq.png"
-                            alt="FindAfriq - Connecting you Seamlessly"
+                            alt={t('logoAlt')}
                             fill
                             className="object-contain object-left"
                         />
                     </div>
-                    <p className="text-gray-600 mt-2">A digital real estate and services platform that connects seekers with verified properties and trusted service providers seamlessly.</p>
+                    <p className="text-gray-600 mt-2">{t('tagline')}</p>
 
                     {/* Social Media Icons */}
                     <div className="flex gap-4 mt-6">
@@ -43,38 +47,36 @@ export default function Footer() {
                     </div>
                 </div>
                 <div>
-                    <div className="font-semibold mb-3 text-gray-900">Explore</div>
+                    <div className="font-semibold mb-3 text-gray-900">{t('explore')}</div>
                     <ul className="space-y-2 text-gray-600">
-                        <li><a href="/routes/properties" className="hover:text-gray-900 transition-colors">Properties</a></li>
-                        <li><a href="/routes/services" className="hover:text-gray-900 transition-colors">Services</a></li>
-                        <li><a href="/routes/how-it-works" className="hover:text-gray-900 transition-colors">How It Works</a></li>
+                        <li><Link href="/routes/properties" className="hover:text-gray-900 transition-colors">{t('properties')}</Link></li>
+                        <li><Link href="/routes/services" className="hover:text-gray-900 transition-colors">{t('services')}</Link></li>
+                        <li><Link href="/routes/how-it-works" className="hover:text-gray-900 transition-colors">{t('howItWorks')}</Link></li>
                     </ul>
                 </div>
                 <div>
-                    <div className="font-semibold mb-3 text-gray-900">For Partners</div>
+                    <div className="font-semibold mb-3 text-gray-900">{t('forPartners')}</div>
                     <ul className="space-y-2 text-gray-600">
-                        <li><a href="/routes/login" className="hover:text-gray-900 transition-colors">List your property</a></li>
-                        <li><a href="/routes/login" className="hover:text-gray-900 transition-colors">Become a provider</a></li>
+                        <li><Link href="/routes/login" className="hover:text-gray-900 transition-colors">{t('listYourProperty')}</Link></li>
+                        <li><Link href="/routes/login" className="hover:text-gray-900 transition-colors">{t('becomeAProvider')}</Link></li>
                     </ul>
                 </div>
                 <div>
-                    <div className="font-semibold mb-3 text-gray-900">Company</div>
+                    <div className="font-semibold mb-3 text-gray-900">{t('company')}</div>
                     <ul className="space-y-2 text-gray-600">
-                        <li><a href="/routes/about" className="hover:text-gray-900 transition-colors">About</a></li>
-                        <li><a href="/routes/help" className="hover:text-gray-900 transition-colors">Help Center</a></li>
-                        <li><a href="/routes/privacy" className="hover:text-gray-900 transition-colors">Privacy Policy</a></li>
-                        <li><a href="/routes/platform-policy" className="hover:text-gray-900 transition-colors">Platform Policy</a></li>
-                        <li><a href="/routes/terms" className="hover:text-gray-900 transition-colors">Terms &amp; Conditions</a></li>
-                        <li><a href="/routes/pricing" className="hover:text-gray-900 transition-colors">Pricing</a></li>
+                        <li><Link href="/routes/about" className="hover:text-gray-900 transition-colors">{t('about')}</Link></li>
+                        <li><Link href="/routes/help" className="hover:text-gray-900 transition-colors">{t('helpCenter')}</Link></li>
+                        <li><Link href="/routes/privacy" className="hover:text-gray-900 transition-colors">{t('privacyPolicy')}</Link></li>
+                        <li><Link href="/routes/platform-policy" className="hover:text-gray-900 transition-colors">{t('platformPolicy')}</Link></li>
+                        <li><Link href="/routes/terms" className="hover:text-gray-900 transition-colors">{t('termsAndConditions')}</Link></li>
+                        <li><Link href="/routes/pricing" className="hover:text-gray-900 transition-colors">{t('pricing')}</Link></li>
                     </ul>
                 </div>
             </div>
             <div className="container-app py-4 border-t border-gray-300 text-xs text-gray-500">
-                © 2026 FindAfriq, Inc. All rights reserved.
+                {/* year passed as a string so ICU doesn't group it as "2 026" in fr */}
+                {t('copyright', { year: String(new Date().getFullYear()) })}
             </div>
         </footer>
     );
 }
-
-
-

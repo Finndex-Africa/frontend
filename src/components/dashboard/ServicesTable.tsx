@@ -1,5 +1,6 @@
 'use client';
 
+import { useLocale } from 'next-intl';
 import Table from 'antd/es/table';
 import Tag from 'antd/es/tag';
 import Button from 'antd/es/button';
@@ -31,6 +32,7 @@ export function ServicesTable({
     onReject,
     approvingId,
 }: ServicesTableProps) {
+    const locale = useLocale();
     /** Moderation queue: listing hidden until approved again after edits or new submissions */
     const needsModeration = (record: Service) =>
         record.status !== 'rejected' &&
@@ -112,7 +114,7 @@ export function ServicesTable({
             dataIndex: 'createdAt',
             key: 'createdAt',
             sorter: (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-            render: (date) => new Date(date).toLocaleDateString('en-US', {
+            render: (date) => new Date(date).toLocaleDateString(locale, {
                 month: 'short',
                 day: 'numeric',
                 year: 'numeric',

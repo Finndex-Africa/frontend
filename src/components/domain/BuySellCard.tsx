@@ -1,14 +1,16 @@
 'use client';
 
 import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { SafeImage } from "@/components/ui/SafeImage";
 import ShareButton from "@/components/ui/ShareButton";
 import { bookmarksApi } from "@/services/api/bookmarks.api";
 import type { BuySellListing } from "@/types/buy-sell";
 import { getUserDisplayName } from "@/lib/display-name";
 
+import { Link } from "@/i18n/navigation";
 export default function BuySellCard({ listing }: { listing: BuySellListing }) {
+  const t = useTranslations("buySellCard");
   const seller = typeof listing.sellerId === "object" ? listing.sellerId : null;
   const sellerName = seller
     ? getUserDisplayName(seller as unknown as Record<string, unknown>, "Seller")
@@ -44,8 +46,8 @@ export default function BuySellCard({ listing }: { listing: BuySellListing }) {
   // ─────────────────────────────────────────────────────────────────────────
 
   const categoryLabel =
-    listing.category === "land" ? "Land for Sale" :
-    listing.category === "house" ? "House for Sale" : "Item for Sale";
+    listing.category === "land" ? t("landForSale") :
+    listing.category === "house" ? t("houseForSale") : t("itemForSale");
 
   const categoryColor =
     listing.category === "land" ? "bg-green-100 text-green-700" :
@@ -55,14 +57,19 @@ export default function BuySellCard({ listing }: { listing: BuySellListing }) {
   const subtitle =
     listing.category === "land"
       ? listing.landSize != null && listing.unit
-        ? `${listing.landSize} ${listing.unit.replace("_", " ")}`
+        ? t("landSize", {
+            size: listing.landSize,
+            unit: t.has(`units.${listing.unit}`)
+              ? t(`units.${listing.unit}`, { count: listing.landSize })
+              : listing.unit.replace(/_/g, " "),
+          })
         : null
       : listing.category === "house"
         ? listing.bedrooms != null && listing.bathrooms != null
-          ? `${listing.bedrooms} bed · ${listing.bathrooms} bath`
+          ? t("bedBath", { bedrooms: listing.bedrooms, bathrooms: listing.bathrooms })
           : null
         : listing.condition
-          ? listing.condition === "fairly_used" ? "Fairly Used" : "New"
+          ? listing.condition === "fairly_used" ? t("fairlyUsed") : t("new")
           : null;
 
   return (
@@ -138,11 +145,11 @@ export default function BuySellCard({ listing }: { listing: BuySellListing }) {
           </span>
           {listing.isPremium && (
             <span className="text-xs font-semibold text-yellow-700 bg-yellow-50 border border-yellow-200 px-2 py-0.5 rounded-full">
-              Featured
+              {t("featured")}
             </span>
           )}
         </div>
-        <p className="text-xs text-gray-400 mt-2 truncate">By {sellerName}</p>
+        <p className="text-xs text-gray-400 mt-2 truncate">{t("bySeller", { seller: sellerName })}</p>
       </div>
     </Link>
   );

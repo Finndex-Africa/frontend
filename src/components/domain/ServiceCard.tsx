@@ -1,12 +1,13 @@
 "use client";
-import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEnumLabel } from "@/lib/enum-labels";
+
 import { SafeImage } from "@/components/ui/SafeImage";
 import ShareButton from "@/components/ui/ShareButton";
 import { trackListingBookmarked } from "@/lib/analytics";
 import { bookmarksApi } from "@/services/api/bookmarks.api";
 
+import { Link, useRouter } from "@/i18n/navigation";
 export type Service = {
     id: string;
     name: string;
@@ -34,6 +35,9 @@ export default function ServiceCard({
     /** Called after the item is successfully unbookmarked — useful for removing from a saved list */
     onUnbookmark?: () => void;
 }) {
+    // Badge/tags are built from the backend `category` by several page-level
+    // adapters, so translate here at render time to cover all of them.
+    const categoryLabel = useEnumLabel("serviceCategories");
     const router = useRouter();
     const [saved, setSaved] = useState(service.isBookmarked ?? false);
     const [toggling, setToggling] = useState(false);
@@ -61,7 +65,7 @@ export default function ServiceCard({
                                     : 'top-3 left-3 px-2.5 py-1 text-[11px]'
                             }`}
                         >
-                            {service.badge}
+                            {categoryLabel(service.badge)}
                         </div>
                     )}
                     <div className={`absolute flex items-center gap-0.5 sm:gap-1 ${compact ? 'top-1.5 right-1.5' : 'top-3 right-3'}`}>
@@ -166,7 +170,7 @@ export default function ServiceCard({
                                     key={index}
                                     className="text-[11px] bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md font-normal"
                                 >
-                                    {tag}
+                                    {categoryLabel(tag)}
                                 </span>
                             ))}
                         </div>

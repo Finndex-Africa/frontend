@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 
 const HIDE_NAV_PREFIXES = ["/routes/login", "/routes/verify-email", "/forgot-password", "/reset-password"];
 
@@ -51,6 +51,9 @@ function IconProfile({ active }: { active: boolean }) {
 }
 
 export default function MobileBottomNav() {
+    const t = useTranslations("mobileNav");
+    // usePathname from @/i18n/navigation strips the locale prefix, so these
+    // comparisons keep working on both /en and /fr.
     const pathname = usePathname() || "";
 
     if (!pathname || HIDE_NAV_PREFIXES.some((p) => pathname.startsWith(p))) {
@@ -70,7 +73,7 @@ export default function MobileBottomNav() {
     return (
         <nav
             className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 pb-[env(safe-area-inset-bottom,0px)]"
-            aria-label="Primary"
+            aria-label={t("primaryLabel")}
         >
             <div className="flex items-stretch justify-between h-16 px-1 max-w-lg mx-auto">
                 <Link
@@ -79,7 +82,7 @@ export default function MobileBottomNav() {
                 >
                     <IconDiscover active={discoverActive} />
                     <span className={`text-[10px] font-semibold leading-tight truncate w-full text-center ${discoverActive ? "text-blue-600" : "text-gray-500"}`}>
-                        Discover
+                        {t("discover")}
                     </span>
                 </Link>
 
@@ -89,7 +92,7 @@ export default function MobileBottomNav() {
                 >
                     <IconProperties active={propertiesActive} />
                     <span className={`text-[10px] font-semibold leading-tight truncate w-full text-center ${propertiesActive ? "text-blue-600" : "text-gray-500"}`}>
-                        Properties
+                        {t("properties")}
                     </span>
                 </Link>
 
@@ -99,7 +102,7 @@ export default function MobileBottomNav() {
                 >
                     <IconBriefcase active={servicesActive} />
                     <span className={`text-[10px] font-semibold leading-tight truncate w-full text-center ${servicesActive ? "text-blue-600" : "text-gray-500"}`}>
-                        Services
+                        {t("services")}
                     </span>
                 </Link>
 
@@ -109,7 +112,7 @@ export default function MobileBottomNav() {
                 >
                     <IconBuySell active={buySellActive} />
                     <span className={`text-[10px] font-semibold leading-tight truncate w-full text-center ${buySellActive ? "text-blue-600" : "text-gray-500"}`}>
-                        Buy &amp; Sell
+                        {t("buyAndSell")}
                     </span>
                 </Link>
 
@@ -119,7 +122,7 @@ export default function MobileBottomNav() {
                 >
                     <IconProfile active={profileActive} />
                     <span className={`text-[10px] font-semibold leading-tight truncate w-full text-center ${profileActive ? "text-blue-600" : "text-gray-500"}`}>
-                        Profile
+                        {t("profile")}
                     </span>
                 </Link>
             </div>

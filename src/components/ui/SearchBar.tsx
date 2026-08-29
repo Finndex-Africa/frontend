@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { Search, MapPin, Home, Briefcase, DollarSign, X, SlidersHorizontal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { trackSearch, trackFilterCleared } from "@/lib/analytics";
@@ -50,6 +51,7 @@ export default function SearchBar({
   initialBudget = "",
   initialServiceName = "",
 }: SearchBarProps) {
+  const t = useTranslations("searchBar");
   const router = useRouter();
   const isBuySell = variant === "buy-sell";
   const isServices = variant === "services";
@@ -170,12 +172,12 @@ export default function SearchBar({
 
   const placeholder =
     variant === "buy-sell"
-      ? "Search listings, locations..."
+      ? t("placeholderListings")
       : variant === "properties"
-        ? "Search properties, locations..."
+        ? t("placeholderHomes")
         : variant === "services"
-          ? "Search services, locations..."
-          : "Search properties, locations or services...";
+          ? t("placeholderServices")
+          : t("placeholderAll");
 
   const hasFilters = location || type || budget || (!isBuySell && serviceName);
 
@@ -223,7 +225,7 @@ export default function SearchBar({
               }}
               className="h-8 rounded-lg bg-blue-600 px-3 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 sm:h-9 sm:px-4 sm:text-sm"
             >
-              Search
+              {t("search")}
             </button>
           </div>
         </div>
@@ -321,7 +323,7 @@ export default function SearchBar({
                     type="text"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    placeholder="City or area…"
+                    placeholder={t("cityOrArea")}
                     className="h-10 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-700 placeholder-gray-400 transition-colors focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100"
                     autoFocus
                   />
@@ -341,7 +343,7 @@ export default function SearchBar({
                     onChange={(e) => setType(e.target.value)}
                     className="h-10 w-full cursor-pointer appearance-none rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-700 transition-colors focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100"
                   >
-                    <option value="">All types</option>
+                    <option value="">{t("allTypes")}</option>
                     {(isBuySell ? BUY_SELL_CATEGORIES : resolvedTab === "homes" ? PROPERTY_TYPES : SERVICE_CATEGORIES).map((opt) => (
                       <option key={opt.value} value={opt.value}>
                         {opt.label}
@@ -365,7 +367,7 @@ export default function SearchBar({
                           type="number"
                           value={budget}
                           onChange={(e) => setBudget(e.target.value)}
-                          placeholder="Any price"
+                          placeholder={t("anyPrice")}
                           className="h-10 w-full rounded-lg border border-gray-200 bg-gray-50 pl-6 pr-3 text-sm text-gray-700 placeholder-gray-400 transition-colors focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100"
                         />
                       </div>
@@ -380,7 +382,7 @@ export default function SearchBar({
                         type="text"
                         value={serviceName}
                         onChange={(e) => setServiceName(e.target.value)}
-                        placeholder="Search by name…"
+                        placeholder={t("searchByName")}
                         className="h-10 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-700 placeholder-gray-400 transition-colors focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100"
                       />
                     </>
@@ -401,7 +403,7 @@ export default function SearchBar({
                   className="flex h-10 items-center gap-2 rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white shadow-md transition-colors hover:bg-blue-700"
                 >
                   <Search className="h-4 w-4" />
-                  {isBuySell ? "Search Listings" : resolvedTab === "homes" ? "Search Properties" : "Search Services"}
+                  {isBuySell ? t("searchListings") : resolvedTab === "homes" ? t("searchProperties") : t("searchServices")}
                 </button>
               </div>
             </form>

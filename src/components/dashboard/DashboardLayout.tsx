@@ -14,10 +14,11 @@ import {
   CalendarOutlined,
   BellOutlined,
 } from "@ant-design/icons";
-import { useRouter, usePathname } from "next/navigation";
+
 import { designTokens } from "@/config/theme";
 import type { UserRole } from "@/types/dashboard";
 
+import { usePathname, useRouter } from "@/i18n/navigation";
 const { Sider, Header, Content } = AntLayout;
 
 interface DashboardLayoutProps {
