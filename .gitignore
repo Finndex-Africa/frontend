@@ -49,3 +49,7 @@ node_modules/
 
 # Netlify
 .netlify/
+
+# Local backups of .env — never commit (they contain live secrets)
+.env.bak*
+.env.*.bak
