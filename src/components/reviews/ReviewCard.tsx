@@ -1,12 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { Star, ThumbsUp, Flag, Trash2, MessageSquare } from 'lucide-react';
 import { Review, reviewsApi } from '@/services/api/reviews.api';
 import { AuthService } from '@/services/auth.service';
 import { showToast } from '@/lib/toast';
 import Modal from '@/components/ui/Modal';
+import TranslatedText from '@/components/ui/TranslatedText';
+import { useTranslatedFields } from '@/lib/translated-content';
 
 interface ReviewCardProps {
     review: Review;
@@ -14,7 +17,13 @@ interface ReviewCardProps {
     showOwnerReply?: boolean;
 }
 
+const REVIEW_TEXT_FIELDS = ['text', 'ownerReply'] as const;
+
 export default function ReviewCard({ review, onUpdate, showOwnerReply = true }: ReviewCardProps) {
+    const t = useTranslations('reviews');
+    const locale = useLocale();
+    // Airbnb translates both the review body and the host's response.
+    const translated = useTranslatedFields(review, REVIEW_TEXT_FIELDS);
     const authService = AuthService.getInstance();
     const user = authService.getUser();
     const isAuthenticated = authService.isAuthenticated();
@@ -27,7 +36,7 @@ export default function ReviewCard({ review, onUpdate, showOwnerReply = true }: 
 
     const handleMarkHelpful = async () => {
         if (!isAuthenticated || !user) {
-            showToast.warning('Please log in to mark reviews as helpful');
+            showToast.warning(t('loginToMarkHelpful'));
             return;
         }
 
@@ -35,28 +44,28 @@ export default function ReviewCard({ review, onUpdate, showOwnerReply = true }: 
             await reviewsApi.markAsHelpful(review._id);
             setIsHelpful(!isHelpful);
             setHelpfulCount(isHelpful ? helpfulCount - 1 : helpfulCount + 1);
-            showToast.success(isHelpful ? 'Removed from helpful' : 'Marked as helpful');
+            showToast.success(isHelpful ? t('removedFromHelpful') : t('markedAsHelpful'));
         } catch (error) {
             console.error('Mark helpful error:', error);
-            showToast.error('Failed to mark as helpful');
+            showToast.error(t('markHelpfulFailed'));
         }
     };
 
     const handleReport = async () => {
         if (!reportReason.trim()) {
-            showToast.warning('Please provide a reason for reporting');
+            showToast.warning(t('reportReasonRequired'));
             return;
         }
 
         setReportLoading(true);
         try {
             await reviewsApi.reportReview(review._id, { reason: reportReason });
-            showToast.success('Review reported successfully');
+            showToast.success(t('reportSuccess'));
             setIsReportModalVisible(false);
             setReportReason('');
         } catch (error) {
             console.error('Report error:', error);
-            showToast.error('Failed to report review');
+            showToast.error(t('reportFailed'));
         } finally {
             setReportLoading(false);
         }
@@ -69,11 +78,11 @@ export default function ReviewCard({ review, onUpdate, showOwnerReply = true }: 
 
         try {
             await reviewsApi.delete(review._id);
-            showToast.success('Review deleted successfully');
+            showToast.success(t('deleteSuccess'));
             if (onUpdate) onUpdate();
         } catch (error) {
             console.error('Delete error:', error);
-            showToast.error('Failed to delete review');
+            showToast.error(t('deleteFailed'));
         }
     };
 
@@ -81,7 +90,7 @@ export default function ReviewCard({ review, onUpdate, showOwnerReply = true }: 
     const isOwnReview = user?.id === userId?._id;
     const reviewerName = userId?.firstName && userId?.lastName
         ? `${userId.firstName} ${userId.lastName}`
-        : userId?.email || 'Anonymous User';
+        : userId?.email || t('anonymousUser');
 
     // Format date
     const formatDate = (dateString: string) => {
@@ -90,11 +99,12 @@ export default function ReviewCard({ review, onUpdate, showOwnerReply = true }: 
         const diffTime = Math.abs(now.getTime() - date.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        if (diffDays === 1) return '1 day ago';
-        if (diffDays < 7) return `${diffDays} days ago`;
-        if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''} ago`;
-        if (diffDays < 365) return `${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) > 1 ? 's' : ''} ago`;
-        return `${Math.floor(diffDays / 365)} year${Math.floor(diffDays / 365) > 1 ? 's' : ''} ago`;
+        // Intl handles the plural + wording per locale, so no catalog keys needed.
+        const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+        if (diffDays < 7) return rtf.format(-diffDays, 'day');
+        if (diffDays < 30) return rtf.format(-Math.floor(diffDays / 7), 'week');
+        if (diffDays < 365) return rtf.format(-Math.floor(diffDays / 30), 'month');
+        return rtf.format(-Math.floor(diffDays / 365), 'year');
     };
 
     const reviewDate = formatDate(review.createdAt);
@@ -145,7 +155,11 @@ export default function ReviewCard({ review, onUpdate, showOwnerReply = true }: 
                         </div>
 
                         {/* Review Text */}
-                        <p className="text-gray-700 leading-relaxed mb-3">{review.text}</p>
+                        <TranslatedText
+                            text={translated.text}
+                            className="text-gray-700 leading-relaxed"
+                            disclosureClassName="mb-3"
+                        />
 
                         {/* Photos */}
                         {review.photos && review.photos.length > 0 && (
@@ -176,7 +190,7 @@ export default function ReviewCard({ review, onUpdate, showOwnerReply = true }: 
                                 }`}
                             >
                                 <ThumbsUp className={`w-4 h-4 ${isHelpful ? 'fill-current' : ''}`} />
-                                Helpful ({helpfulCount})
+                                {t('helpfulCount', { count: helpfulCount })}
                             </button>
 
                             {isOwnReview && (
@@ -185,7 +199,7 @@ export default function ReviewCard({ review, onUpdate, showOwnerReply = true }: 
                                     className="flex items-center gap-1.5 text-sm font-medium text-red-600 hover:text-red-700 transition-colors"
                                 >
                                     <Trash2 className="w-4 h-4" />
-                                    Delete
+                                    {t('delete')}
                                 </button>
                             )}
 
@@ -195,7 +209,7 @@ export default function ReviewCard({ review, onUpdate, showOwnerReply = true }: 
                                     className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-red-600 transition-colors"
                                 >
                                     <Flag className="w-4 h-4" />
-                                    Report
+                                    {t('report')}
                                 </button>
                             )}
                         </div>
@@ -205,9 +219,12 @@ export default function ReviewCard({ review, onUpdate, showOwnerReply = true }: 
                             <div className="mt-4 bg-gray-50 p-4 rounded-lg border-l-4 border-blue-500">
                                 <div className="flex items-center gap-2 mb-2">
                                     <MessageSquare className="w-4 h-4 text-blue-600" />
-                                    <p className="font-semibold text-gray-900">Owner&apos;s Response</p>
+                                    <p className="font-semibold text-gray-900">{t('ownersResponse')}</p>
                                 </div>
-                                <p className="text-gray-700">{review.ownerReply}</p>
+                                <TranslatedText
+                                    text={translated.ownerReply}
+                                    className="text-gray-700"
+                                />
                                 {review.ownerReplyAt && (
                                     <p className="text-xs text-gray-500 mt-2">
                                         {formatDate(review.ownerReplyAt)}
@@ -223,14 +240,14 @@ export default function ReviewCard({ review, onUpdate, showOwnerReply = true }: 
             <Modal
                 open={isReportModalVisible}
                 onClose={() => setIsReportModalVisible(false)}
-                title="Report Review"
+                title={t('reportReview')}
             >
                 <div className="space-y-4">
                     <p className="text-gray-700">Please provide a reason for reporting this review:</p>
                     <textarea
                         value={reportReason}
                         onChange={(e) => setReportReason(e.target.value)}
-                        placeholder="e.g., Inappropriate content, spam, false information..."
+                        placeholder={t('reportPlaceholder')}
                         rows={4}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                     />
@@ -239,14 +256,14 @@ export default function ReviewCard({ review, onUpdate, showOwnerReply = true }: 
                             onClick={() => setIsReportModalVisible(false)}
                             className="px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
                         >
-                            Cancel
+                            {t('cancel')}
                         </button>
                         <button
                             onClick={handleReport}
                             disabled={reportLoading}
                             className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
-                            {reportLoading ? 'Submitting...' : 'Submit Report'}
+                            {reportLoading ? t('submitting') : t('submitReport')}
                         </button>
                     </div>
                 </div>

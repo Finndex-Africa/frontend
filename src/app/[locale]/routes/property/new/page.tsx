@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from "next-intl";
 import { useState, useEffect } from 'react';
 
 import Image from 'next/image';
@@ -8,7 +9,7 @@ import { mediaApi } from '@/services/api/media.api';
 import { MIN_PROPERTY_LISTING_IMAGES } from '@/lib/property-images';
 import { isAgentLikeUserType } from '@/lib/agent-user-types';
 import { showToast } from '@/lib/toast';
-import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
+import { useErrorMessage } from "@/lib/error-messages";
 import { geocodeAddress } from '@/lib/google-maps';
 import { trackListingCreated } from '@/lib/analytics';
 
@@ -34,6 +35,9 @@ const AMENITY_OPTIONS = [
 ] as const;
 
 export default function NewPropertyPage() {
+  const t_hints = useTranslations("hints");
+  const errorMessage = useErrorMessage();
+  const t = useTranslations("forms");
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
@@ -78,7 +82,7 @@ export default function NewPropertyPage() {
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
         if (files.length + imageFiles.length > 10) {
-            showToast.warning('You can only upload up to 10 images');
+            showToast.warning(t("maxImages"));
             return;
         }
 
@@ -118,17 +122,17 @@ export default function NewPropertyPage() {
         }
 
         if (formData.bedrooms === '') {
-            showToast.error('Please enter the number of bedrooms.');
+            showToast.error(t("bedroomsRequired"));
             return;
         }
 
         if (formData.bathrooms === '') {
-            showToast.error('Please enter the number of bathrooms.');
+            showToast.error(t("bathroomsRequired"));
             return;
         }
 
         if (canSetAgentFee && formData.agentFee === '') {
-            showToast.error('Please enter your agent fee.');
+            showToast.error(t("agentFeeRequired"));
             return;
         }
 
@@ -176,11 +180,11 @@ export default function NewPropertyPage() {
             await propertiesApi.create(propertyData);
 
             trackListingCreated({ type: "property", category: propertyData.propertyType });
-            showToast.success('Property created successfully! It will be reviewed by admin.');
+            showToast.success(t("propertyCreated"));
             router.push('/routes/my-listings');
         } catch (error: any) {
             console.error('Failed to create property:', error);
-            const msg = getUserFriendlyErrorMessage(error, 'Failed to create property. Please try again.');
+            const msg = errorMessage(error, "createProperty");
             setFormError(msg);
             showToast.error(msg);
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -239,7 +243,7 @@ export default function NewPropertyPage() {
                                     onChange={handleChange}
                                     required
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="e.g., Luxury 3BR Apartment in Westlands"
+                                    placeholder={t_hints("e_g_luxury_3br_apartment_in_westlands")}
                                 />
                             </div>
 
@@ -254,7 +258,7 @@ export default function NewPropertyPage() {
                                     required
                                     rows={4}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="Describe your property..."
+                                    placeholder={t("describeProperty")}
                                 />
                             </div>
 
@@ -286,7 +290,7 @@ export default function NewPropertyPage() {
                                         onChange={handleChange}
                                         required
                                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        placeholder="e.g., Westlands, Nairobi"
+                                        placeholder={t_hints("e_g_westlands_nairobi")}
                                     />
                                 </div>
                             </div>
@@ -304,7 +308,7 @@ export default function NewPropertyPage() {
                                         required
                                         min="0"
                                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        placeholder="e.g., 1200"
+                                        placeholder={t_hints("e_g_1200")}
                                     />
                                 </div>
 
@@ -326,7 +330,7 @@ export default function NewPropertyPage() {
                                 <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/50 p-4">
                                     <h3 className="text-sm font-semibold text-gray-900 mb-1">Agent Fee</h3>
                                     <p className="text-xs text-gray-600 mb-3">
-                                        Set the fee you charge for this listing. It will be shown to seekers on the property page.
+                                        {t("agentFeeHelpSeekers")}
                                     </p>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         Your Agent Fee (USD) <span className="text-red-500">*</span>
@@ -340,7 +344,7 @@ export default function NewPropertyPage() {
                                         min="0"
                                         step="0.01"
                                         className="w-full max-w-xs px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        placeholder="e.g., 150"
+                                        placeholder={t_hints("e_g_150")}
                                     />
                                 </div>
                             )}
@@ -364,7 +368,7 @@ export default function NewPropertyPage() {
                                     required
                                     min="0"
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="e.g., 3"
+                                    placeholder={t_hints("e_g_3")}
                                 />
                             </div>
 
@@ -380,13 +384,13 @@ export default function NewPropertyPage() {
                                     required
                                     min="0"
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="e.g., 2"
+                                    placeholder={t_hints("e_g_2")}
                                 />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Minutes from main road
+                                    {t("minutesFromRoad")}
                                 </label>
                                 <input
                                     type="number"
@@ -395,7 +399,7 @@ export default function NewPropertyPage() {
                                     onChange={handleChange}
                                     min="0"
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="e.g., 5"
+                                    placeholder={t_hints("e_g_5")}
                                 />
                             </div>
                         </div>
@@ -500,7 +504,7 @@ export default function NewPropertyPage() {
                             disabled={loading}
                             className="px-8 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            Cancel
+                            {t("cancel")}
                         </button>
                     </div>
                 </form>

@@ -1,11 +1,12 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState, useRef } from "react";
 
 import { verificationApi, type IdVerification, type SubmitIdVerificationDto, AGENT_AGREEMENT_PDF_URL } from "@/services/api/verification.api";
 import { mediaApi } from "@/services/api/media.api";
 import { AuthService } from "@/services/auth.service";
-import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
+import { useErrorMessage } from "@/lib/error-messages";
 import { trackIdentityVerificationStarted, trackIdentityVerificationSubmitted } from "@/lib/analytics";
 
 import { useRouter } from "@/i18n/navigation";
@@ -34,6 +35,9 @@ const ID_TYPES = [
 ];
 
 export default function VerifyIdentityPage() {
+  const tErr = useTranslations("errors");
+  const errorMessage = useErrorMessage();
+  const t = useTranslations("verifyIdentity");
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
@@ -140,7 +144,7 @@ export default function VerifyIdentityPage() {
                 field === "businessRegistrationCertificate" || field === "signedAgentAgreement"
                     ? "Failed to upload document. Please check that the file is under 10MB and is JPG, PNG, GIF, WebP, or PDF, then try again."
                     : "Failed to upload image. Please check that the file is under 10MB and is JPG, PNG, GIF, or WebP, then try again.";
-            setError(getUserFriendlyErrorMessage(err, fallback));
+            setError(errorMessage(err));
         } finally {
             setUploading(false);
         }
@@ -152,19 +156,19 @@ export default function VerifyIdentityPage() {
         setSuccess("");
 
         if (!form.idNumber.trim()) {
-            setError("ID number is required.");
+            setError(tErr("form.idNumberRequired"));
             return;
         }
         if (!form.idFrontImage) {
-            setError("Please upload the front of your ID.");
+            setError(tErr("form.idFrontRequired"));
             return;
         }
         if (needsBusinessRegistration(AuthService.getInstance().getUser()?.role) && !form.businessRegistrationCertificate?.trim()) {
-            setError("Please upload your business registration certificate.");
+            setError(tErr("form.businessCertRequired"));
             return;
         }
         if (isAgentOnly && !form.signedAgentAgreement?.trim()) {
-            setError("Please upload your signed Agent Agreement.");
+            setError(tErr("form.agreementRequired"));
             return;
         }
 
@@ -186,7 +190,7 @@ export default function VerifyIdentityPage() {
             setSuccess("Your ID has been submitted for verification. You will be notified once it's reviewed.");
             loadExisting();
         } catch (err: any) {
-            setError(getUserFriendlyErrorMessage(err, "Failed to submit. Please try again."));
+            setError(errorMessage(err, "submitGeneric"));
         } finally {
             setSubmitting(false);
         }
@@ -212,7 +216,7 @@ export default function VerifyIdentityPage() {
                 <div className="max-w-2xl mx-auto">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">Identity Verification</h1>
                     <p className="text-gray-600 mb-8">
-                        Upload a government-issued ID so our team can verify your account.
+                        {t("uploadGovId")}
                         {isServiceProvider &&
                             " Service providers must also submit a business registration certificate."}
                         {isRealEstateAgency &&
@@ -263,7 +267,7 @@ export default function VerifyIdentityPage() {
                                     value={form.fullName || ""}
                                     onChange={(e) => setForm((p) => ({ ...p, fullName: e.target.value }))}
                                     className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                                    placeholder="Your full legal name"
+                                    placeholder={t("fullLegalName")}
                                 />
                             </div>
 
@@ -290,7 +294,7 @@ export default function VerifyIdentityPage() {
                                     value={form.idNumber}
                                     onChange={(e) => setForm((p) => ({ ...p, idNumber: e.target.value }))}
                                     className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                                    placeholder="Enter your ID number"
+                                    placeholder={t("idNumber")}
                                 />
                             </div>
 
@@ -318,7 +322,7 @@ export default function VerifyIdentityPage() {
                                     {uploadingFront ? (
                                         <span className="text-blue-600">Uploading...</span>
                                     ) : form.idFrontImage ? (
-                                        <img src={form.idFrontImage} alt="Front" className="max-h-40 mx-auto rounded" />
+                                        <img src={form.idFrontImage} alt={t("front")} className="max-h-40 mx-auto rounded" />
                                     ) : (
                                         <span className="text-gray-500">Click to upload front of ID</span>
                                     )}
@@ -347,7 +351,7 @@ export default function VerifyIdentityPage() {
                                     {uploadingBack ? (
                                         <span className="text-blue-600">Uploading...</span>
                                     ) : form.idBackImage ? (
-                                        <img src={form.idBackImage} alt="Back" className="max-h-40 mx-auto rounded" />
+                                        <img src={form.idBackImage} alt={t("back")} className="max-h-40 mx-auto rounded" />
                                     ) : (
                                         <span className="text-gray-500">Click to upload back of ID</span>
                                     )}
@@ -361,7 +365,7 @@ export default function VerifyIdentityPage() {
                                         Business Registration Certificate <span className="text-red-500">*</span>
                                     </label>
                                     <p className="text-xs text-gray-500 mb-2">
-                                        Upload a scan or photo of your official business registration document (PDF or image).
+                                        {t("uploadBusinessDoc")}
                                     </p>
                                     <input
                                         ref={businessCertRef}
@@ -395,7 +399,7 @@ export default function VerifyIdentityPage() {
                                             ) : (
                                                 <img
                                                     src={form.businessRegistrationCertificate}
-                                                    alt="Business registration"
+                                                    alt={t("businessRegistration")}
                                                     className="max-h-40 mx-auto rounded"
                                                 />
                                             )
@@ -413,7 +417,7 @@ export default function VerifyIdentityPage() {
                                         Signed Agent Agreement <span className="text-red-500">*</span>
                                     </label>
                                     <p className="text-xs text-gray-500 mb-3">
-                                        Download the Agent Agreement, sign it, then upload the signed copy (PDF or image).
+                                        {t("downloadAgreementHelp")}
                                     </p>
                                     <a
                                         href={AGENT_AGREEMENT_PDF_URL}
@@ -424,7 +428,7 @@ export default function VerifyIdentityPage() {
                                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                         </svg>
-                                        Download Agent Agreement
+                                        {t("downloadAgreement")}
                                     </a>
                                     <input
                                         ref={agentAgreementRef}
@@ -458,7 +462,7 @@ export default function VerifyIdentityPage() {
                                             ) : (
                                                 <img
                                                     src={form.signedAgentAgreement}
-                                                    alt="Signed Agent Agreement"
+                                                    alt={t("signedAgreement")}
                                                     className="max-h-40 mx-auto rounded"
                                                 />
                                             )
@@ -491,7 +495,7 @@ export default function VerifyIdentityPage() {
                                     {uploadingSelfie ? (
                                         <span className="text-blue-600">Uploading...</span>
                                     ) : form.selfieImage ? (
-                                        <img src={form.selfieImage} alt="Selfie" className="max-h-40 mx-auto rounded" />
+                                        <img src={form.selfieImage} alt={t("selfie")} className="max-h-40 mx-auto rounded" />
                                     ) : (
                                         <span className="text-gray-500">Click to upload a selfie holding your ID</span>
                                     )}

@@ -176,7 +176,7 @@ export default function AdvertisementBanner() {
                             <div className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-2xl bg-black ring-2 ring-white/20">
                                 <iframe
                                     src={FINDAFRIQ_INTRO_EMBED_SRC}
-                                    title="Introduction to FindAfriq"
+                                    title={t("videoTitle")}
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                     referrerPolicy="strict-origin-when-cross-origin"
                                     allowFullScreen
@@ -184,14 +184,14 @@ export default function AdvertisementBanner() {
                                 />
                             </div>
                             <p className="text-xs text-white/85 text-center sm:text-right">
-                                Watch our introduction — FindAfriq on{' '}
+                                {t("watchIntro")}{' '}
                                 <a
                                     href="https://www.youtube.com/@Findafriq"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="underline font-medium hover:text-white"
                                 >
-                                    YouTube
+                                    {t("youtube")}
                                 </a>
                             </p>
                         </div>
@@ -222,7 +222,7 @@ export default function AdvertisementBanner() {
                                     onClick={() => handleAdClick(currentAd)}
                                     className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors text-center"
                                 >
-                                    Learn More
+                                    {t("learnMore")}
                                 </button>
                             )}
                         </div>

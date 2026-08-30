@@ -1,7 +1,17 @@
 {
   "metadata": {
     "description": "FindAfriq est une plateforme numérique d'immobilier et de services qui met en relation les chercheurs avec des biens vérifiés et des prestataires de confiance, en toute simplicité.",
-    "keywords": "FindAfriq, immobilier Afrique, location Afrique, propriétaires, agents immobiliers, prestataires de services, location Liberia, trouver un logement en Afrique"
+    "keywords": "FindAfriq, immobilier Afrique, location Afrique, propriétaires, agents immobiliers, prestataires de services, location Liberia, trouver un logement en Afrique",
+    "howItWorksTitle": "Comment ça marche",
+    "howItWorksDesc": "Découvrez comment FindAfriq met en relation les chercheurs avec des biens vérifiés et des prestataires de confiance, en quelques étapes simples.",
+    "buySellTitle": "Acheter & Vendre",
+    "buySellDesc": "Achetez et vendez des terrains, des maisons et des articles ménagers en bon état — le tout sur une place de marché de confiance.",
+    "pricingTitle": "Grille tarifaire",
+    "pricingDesc": "Formules pour les chercheurs, niveaux de publication pour propriétaires et agents, abonnements prestataires — des tarifs transparents en USD.",
+    "helpTitle": "Aide et FAQ",
+    "helpDesc": "Questions fréquentes sur FindAfriq — biens, services, comptes, sécurité et assistance.",
+    "propertyFallback": "Bien",
+    "serviceFallback": "Service"
   },
   "languageSwitcher": {
     "label": "Langue",
@@ -21,7 +31,10 @@
     "new": "Nouveau",
     "back": "Retour",
     "backToHome": "Retour à l'accueil",
-    "optional": "facultatif"
+    "optional": "facultatif",
+    "viewDetails": "Voir les détails",
+    "showingProperties": "{count, plural, one {# bien affiché} other {# biens affichés}}",
+    "showingServices": "{count, plural, one {# service affiché} other {# services affichés}}"
   },
   "nav": {
     "discover": "Découvrir",
@@ -46,7 +59,8 @@
     "logOut": "Se déconnecter",
     "toggleMenu": "Afficher le menu",
     "new": "Nouveau",
-    "close": "Fermer"
+    "close": "Fermer",
+    "type": "Type :"
   },
   "mobileNav": {
     "discover": "Découvrir",
@@ -95,7 +109,8 @@
     "noBuySell": "Aucune annonce Acheter & Vendre pour le moment.",
     "ctaHeading": "Rejoignez-nous dans l'aventure",
     "ctaBody": "Que vous cherchiez des services ou souhaitiez proposer votre expertise, nous vous invitons à rejoindre notre communauté grandissante.",
-    "ctaButton": "Commencer"
+    "ctaButton": "Commencer",
+    "platformAtAGlance": "Notre plateforme en un coup d'œil"
   },
   "propertyCard": {
     "bedrooms": "{count, plural, one {# chambre} other {# chambres}}",
@@ -239,7 +254,17 @@
     "searchListings": "Rechercher des annonces",
     "searchProperties": "Rechercher des biens",
     "searchServices": "Rechercher des services",
-    "search": "Rechercher"
+    "search": "Rechercher",
+    "clearFilters": "Effacer les filtres",
+    "properties": "Biens",
+    "services": "Services",
+    "location": "Emplacement",
+    "maxBudget": "Budget maximum (USD)",
+    "serviceName": "Nom du service",
+    "clearAll": "Tout effacer",
+    "searchLocation": "Rechercher un lieu",
+    "determineBudget": "Définissez votre budget",
+    "searchDestinations": "Rechercher une destination"
   },
   "cookies": {
     "title": "Nous utilisons des cookies",
@@ -257,7 +282,9 @@
     "preferencesLabel": "Préférences",
     "preferencesDesc": "Mémorisent vos réglages et personnalisent votre expérience.",
     "marketingLabel": "Marketing",
-    "marketingDesc": "Utilisés pour vous proposer des publicités pertinentes et en mesurer l'efficacité."
+    "marketingDesc": "Utilisés pour vous proposer des publicités pertinentes et en mesurer l'efficacité.",
+    "consentAria": "Consentement aux cookies",
+    "alwaysOn": "Toujours actif"
   },
   "advertBanner": {
     "heading": "Vous connecter en toute simplicité",
@@ -266,7 +293,11 @@
     "howItWorks": "Comment ça marche",
     "propertiesListed": "Biens publiés",
     "servicesListed": "Services publiés",
-    "buySellListed": "Annonces Acheter & Vendre"
+    "buySellListed": "Annonces Acheter & Vendre",
+    "videoTitle": "Présentation de FindAfriq",
+    "youtube": "YouTube",
+    "learnMore": "En savoir plus",
+    "watchIntro": "Regardez notre présentation — FindAfriq sur"
   },
   "propertyTypes": {
     "apartment": "Appartement",
@@ -323,5 +354,1733 @@
       "square_feet": "pi²",
       "square_meters": "m²"
     }
+  },
+  "amenities": {
+    "247_security": "Sécurité 24h/24",
+    "air_conditioning": "Climatisation",
+    "backup_power": "Alimentation de secours",
+    "balcony": "Balcon",
+    "cctv": "Vidéosurveillance",
+    "central_ac": "Climatisation centralisée",
+    "conference_room": "Salle de réunion",
+    "dining_room": "Salle à manger",
+    "electricity": "Électricité",
+    "elevator": "Ascenseur",
+    "fire_safety": "Sécurité incendie",
+    "fitted_kitchen": "Cuisine équipée",
+    "garden": "Jardin",
+    "gate": "Portail",
+    "gated_estate": "Résidence sécurisée",
+    "generator": "Groupe électrogène",
+    "gym": "Salle de sport",
+    "heating": "Chauffage",
+    "internet": "Internet",
+    "kitchen": "Cuisine",
+    "laundry": "Buanderie",
+    "living_room": "Salon",
+    "loading_dock": "Quai de chargement",
+    "parking": "Parking",
+    "parking_space": "Place de parking",
+    "playground": "Aire de jeux",
+    "porch": "Véranda",
+    "reception_area": "Espace d'accueil",
+    "security": "Sécurité",
+    "swimming_pool": "Piscine",
+    "wardrobes": "Placards",
+    "water": "Eau",
+    "water_supply": "Approvisionnement en eau",
+    "wifi": "Wi-Fi"
+  },
+  "propertyStatus": {
+    "pending": "En attente d'approbation",
+    "rejected": "Non disponible",
+    "rented": "Actuellement loué",
+    "archived": "Archivé",
+    "available": "Disponible"
+  },
+  "propertyDetail": {
+    "forRent": "À louer",
+    "reviews": "{count, plural, one {# avis} other {# avis}}",
+    "save": "Enregistrer",
+    "saved": "Enregistré",
+    "saveToFavorites": "Ajouter aux favoris",
+    "removeFromFavorites": "Retirer des favoris",
+    "savedToast": "Ajouté aux favoris !",
+    "removedToast": "Retiré des annonces enregistrées",
+    "shareText": "Découvrez ce bien : {title} à {location}",
+    "aboutThisPlace": "À propos de ce logement",
+    "descriptionFallback": "Un bien formidable qui n'attend que vous.",
+    "availableFrom": "Disponible à partir du :",
+    "whatThisPlaceOffers": "Ce que propose ce logement",
+    "amenityAvailable": "Disponible",
+    "distance": "Distance",
+    "furnished": "Meublé",
+    "unfurnished": "Non meublé",
+    "includesFurniture": "Mobilier inclus",
+    "noFurniture": "Mobilier non inclus",
+    "highSpeedInternet": "Internet haut débit",
+    "security247": "Sécurité 24h/24 et 7j/7",
+    "secureParking": "Parking sécurisé",
+    "premiumListing": "Annonce premium",
+    "contact": "Nous contacter",
+    "perMonth": "/mois",
+    "paymentDetails": "Détails du paiement",
+    "agentFee": "Frais d'agence",
+    "feeSetBy": "Frais fixés par le {owner} de l'annonce.",
+    "feePaidToAgent": "Ces frais sont versés à l'agent de l'annonce.",
+    "paymentComingSoonTitle": "Paiement en ligne bientôt disponible !",
+    "paymentComingSoonBody": "Vous réglerez le montant total directement à l'agent. Veuillez contacter l'agent pour les modalités de paiement.",
+    "totalToPayAgent": "Montant total à verser à l'agent",
+    "bookViewingNow": "Réserver une visite",
+    "signInToBook": "Connectez-vous pour réserver",
+    "bookingNotAvailable": "Réservation indisponible",
+    "backToProperties": "Retour aux biens",
+    "whereYoullBe": "Où vous serez",
+    "mapTitle": "Carte de {location}",
+    "loadingMap": "Chargement de la carte…",
+    "managedBy": "Géré par",
+    "verified": "Vérifié",
+    "notVerified": "Non vérifié",
+    "findafriqAdmin": "Administrateur FindAfriq",
+    "registeredOn": "{role} enregistré sur FindAfriq",
+    "viewProfile": "Voir le profil",
+    "whatsappOwner": "WhatsApp {role}",
+    "signInToWhatsApp": "Connectez-vous pour WhatsApp",
+    "messageTheAgent": "Contacter le {role}",
+    "signInToStartConversation": "Connectez-vous pour démarrer une conversation",
+    "signInToChat": "Connectez-vous pour discuter",
+    "bookingTip": "Réservez une visite pour voir ce bien en personne. Le délai de réponse est généralement de 24 heures.",
+    "tipLabel": "Astuce :",
+    "closeModal": "Fermer la fenêtre",
+    "bookThisProperty": "Réserver ce bien",
+    "bookingFormSubtitle": "Remplissez le formulaire pour envoyer votre demande",
+    "preferredMoveInDate": "Date d'emménagement souhaitée",
+    "desiredRentalPeriod": "Durée de location souhaitée",
+    "contactPhone": "Téléphone de contact",
+    "phonePlaceholder": "+231 886 149 219",
+    "additionalMessage": "Message complémentaire",
+    "bookingMessagePlaceholder": "Partagez vos questions, demandes particulières ou toute autre information...",
+    "rentalMonths": "{count, plural, one {# mois} other {# mois}}",
+    "rentalYears": "{months} mois ({years, plural, one {# an} other {# ans}})",
+    "whatHappensNext": "Et ensuite ?",
+    "whatHappensNextBody": "Le propriétaire recevra votre demande et vous contactera sous 24 à 48 heures pour confirmer les détails de la visite.",
+    "cancel": "Annuler",
+    "submitBookingRequest": "Envoyer la demande de réservation",
+    "submitting": "Envoi en cours…",
+    "sendDirectMessage": "Envoyer un message direct",
+    "subjectPlaceholder": "par ex. questions sur le bien",
+    "messagePlaceholder": "Renseignez-vous sur la disponibilité, les équipements, ou demandez plus d'informations...",
+    "saveFailed": "Impossible de mettre à jour vos favoris.",
+    "loadPropertyFailed": "Impossible de charger les détails du bien. Veuillez réessayer plus tard.",
+    "phoneRequired": "Veuillez indiquer votre numéro de téléphone",
+    "moveInDateRequired": "Veuillez choisir votre date d'emménagement",
+    "moveInDateFuture": "La date d'emménagement doit être dans le futur",
+    "bookingFailed": "Impossible de créer la réservation",
+    "noContact": "Cette annonce n'a pas de contact. Veuillez essayer un autre bien.",
+    "conversationFailed": "Impossible de démarrer la conversation. Veuillez réessayer.",
+    "messageRequired": "Veuillez saisir un message avant d'envoyer.",
+    "bedrooms": "Chambres",
+    "bathrooms": "Salles de bain",
+    "bedroomCount": "{count, plural, one {# pièce} other {# pièces}}",
+    "bathroomCount": "{count, plural, one {# salle de bain} other {# salles de bain}}",
+    "notSpecified": "Non précisé",
+    "minFromMainRoad": "à {minutes} min de la route principale"
+  },
+  "mediaCarousel": {
+    "showAllPhotos": "Voir toutes les photos"
+  },
+  "translatedContent": {
+    "automaticallyTranslated": "Traduit automatiquement",
+    "showOriginal": "Voir l'original",
+    "showTranslation": "Voir la traduction",
+    "originalLanguage": "Langue d'origine : {lang}",
+    "languageNames": {
+      "en": "anglais",
+      "fr": "français"
+    }
+  },
+  "reviews": {
+    "anonymousUser": "Utilisateur anonyme",
+    "ownersResponse": "Réponse du propriétaire",
+    "helpful": "Utile",
+    "report": "Signaler",
+    "delete": "Supprimer",
+    "reportReview": "Signaler cet avis",
+    "reportPlaceholder": "par ex. contenu inapproprié, spam, informations mensongères...",
+    "submitReport": "Envoyer le signalement",
+    "submitting": "Envoi en cours…",
+    "loginToMarkHelpful": "Connectez-vous pour marquer un avis comme utile",
+    "removedFromHelpful": "Retiré des avis utiles",
+    "markedAsHelpful": "Marqué comme utile",
+    "markHelpfulFailed": "Impossible de marquer comme utile",
+    "reportReasonRequired": "Veuillez indiquer un motif de signalement",
+    "reportSuccess": "Avis signalé avec succès",
+    "reportFailed": "Impossible de signaler cet avis",
+    "deleteSuccess": "Avis supprimé avec succès",
+    "deleteFailed": "Impossible de supprimer cet avis",
+    "helpfulCount": "Utile ({count})",
+    "title": "Avis et notes",
+    "reviewCount": "{count, plural, =0 {Aucun avis} one {# avis} other {# avis}}",
+    "noReviewsYet": "Aucun avis pour le moment. Soyez le premier à en laisser un !",
+    "loadFailed": "Impossible de charger les avis",
+    "sortBy": "Trier par",
+    "filterByRating": "Filtrer par note",
+    "allRatings": "Toutes les notes",
+    "starsFilter": "{count, plural, one {# étoile} other {# étoiles}}",
+    "sortNewest": "Plus récents",
+    "sortHelpful": "Plus utiles",
+    "sortHighest": "Note la plus élevée",
+    "sortLowest": "Note la plus basse",
+    "sortOldest": "Plus anciens",
+    "loginToLeaveReview": "Connectez-vous pour laisser un avis",
+    "writeAReview": "Rédiger un avis",
+    "reviewModalTitle": "Évaluer {item}",
+    "ratingLabel": "Note",
+    "yourReview": "Votre avis",
+    "reviewPlaceholder": "Partagez votre expérience avec ce bien ou ce service...",
+    "cancel": "Annuler",
+    "submitReview": "Publier l'avis",
+    "submittingReview": "Envoi en cours…",
+    "selectRating": "Veuillez sélectionner une note",
+    "writeYourReview": "Veuillez rédiger votre avis",
+    "minLength": "L'avis doit contenir au moins 10 caractères",
+    "submitSuccess": "Avis publié avec succès !",
+    "submitFailed": "Impossible de publier l'avis. Veuillez réessayer.",
+    "fallbackProperty": "ce bien",
+    "fallbackService": "ce service",
+    "previous": "Précédent"
+  },
+  "amenityDescriptions": {
+    "247_security": "Service de sécurité 24h/24 et 7j/7",
+    "air_conditioning": "Climatisation dans toutes les pièces",
+    "backup_power": "Système d'alimentation de secours",
+    "balcony": "Balcon privé",
+    "cctv": "Vidéosurveillance",
+    "central_ac": "Climatisation centralisée",
+    "conference_room": "Salles de réunion",
+    "electricity": "Alimentation électrique fiable",
+    "elevator": "Accès par ascenseur",
+    "fire_safety": "Systèmes de sécurité incendie",
+    "fitted_kitchen": "Cuisine équipée moderne",
+    "garden": "Jardin paysager",
+    "gated_estate": "Résidence sécurisée avec accès contrôlé",
+    "generator": "Groupe électrogène de secours",
+    "gym": "Salle de sport entièrement équipée",
+    "internet": "Internet haut débit",
+    "loading_dock": "Zone de chargement et déchargement",
+    "parking_space": "Place de parking dédiée",
+    "playground": "Aire de jeux pour enfants",
+    "reception_area": "Accueil professionnel",
+    "swimming_pool": "Piscine commune",
+    "wardrobes": "Placards intégrés",
+    "water_supply": "Approvisionnement en eau constant"
+  },
+  "ownerRoles": {
+    "agent": "agent immobilier",
+    "landlord": "propriétaire",
+    "real_estate_agency": "agence immobilière",
+    "owner": "propriétaire",
+    "admin": "administrateur"
+  },
+  "share": {
+    "share": "Partager",
+    "shareVia": "Partager via",
+    "copyLink": "Copier le lien",
+    "linkCopied": "Lien copié !",
+    "moreOptions": "Plus d'options…",
+    "facebook": "Facebook",
+    "whatsapp": "WhatsApp",
+    "linkedin": "LinkedIn"
+  },
+  "advertise": {
+    "title": "Annoncez avec nous",
+    "subtitle": "Touchez des milliers de clients potentiels",
+    "closeModal": "Fermer la fenêtre",
+    "fullName": "Nom complet",
+    "fullNamePlaceholder": "Saisissez votre nom complet",
+    "emailAddress": "Adresse e-mail",
+    "emailPlaceholder": "vous@exemple.com",
+    "phoneNumber": "Numéro de téléphone",
+    "phonePlaceholder": "+250 700 000 000",
+    "companyName": "Nom de l'entreprise",
+    "companyPlaceholder": "Votre entreprise ou organisation",
+    "message": "Message",
+    "messagePlaceholder": "Parlez-nous de vos besoins publicitaires, de votre budget et de votre audience cible...",
+    "optional": "(facultatif)",
+    "cancel": "Annuler",
+    "submitRequest": "Envoyer la demande",
+    "submitting": "Envoi en cours…",
+    "nameRequired": "Veuillez saisir votre nom",
+    "emailRequired": "Veuillez saisir votre e-mail",
+    "emailInvalid": "Veuillez saisir une adresse e-mail valide",
+    "phoneRequired": "Veuillez saisir votre numéro de téléphone",
+    "validationError": "Erreur de validation",
+    "fillRequired": "Veuillez remplir tous les champs obligatoires",
+    "successTitle": "🎉 Demande envoyée !",
+    "successBody": "Merci ! Nous vous contacterons bientôt.",
+    "failedTitle": "Échec de l'envoi",
+    "failedBody": "Impossible d'envoyer la demande. Veuillez réessayer.",
+    "submitFailed": "Impossible d'envoyer la demande"
+  },
+  "serviceDetail": {
+    "backToServices": "Retour aux services",
+    "active": "Actif",
+    "save": "Enregistrer",
+    "saved": "Enregistré",
+    "saveToFavorites": "Ajouter aux favoris",
+    "removeFromFavorites": "Retirer des favoris",
+    "savedToast": "Ajouté aux favoris !",
+    "removedToast": "Retiré des annonces enregistrées",
+    "saveFailed": "Impossible de mettre à jour vos favoris.",
+    "aboutThisService": "À propos de ce service",
+    "descriptionFallback": "Service professionnel assuré par des prestataires expérimentés.",
+    "managedBy": "Géré par",
+    "verified": "Vérifié",
+    "notVerified": "Non vérifié",
+    "viewFullProfile": "Voir le profil complet",
+    "serviceCoverage": "Zone d'intervention",
+    "mapTitle": "Carte de {location}",
+    "requestService": "Demander ce service",
+    "signInToRequest": "Connectez-vous pour demander",
+    "serviceNotAvailable": "Service indisponible",
+    "whatsappProvider": "WhatsApp prestataire",
+    "signInToWhatsApp": "Connectez-vous pour WhatsApp",
+    "messageTheProvider": "Contacter le prestataire",
+    "signInToStartConversation": "Connectez-vous pour démarrer une conversation",
+    "signInToChat": "Connectez-vous pour discuter",
+    "messageProvider": "Contacter le prestataire",
+    "closeModal": "Fermer la fenêtre",
+    "preferredDateTime": "Date et heure souhaitées",
+    "estimatedDuration": "Durée estimée (heures)",
+    "serviceLocation": "Lieu / adresse d'intervention",
+    "addressPlaceholder": "Saisissez l'adresse complète où le service est requis",
+    "contactPhone": "Téléphone de contact",
+    "additionalNotes": "Notes complémentaires",
+    "notesPlaceholder": "Décrivez vos besoins, consignes particulières ou questions...",
+    "cancel": "Annuler",
+    "submitServiceRequest": "Envoyer la demande",
+    "submitting": "Envoi en cours…",
+    "phoneRequired": "Veuillez indiquer votre numéro de téléphone",
+    "dateRequired": "Veuillez choisir la date souhaitée",
+    "locationRequired": "Veuillez indiquer le lieu d'intervention",
+    "dateFuture": "La date doit être dans le futur",
+    "bookingSuccess": "Demande de service envoyée ! Le prestataire vous contactera bientôt."
+  },
+  "buySellDetail": {
+    "backToListings": "Retour aux annonces",
+    "aboutThisListing": "À propos de cette annonce",
+    "listingDetails": "Détails de l'annonce",
+    "amenitiesFeatures": "Équipements et caractéristiques",
+    "location": "Emplacement",
+    "mapTitle": "Carte de {location}",
+    "listedBy": "Publié par",
+    "verified": "Vérifié",
+    "notVerified": "Non vérifié",
+    "findafriqAdmin": "Administrateur FindAfriq",
+    "registeredSeller": "Vendeur enregistré sur FindAfriq",
+    "viewProfile": "Voir le profil",
+    "premiumListing": "Annonce premium",
+    "listedPrice": "Prix affiché",
+    "agentFee": "Frais d'agence",
+    "totalToPayAgent": "Montant total à verser à l'agent",
+    "whatsappSeller": "WhatsApp vendeur",
+    "signInToWhatsApp": "Connectez-vous pour WhatsApp",
+    "bookViewingNow": "Réserver une visite",
+    "signInToBook": "Connectez-vous pour réserver",
+    "messageTheSeller": "Contacter le vendeur",
+    "signInToStartConversation": "Connectez-vous pour démarrer une conversation",
+    "signInToChat": "Connectez-vous pour discuter",
+    "messageSeller": "Contacter le vendeur",
+    "seller": "Vendeur",
+    "bookAViewing": "Réserver une visite",
+    "bookingSubtitle": "Choisissez un créneau pour visiter cette annonce",
+    "preferredViewingDate": "Date de visite souhaitée",
+    "contactPhone": "Téléphone de contact",
+    "notesPlaceholder": "Préférence d'horaire ou questions pour le vendeur...",
+    "viewingInfo": "Le vendeur recevra votre demande et vous contactera pour confirmer les détails de la visite.",
+    "cancel": "Annuler",
+    "submitViewingRequest": "Envoyer la demande de visite",
+    "submitting": "Envoi en cours…",
+    "contactSeller": "Contacter le vendeur",
+    "sendDirectMessage": "Envoyer un message direct",
+    "subject": "Objet",
+    "yourMessage": "Votre message",
+    "messagePlaceholder": "Posez une question sur l'article, négociez le prix ou demandez plus de détails...",
+    "sending": "Envoi en cours…",
+    "sendMessage": "Envoyer le message",
+    "saveFailed": "Impossible de mettre à jour vos favoris. Veuillez réessayer.",
+    "phoneRequired": "Veuillez indiquer votre numéro de téléphone",
+    "dateRequired": "Veuillez choisir une date de visite",
+    "dateFuture": "La date de visite doit être dans le futur",
+    "bookingSuccess": "Demande de visite envoyée ! Le vendeur vous contactera bientôt.",
+    "noContact": "Impossible de contacter le vendeur pour le moment.",
+    "conversationFailed": "Impossible de démarrer la conversation. Veuillez réessayer.",
+    "messageSent": "Message envoyé ! Le vendeur vous répondra bientôt.",
+    "messageRequired": "Veuillez saisir un message avant d'envoyer.",
+    "landType": "Type de terrain",
+    "landSize": "Superficie",
+    "ownership": "Régime de propriété",
+    "houseType": "Type de maison",
+    "structure": "Structure",
+    "bedrooms": "Chambres",
+    "bathrooms": "Salles de bain",
+    "category": "Catégorie",
+    "condition": "État",
+    "warranty": "Garantie",
+    "delivery": "Livraison",
+    "brandNew": "Neuf",
+    "fairlyUsed": "Bon état",
+    "warrantyIncluded": "Incluse",
+    "noWarranty": "Sans garantie",
+    "deliveryAvailable": "Disponible",
+    "pickupOnly": "Retrait sur place uniquement"
+  },
+  "buySellSubcategories": {
+    "residential": "Résidentiel",
+    "commercial": "Commercial",
+    "beach": "Bord de mer",
+    "farm": "Agricole",
+    "duplex": "Duplex",
+    "apartment": "Appartement",
+    "furniture": "Mobilier",
+    "electronics": "Électronique",
+    "kitchen_item": "Article de cuisine",
+    "office_equipment": "Équipement de bureau"
+  },
+  "landUnits": {
+    "acres": "acres",
+    "lots": "lots",
+    "square_feet": "pi²",
+    "square_meters": "m²"
+  },
+  "publicProfile": {
+    "verified": "Vérifié",
+    "notVerified": "Non vérifié",
+    "goBack": "Retour",
+    "memberSince": "Membre depuis {date}",
+    "businessInformation": "Informations sur l'entreprise",
+    "businessName": "Nom de l'entreprise",
+    "location": "Emplacement",
+    "yearsOfExperience": "Années d'expérience",
+    "website": "Site web",
+    "verificationStatus": "Statut de vérification",
+    "verifiedBusiness": "Entreprise vérifiée",
+    "pendingVerification": "Vérification en attente",
+    "rating": "Note",
+    "completedJobs": "Missions réalisées",
+    "servicesOffered": "Services proposés",
+    "aboutTheBusiness": "À propos de l'entreprise",
+    "contactInformation": "Coordonnées"
+  },
+  "browse": {
+    "propertiesHeroAlt": "Image d'en-tête Biens",
+    "servicesHeroAlt": "Image d'en-tête Services",
+    "buySellHeroAlt": "Place de marché Acheter & Vendre",
+    "findVerifiedProperties": "Trouvez des biens vérifiés",
+    "propertiesSubtitle": "Découvrez le bien idéal parmi notre sélection d'annonces vérifiées",
+    "findTrustedServices": "Trouvez des prestataires de confiance",
+    "servicesSubtitle": "Entrez en contact avec des prestataires vérifiés pour tous vos besoins",
+    "buySellTitle": "Acheter et vendre sur FindAfriq",
+    "buySellSubtitle": "Terrains, maisons et articles ménagers en bon état.",
+    "clearAll": "Tout effacer",
+    "tryAgain": "Réessayer",
+    "retry": "Réessayer"
+  },
+  "pagination": {
+    "previousPage": "Page précédente",
+    "nextPage": "Page suivante"
+  },
+  "carousel": {
+    "morePhotos": "Plus de photos",
+    "mainImage": "Image principale",
+    "imageN": "Image {n}",
+    "previousImage": "Image précédente",
+    "nextImage": "Image suivante"
+  },
+  "whatsapp": {
+    "contactUs": "Contactez-nous sur WhatsApp",
+    "chatWithUs": "Discutez avec nous sur WhatsApp (FindAfriq)"
+  },
+  "serviceProvider": {
+    "verified": "Vérifié",
+    "contact": "Contacter"
+  },
+  "userReport": {
+    "title": "Formulaire de signalement FindAfriq",
+    "subtitle": "Signalez une fraude, une fausse annonce ou tout autre problème sur la plateforme.",
+    "close": "Fermer",
+    "thankYou": "Merci. Notre équipe examinera votre signalement et prendra les mesures nécessaires.",
+    "fixFields": "Veuillez corriger les champs signalés ci-dessous.",
+    "fullName": "Nom complet",
+    "namePlaceholder": "Jeanne Dupont",
+    "emailAddress": "Adresse e-mail",
+    "phoneNumber": "Numéro de téléphone",
+    "reportCategory": "Catégorie de signalement",
+    "whoReporting": "Qui signalez-vous ? (nom ou e-mail de la personne / de l'annonce)",
+    "whoPlaceholder": "jean@exemple.com ou nom de l'annonce",
+    "submitReport": "Envoyer le signalement",
+    "submitting": "Envoi en cours…",
+    "fullNameMin": "Veuillez saisir votre nom complet (au moins 2 caractères).",
+    "emailRequired": "Veuillez saisir votre adresse e-mail.",
+    "emailInvalid": "Veuillez saisir une adresse e-mail valide.",
+    "phoneRequired": "Veuillez saisir votre numéro de téléphone.",
+    "phoneFormat": "Utilisez le format international, par ex. +231886149241.",
+    "categoryRequired": "Veuillez sélectionner une catégorie de signalement.",
+    "targetRequired": "Veuillez saisir le nom ou l'e-mail de la personne ou de l'annonce que vous signalez."
+  },
+  "reportCategories": {
+    "fraud_scam": "Fraude / arnaque",
+    "fake_property_listing": "Fausse annonce immobilière",
+    "misinformation": "Désinformation",
+    "impersonation": "Usurpation d'identité",
+    "misconduct": "Comportement inapproprié",
+    "payment_issue": "Problème de paiement",
+    "other": "Autre"
+  },
+  "myListings": {
+    "title": "Mes annonces",
+    "subtitle": "Gérez tout ce que vous avez publié sur FindAfriq",
+    "editProperty": "Modifier le bien",
+    "propertyImages": "Photos du bien",
+    "primary": "Principale",
+    "addImages": "Ajouter des photos",
+    "titleField": "Titre",
+    "titlePlaceholder": "Titre du bien",
+    "location": "Emplacement",
+    "locationPlaceholder": "Ville, quartier, pays",
+    "price": "Prix",
+    "propertyType": "Type de bien",
+    "agentFee": "Frais d'agence",
+    "agentFeeHelp": "Définissez les frais que vous facturez pour cette annonce. Ils seront affichés aux chercheurs sur la page du bien.",
+    "minutesFromRoad": "Minutes de la route principale",
+    "isFurnished": "Ce bien est meublé",
+    "description": "Description",
+    "descriptionPlaceholder": "Décrivez votre bien...",
+    "availableFrom": "Disponible à partir du",
+    "availableTo": "Disponible jusqu'au",
+    "cancel": "Annuler",
+    "saveChanges": "Enregistrer les modifications",
+    "close": "Fermer",
+    "edit": "Modifier",
+    "rejectionReason": "Motif du rejet",
+    "status": "Statut",
+    "amenities": "Équipements",
+    "noAmenities": "Aucun équipement indiqué pour ce bien.",
+    "details": "Détails",
+    "delete": "Supprimer",
+    "unpublish": "Dépublier",
+    "republish": "Republier",
+    "addRentalListing": "Ajouter une annonce de location",
+    "postAListing": "Publier une annonce",
+    "rentals": "Locations",
+    "buyAndSell": "Acheter & Vendre",
+    "totalProperties": "Total des biens",
+    "live": "En ligne",
+    "pendingReview": "En attente de validation",
+    "rejected": "Rejetées",
+    "createFirstListing": "Créez votre première annonce",
+    "postFirstListing": "Publiez votre première annonce",
+    "viewDetails": "Voir les détails",
+    "viewFullPage": "Voir la page complète",
+    "unpublishPropertyQ": "Dépublier ce bien ?",
+    "unpublishListingQ": "Dépublier cette annonce ?",
+    "unpublishBody": "Le bien sera retiré des annonces publiques. Vous pourrez le republier plus tard en le modifiant et en le soumettant à nouveau pour validation.",
+    "deleteListingQ": "Supprimer cette annonce ?",
+    "deleteBody": "Cette action est irréversible. L'annonce sera définitivement supprimée.",
+    "maxImages": "Vous ne pouvez avoir que 10 photos au total",
+    "bedroomsRequired": "Veuillez indiquer le nombre de chambres.",
+    "bathroomsRequired": "Veuillez indiquer le nombre de salles de bain.",
+    "agentFeeRequired": "Veuillez indiquer vos frais d'agence.",
+    "updateSuccess": "Bien mis à jour avec succès.",
+    "deleted": "Annonce supprimée.",
+    "unpublished": "Annonce dépubliée. Vous pouvez la republier à tout moment.",
+    "resubmitted": "Annonce soumise à nouveau pour validation.",
+    "noFilteredListings": "Vous n'avez aucune annonce « {status} »."
+  },
+  "profilePage": {
+    "editingMode": "Mode édition",
+    "editProfile": "Modifier le profil",
+    "profileAlt": "Profil",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "accountInformation": "Informations du compte",
+    "emailAddress": "Adresse e-mail",
+    "emailCannotChange": "L'adresse e-mail ne peut pas être modifiée",
+    "phoneNumber": "Numéro de téléphone",
+    "accountType": "Type de compte",
+    "memberSince": "Membre depuis",
+    "businessInformation": "Informations sur l'entreprise",
+    "editBusinessInfo": "Modifier les informations",
+    "businessName": "Nom de l'entreprise",
+    "location": "Emplacement",
+    "yearsOfExperience": "Années d'expérience",
+    "website": "Site web",
+    "verificationStatus": "Statut de vérification",
+    "serviceTypes": "Types de services",
+    "description": "Description",
+    "rating": "Note",
+    "completedJobs": "Missions réalisées",
+    "cancel": "Annuler",
+    "saving": "Enregistrement…",
+    "saveChanges": "Enregistrer les modifications",
+    "setUpBusinessProfile": "Configurer le profil d'entreprise",
+    "securitySettings": "Paramètres de sécurité",
+    "savingChanges": "Enregistrement…"
+  },
+  "myServices": {
+    "goToLogin": "Aller à la connexion",
+    "title": "Mes services",
+    "createNewService": "Créer un service",
+    "createFirstService": "Créez votre premier service",
+    "editService": "Modifier le service",
+    "unpublishService": "Dépublier le service",
+    "deleteService": "Supprimer le service",
+    "rejectionReason": "Motif du rejet",
+    "editServiceTitle": "Modifier le service",
+    "deleteServiceTitle": "Supprimer le service",
+    "cancel": "Annuler",
+    "deletePermanently": "Supprimer définitivement",
+    "unpublish": "Dépublier"
+  },
+  "bookingsPage": {
+    "browseProperties": "Parcourir les biens",
+    "browseServices": "Parcourir les services",
+    "viewDetails": "Voir les détails",
+    "reasonForRejection": "Motif du refus",
+    "rejectionPlaceholder": "Expliquez pourquoi vous refusez cette réservation...",
+    "close": "Fermer",
+    "reject": "Refuser",
+    "confirmed": "Réservation confirmée",
+    "reasonRequired": "Veuillez indiquer un motif de refus",
+    "rejected": "Réservation refusée",
+    "cancelled": "Réservation annulée"
+  },
+  "messagesPage": {
+    "noMessages": "Aucun message pour le moment",
+    "conversationsAppearHere": "Vos conversations apparaîtront ici",
+    "backToConversations": "Retour aux conversations",
+    "yesterday": "Hier"
+  },
+  "favoritesPage": {
+    "exploreListings": "Découvrir les annonces",
+    "savedProperties": "Biens enregistrés",
+    "savedServices": "Services enregistrés",
+    "savedBuySell": "Annonces Acheter & Vendre enregistrées"
+  },
+  "notificationsPage": {
+    "markAllAsRead": "Tout marquer comme lu",
+    "close": "Fermer"
+  },
+  "verifyIdentity": {
+    "uploadGovId": "Téléversez une pièce d'identité officielle afin que notre équipe puisse vérifier votre compte.",
+    "fullLegalName": "Votre nom légal complet",
+    "idNumber": "Saisissez votre numéro de pièce d'identité",
+    "front": "Recto",
+    "back": "Verso",
+    "uploadBusinessDoc": "Téléversez un scan ou une photo de votre document officiel d'immatriculation (PDF ou image).",
+    "businessRegistration": "Immatriculation de l'entreprise",
+    "downloadAgreementHelp": "Téléchargez le contrat d'agent, signez-le, puis téléversez la copie signée (PDF ou image).",
+    "downloadAgreement": "Télécharger le contrat d'agent",
+    "signedAgreement": "Contrat d'agent signé",
+    "selfie": "Selfie"
+  },
+  "verifyEmail": {
+    "goToLoginNow": "Se connecter maintenant",
+    "goToLogin": "Aller à la connexion",
+    "goToHomepage": "Aller à l'accueil"
+  },
+  "forms": {
+    "maxImages": "Vous ne pouvez téléverser que 10 photos maximum",
+    "maxImagesTotal": "Vous pouvez téléverser 10 photos au maximum.",
+    "minOneImage": "Veuillez conserver au moins 1 photo sur l'annonce.",
+    "bedroomsRequired": "Veuillez indiquer le nombre de chambres.",
+    "bathroomsRequired": "Veuillez indiquer le nombre de salles de bain.",
+    "agentFeeRequired": "Veuillez indiquer vos frais d'agence.",
+    "agentFeeRequiredLong": "Les frais d'agence sont obligatoires. Veuillez saisir le montant.",
+    "propertyCreated": "Bien créé avec succès ! Il sera examiné par un administrateur.",
+    "listingCreated": "Annonce créée avec succès ! Elle sera examinée par notre équipe.",
+    "listingUpdated": "Annonce mise à jour ! Les modifications seront examinées avant publication.",
+    "landFieldsRequired": "Veuillez remplir tous les champs obligatoires du terrain.",
+    "houseFieldsRequired": "Veuillez remplir tous les champs obligatoires de la maison.",
+    "describeProperty": "Décrivez votre bien...",
+    "describeLand": "Décrivez le terrain, les environs, les voies d'accès...",
+    "describeHouse": "Décrivez le bien, ses caractéristiques et les environs...",
+    "describeItem": "Décrivez l'article, son état, ses éventuels défauts...",
+    "agentFeeHelpSeekers": "Définissez les frais que vous facturez pour cette annonce. Ils seront affichés aux chercheurs sur la page du bien.",
+    "agentFeeHelpBuyers": "Définissez les frais que vous facturez pour cette annonce. Ils seront affichés aux acheteurs sur la page de l'annonce.",
+    "minutesFromRoad": "Minutes de la route principale",
+    "cancel": "Annuler",
+    "selected": "Sélectionné",
+    "saved": "Enregistré",
+    "agentFeeOptional": "Frais d'agence (facultatif)",
+    "subcategory": "Sous-catégorie",
+    "whatsappNumber": "Numéro WhatsApp",
+    "backToMyListings": "Retour à mes annonces",
+    "basicInformation": "Informations générales",
+    "selectCategory": "Sélectionnez une catégorie",
+    "pricingOptional": "Tarification (facultatif)",
+    "selectPricingUnit": "Sélectionnez l'unité de tarification",
+    "description": "Description",
+    "serviceImages": "Photos du service *",
+    "fileTypeNotAllowed": "Ce type de fichier n'est pas autorisé. Utilisez JPG, PNG, GIF ou WebP.",
+    "fileTooLarge": "Cette image est trop volumineuse. La taille maximale est de 10 Mo par fichier. Choisissez une image plus petite ou compressez-la.",
+    "retryConnection": "Réessayer la connexion",
+    "startNewConversation": "Démarrer une conversation",
+    "describeBusiness": "Parlez à vos clients de vos services, de votre expertise et de ce qui rend votre entreprise unique...",
+    "continue": "Continuer",
+    "creatingProfile": "Création du profil…",
+    "completeSetup": "Terminer la configuration"
+  },
+  "howItWorks": {
+    "hero": {
+      "title": "Comment ça marche",
+      "subtitle": "FindAfriq simplifie la recherche de biens vérifiés, la réservation de services de confiance et la mise en relation avec les bonnes personnes.",
+      "getStarted": "Commencer",
+      "browseProperties": "Parcourir les biens"
+    },
+    "seekers": {
+      "heading": "Pour les chercheurs et les clients",
+      "subheading": "Trouvez ce que vous cherchez en 4 étapes"
+    },
+    "providers": {
+      "heading": "Pour les propriétaires et les prestataires",
+      "subheading": "Commencez à toucher des clients en 4 étapes simples"
+    },
+    "trust": {
+      "heading": "Pourquoi faire confiance à FindAfriq ?",
+      "subheading": "Nous reposons sur la transparence, la vérification et la communauté. Voici ce qui nous distingue."
+    },
+    "faqHeading": "Questions fréquentes",
+    "cta": {
+      "body": "Rejoignez les milliers de personnes qui utilisent déjà FindAfriq pour trouver un logement, des services et des prestataires de confiance partout en Afrique.",
+      "button": "Créer un compte gratuit",
+      "heading": "Prêt à commencer ?"
+    },
+    "seekerSteps": [
+      {
+        "title": "Rechercher et découvrir",
+        "description": "Utilisez notre moteur de recherche pour trouver des biens vérifiés et des prestataires de confiance près de chez vous. Filtrez par lieu, prix, type et plus encore."
+      },
+      {
+        "title": "Parcourir les annonces",
+        "description": "Explorez des annonces détaillées avec photos, tarifs, équipements et badges de vérification — pour savoir exactement ce que vous obtenez."
+      },
+      {
+        "title": "Contacter et réserver",
+        "description": "Contactez directement les propriétaires ou les prestataires via la plateforme, posez vos questions et réservez en toute confiance."
+      },
+      {
+        "title": "Laisser un avis",
+        "description": "Après votre expérience, partagez votre retour pour aider la communauté à faire des choix éclairés."
+      }
+    ],
+    "providerSteps": [
+      {
+        "title": "Créer un compte",
+        "description": "Inscrivez-vous en tant que propriétaire ou prestataire. Quelques minutes suffisent pour démarrer."
+      },
+      {
+        "title": "Publier votre bien ou service",
+        "description": "Ajoutez photos, descriptions, tarifs et disponibilités. Notre processus guidé rend la publication simple."
+      },
+      {
+        "title": "Être vérifié",
+        "description": "Notre équipe examine votre annonce pour garantir sa qualité et sa fiabilité. Les annonces vérifiées gagnent en visibilité."
+      },
+      {
+        "title": "Toucher des milliers de chercheurs",
+        "description": "Une fois en ligne, votre annonce est visible par des milliers de clients potentiels à la recherche de ce que vous proposez."
+      }
+    ],
+    "trustFeatures": [
+      {
+        "title": "Annonces vérifiées",
+        "description": "Chaque bien et chaque service est examiné avant sa mise en ligne. Pas de fausses annonces, pas de mauvaises surprises."
+      },
+      {
+        "title": "Messagerie sécurisée",
+        "description": "Échangez en toute sécurité sur la plateforme — vos coordonnées personnelles restent privées jusqu'à ce que vous choisissiez de les partager."
+      },
+      {
+        "title": "Avis de la communauté",
+        "description": "De vraies notes et de vrais avis d'utilisateurs vous aident à choisir en toute confiance."
+      },
+      {
+        "title": "Assistance dédiée",
+        "description": "Notre équipe est disponible pour vous aider en cas de problème, de litige ou de question."
+      }
+    ],
+    "faqs": [
+      {
+        "q": "FindAfriq est-il gratuit ?",
+        "a": "Parcourir les biens et les services sur FindAfriq est entièrement gratuit. Des frais de publication peuvent s'appliquer aux propriétaires et aux prestataires — consultez notre page Tarifs pour plus de détails."
+      },
+      {
+        "q": "Comment les annonces sont-elles vérifiées ?",
+        "a": "Notre équipe examine manuellement chaque annonce avant sa mise en ligne. Nous vérifions les documents, les photos et l'identité du prestataire pour garantir la légitimité de chaque annonce."
+      },
+      {
+        "q": "Puis-je contacter un propriétaire avant de réserver ?",
+        "a": "Oui ! Vous pouvez contacter n'importe quel propriétaire ou prestataire directement via la plateforme avant de vous engager."
+      },
+      {
+        "q": "Que faire en cas de problème avec une annonce ?",
+        "a": "Vous pouvez signaler toute annonce ou tout utilisateur directement depuis la plateforme. Notre équipe d'assistance examine tous les signalements et intervient sous 24 à 48 heures."
+      },
+      {
+        "q": "Mes informations personnelles sont-elles protégées ?",
+        "a": "Absolument. Nous ne partageons jamais vos coordonnées personnelles sans votre consentement. Toutes les communications se font de manière sécurisée au sein de FindAfriq."
+      }
+    ]
+  },
+  "aboutPage": {
+    "heroTitle": "À propos de FindAfriq",
+    "heroBody": "FindAfriq est une plateforme numérique d'immobilier et de services qui met en relation les chercheurs avec des biens vérifiés et des prestataires de confiance, en toute simplicité.",
+    "browseProperties": "Parcourir les biens",
+    "exploreServices": "Découvrir les services",
+    "contact": "Nous contacter",
+    "whatWeDo": "Ce que nous faisons",
+    "whatWeDoP1": "FindAfriq est une plateforme numérique d'immobilier et de services qui met en relation les chercheurs avec des biens vérifiés et des prestataires de confiance, en toute simplicité.",
+    "whatWeDoP2": "Nous offrons une place de marché numérique de confiance où les propriétaires et les agents publient des biens vérifiés, où les chercheurs découvrent facilement les locations disponibles, et où les prestataires de services liés au logement rencontrent les personnes qui ont besoin d'eux.",
+    "bullet1": "Des annonces immobilières vérifiées et fiables",
+    "bullet2": "Des prestataires de confiance pour votre logement",
+    "bullet3": "Une recherche plus rapide avec des informations claires",
+    "bullet4": "Une expérience plus sûre, conçue pour la fiabilité",
+    "card1": "Annonces immobilières vérifiées",
+    "card2": "Prestataires de confiance",
+    "card3": "Une recherche simple et sécurisée",
+    "ourSolutions": "Nos solutions",
+    "solutionsIntro": "FindAfriq propose une plateforme numérique simple et fiable qui relie tous les acteurs de l'écosystème de la location et des services.",
+    "verifiedListings": "Annonces vérifiées",
+    "verifiedListingsBody": "Découvrez et publiez des espaces vérifiés pour habiter ou travailler.",
+    "trustedProviders": "Prestataires de confiance",
+    "trustedProvidersBody": "Entrez en contact avec des prestataires pour gérer plus facilement un logement ou un bien.",
+    "whoWeServe": "À qui nous nous adressons",
+    "whoWeServeIntro": "Nous concevons notre plateforme pour tous : du premier locataire aux propriétaires et aux professionnels des services.",
+    "audiences": [
+      {
+        "title": "Chercheurs",
+        "text": "Parcourez et découvrez des logements en location fiables et vérifiés dans votre ville."
+      },
+      {
+        "title": "Propriétaires et agents",
+        "text": "Publiez vos biens, touchez plus de locataires et réduisez les périodes de vacance grâce à des annonces vérifiées."
+      },
+      {
+        "title": "Prestataires de services",
+        "text": "Entrez en contact avec des personnes qui emménagent et recherchent un accompagnement de confiance."
+      }
+    ],
+    "partnersLine1": "Soutenus et accompagnés par",
+    "partnersLine2": "des organisations et institutions de premier plan",
+    "connectWithUs": "Contactez-nous",
+    "connectBody": "Questions, partenariats, annonces ou accompagnement à l'inscription : nous sommes là pour vous aider.",
+    "getStarted": "Commencer",
+    "propertyTags": [
+      "Appartements",
+      "Bureaux"
+    ],
+    "serviceTags": [
+      "Électricité",
+      "Plomberie",
+      "Nettoyage",
+      "Peinture",
+      "Menuiserie",
+      "Déménagement",
+      "Sécurité",
+      "Maintenance"
+    ]
+  },
+  "helpPage": {
+    "pageTitle": "FindAfriq — Questions fréquentes (FAQ)",
+    "stillNeedHelp": "Besoin d'aide supplémentaire ? Envoyez-nous un message et nous vous répondrons.",
+    "yourName": "Votre nom",
+    "howCanWeHelp": "Comment pouvons-nous vous aider ?",
+    "submit": "Envoyer",
+    "sections": [
+      {
+        "id": "general",
+        "title": "Questions générales",
+        "items": [
+          {
+            "key": "g1",
+            "question": "Qu'est-ce que FindAfriq ?",
+            "answer": "FindAfriq est une plateforme numérique d'immobilier et de services qui met en relation les chercheurs avec des biens vérifiés et des prestataires de confiance, en toute simplicité."
+          },
+          {
+            "key": "g2",
+            "question": "Qui peut utiliser FindAfriq ?",
+            "answer": "Les particuliers à la recherche de biens et de services liés au logement, les propriétaires, les agents immobiliers et les prestataires de services à domicile."
+          },
+          {
+            "key": "g3",
+            "question": "FindAfriq est-il gratuit ?",
+            "answer": "Oui, la navigation sur la plateforme est gratuite. Certaines fonctionnalités ou annonces premium peuvent toutefois être payantes."
+          }
+        ]
+      },
+      {
+        "id": "account",
+        "title": "Compte et inscription",
+        "items": [
+          {
+            "key": "a1",
+            "question": "Ai-je besoin d'un compte pour utiliser FindAfriq ?",
+            "answer": "Vous pouvez naviguer sans compte, mais vous devrez vous inscrire pour publier des annonces, contacter des prestataires ou accéder aux fonctionnalités avancées."
+          },
+          {
+            "key": "a2",
+            "question": "Comment créer un compte ?",
+            "answer": "Cliquez sur « Se connecter », basculez sur « S'inscrire », renseignez vos informations et suivez la procédure de vérification."
+          },
+          {
+            "key": "a3",
+            "question": "Pourquoi mon compte n'est-il pas vérifié immédiatement ?",
+            "answer": "Pour des raisons de sécurité et de qualité, tous les comptes sont examinés et vérifiés par un administrateur avant l'octroi d'un accès complet."
+          }
+        ]
+      },
+      {
+        "id": "properties",
+        "title": "Biens immobiliers",
+        "items": [
+          {
+            "key": "p1",
+            "question": "Comment trouver un bien ?",
+            "answer": "Utilisez la recherche pour filtrer les biens par lieu, type et budget, ou appuyez sur « Biens » dans la barre de navigation inférieure (mobile)."
+          },
+          {
+            "key": "p2",
+            "question": "Les biens sont-ils vérifiés ?",
+            "answer": "Oui, FindAfriq privilégie les annonces vérifiées afin de garantir des informations exactes et fiables."
+          },
+          {
+            "key": "p3",
+            "question": "Puis-je publier mon bien sur FindAfriq ?",
+            "answer": "Oui. Créez simplement un compte, soumettez les détails de votre bien et attendez la validation."
+          }
+        ]
+      },
+      {
+        "id": "services",
+        "title": "Prestataires de services",
+        "items": [
+          {
+            "key": "s1",
+            "question": "Quels types de prestataires trouve-t-on sur FindAfriq ?",
+            "answer": "FindAfriq réunit de nombreux prestataires : électriciens, plombiers, agents de sécurité, agents d'entretien et bien d'autres."
+          },
+          {
+            "key": "s2",
+            "question": "Comment trouver un service ?",
+            "answer": "Utilisez la recherche pour filtrer les services par lieu, type et budget, ou appuyez sur « Services » dans la barre de navigation inférieure (mobile)."
+          },
+          {
+            "key": "s3",
+            "question": "Comment savoir si un prestataire est fiable ?",
+            "answer": "Tous les prestataires passent par un processus de vérification, et vous pouvez également consulter les notes et les avis."
+          },
+          {
+            "key": "s4",
+            "question": "Puis-je m'inscrire comme prestataire de services ?",
+            "answer": "Oui. Inscrivez-vous, complétez votre profil, soumettez les documents requis et attendez la validation."
+          }
+        ]
+      },
+      {
+        "id": "safety",
+        "title": "Sécurité et confiance",
+        "items": [
+          {
+            "key": "t1",
+            "question": "Comment FindAfriq garantit-il la sécurité ?",
+            "answer": "Nous vérifions les utilisateurs et les prestataires, surveillons les activités et encourageons le signalement de tout comportement suspect."
+          },
+          {
+            "key": "t2",
+            "question": "Que faire en cas de fraude ou d'activité suspecte ?",
+            "answer": "Signalez-le immédiatement via la plateforme ou contactez notre équipe d'assistance."
+          }
+        ]
+      },
+      {
+        "id": "payments",
+        "title": "Paiements et transactions",
+        "items": [
+          {
+            "key": "pay1",
+            "question": "FindAfriq gère-t-il les paiements ?",
+            "answer": "Les paiements effectués via notre plateforme couvrent uniquement les frais d'utilisation de la plateforme. Les frais facturés par les agents pour l'accès à un bien ou par les prestataires pour leurs services se règlent directement entre les utilisateurs et ces derniers. Veuillez confirmer les conditions de paiement avec l'agent ou le prestataire avant de poursuivre."
+          }
+        ]
+      },
+      {
+        "id": "support",
+        "title": "Assistance",
+        "items": [
+          {
+            "key": "sup1",
+            "question": "Comment contacter l'assistance FindAfriq ?",
+            "answer": "Vous pouvez nous joindre par e-mail, via l'assistance intégrée à l'application ou sur nos réseaux sociaux officiels."
+          },
+          {
+            "key": "sup2",
+            "question": "Et si j'ai besoin d'aide pour utiliser la plateforme ?",
+            "answer": "Notre équipe d'assistance est disponible pour vous accompagner face à toute difficulté."
+          }
+        ]
+      },
+      {
+        "id": "other",
+        "title": "Autres questions",
+        "items": [
+          {
+            "key": "o1",
+            "question": "Puis-je laisser des avis ?",
+            "answer": "Oui. Nous encourageons les utilisateurs à laisser des avis honnêtes pour aider les autres à faire des choix éclairés."
+          },
+          {
+            "key": "o2",
+            "question": "Puis-je modifier ou supprimer mon compte ?",
+            "answer": "Oui. Vous pouvez gérer les paramètres de votre compte ou contacter l'assistance pour obtenir de l'aide."
+          }
+        ]
+      }
+    ],
+    "subtitle": "Vous connecter en toute simplicité — Trouvez des biens vérifiés et des prestataires de confiance partout en Afrique.",
+    "contactUs": "Nous contacter"
+  },
+  "pricingPage": {
+    "landlordTab": "Propriétaire / agent",
+    "providerTab": "Prestataires de services",
+    "landlordHeading": "Formules et tarifs pour propriétaires, agents et agences immobilières",
+    "providerHeading": "Formules et tarifs pour prestataires de services",
+    "paymentComingSoon": "Paiement bientôt disponible",
+    "paymentComingSoonBody": "Nous n'acceptons pas encore les paiements. L'intégration du paiement arrive prochainement et sera disponible dans une future mise à jour.",
+    "gotIt": "J'ai compris",
+    "getStarted": "Commencer",
+    "contactUs": "Nous contacter",
+    "custom": "Sur mesure",
+    "perMonth": "Par mois. Prix en USD.",
+    "basic": "Basique",
+    "pro": "Pro",
+    "premium": "Premium",
+    "pricingAudience": "Public cible des tarifs",
+    "helpBody": "Nous pouvons vous présenter les formules de publication, les frais d'autorisation et les abonnements prestataires.",
+    "helpCenter": "Centre d'aide",
+    "features": {
+      "banner_promotion": "Promotion par bannière",
+      "basic_customer_support": "Assistance client de base",
+      "basic_support": "Assistance de base",
+      "dedicated_account_manager": "Gestionnaire de compte dédié",
+      "direct_contact_with_customers": "Contact direct avec les clients",
+      "direct_contact_with_seekers": "Contact direct avec les chercheurs",
+      "email_notifications": "Notifications par e-mail",
+      "featured_listings": "Annonces mises en avant",
+      "featured_service_listings": "Services mis en avant",
+      "homepage_feature_placement": "Mise en avant sur la page d'accueil",
+      "listing_management_dashboard": "Tableau de bord de gestion des annonces",
+      "marketing_promotion": "Promotion marketing",
+      "platform_advertising_ads": "Publicité sur la plateforme (Ads)",
+      "premium_badge": "Badge premium",
+      "premium_support": "Assistance premium",
+      "priority_customer_support": "Assistance client prioritaire",
+      "priority_support": "Assistance prioritaire",
+      "property_sharing": "Partage de biens",
+      "service_sharing": "Partage de services",
+      "standard_search_visibility": "Visibilité standard dans la recherche",
+      "top_search_placement": "Positionnement en tête des recherches",
+      "unlimited_property_inquiries": "Demandes de biens illimitées",
+      "unlimited_property_listings": "Annonces immobilières illimitées",
+      "unlimited_service_inquiries": "Demandes de services illimitées",
+      "unlimited_service_listings": "Annonces de services illimitées",
+      "up_to_10_service_listings": "Jusqu'à 10 annonces de services",
+      "up_to_20_property_listings": "Jusqu'à 20 annonces immobilières",
+      "up_to_40_property_listings": "Jusqu'à 40 annonces immobilières",
+      "up_to_5_service_listings": "Jusqu'à 5 annonces de services",
+      "verified_badge": "Badge vérifié",
+      "verified_business_badge": "Badge entreprise vérifiée",
+      "whatsapp_contact_integration": "Intégration du contact WhatsApp"
+    }
+  },
+  "termsPage": {
+    "title": "Conditions générales de FindAfriq",
+    "subtitle": "Bienvenue sur FindAfriq. Les présentes conditions régissent votre accès à la plateforme FindAfriq et son utilisation.",
+    "s": {
+      "intro": {
+        "t": "Introduction",
+        "p1": "Les présentes conditions générales (les « Conditions ») régissent votre accès à la plateforme FindAfriq et son utilisation, y compris notre site web, nos services et nos applications (collectivement, la « Plateforme »). En accédant à FindAfriq ou en l'utilisant, vous acceptez d'être lié par ces Conditions. Si vous ne les acceptez pas, veuillez ne pas utiliser la Plateforme."
+      },
+      "about": {
+        "t": "1. À propos de FindAfriq",
+        "p1": "FindAfriq est une plateforme numérique qui met en relation :",
+        "items": [
+          "Les propriétaires",
+          "Les agents immobiliers",
+          "Les chercheurs",
+          "Les prestataires de services"
+        ],
+        "p2": "Nous facilitons la publication d'annonces, la visibilité et la mise en relation, mais nous n'intervenons pas comme partie directe aux transactions."
+      },
+      "eligibility": {
+        "t": "2. Conditions d'éligibilité",
+        "p1": "Pour utiliser FindAfriq, vous devez :",
+        "items": [
+          "Être âgé d'au moins 18 ans",
+          "Fournir des informations exactes et complètes",
+          "Utiliser la plateforme dans le respect des lois applicables"
+        ]
+      },
+      "categories": {
+        "t": "3. Catégories d'utilisateurs",
+        "a": "a. Propriétaires et agents",
+        "aItems": [
+          "Peuvent publier des annonces immobilières selon la formule choisie",
+          "Sont responsables de l'exactitude des annonces",
+          "Doivent s'assurer que les biens sont légitimes et disponibles"
+        ],
+        "b": "b. Chercheurs",
+        "bItems": [
+          "Peuvent consulter les annonces et contacter les agents",
+          "Paient des frais d'autorisation uniques, calculés selon la taille du bien",
+          "Paient les agents directement pour leurs services (FindAfriq ne perçoit aucune commission)"
+        ],
+        "c": "c. Prestataires de services",
+        "cItems": [
+          "S'abonnent pour accéder à la plateforme",
+          "Reçoivent des demandes de clients et gagnent en visibilité",
+          "Doivent fournir des services authentiques et professionnels"
+        ]
+      },
+      "pricing": {
+        "t": "4. Tarifs et paiements",
+        "h1": "4.1 Frais de publication d'annonces",
+        "i1": [
+          "Formules Basique, Pro et Premium disponibles",
+          "Les paiements ne sont pas remboursables une fois l'annonce publiée"
+        ],
+        "h2": "4.2 Frais d'autorisation de la plateforme",
+        "i2": [
+          "Payés par les chercheurs en fonction de la taille du bien",
+          "Ces frais donnent accès aux services des agents via la plateforme",
+          "Il ne s'agit ni d'un loyer ni d'une commission"
+        ],
+        "h3": "4.3 Abonnement des prestataires de services",
+        "i3": [
+          "Les formules d'abonnement (Basique, Pro, Premium) sont limitées dans le temps",
+          "Les services ne sont actifs que pendant la durée de l'abonnement",
+          "Aucun remboursement pour les périodes d'abonnement non utilisées"
+        ],
+        "detailsLabel": "Détails :",
+        "pricingLink": "Grille tarifaire"
+      },
+      "role": {
+        "t": "5. Rôle et limites de la plateforme",
+        "p1": "FindAfriq :",
+        "items": [
+          "Ne possède, ne gère et n'inspecte aucun bien",
+          "Ne garantit pas l'exactitude des annonces",
+          "N'est pas responsable des accords conclus entre utilisateurs",
+          "Ne gère pas les paiements de loyers ou de services entre utilisateurs"
+        ]
+      },
+      "responsibilities": {
+        "t": "6. Responsabilités des utilisateurs",
+        "p1": "Tous les utilisateurs s'engagent à :",
+        "items": [
+          "Fournir des informations véridiques et exactes",
+          "Éviter toute activité frauduleuse, trompeuse ou illégale",
+          "Respecter les droits et la vie privée des autres utilisateurs"
+        ],
+        "p2": "Les actions interdites comprennent :",
+        "items2": [
+          "Publier de fausses annonces",
+          "Escroquer ou dénaturer des faits",
+          "Harceler ou commettre des abus",
+          "Faire un usage commercial non autorisé"
+        ]
+      },
+      "verification": {
+        "t": "7. Vérification et confiance",
+        "p1": "FindAfriq peut :",
+        "items": [
+          "Vérifier certains utilisateurs ou certaines annonces",
+          "Attribuer des badges « Vérifié »"
+        ]
+      },
+      "listings": {
+        "t": "8. Annonces et contenus",
+        "p1": "Les utilisateurs sont responsables :",
+        "items": [
+          "De tout contenu téléversé (images, descriptions, tarifs)",
+          "De s'assurer que le contenu ne viole ni la loi ni les droits de tiers"
+        ],
+        "p2": "FindAfriq se réserve le droit de :",
+        "items2": [
+          "Supprimer ou modifier des contenus",
+          "Suspendre les comptes en infraction avec ses règles"
+        ]
+      },
+      "transactions": {
+        "t": "9. Transactions entre utilisateurs",
+        "items": [
+          "Toutes les négociations et tous les accords se déroulent en dehors de la plateforme",
+          "FindAfriq n'est pas responsable des litiges, pertes ou dommages",
+          "Les utilisateurs sont invités à documenter correctement leurs accords",
+          "Les utilisateurs doivent signaler tout comportement abusif à FindAfriq"
+        ]
+      },
+      "termination": {
+        "t": "10. Annulation et résiliation",
+        "p1": "FindAfriq peut :",
+        "items": [
+          "Suspendre ou résilier des comptes en cas d'infraction",
+          "Supprimer des annonces sans préavis"
+        ],
+        "p2": "Les utilisateurs peuvent cesser d'utiliser la plateforme à tout moment."
+      },
+      "liability": {
+        "t": "11. Limitation de responsabilité",
+        "p1": "FindAfriq n'est pas responsable :",
+        "items": [
+          "Des annonces ou utilisateurs frauduleux",
+          "De l'état ou de la disponibilité des biens",
+          "Des pertes financières liées aux transactions",
+          "De la qualité des services fournis par les prestataires"
+        ]
+      },
+      "privacy": {
+        "t": "12. Confidentialité",
+        "p1": "Votre utilisation de FindAfriq est également régie par notre",
+        "link": "Politique de confidentialité",
+        "p2": ". Nous nous engageons à protéger vos données."
+      },
+      "ip": {
+        "t": "13. Propriété intellectuelle",
+        "p1": "L'ensemble des contenus, de l'image de marque et des supports de la plateforme appartient à FindAfriq. Les utilisateurs ne peuvent les copier, les reproduire ou les distribuer sans autorisation."
+      },
+      "modifications": {
+        "t": "14. Modification des conditions",
+        "p1": "FindAfriq se réserve le droit de mettre à jour ces Conditions à tout moment. La poursuite de l'utilisation de la plateforme vaut acceptation des Conditions mises à jour."
+      },
+      "law": {
+        "t": "15. Droit applicable",
+        "p1": "Les présentes Conditions sont régies par le droit de la juridiction dans laquelle FindAfriq exerce ses activités."
+      },
+      "contact": {
+        "t": "16. Coordonnées",
+        "p1": "Pour toute question ou assistance, contactez :",
+        "email": "E-mail :",
+        "website": "Site web :",
+        "phone": "Téléphone : +231 779 922 382 | WhatsApp : +231 886 149 219"
+      },
+      "acceptance": {
+        "t": "17. Acceptation",
+        "p1": "En utilisant FindAfriq, vous reconnaissez avoir lu, compris et accepté les présentes conditions générales."
+      }
+    },
+    "platformPolicyLink": "Règles de la plateforme",
+    "privacyPolicyLink": "Politique de confidentialité"
+  },
+  "legal": {
+    "translationNotice": "Cette traduction est fournie à titre indicatif. En cas de divergence, la version anglaise fait foi.",
+    "contact": "Contact",
+    "address": "Paynesville City, comté de Montserrado",
+    "website": "Site web :",
+    "tel": "Tél. : +231 779 922 382 · WhatsApp : +231 886 149 219",
+    "email": "E-mail :"
+  },
+  "privacyPage": {
+    "title": "Politique de confidentialité de la plateforme",
+    "subtitle": "Comment nous traitons vos données personnelles lorsque vous utilisez FindAfriq.",
+    "s": {
+      "intro": {
+        "t": "1. Introduction",
+        "p1": "FindAfriq (« nous », « notre ») respecte votre vie privée. La présente politique de confidentialité explique quelles informations nous collectons lorsque vous utilisez notre site web et nos services (la « Plateforme »), comment nous les utilisons et quels choix s'offrent à vous. En utilisant FindAfriq, vous acceptez cette politique ainsi que nos",
+        "link": "Conditions générales",
+        "p2": "."
+      },
+      "collect": {
+        "t": "2. Informations que nous collectons",
+        "h1": "2.1 Informations que vous fournissez",
+        "i1": [
+          "Les informations de compte telles que le nom, l'adresse e-mail, le numéro de téléphone et le mot de passe.",
+          "Les informations de profil et d'annonce des propriétaires, agents et prestataires de services.",
+          "Les messages que vous envoyez via la Plateforme et vos demandes d'assistance.",
+          "Les informations liées au paiement, traitées par nos partenaires de paiement (nous ne conservons pas les numéros de carte complets)."
+        ],
+        "h2": "2.2 Informations collectées automatiquement",
+        "i2": [
+          "Le type d'appareil et de navigateur, l'adresse IP et la localisation générale (par ex. la région).",
+          "Les données d'utilisation telles que les pages consultées, les recherches et les interactions, afin d'améliorer la Plateforme.",
+          "Les cookies et technologies similaires, décrits dans notre notice sur les cookies ci-dessous."
+        ]
+      },
+      "use": {
+        "t": "3. Comment nous utilisons ces informations",
+        "items": [
+          "Pour créer et gérer votre compte et fournir les fonctionnalités de la Plateforme.",
+          "Pour afficher les annonces, mettre les utilisateurs en relation et faciliter les échanges.",
+          "Pour vérifier les comptes ou les annonces le cas échéant et attribuer les badges « Vérifié ».",
+          "Pour détecter, prévenir et traiter les fraudes, abus et incidents de sécurité.",
+          "Pour communiquer avec vous au sujet des mises à jour, de l'assistance et, lorsque cela est autorisé, du marketing.",
+          "Pour respecter nos obligations légales et faire appliquer nos règles."
+        ]
+      },
+      "bases": {
+        "t": "4. Bases légales (le cas échéant)",
+        "p1": "Selon votre région, nous traitons vos données sur la base du consentement, de l'exécution d'un contrat, d'intérêts légitimes (tels que la sécurisation de la Plateforme et l'amélioration des services) et d'obligations légales."
+      },
+      "sharing": {
+        "t": "5. Partage et divulgation",
+        "p1": "Nous ne vendons pas vos données personnelles. Nous pouvons les partager avec :",
+        "items": [
+          "Les prestataires qui nous aident à héberger, analyser, sécuriser ou exploiter la Plateforme.",
+          "Les prestataires de paiement, pour finaliser les transactions que vous autorisez.",
+          "Les conseillers professionnels et les autorités, lorsque la loi l'exige ou pour protéger des droits et la sécurité.",
+          "D'autres utilisateurs, dans la mesure nécessaire au fonctionnement de la Plateforme (par exemple en affichant vos coordonnées lorsque vous choisissez de contacter un agent ou un prestataire)."
+        ]
+      },
+      "transfers": {
+        "t": "6. Transferts internationaux",
+        "p1": "Si nous transférons des données hors de votre pays, nous appliquons des garanties appropriées (telles que des clauses contractuelles ou des cadres reconnus), conformément au droit applicable."
+      },
+      "retention": {
+        "t": "7. Conservation",
+        "p1": "Nous conservons les informations uniquement le temps nécessaire aux finalités décrites ci-dessus, y compris les obligations légales, comptables et le règlement des litiges. Les données d'annonces et de comptes peuvent être supprimées ou anonymisées lorsqu'elles ne sont plus nécessaires."
+      },
+      "security": {
+        "t": "8. Sécurité",
+        "p1": "Nous mettons en œuvre des mesures techniques et organisationnelles pour protéger vos données. Aucun système n'est totalement sûr : utilisez un mot de passe robuste et protégez vos identifiants."
+      },
+      "rights": {
+        "t": "9. Vos droits",
+        "p1": "Selon votre lieu de résidence, vous pouvez disposer de droits d'accès, de rectification, de suppression ou de limitation du traitement de vos données personnelles, ainsi que du droit de vous opposer à certains traitements ou d'introduire une réclamation auprès d'une autorité de contrôle. Contactez-nous aux coordonnées ci-dessous pour exercer ces droits."
+      },
+      "cookies": {
+        "t": "10. Cookies",
+        "p1": "Nous utilisons des cookies et technologies similaires pour mémoriser vos préférences, comprendre l'utilisation du site et améliorer les performances. Vous pouvez gérer les cookies dans les paramètres de votre navigateur ; certaines fonctionnalités peuvent ne pas fonctionner s'ils sont désactivés."
+      },
+      "children": {
+        "t": "11. Mineurs",
+        "p1": "FindAfriq ne s'adresse pas aux personnes de moins de 18 ans. Nous ne collectons pas sciemment de données personnelles auprès de mineurs."
+      },
+      "thirdParty": {
+        "t": "12. Services tiers",
+        "p1": "La Plateforme peut contenir des liens vers des sites ou services tiers. Leurs pratiques en matière de confidentialité sont régies par leurs propres politiques. Nous ne sommes pas responsables des sites tiers que vous consultez en dehors de FindAfriq."
+      },
+      "changes": {
+        "t": "13. Modifications de cette politique",
+        "p1": "Nous pouvons mettre à jour la présente politique de confidentialité de temps à autre. Nous publierons la dernière version sur cette page et mettrons à jour la date d'entrée en vigueur le cas échéant. La poursuite de l'utilisation de la Plateforme après ces modifications vaut acceptation de la politique mise à jour."
+      },
+      "contact": {
+        "t": "14. Contact",
+        "p1": "Questions relatives à la confidentialité :"
+      }
+    }
+  },
+  "platformPolicyPage": {
+    "title": "Règles de la plateforme FindAfriq",
+    "subtitle": "Règles régissant l'utilisation de la plateforme, leur application et les sanctions applicables à tous les utilisateurs.",
+    "s": {
+      "purpose": {
+        "t": "1. Objet",
+        "p1": "Les présentes règles définissent les conditions d'utilisation de la plateforme FindAfriq et établissent des sanctions claires en cas d'infraction, afin de garantir la confiance, la sécurité et le professionnalisme entre tous les utilisateurs."
+      },
+      "scope": {
+        "t": "2. Champ d'application",
+        "p1": "Ces règles s'appliquent à tous les utilisateurs de FindAfriq, notamment :",
+        "items": [
+          "Les propriétaires",
+          "Les agents immobiliers",
+          "Les chercheurs",
+          "Les prestataires de services"
+        ]
+      },
+      "principles": {
+        "t": "3. Principes fondamentaux de la plateforme",
+        "p1": "Tous les utilisateurs doivent respecter les principes suivants :",
+        "items": [
+          "Exactitude – Fournir des informations véridiques et à jour",
+          "Transparence – Aucun détail caché ou trompeur",
+          "Professionnalisme – Communication et comportement respectueux",
+          "Légalité – Respect de toutes les lois applicables",
+          "Intégrité – Aucune activité frauduleuse ou trompeuse"
+        ]
+      },
+      "prohibited": {
+        "t": "4. Activités interdites",
+        "p1": "Les actions suivantes sont strictement interdites.",
+        "h1": "4.1 Infractions liées aux annonces et aux contenus",
+        "i1": [
+          "Publier des biens fictifs ou inexistants",
+          "Téléverser des descriptions, tarifs ou images trompeurs",
+          "Publier des biens indisponibles ou déjà loués/vendus",
+          "Utiliser des images volées ou non autorisées"
+        ],
+        "h2": "4.2 Fraude et comportements répréhensibles",
+        "i2": [
+          "Escroquer ou tenter d'escroquer des utilisateurs",
+          "Usurper l'identité d'agents, de propriétaires ou d'entreprises",
+          "Demander des paiements non autorisés en dehors des conditions convenues",
+          "Manipuler les frais ou les processus de la plateforme"
+        ],
+        "h3": "4.3 Infractions de comportement",
+        "i3": [
+          "Harcèlement, abus ou menaces",
+          "Discrimination ou discours haineux",
+          "Spam ou sollicitations excessives non désirées"
+        ],
+        "h4": "4.4 Abus commercial et détournement de la plateforme",
+        "i4": [
+          "Usage commercial non autorisé de la plateforme",
+          "Contournement des paiements d'abonnement ou de publication",
+          "Création de comptes multiples pour contourner des restrictions"
+        ]
+      },
+      "enforcement": {
+        "t": "5. Structure d'application",
+        "p1": "Les infractions sont classées en trois niveaux selon leur gravité :",
+        "headers": [
+          "Niveau",
+          "Description"
+        ],
+        "rows": [
+          [
+            "Niveau 1",
+            "Infractions mineures (avertissement applicable)"
+          ],
+          [
+            "Niveau 2",
+            "Infractions modérées (restrictions temporaires)"
+          ],
+          [
+            "Niveau 3",
+            "Infractions graves (suppression définitive)"
+          ]
+        ]
+      },
+      "penalties": {
+        "t": "6. Barème des sanctions",
+        "headers": [
+          "Infraction",
+          "Sanction"
+        ],
+        "h1": "6.1 Propriétaires et agents",
+        "r1": [
+          [
+            "Première annonce inexacte",
+            "Avertissement + retrait de l'annonce"
+          ],
+          [
+            "Annonces trompeuses répétées",
+            "Suspension du compte (7 à 14 jours)"
+          ],
+          [
+            "Bien fictif ou frauduleux",
+            "Résiliation immédiate du compte"
+          ],
+          [
+            "Refus de mettre à jour une annonce indisponible",
+            "Retrait de l'annonce + avertissement"
+          ],
+          [
+            "Implication dans une escroquerie",
+            "Bannissement définitif + mise sur liste noire"
+          ]
+        ],
+        "h2": "6.2 Prestataires de services",
+        "r2": [
+          [
+            "Informations d'entreprise fausses",
+            "Avertissement + correction du profil"
+          ],
+          [
+            "Plaintes vérifiées pour service de mauvaise qualité",
+            "Suspension temporaire"
+          ],
+          [
+            "Comportement répréhensible répété",
+            "Résiliation de l'abonnement (sans remboursement)"
+          ],
+          [
+            "Fraude ou escroquerie",
+            "Bannissement définitif"
+          ]
+        ],
+        "h3": "6.3 Chercheurs",
+        "r3": [
+          [
+            "Utilisation abusive de l'accès aux coordonnées des agents",
+            "Avertissement"
+          ],
+          [
+            "Harcèlement d'agents ou de prestataires",
+            "Suspension du compte"
+          ],
+          [
+            "Comportement frauduleux",
+            "Bannissement définitif du compte"
+          ]
+        ],
+        "h4": "6.4 Infractions générales (tous les utilisateurs)",
+        "r4": [
+          [
+            "Spam ou abus",
+            "Avertissement ou suspension"
+          ],
+          [
+            "Comptes fictifs multiples",
+            "Résiliation du compte"
+          ],
+          [
+            "Activité commerciale non autorisée",
+            "Suspension ou suppression du compte"
+          ],
+          [
+            "Manipulation de la plateforme",
+            "Restriction ou bannissement immédiat"
+          ]
+        ]
+      },
+      "financial": {
+        "t": "7. Application de la politique financière",
+        "p1": "Conformément à notre grille tarifaire :",
+        "items": [
+          "Frais de publication (Basique, Pro, Premium) : non remboursables après publication",
+          "Frais d'autorisation (chercheurs) : non transférables et non remboursables",
+          "Abonnements (prestataires de services) : aucun remboursement pour les périodes non utilisées ; une suspension ne prolonge pas la durée de l'abonnement"
+        ],
+        "seeAlso": "Voir également :",
+        "pricingLink": "Grille tarifaire"
+      },
+      "moderation": {
+        "t": "8. Modération des annonces et des contenus",
+        "p1": "FindAfriq se réserve le droit de :",
+        "items": [
+          "Supprimer ou modifier toute annonce sans préavis",
+          "Refuser les annonces qui ne respectent pas ses standards",
+          "Vérifier les biens et l'identité des utilisateurs",
+          "Attribuer ou retirer les badges « Vérifié »"
+        ]
+      },
+      "reporting": {
+        "t": "9. Signalements et gestion des litiges",
+        "p1": "Les utilisateurs sont invités à signaler :",
+        "items": [
+          "Les fausses annonces",
+          "Les utilisateurs frauduleux",
+          "Les comportements répréhensibles ou abusifs"
+        ],
+        "p2": "Procédure :",
+        "steps": [
+          "Dépôt de la plainte",
+          "Enquête par FindAfriq",
+          "Décision et application",
+          "Notification aux parties concernées"
+        ]
+      },
+      "appeals": {
+        "t": "10. Procédure de recours",
+        "p1": "Les utilisateurs peuvent contester une sanction en :",
+        "items": [
+          "Soumettant une demande formelle par e-mail",
+          "Fournissant des éléments à l'appui de leur dossier"
+        ],
+        "p2": "FindAfriq conserve la décision finale."
+      },
+      "suspension": {
+        "t": "11. Suspension et résiliation de compte",
+        "p1": "FindAfriq peut :",
+        "items": [
+          "Suspendre temporairement des comptes le temps d'une enquête",
+          "Résilier définitivement des comptes en cas d'infraction grave",
+          "Bloquer l'accès sans préavis dans les cas critiques"
+        ]
+      },
+      "legal": {
+        "t": "12. Aspects juridiques et conformité",
+        "items": [
+          "Les infractions impliquant une fraude peuvent être signalées aux autorités",
+          "Les utilisateurs restent juridiquement responsables de leurs actes en dehors de la plateforme",
+          "FindAfriq n'est pas responsable des transactions entre utilisateurs"
+        ]
+      },
+      "updates": {
+        "t": "13. Mises à jour des règles",
+        "p1": "FindAfriq se réserve le droit de mettre à jour ces règles à tout moment. La poursuite de l'utilisation de la plateforme vaut acceptation des règles mises à jour."
+      },
+      "conclusion": {
+        "t": "14. Conclusion",
+        "p1": "Ces règles garantissent que FindAfriq demeure une plateforme fiable, transparente et sécurisée pour mettre en relation :",
+        "items": [
+          "Des biens vérifiés",
+          "Des agents de confiance",
+          "Des prestataires de services fiables"
+        ]
+      }
+    }
+  },
+  "errors": {
+    "status": {
+      "400": "Votre demande n'a pas pu être traitée. Vérifiez vos informations et réessayez.",
+      "401": "Veuillez vous reconnecter pour continuer.",
+      "403": "Vous n'avez pas l'autorisation d'effectuer cette action.",
+      "404": "Élément introuvable. Il a peut-être été supprimé.",
+      "413": "Le fichier est trop volumineux. La taille maximale est de 10 Mo par fichier. Choisissez une image plus petite.",
+      "422": "Les informations saisies sont invalides. Vérifiez-les et réessayez.",
+      "500": "Une erreur est survenue de notre côté. Veuillez réessayer dans un instant."
+    },
+    "server": {
+      "listing_not_found": "Annonce introuvable.",
+      "service_not_found": "Service introuvable.",
+      "property_not_found": "Bien introuvable.",
+      "user_not_found": "Utilisateur introuvable.",
+      "booking_not_found": "Réservation introuvable.",
+      "thread_not_found": "Conversation introuvable.",
+      "notification_not_found": "Notification introuvable.",
+      "review_not_found": "Avis introuvable.",
+      "service_provider_not_found": "Prestataire introuvable.",
+      "report_not_found": "Signalement introuvable.",
+      "message_not_found": "Message introuvable.",
+      "item_not_found": "Article introuvable.",
+      "bookmark_not_found": "Favori introuvable.",
+      "media_not_found": "Fichier introuvable.",
+      "payment_not_found": "Paiement introuvable.",
+      "ticket_not_found": "Ticket introuvable.",
+      "verification_request_not_found": "Demande de vérification introuvable.",
+      "user_with_this_phone_number_not_found": "Aucun compte trouvé avec ce numéro de téléphone.",
+      "invalid_credentials": "E-mail ou mot de passe incorrect.",
+      "current_password_is_incorrect": "Votre mot de passe actuel est incorrect.",
+      "invalid_or_expired_verification_token": "Ce lien de vérification est invalide ou a expiré.",
+      "invalid_or_expired_reset_token": "Ce lien de réinitialisation est invalide ou a expiré.",
+      "user_with_this_email_already_exists": "Un compte existe déjà avec cette adresse e-mail.",
+      "your_account_has_been_suspended": "Votre compte a été suspendu.",
+      "user_account_is_not_active": "Ce compte n'est pas actif.",
+      "you_are_not_a_participant_in_this_thread": "Vous ne participez pas à cette conversation.",
+      "you_do_not_have_access_to_this_booking": "Vous n'avez pas accès à cette réservation.",
+      "you_have_already_reviewed_this_item": "Vous avez déjà laissé un avis sur cet élément.",
+      "you_have_already_reported_this_item": "Vous avez déjà signalé cet élément.",
+      "you_have_already_reported_this_review": "Vous avez déjà signalé cet avis.",
+      "you_cannot_review_your_own_item": "Vous ne pouvez pas évaluer votre propre annonce.",
+      "scheduled_date_must_be_in_the_future": "La date choisie doit être dans le futur.",
+      "start_date_must_be_before_end_date": "La date de début doit précéder la date de fin.",
+      "start_date_cannot_be_in_the_past": "La date de début ne peut pas être dans le passé.",
+      "phone_number_is_already_verified": "Ce numéro de téléphone est déjà vérifié.",
+      "failed_to_send_otp_please_try_again": "Impossible d'envoyer le code. Veuillez réessayer."
+    },
+    "upload": {
+      "fileTooLarge": "Cette image est trop volumineuse. La taille maximale est de 10 Mo par fichier. Choisissez une image plus petite ou compressez-la.",
+      "badFileType": "Ce type de fichier n'est pas autorisé. Utilisez JPG, PNG, GIF, WebP ou PDF.",
+      "noFile": "Veuillez sélectionner un fichier à téléverser.",
+      "noFiles": "Veuillez sélectionner au moins un fichier à téléverser."
+    },
+    "fallback": {
+      "generic": "Une erreur s'est produite. Veuillez réessayer.",
+      "network": "Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.",
+      "timeout": "La requête a expiré. Veuillez réessayer.",
+      "loadProperties": "Impossible de charger les biens. Veuillez réessayer plus tard.",
+      "loadServices": "Impossible de charger les services. Veuillez réessayer plus tard.",
+      "loadMyServices": "Impossible de charger vos services. Veuillez réessayer plus tard.",
+      "loadListing": "Impossible de charger l'annonce.",
+      "createProperty": "Impossible de créer le bien. Veuillez réessayer.",
+      "saveProperty": "Impossible d'enregistrer le bien. Veuillez réessayer.",
+      "createListing": "Impossible de créer l'annonce. Veuillez réessayer.",
+      "updateListing": "Impossible de mettre à jour l'annonce. Veuillez réessayer.",
+      "deleteListing": "Impossible de supprimer l'annonce.",
+      "unpublishListing": "Impossible de dépublier l'annonce.",
+      "republishListing": "Impossible de republier l'annonce.",
+      "createService": "Impossible de créer le service. Veuillez réessayer.",
+      "updateService": "Impossible de mettre à jour le service. Veuillez réessayer.",
+      "deleteService": "Impossible de supprimer le service. Veuillez réessayer.",
+      "unpublishService": "Impossible de dépublier le service. Veuillez réessayer.",
+      "confirmBooking": "Impossible de confirmer la réservation. Veuillez réessayer.",
+      "rejectBooking": "Impossible de refuser la réservation. Veuillez réessayer.",
+      "cancelBooking": "Impossible d'annuler la réservation. Veuillez réessayer.",
+      "submitBooking": "Impossible d'envoyer la réservation. Veuillez réessayer.",
+      "sendMessage": "Impossible d'envoyer le message. Veuillez réessayer.",
+      "submitRequest": "Impossible d'envoyer la demande. Veuillez réessayer.",
+      "submitReport": "Impossible d'envoyer le signalement. Veuillez réessayer.",
+      "submitGeneric": "Échec de l'envoi. Veuillez réessayer.",
+      "updateProfile": "Impossible de mettre à jour le profil. Veuillez réessayer.",
+      "updateBusinessInfo": "Impossible de mettre à jour les informations de l'entreprise. Veuillez réessayer.",
+      "changePassword": "Impossible de modifier le mot de passe. Veuillez réessayer.",
+      "uploadImage": "Impossible de téléverser l'image. Veuillez réessayer.",
+      "uploadImages": "Une ou plusieurs images n'ont pas pu être téléversées. Vérifiez que chaque fichier fait moins de 10 Mo et est au format JPG, PNG, GIF ou WebP."
+    },
+    "form": {
+      "loginToViewMessages": "Connectez-vous pour consulter vos messages",
+      "loadChat": "Impossible de charger la messagerie",
+      "loadSavedItems": "Impossible de charger vos favoris. Veuillez réessayer.",
+      "loadProfile": "Impossible de charger le profil. Veuillez réessayer plus tard.",
+      "loadListings": "Impossible de charger les annonces. Veuillez réessayer.",
+      "loadListingDetails": "Impossible de charger l'annonce. Veuillez réessayer plus tard.",
+      "loadServiceDetails": "Impossible de charger les détails du service. Veuillez réessayer plus tard.",
+      "loginAsProvider": "Connectez-vous en tant que prestataire pour consulter vos services.",
+      "idNumberRequired": "Le numéro de pièce d'identité est obligatoire.",
+      "idFrontRequired": "Veuillez téléverser le recto de votre pièce d'identité.",
+      "businessCertRequired": "Veuillez téléverser votre certificat d'immatriculation.",
+      "agreementRequired": "Veuillez téléverser votre contrat d'agent signé.",
+      "selectImageFile": "Veuillez sélectionner un fichier image",
+      "imageTooLarge5mb": "L'image doit faire moins de 5 Mo",
+      "passwordsDoNotMatch": "Les nouveaux mots de passe ne correspondent pas",
+      "passwordMinLength": "Le mot de passe doit contenir au moins 8 caractères",
+      "businessNameRequired": "Veuillez saisir le nom de votre entreprise",
+      "serviceTypeRequired": "Veuillez sélectionner au moins un type de service",
+      "locationRequired": "Veuillez saisir votre localisation",
+      "phoneRequired": "Veuillez saisir votre numéro de téléphone",
+      "descriptionRequired": "Veuillez fournir une description de vos services",
+      "experienceRequired": "Veuillez indiquer vos années d'expérience"
+    }
+  },
+  "testimonials": {
+    "headingPre": "Ce que dit",
+    "headingHighlight": "notre communauté",
+    "headingPost": "",
+    "subtitle": "Rejoignez les milliers d'utilisateurs satisfaits qui ont trouvé leur logement idéal et des prestataires de confiance",
+    "roles": {
+      "propertyOwner": "Propriétaire",
+      "serviceProvider": "Prestataire de services",
+      "agent": "Agent FindAfriq"
+    },
+    "quotes": {
+      "diallo": "FindAfriq m'a permis de publier mon bien très facilement. En quelques semaines, plusieurs locataires étaient intéressés. La plateforme est simple à utiliser et l'équipe d'assistance est excellente !",
+      "fineLiving": "Utiliser FindAfriq a été simple et fluide. De la création de notre profil à la publication de nos services, tout a été facile à prendre en main. Nous sommes enthousiastes quant à la visibilité et aux opportunités que cela apporte à notre entreprise.",
+      "kromah": "Mon expérience avec FindAfriq a été excellente. La plateforme m'a aidé à mettre en relation des propriétaires avec des personnes à la recherche d'appartements et de chambres, tout en améliorant mes compétences en communication et en réseautage. Je suis fier de faire partie de l'équipe et impatient de continuer à grandir avec FindAfriq.",
+      "daywhea": "Être agent vérifié m'a montré les opportunités que créent les plateformes numériques. Je suis reconnaissant de faire partie de FindAfriq et déterminé à soutenir sa mission : mettre les gens en relation avec des biens vérifiés, appartements comme bureaux."
+    }
+  },
+  "hints": {
+    "e_g_500": "par ex. 500",
+    "e_g_1200": "par ex. 1200",
+    "e_g_120000": "par ex. 120000",
+    "e_g_150": "par ex. 150",
+    "e_g_2": "par ex. 2",
+    "e_g_25000": "par ex. 25000",
+    "e_g_3": "par ex. 3",
+    "e_g_350": "par ex. 350",
+    "e_g_4": "par ex. 4",
+    "e_g_5": "par ex. 5",
+    "e_g_231_886_149_219": "par ex. +231 886 149 219",
+    "e_g_250_700_000_000": "par ex. +250 700 000 000",
+    "e_g_best_cleaners_ltd": "par ex. Best Cleaners Ltd",
+    "e_g_c_of_o_survey_plan_deed_of_assignmen": "par ex. titre foncier, plan cadastral, acte de cession",
+    "e_g_congo_town_monrovia": "par ex. Congo Town, Monrovia",
+    "e_g_duplex_bungalow": "par ex. duplex, bungalow",
+    "e_g_leather_sofa_set": "par ex. canapé en cuir",
+    "e_g_luxury_3br_apartment_in_westlands": "par ex. appartement de luxe 3 chambres à Westlands",
+    "e_g_modern_4_bedroom_duplex_for_sale": "par ex. duplex moderne 4 chambres à vendre",
+    "e_g_nairobi_kenya": "par ex. Nairobi, Kenya",
+    "e_g_old_road_monrovia": "par ex. Old Road, Monrovia",
+    "e_g_paynesville_city_montserrado": "par ex. Paynesville City, Montserrado",
+    "e_g_prime_residential_land_in_monrovia": "par ex. terrain résidentiel de premier choix à Monrovia",
+    "e_g_professional_cleaning_service": "par ex. service de nettoyage professionnel",
+    "e_g_questions_about_the_listing": "par ex. questions sur l'annonce",
+    "e_g_sinkor_monrovia": "par ex. Sinkor, Monrovia",
+    "e_g_westlands_nairobi": "par ex. Westlands, Nairobi",
+    "0_00_optional": "0,00 (facultatif)",
+    "international_format_e_g_231886149241": "Format international, par ex. +231886149241",
+    "use_international_format_e_g_23188614924": "Utilisez le format international, par ex. +231886149241.",
+    "select_a_category": "Sélectionnez une catégorie"
   }
 }

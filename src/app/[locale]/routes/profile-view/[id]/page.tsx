@@ -1,6 +1,6 @@
 'use client';
 
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
@@ -11,6 +11,8 @@ import { isUserVerifiedByAdmin } from '@/lib/user-verification';
 
 import { useRouter } from '@/i18n/navigation';
 export default function PublicProfileView() {
+  const tErr = useTranslations("errors");
+    const t = useTranslations('publicProfile');
     const locale = useLocale();
     const params = useParams();
     const router = useRouter();
@@ -52,7 +54,7 @@ export default function PublicProfileView() {
             setError(null);
         } catch (err: any) {
             console.error('Failed to fetch user profile:', err);
-            setError('Failed to load profile. Please try again later.');
+            setError(tErr("form.loadProfile"));
         } finally {
             setLoading(false);
         }
@@ -67,14 +69,14 @@ export default function PublicProfileView() {
                     <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                     </svg>
-                    Verified
+                    {t('verified')}
                 </span>
             );
         }
 
         return (
             <span className="inline-flex items-center gap-1 bg-gray-100 text-gray-600 text-xs px-2.5 py-1 rounded-full font-medium">
-                Not Verified
+                {t('notVerified')}
             </span>
         );
     };
@@ -120,7 +122,7 @@ export default function PublicProfileView() {
                         onClick={() => router.back()}
                         className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors"
                     >
-                        Go Back
+                        {t('goBack')}
                     </button>
                 </div>
             </div>
@@ -207,7 +209,7 @@ export default function PublicProfileView() {
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
-                                    Member since {new Date(user.createdAt).toLocaleDateString(locale, { month: 'long', year: 'numeric' })}
+                                    {t('memberSince', { date: new Date(user.createdAt).toLocaleDateString(locale, { month: 'long', year: 'numeric' }) })}
                                 </div>
                             )}
 
@@ -248,30 +250,30 @@ export default function PublicProfileView() {
                 {/* Service Provider Details */}
                 {serviceProvider && (
                     <div className="mt-6 bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                        <h2 className="text-xl font-bold text-gray-900 mb-6">Business Information</h2>
+                        <h2 className="text-xl font-bold text-gray-900 mb-6">{t('businessInformation')}</h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Business Name */}
                             <div>
-                                <label className="text-sm font-semibold text-gray-700">Business Name</label>
+                                <label className="text-sm font-semibold text-gray-700">{t('businessName')}</label>
                                 <p className="mt-1 text-gray-900">{serviceProvider.businessName}</p>
                             </div>
 
                             {/* Location */}
                             <div>
-                                <label className="text-sm font-semibold text-gray-700">Location</label>
+                                <label className="text-sm font-semibold text-gray-700">{t('location')}</label>
                                 <p className="mt-1 text-gray-900">{serviceProvider.location}</p>
                             </div>
 
                             {/* Experience */}
                             <div>
-                                <label className="text-sm font-semibold text-gray-700">Years of Experience</label>
+                                <label className="text-sm font-semibold text-gray-700">{t('yearsOfExperience')}</label>
                                 <p className="mt-1 text-gray-900">{serviceProvider.experience} years</p>
                             </div>
 
                             {(serviceProvider.website || user.website) && (
                                 <div>
-                                    <label className="text-sm font-semibold text-gray-700">Website</label>
+                                    <label className="text-sm font-semibold text-gray-700">{t('website')}</label>
                                     <p className="mt-1">
                                         <a
                                             href={(serviceProvider.website || user.website || '').startsWith('http') ? (serviceProvider.website || user.website) : `https://${serviceProvider.website || user.website}`}
@@ -287,18 +289,18 @@ export default function PublicProfileView() {
 
                             {/* Verification Status */}
                             <div>
-                                <label className="text-sm font-semibold text-gray-700">Verification Status</label>
+                                <label className="text-sm font-semibold text-gray-700">{t('verificationStatus')}</label>
                                 <div className="mt-1">
                                     {serviceProvider.verificationStatus === 'verified' ? (
                                         <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 text-sm px-3 py-1 rounded-full font-medium">
                                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                                             </svg>
-                                            Verified Business
+                                            {t('verifiedBusiness')}
                                         </span>
                                     ) : (
                                         <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-700 text-sm px-3 py-1 rounded-full font-medium">
-                                            Pending Verification
+                                            {t('pendingVerification')}
                                         </span>
                                     )}
                                 </div>
@@ -307,7 +309,7 @@ export default function PublicProfileView() {
                             {/* Rating */}
                             {serviceProvider.rating > 0 && (
                                 <div>
-                                    <label className="text-sm font-semibold text-gray-700">Rating</label>
+                                    <label className="text-sm font-semibold text-gray-700">{t('rating')}</label>
                                     <div className="mt-1 flex items-center gap-2">
                                         <div className="flex items-center gap-1">
                                             <svg className="w-5 h-5 text-amber-400 fill-current" viewBox="0 0 24 24">
@@ -322,13 +324,13 @@ export default function PublicProfileView() {
 
                             {/* Completed Jobs */}
                             <div>
-                                <label className="text-sm font-semibold text-gray-700">Completed Jobs</label>
+                                <label className="text-sm font-semibold text-gray-700">{t('completedJobs')}</label>
                                 <p className="mt-1 text-gray-900">{serviceProvider.completedJobs} jobs</p>
                             </div>
 
                             {/* Service Types - Full Width */}
                             <div className="md:col-span-2">
-                                <label className="text-sm font-semibold text-gray-700">Services Offered</label>
+                                <label className="text-sm font-semibold text-gray-700">{t('servicesOffered')}</label>
                                 <div className="mt-2 flex flex-wrap gap-2">
                                     {serviceProvider.serviceTypes.map((type) => (
                                         <span
@@ -343,13 +345,13 @@ export default function PublicProfileView() {
 
                             {/* Description - Full Width */}
                             <div className="md:col-span-2">
-                                <label className="text-sm font-semibold text-gray-700">About the Business</label>
+                                <label className="text-sm font-semibold text-gray-700">{t('aboutTheBusiness')}</label>
                                 <p className="mt-2 text-gray-600 leading-relaxed">{serviceProvider.description}</p>
                             </div>
 
                             {/* Contact Information */}
                             <div className="md:col-span-2 pt-4 border-t border-gray-200">
-                                <label className="text-sm font-semibold text-gray-700 mb-3 block">Contact Information</label>
+                                <label className="text-sm font-semibold text-gray-700 mb-3 block">{t('contactInformation')}</label>
                                 <div className="flex flex-wrap gap-4">
                                     <div className="flex items-center gap-2 text-gray-600">
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

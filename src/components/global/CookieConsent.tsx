@@ -120,7 +120,7 @@ export default function CookieConsent() {
                     transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                     className="fixed bottom-0 left-0 right-0 z-9999 p-4 md:p-6"
                     role="dialog"
-                    aria-label="Cookie consent"
+                    aria-label={t('consentAria')}
                     aria-modal="false"
                 >
                     {/* Backdrop blur strip */}
@@ -209,7 +209,7 @@ export default function CookieConsent() {
                                                             </span>
                                                             {cat.required && (
                                                                 <span className="text-[10px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-md border border-blue-100">
-                                                                    Always on
+                                                                    {t("alwaysOn")}
                                                                 </span>
                                                             )}
                                                         </div>

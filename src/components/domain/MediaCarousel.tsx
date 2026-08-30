@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { SafeImage } from "@/components/ui/SafeImage";
 
 type MediaCarouselProps = { media: { type: "image" | "video"; src: string }[] };
@@ -7,6 +8,8 @@ type MediaCarouselProps = { media: { type: "image" | "video"; src: string }[] };
 const THUMB_VISIBLE = 4;
 
 export default function MediaCarousel({ media }: MediaCarouselProps) {
+    const tc = useTranslations("carousel");
+    const t = useTranslations("mediaCarousel");
     const [showAllPhotos, setShowAllPhotos] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const touchStartX = useRef(0);
@@ -166,7 +169,7 @@ export default function MediaCarousel({ media }: MediaCarouselProps) {
                             >
                                 <SafeImage
                                     src={media[THUMB_VISIBLE].src}
-                                    alt="More photos"
+                                    alt={tc("morePhotos")}
                                     fill
                                     className="object-cover"
                                 />
@@ -189,7 +192,7 @@ export default function MediaCarousel({ media }: MediaCarouselProps) {
                         (displayImages[0].type === "image" ? (
                             <SafeImage
                                 src={displayImages[0].src}
-                                alt="Main image"
+                                alt={tc("mainImage")}
                                 fill
                                 className="object-cover hover:brightness-95 transition-all"
                                 priority
@@ -203,7 +206,7 @@ export default function MediaCarousel({ media }: MediaCarouselProps) {
                     <div className="col-span-2 relative bg-gray-100 cursor-pointer" onClick={() => openLightbox(1)}>
                         <SafeImage
                             src={displayImages[1].src}
-                            alt="Image 2"
+                            alt={tc("imageN", { n: 2 })}
                             fill
                             className="object-cover hover:brightness-95 transition-all"
                         />
@@ -214,7 +217,7 @@ export default function MediaCarousel({ media }: MediaCarouselProps) {
                     {displayImages[2] && (
                         <SafeImage
                             src={displayImages[2].src}
-                            alt="Image 3"
+                            alt={tc("imageN", { n: 3 })}
                             fill
                             className="object-cover hover:brightness-95 transition-all"
                         />
@@ -226,7 +229,7 @@ export default function MediaCarousel({ media }: MediaCarouselProps) {
                         <div className="relative w-full h-full cursor-pointer" onClick={() => openLightbox(3)}>
                             <SafeImage
                                 src={displayImages[3].src}
-                                alt="Image 4"
+                                alt={tc("imageN", { n: 4 })}
                                 fill
                                 className="object-cover hover:brightness-95 transition-all"
                             />
@@ -244,7 +247,7 @@ export default function MediaCarousel({ media }: MediaCarouselProps) {
                                                 d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                                             />
                                         </svg>
-                                        Show all photos
+                                        {t("showAllPhotos")}
                                     </button>
                                 </div>
                             )}
@@ -291,7 +294,7 @@ export default function MediaCarousel({ media }: MediaCarouselProps) {
                                     type="button"
                                     onClick={goToPrevious}
                                     className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-900 rounded-full p-2 sm:p-3 shadow-lg transition-all"
-                                    aria-label="Previous image"
+                                    aria-label={tc("previousImage")}
                                 >
                                     <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -301,7 +304,7 @@ export default function MediaCarousel({ media }: MediaCarouselProps) {
                                     type="button"
                                     onClick={goToNext}
                                     className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-900 rounded-full p-2 sm:p-3 shadow-lg transition-all"
-                                    aria-label="Next image"
+                                    aria-label={tc("nextImage")}
                                 >
                                     <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

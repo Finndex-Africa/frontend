@@ -5,6 +5,10 @@ import type { NextConfig } from "next";
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
+  // Lets a build run into its own directory so it can't clobber a running
+  // `next dev`, which shares `.next` by default:
+  //   NEXT_DIST_DIR=.next-verify npx next build
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   images: {
     remotePatterns: [
       { protocol: "http", hostname: "localhost" }, // Local development server

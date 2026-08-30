@@ -2,6 +2,7 @@
 import { useRef, useState, useCallback } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEnumLabel } from "@/lib/enum-labels";
+import { useTranslatedContent } from "@/lib/translated-content";
 
 import { SafeImage } from "@/components/ui/SafeImage";
 import ShareButton from "@/components/ui/ShareButton";
@@ -24,6 +25,10 @@ export type Property = {
     propertyType?: string;
     /** Initial bookmark state from the API listing response */
     isBookmarked?: boolean;
+    /** i18n passthrough — resolved by the card, see lib/translated-content. */
+    sourceLang?: string;
+    translations?: Record<string, { title?: string; description?: string }>;
+    translationSource?: 'machine' | 'human';
 };
 
 function PropertyImageCarousel({
@@ -135,6 +140,9 @@ export default function PropertyCard({
     const t = useTranslations("propertyCard");
     const locale = useLocale();
     const propertyTypeLabel = useEnumLabel("propertyTypes");
+    // Search cards show the translation silently; the disclosure lives on the
+    // detail page (same split Airbnb uses).
+    const translated = useTranslatedContent(p);
     const router = useRouter();
     const [saved, setSaved] = useState(p.isBookmarked ?? false);
     const [toggling, setToggling] = useState(false);
@@ -244,7 +252,7 @@ export default function PropertyCard({
                             compact ? "text-[12px] sm:text-[15px]" : "text-[15px]"
                         }`}
                     >
-                        {p.title}
+                        {translated.title.value}
                     </h3>
                     {p.rating && (
                         <div className="flex items-center gap-0.5 shrink-0">
