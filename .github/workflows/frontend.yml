@@ -12,12 +12,13 @@ jobs:
     build-test:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
 
+            # No version pin here on purpose: action-setup reads the
+            # `packageManager` field from package.json, so CI and local
+            # machines cannot drift apart.
             - name: Install pnpm
               uses: pnpm/action-setup@v4
-              with:
-                  version: 9
 
             - name: Set up Node.js
               uses: actions/setup-node@v4
@@ -25,8 +26,11 @@ jobs:
                   node-version: 20
                   cache: "pnpm"
 
+            # --frozen-lockfile makes CI fail loudly if pnpm-lock.yaml is out of
+            # sync with package.json, rather than silently resolving something
+            # different from what was tested locally.
             - name: Install dependencies
-              run: pnpm install
+              run: pnpm install --frozen-lockfile
 
             - name: Run tests
               run: pnpm test

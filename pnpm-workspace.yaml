@@ -1,3 +1,13 @@
+# This project is a single package, not a multi-package monorepo. The file
+# exists because pnpm 10+ moved build-script approval out of package.json and
+# into `allowBuilds` here.
+#
+# `packages` is still required: without it pnpm errors with
+# "packages field missing or empty" — pnpm 11 tolerates the omission, pnpm 9
+# does not, which is how this reached CI unnoticed.
+packages:
+  - "."
+
 allowBuilds:
   # Native file-watcher addon (pulled in via next-intl's toolchain).
   '@parcel/watcher': true
