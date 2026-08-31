@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
+import { useMoney } from "@/lib/currency/CurrencyProvider";
+import type { Currency } from "@/lib/currency/config";
 import { useParams } from "next/navigation";
 import toast, { Toaster } from 'react-hot-toast';
 import MediaCarousel from "@/components/domain/MediaCarousel";
@@ -30,6 +33,8 @@ const LOCAL_SERVICE_IMAGE = '/images/services/cleaning1.jpeg';
 const getDefaultImages = (_category: string) => [LOCAL_SERVICE_IMAGE];
 
 export default function ServiceDetail() {
+    const money = useMoney();
+    const tCurrency = useTranslations("currencySwitcher");
     const params = useParams();
     const serviceId = params?.id as string;
 
@@ -297,6 +302,10 @@ export default function ServiceDetail() {
 
     const media = images.map(src => ({ type: "image" as const, src }));
     const hasListPrice = service.price != null && Number(service.price) > 0;
+    const priceParts = money.forListing(
+        service.price as number | undefined,
+        service.currency as Currency,
+    );
 
     return (
         <div className="min-h-screen bg-white">
@@ -581,7 +590,7 @@ export default function ServiceDetail() {
                                 <div className="bg-linear-to-br from-blue-50 to-white p-6">
                                         <div className="flex items-baseline gap-1.5">
                                             <div className="text-4xl font-bold text-gray-900">
-                                                {hasListPrice ? `$${Number(service.price).toLocaleString()}` : 'Contact for Price'}
+                                                {hasListPrice ? priceParts.display : 'Contact for Price'}
                                             </div>
                                             {hasListPrice && service.priceUnit ? (
                                                 <span className="text-gray-500 text-base font-medium">
@@ -589,6 +598,11 @@ export default function ServiceDetail() {
                                                 </span>
                                             ) : null}
                                         </div>
+                                        {priceParts.isConverted && (
+                                            <p className="mt-1 text-sm text-gray-500">
+                                                {tCurrency('listedBy', { price: priceParts.original })}
+                                            </p>
+                                        )}
                                     </div>
 
                                     {/* Action Buttons */}
@@ -745,7 +759,7 @@ export default function ServiceDetail() {
                                         {hasListPrice ? (
                                             <div className="flex items-center gap-2 mt-2">
                                                 <span className="text-base sm:text-lg font-bold text-green-600">
-                                                    ${Number(service.price).toLocaleString()}
+                                                    {priceParts.display}
                                                 </span>
                                                 <span className="text-xs text-gray-500">
                                                     /{service.priceUnit || 'service'}

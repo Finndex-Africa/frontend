@@ -24,6 +24,10 @@ export interface Service {
     category: string;
     location: string;
     price?: number;
+    /** Currency the provider priced in; absent on pre-multi-currency rows (all USD). */
+    currency?: Currency;
+    /** Backend-normalized USD price used for filtering and sorting. */
+    priceUsd?: number;
     priceUnit?: string;
     status: 'pending' | 'active' | 'rejected' | 'inactive';
     rejectionReason?: string;

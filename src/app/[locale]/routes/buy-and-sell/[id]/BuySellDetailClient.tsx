@@ -17,6 +17,9 @@ import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 import { getUserDisplayName } from "@/lib/display-name";
 import { isUserVerifiedByAdmin } from "@/lib/user-verification";
 import { buildGoogleMapsEmbedUrlAsync } from "@/lib/google-maps";
+import { useTranslations } from "next-intl";
+import { useMoney } from "@/lib/currency/CurrencyProvider";
+import type { Currency } from "@/lib/currency/config";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -133,6 +136,8 @@ function StatusBanner({ status }: { status: string }) {
 // ─── Main component ──────────────────────────────────────────────────────────
 
 export default function BuySellDetailClient() {
+  const money = useMoney();
+  const tCurrency = useTranslations("currencySwitcher");
   const params = useParams();
   const listingId = params?.id as string;
 
@@ -374,6 +379,7 @@ export default function BuySellDetailClient() {
   }
 
   // ── Derived values ────────────────────────────────────────────────────────
+  const priceParts = money.forListing(listing.price, listing.currency as Currency);
   const images = listing.images?.length ? listing.images : ["/images/properties/pexels-photo-323780.jpeg"];
   const media = images.map((src) => ({ type: "image" as const, src }));
 
@@ -645,10 +651,16 @@ export default function BuySellDetailClient() {
 
                   <div className="flex items-baseline gap-1.5">
                     <div className="text-4xl font-bold text-gray-900">
-                      ${listing.price.toLocaleString()}
+                      {priceParts.display}
                     </div>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">Listed price</p>
+                  {/* The seller's own figure — this is the screen before contact. */}
+                  {priceParts.isConverted && (
+                    <p className="text-sm text-gray-500 mt-0.5">
+                      {tCurrency("listedBy", { price: priceParts.original })}
+                    </p>
+                  )}
 
                   {(listing as any).agentFee != null && (
                     <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4 space-y-3">
@@ -810,7 +822,7 @@ export default function BuySellDetailClient() {
                 <div className="min-w-0">
                   <p className="font-semibold text-gray-900 text-sm truncate">{listing?.title}</p>
                   <p className="text-xs text-gray-500 mt-0.5">{listing?.location}</p>
-                  <p className="text-base font-bold text-blue-600 mt-1">${listing?.price.toLocaleString()}</p>
+                  <p className="text-base font-bold text-blue-600 mt-1">{priceParts.display}</p>
                 </div>
               </div>
 

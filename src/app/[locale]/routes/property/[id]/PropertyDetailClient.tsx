@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import MediaCarousel from "@/components/domain/MediaCarousel";
@@ -31,6 +32,8 @@ import {
   trackChatStarted,
 } from "@/lib/analytics";
 import { useScrollDepth } from "@/lib/hooks/useScrollDepth";
+import { useMoney } from "@/lib/currency/CurrencyProvider";
+import type { Currency } from "@/lib/currency/config";
 
 const LOCAL_PROPERTY_IMAGE = "/images/properties/pexels-photo-323780.jpeg";
 
@@ -112,6 +115,8 @@ function AmenityIconDisplay({ icon }: { icon: string }) {
 }
 
 export default function PropertyDetail() {
+  const money = useMoney();
+  const tCurrency = useTranslations("currencySwitcher");
   const params = useParams();
   const propertyId = params?.id as string;
 
@@ -555,6 +560,11 @@ export default function PropertyDetail() {
   }
 
   // Add default highlights only when the listing has no custom amenities
+  const priceParts = money.forListing(
+    property.price,
+    property.currency as Currency,
+  );
+
   if (!property.amenities?.length && features.length < 4) {
     const defaults = [
       { label: "Wi-Fi", desc: "High-speed internet", icon: "📶" },
@@ -870,17 +880,28 @@ export default function PropertyDetail() {
                     </div>
                   )}
 
-                  <div className="flex items-baseline gap-1.5">
-                    <div className="text-4xl font-bold text-gray-900">
-                      $
-                      {property.price
-                        ? property.price.toLocaleString()
-                        : "Contact"}
+                  <div>
+                    <div className="flex items-baseline gap-1.5">
+                      <div className="text-4xl font-bold text-gray-900">
+                        {property.price ? priceParts.display : "Contact"}
+                      </div>
+                      {property.price && (
+                        <span className="text-gray-500 text-base font-medium">
+                          /month
+                        </span>
+                      )}
                     </div>
-                    {property.price && (
-                      <span className="text-gray-500 text-base font-medium">
-                        /month
-                      </span>
+                    {/*
+                      Unlike the cards, the detail page shows the owner's own
+                      figure when it differs. This is the last screen before a
+                      seeker contacts them, and FindAfriq does not process the
+                      payment — so the number the owner will actually quote has
+                      to be visible here or the seeker gets a surprise.
+                    */}
+                    {priceParts.isConverted && (
+                      <p className="mt-1 text-sm text-gray-500">
+                        {tCurrency("listedBy", { price: priceParts.original })}
+                      </p>
                     )}
                   </div>
 
@@ -1139,7 +1160,7 @@ export default function PropertyDetail() {
                     </p>
                     <div className="flex items-center gap-2 mt-2">
                       <span className="text-base sm:text-lg font-bold text-blue-600">
-                        ${property?.price?.toLocaleString()}
+                        {money.forListing(property?.price, property?.currency as Currency).display}
                       </span>
                       <span className="text-xs text-gray-500">
                         /{property?.priceUnit || "month"}

@@ -361,6 +361,7 @@
     "names": {
       "USD": "US Dollar (USD)",
       "RWF": "Rwandan Franc (RWF)"
-    }
+    },
+    "listedBy": "Listed by the owner at {price}"
   }
 }
