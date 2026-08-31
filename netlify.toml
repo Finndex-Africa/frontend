@@ -1,5 +1,5 @@
 [build]
-  command = "pnpm install --frozen-lockfile && pnpm run build"
+  command = "corepack pnpm run build"
   publish = ".next"
 
 [[plugins]]
@@ -7,7 +7,7 @@
 
 [build.environment]
   NEXT_TELEMETRY_DISABLED = "1"
-  NODE_VERSION = "20"
+  NODE_VERSION = "22.13.0"
 
 [[headers]]
   for = "/*"
