@@ -350,5 +350,17 @@
       "network": "Connection lost. Check your internet and try again.",
       "rateLimited": "You're sending messages too quickly. Please wait a moment."
     }
+  },
+  "currencySwitcher": {
+    "label": "Currency",
+    "changeCurrency": "Change currency",
+    "approx": "approx.",
+    "approxLabel": "Approximate conversion, updated periodically",
+    "priceIn": "Price in",
+    "budgetIn": "Budget in",
+    "names": {
+      "USD": "US Dollar (USD)",
+      "RWF": "Rwandan Franc (RWF)"
+    }
   }
 }

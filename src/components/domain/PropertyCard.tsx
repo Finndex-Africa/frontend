@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState, useCallback } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useEnumLabel } from "@/lib/enum-labels";
 
 import { SafeImage } from "@/components/ui/SafeImage";
@@ -9,11 +9,15 @@ import { trackListingBookmarked } from "@/lib/analytics";
 import { bookmarksApi } from "@/services/api/bookmarks.api";
 
 import { Link, useRouter } from "@/i18n/navigation";
+import { useMoney } from "@/lib/currency/CurrencyProvider";
+import type { Currency } from "@/lib/currency/config";
 export type Property = {
     id: string;
     title: string;
     location: string;
     price: string;
+    /** Currency the seller priced in. Defaults to USD for pre-multi-currency listings. */
+    currency?: Currency;
     imageUrl: string;
     imageUrls?: string[];
     amenities: string[];
@@ -133,7 +137,6 @@ export default function PropertyCard({
     onUnbookmark?: () => void;
 }) {
     const t = useTranslations("propertyCard");
-    const locale = useLocale();
     const propertyTypeLabel = useEnumLabel("propertyTypes");
     const router = useRouter();
     const [saved, setSaved] = useState(p.isBookmarked ?? false);
@@ -141,12 +144,16 @@ export default function PropertyCard({
     const displayBadge = badge ?? p.propertyType;
     const images = p.imageUrls?.length ? p.imageUrls : [p.imageUrl];
 
-    const formatPrice = (price: string) => {
-        const numericPrice = price.replace(/[^0-9]/g, "");
-        const value = parseInt(numericPrice, 10);
-        if (!Number.isFinite(value)) return t("priceUnavailable");
-        return "$" + value.toLocaleString(locale);
-    };
+    const money = useMoney();
+
+    // `price` arrives as a display string from several different call sites, so
+    // strip formatting before treating it as a number.
+    const priceValue = (() => {
+        const digits = String(p.price).replace(/[^0-9.]/g, "");
+        const value = Number.parseFloat(digits);
+        return Number.isFinite(value) ? value : null;
+    })();
+    const priceParts = money.forListing(priceValue, p.currency);
 
     const imageContainerClass = compact
         ? "relative w-full rounded-2xl overflow-hidden shadow-sm aspect-[5/4] sm:aspect-[4/3] md:aspect-square mb-2"
@@ -279,7 +286,7 @@ export default function PropertyCard({
                     <span
                         className={`font-semibold text-gray-900 ${compact ? "text-[12px] sm:text-[15px]" : "text-[15px]"}`}
                     >
-                        {formatPrice(p.price)}
+                        {priceParts.display || t("priceUnavailable")}
                     </span>
                     <span
                         className={`text-gray-500 font-normal ${compact ? "text-[10px] sm:text-[13px]" : "text-[13px]"}`}

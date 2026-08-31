@@ -4,6 +4,7 @@ import Button from "../ui/Button";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import LanguageSwitcher from "./LanguageSwitcher";
+import CurrencySwitcher from "./CurrencySwitcher";
 import { useState, useEffect, useRef } from "react";
 import AdvertiseModal from "../modals/AdvertiseModal";
 import UserReportModal from "../modals/UserReportModal";
@@ -325,6 +326,7 @@ export default function Navbar() {
           {/* Desktop Action Buttons */}
           <div className="hidden md:flex items-center gap-2">
             <LanguageSwitcher />
+            <CurrencySwitcher />
             <button
               type="button"
               className="btn bg-transparent text-gray-700 hover:bg-gray-100 px-4 text-sm font-semibold"
@@ -1098,6 +1100,7 @@ export default function Navbar() {
               {/* Mobile Actions */}
               <div className="pt-3 border-t border-gray-200 space-y-2">
                 <LanguageSwitcher variant="inline" className="px-3 pb-1" />
+                <CurrencySwitcher variant="inline" className="px-3 pb-3" />
                 <button
                   type="button"
                   className="btn bg-transparent text-gray-700 hover:bg-gray-100 px-4 text-sm font-semibold w-full justify-start!"

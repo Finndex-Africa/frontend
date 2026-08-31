@@ -13,6 +13,8 @@ import TestingDisclaimer from "@/components/global/TestingDisclaimer";
 import LaunchCelebrationOverlay from "@/components/global/LaunchCelebrationOverlay";
 import CookieConsent from "@/components/global/CookieConsent";
 import { Providers } from "@/providers";
+import { CurrencyProvider } from "@/lib/currency/CurrencyProvider";
+import { getRates } from "@/lib/currency/server";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import {
   routing,
@@ -138,6 +140,10 @@ export default async function LocaleLayout({
   // Enables static rendering for this locale's pages.
   setRequestLocale(locale);
 
+  // Rates only — no cookie read here, or every page becomes dynamic.
+  // The currency preference is read client-side in CurrencyProvider.
+  const rates = await getRates();
+
   return (
     <html lang={localeHtmlLang[locale]} suppressHydrationWarning>
       {/* suppressHydrationWarning: avoids mismatch when browser extensions (e.g. security tools) inject attributes like bis_skin_checked into the DOM */}
@@ -146,6 +152,7 @@ export default async function LocaleLayout({
         suppressHydrationWarning
       >
         <NextIntlClientProvider>
+          <CurrencyProvider rates={rates}>
           <Providers>
             <ConditionalNavbar />
             <main className="min-h-screen pt-16 md:pt-0 pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
@@ -159,6 +166,7 @@ export default async function LocaleLayout({
             <LaunchCelebrationOverlay />
             <CookieConsent />
           </Providers>
+          </CurrencyProvider>
         </NextIntlClientProvider>
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />

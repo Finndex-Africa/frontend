@@ -16,6 +16,8 @@ import { isAgentLikeUserType } from "@/lib/agent-user-types";
 import { getUserDisplayName } from "@/lib/display-name";
 
 import { Link, useRouter } from "@/i18n/navigation";
+import CurrencySelect from "@/components/ui/CurrencySelect";
+import { CURRENCY_META, DEFAULT_CURRENCY, isCurrency, type Currency } from "@/lib/currency/config";
 function getBedroomDisplay(p: ApiProperty): string {
   const n = p.bedrooms ?? p.rooms;
   return n != null ? `${n} Bedroom${n !== 1 ? "s" : ""}` : "Not specified";
@@ -134,6 +136,9 @@ function EditPropertyModal({
         description: property.description || "",
         location: property.location || "",
         price: property.price || 0,
+        currency: isCurrency(property.currency)
+          ? property.currency
+          : DEFAULT_CURRENCY,
         propertyType: property.propertyType || property.type || "",
         bedrooms: property.bedrooms || 0,
         bathrooms: property.bathrooms || 0,
@@ -506,16 +511,22 @@ function EditPropertyModal({
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Price
               </label>
-              <div className="flex items-center">
-                <span className="text-gray-500 mr-2">$</span>
+              <div className="flex items-center gap-2">
                 <input
                   type="number"
                   name="price"
                   value={formData.price || ""}
                   onChange={handleChange}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 min-w-0 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="0"
                   required
+                />
+                <CurrencySelect
+                  className="py-2"
+                  value={(formData.currency as Currency) ?? DEFAULT_CURRENCY}
+                  onChange={(currency) =>
+                    setFormData((prev) => ({ ...prev, currency }))
+                  }
                 />
               </div>
             </div>
@@ -544,7 +555,7 @@ function EditPropertyModal({
                 Set the fee you charge for this listing. It will be shown to seekers on the property page.
               </p>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Your Agent Fee (USD) <span className="text-red-500">*</span>
+                Your Agent Fee ({CURRENCY_META[formData.currency as Currency] ?.label ?? DEFAULT_CURRENCY}) <span className="text-red-500">*</span>
               </label>
               <div className="flex items-center max-w-xs">
                 <span className="text-gray-500 mr-2">$</span>

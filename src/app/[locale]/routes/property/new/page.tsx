@@ -13,6 +13,8 @@ import { geocodeAddress } from '@/lib/google-maps';
 import { trackListingCreated } from '@/lib/analytics';
 
 import { useRouter } from '@/i18n/navigation';
+import CurrencySelect from "@/components/ui/CurrencySelect";
+import { CURRENCY_META, DEFAULT_CURRENCY, type Currency } from "@/lib/currency/config";
 // Amenity options used for form and API payload (backend expects { icon, label })
 const AMENITY_OPTIONS = [
     { value: 'Water', icon: '💧' },
@@ -43,6 +45,7 @@ export default function NewPropertyPage() {
         description: '',
         location: '',
         price: '',
+        currency: DEFAULT_CURRENCY as Currency,
         propertyType: 'Apartment',
         bedrooms: '',
         bathrooms: '',
@@ -160,6 +163,7 @@ export default function NewPropertyPage() {
                 description: formData.description,
                 location: formData.location,
                 price: Number(formData.price),
+                currency: formData.currency,
                 propertyType: formData.propertyType,
                 bedrooms: Number(formData.bedrooms),
                 bathrooms: Number(formData.bathrooms),
@@ -294,18 +298,26 @@ export default function NewPropertyPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Monthly Rent (USD) <span className="text-red-500">*</span>
+                                        Monthly Rent ({CURRENCY_META[formData.currency].label}) <span className="text-red-500">*</span>
                                     </label>
-                                    <input
-                                        type="number"
-                                        name="price"
-                                        value={formData.price}
-                                        onChange={handleChange}
-                                        required
-                                        min="0"
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        placeholder="e.g., 1200"
-                                    />
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="number"
+                                            name="price"
+                                            value={formData.price}
+                                            onChange={handleChange}
+                                            required
+                                            min="0"
+                                            className="flex-1 min-w-0 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            placeholder="e.g., 1200"
+                                        />
+                                        <CurrencySelect
+                                            value={formData.currency}
+                                            onChange={(currency) =>
+                                                setFormData((prev) => ({ ...prev, currency }))
+                                            }
+                                        />
+                                    </div>
                                 </div>
 
                                 <div>
@@ -329,7 +341,7 @@ export default function NewPropertyPage() {
                                         Set the fee you charge for this listing. It will be shown to seekers on the property page.
                                     </p>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Your Agent Fee (USD) <span className="text-red-500">*</span>
+                                        Your Agent Fee ({CURRENCY_META[formData.currency].label}) <span className="text-red-500">*</span>
                                     </label>
                                     <input
                                         type="number"

@@ -12,9 +12,12 @@ import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
 import { trackListingCreated, trackListingEdited } from '@/lib/analytics';
 
 import { useRouter } from '@/i18n/navigation';
+import { useMoney } from "@/lib/currency/CurrencyProvider";
+import type { Currency } from "@/lib/currency/config";
 type ModalMode = 'create' | 'edit' | 'view' | null;
 
 export default function MyServicesPage() {
+    const money = useMoney();
     const { push: showToast } = useToast();
     const [services, setServices] = useState<ApiService[]>([]);
     const [loading, setLoading] = useState(true);
@@ -316,12 +319,9 @@ export default function MyServicesPage() {
         }
     };
 
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-        }).format(amount);
-    };
+    // Formats in the service's own currency rather than assuming USD.
+    const formatCurrency = (amount: number, currency?: Currency) =>
+        money.format(amount, currency ?? 'USD');
 
     if (loading) {
         return (
