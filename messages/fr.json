@@ -2082,5 +2082,32 @@
     "international_format_e_g_231886149241": "Format international, par ex. +231886149241",
     "use_international_format_e_g_23188614924": "Utilisez le format international, par ex. +231886149241.",
     "select_a_category": "Sélectionnez une catégorie"
+  },
+  "assistant": {
+    "open": "Ouvrir l'Assistant FindAfriq",
+    "close": "Fermer",
+    "tooltip": "Demander à l'Assistant FindAfriq",
+    "title": "Assistant FindAfriq",
+    "subtitle": "Là pour vous aider à trouver et à vous connecter",
+    "thinking": "En train d'écrire",
+    "send": "Envoyer le message",
+    "placeholder": "Posez une question…",
+    "disclaimer": "L'assistant peut se tromper et ne voit pas les annonces en direct. Vérifiez les informations importantes avant tout paiement.",
+    "greeting": "Bonjour ! 👋 Bienvenue sur l'Assistant FindAfriq.\nJe peux vous aider à trouver un bien, trouver un prestataire de confiance, publier une annonce, devenir agent, comprendre la vérification ou obtenir de l'aide pour votre compte.\nQue recherchez-vous aujourd'hui ?",
+    "quickReplies": {
+      "findProperty": "🏠 Trouver un bien",
+      "findService": "🔧 Trouver un service",
+      "postListing": "📢 Publier une annonce",
+      "becomeAgent": "🤝 Devenir agent",
+      "becomeProvider": "🏢 Devenir prestataire de services",
+      "buyAndSell": "🛒 Acheter et vendre",
+      "verification": "✅ Vérification",
+      "support": "💬 Contacter le support"
+    },
+    "errors": {
+      "generic": "Une erreur s'est produite. Veuillez réessayer.",
+      "network": "Connexion perdue. Vérifiez votre connexion et réessayez.",
+      "rateLimited": "Vous envoyez des messages trop rapidement. Veuillez patienter."
+    }
   }
 }

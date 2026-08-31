@@ -2082,5 +2082,32 @@
     "international_format_e_g_231886149241": "International format, e.g. +231886149241",
     "use_international_format_e_g_23188614924": "Use international format, e.g. +231886149241.",
     "select_a_category": "Select a category"
+  },
+  "assistant": {
+    "open": "Open the FindAfriq Assistant",
+    "close": "Close",
+    "tooltip": "Ask FindAfriq Assistant",
+    "title": "FindAfriq Assistant",
+    "subtitle": "Here to help you find and connect",
+    "thinking": "Typing",
+    "send": "Send message",
+    "placeholder": "Ask a question…",
+    "disclaimer": "The assistant can make mistakes and cannot see live listings. Verify important details before you pay anyone.",
+    "greeting": "Hi! 👋 Welcome to FindAfriq Assistant.\nI can help you find a property, find a trusted service provider, post a listing, become an agent, understand verification, or get help with your account.\nWhat are you looking for today?",
+    "quickReplies": {
+      "findProperty": "🏠 Find a Property",
+      "findService": "🔧 Find a Service",
+      "postListing": "📢 Post a Listing",
+      "becomeAgent": "🤝 Become an Agent",
+      "becomeProvider": "🏢 Become a Service Provider",
+      "buyAndSell": "🛒 Buy & Sell",
+      "verification": "✅ Verification",
+      "support": "💬 Contact Support"
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "network": "Connection lost. Check your internet and try again.",
+      "rateLimited": "You're sending messages too quickly. Please wait a moment."
+    }
   }
 }

@@ -12,7 +12,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "pnpm run lint",
-    "check:i18n": "node scripts/check-i18n.mjs"
+    "check:i18n": "node scripts/check-i18n.mjs",
+    "assistant:tokens": "node scripts/assistant-tokens.mjs"
   },
   "dependencies": {
     "@ant-design/charts": "^2.6.5",
@@ -29,6 +30,7 @@
     "lucide-react": "^0.545.0",
     "next": "15.5.7",
     "next-intl": "^4.14.1",
+    "openai": "^7.8.0",
     "react": "19.1.4",
     "react-dom": "19.1.4",
     "react-hot-toast": "^2.6.0",

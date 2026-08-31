@@ -8,6 +8,7 @@ import ConditionalNavbar from "@/components/global/ConditionalNavbar";
 import MobileBottomNav from "@/components/global/MobileBottomNav";
 import ConditionalFooter from "@/components/global/ConditionalFooter";
 import WhatsAppFloat from "@/components/global/WhatsAppFloat";
+import AssistantWidget from "@/components/global/AssistantWidget";
 import TestingDisclaimer from "@/components/global/TestingDisclaimer";
 import LaunchCelebrationOverlay from "@/components/global/LaunchCelebrationOverlay";
 import CookieConsent from "@/components/global/CookieConsent";
@@ -153,6 +154,7 @@ export default async function LocaleLayout({
             <MobileBottomNav />
             <ConditionalFooter />
             <WhatsAppFloat />
+            <AssistantWidget />
             <TestingDisclaimer />
             <LaunchCelebrationOverlay />
             <CookieConsent />
