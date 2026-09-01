@@ -6,15 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Cookie, ChevronDown, ChevronUp } from 'lucide-react';
 
 import { Link } from '@/i18n/navigation';
-type ConsentState = {
-    necessary: true;
-    analytics: boolean;
-    marketing: boolean;
-    preferences: boolean;
-};
-
-const CONSENT_KEY = 'findafriq_cookie_consent';
-const CONSENT_VERSION = '1';
+import { readConsent, writeConsent, type ConsentState } from '@/lib/consent';
 
 function updateGAConsent(consentData: ConsentState) {
     if (typeof window === 'undefined' || typeof window.gtag !== 'function') return;
@@ -35,32 +27,23 @@ export default function CookieConsent() {
     });
 
     useEffect(() => {
-        const stored = localStorage.getItem(CONSENT_KEY);
+        const stored = readConsent();
         if (!stored) {
-            // Slight delay so it doesn't flash immediately on load
+            // No choice yet, or a stale consent version — ask. Slight delay so
+            // the banner doesn't flash immediately on load.
             const timer = setTimeout(() => setVisible(true), 800);
             return () => clearTimeout(timer);
         }
-        try {
-            const parsed = JSON.parse(stored);
-            if (parsed.version !== CONSENT_VERSION) {
-                // Consent version changed — re-ask
-                const timer = setTimeout(() => setVisible(true), 800);
-                return () => clearTimeout(timer);
-            }
-            // Restore GA consent state on page load
-            updateGAConsent(parsed as ConsentState);
-        } catch {
-            const timer = setTimeout(() => setVisible(true), 800);
-            return () => clearTimeout(timer);
-        }
+        // Re-assert the stored choice with gtag, for the case where analytics
+        // was consented to and ConsentedAnalytics has now loaded the script.
+        updateGAConsent(stored);
     }, []);
 
     const saveConsent = (consentData: ConsentState) => {
-        localStorage.setItem(
-            CONSENT_KEY,
-            JSON.stringify({ ...consentData, version: CONSENT_VERSION, timestamp: Date.now() })
-        );
+        // Persists and fires CONSENT_CHANGED_EVENT, which is what lets
+        // ConsentedAnalytics mount gtag.js straight away on "Accept all"
+        // instead of waiting for the next navigation.
+        writeConsent(consentData);
         updateGAConsent(consentData);
         setVisible(false);
     };

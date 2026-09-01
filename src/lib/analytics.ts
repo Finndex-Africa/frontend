@@ -8,6 +8,8 @@
  *   { necessary, analytics, marketing, preferences, version, timestamp }
  */
 
+import { hasAnalyticsConsent } from "./consent";
+
 declare global {
   interface Window {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -16,19 +18,6 @@ declare global {
   }
 }
 
-const CONSENT_KEY = "findafriq_cookie_consent";
-
-function hasAnalyticsConsent(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    const stored = localStorage.getItem(CONSENT_KEY);
-    if (!stored) return false;
-    const parsed = JSON.parse(stored);
-    return parsed?.analytics === true;
-  } catch {
-    return false;
-  }
-}
 
 function sendEvent(eventName: string, params?: Record<string, unknown>): void {
   if (!hasAnalyticsConsent()) return;

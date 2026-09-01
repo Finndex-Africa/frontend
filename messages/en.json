@@ -267,7 +267,9 @@
     "howItWorks": "How It Works",
     "propertiesListed": "Properties Listed",
     "servicesListed": "Services Listed",
-    "buySellListed": "Buy & Sell Listed"
+    "buySellListed": "Buy & Sell Listed",
+    "introVideoTitle": "Introduction to FindAfriq",
+    "playVideo": "Play video"
   },
   "propertyTypes": {
     "apartment": "Apartment",

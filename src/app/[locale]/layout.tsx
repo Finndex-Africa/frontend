@@ -14,7 +14,7 @@ import LaunchCelebrationOverlay from "@/components/global/LaunchCelebrationOverl
 import CookieConsent from "@/components/global/CookieConsent";
 import { Providers } from "@/providers";
 import JsonLd, { siteJsonLd } from "@/components/global/JsonLd";
-import { GoogleAnalytics } from "@next/third-parties/google";
+import ConsentedAnalytics from "@/components/global/ConsentedAnalytics";
 import {
   routing,
   localeHtmlLang,
@@ -168,7 +168,7 @@ export default async function LocaleLayout({
           </Providers>
         </NextIntlClientProvider>
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
-          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+          <ConsentedAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
         )}
       </body>
     </html>

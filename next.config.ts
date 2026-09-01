@@ -48,6 +48,15 @@ export default withSentryConfig(withNextIntl(nextConfig), {
   // Automatically tree-shake Sentry logger statements to reduce bundle size
   disableLogger: true,
 
+  // Strips code paths this app never exercises. Sentry accounted for ~47% of
+  // the JS chunk shared by every page, so anything that can be dropped is worth
+  // dropping.
+  bundleSizeOptimizations: {
+    excludeDebugStatements: true,
+    excludeReplayShadowDom: true,
+    excludeReplayIframe: true,
+  },
+
   // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
   // See the following for more information:
   // https://docs.sentry.io/product/crons/

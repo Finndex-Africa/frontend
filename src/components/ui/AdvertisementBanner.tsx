@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { SafeImage } from "@/components/ui/SafeImage";
+import LiteYouTube from "@/components/ui/LiteYouTube";
 import { advertisementsApi, propertiesApi } from "@/services/api";
 
 import { Link } from "@/i18n/navigation";
@@ -20,7 +21,7 @@ interface PlatformStats {
     totalBuySell: number;
 }
 
-const FINDAFRIQ_INTRO_EMBED_SRC = 'https://www.youtube.com/embed/W7e_E5S_YKA';
+const FINDAFRIQ_INTRO_VIDEO_ID = 'W7e_E5S_YKA';
 
 export default function AdvertisementBanner() {
     const t = useTranslations("advertBanner");
@@ -174,13 +175,10 @@ export default function AdvertisementBanner() {
                         {/* Introduction video */}
                         <div className="flex flex-col gap-2 w-full">
                             <div className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-2xl bg-black ring-2 ring-white/20">
-                                <iframe
-                                    src={FINDAFRIQ_INTRO_EMBED_SRC}
-                                    title="Introduction to FindAfriq"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                    referrerPolicy="strict-origin-when-cross-origin"
-                                    allowFullScreen
-                                    className="absolute inset-0 h-full w-full border-0"
+                                <LiteYouTube
+                                    videoId={FINDAFRIQ_INTRO_VIDEO_ID}
+                                    title={t("introVideoTitle")}
+                                    playLabel={t("playVideo")}
                                 />
                             </div>
                             <p className="text-xs text-white/85 text-center sm:text-right">
