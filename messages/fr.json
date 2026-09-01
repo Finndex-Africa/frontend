@@ -244,8 +244,7 @@
   "cookies": {
     "title": "Nous utilisons des cookies",
     "body": "Nous utilisons des cookies pour améliorer votre navigation, analyser le trafic du site et personnaliser le contenu. En cliquant sur « Tout accepter », vous consentez à notre utilisation des cookies.",
-    "learnMore": "En savoir plus",
-    "learnMoreLabel": "En savoir plus sur notre politique de cookies et de confidentialité",
+    "learnMore": "Lire notre politique de confidentialité",
     "acceptAll": "Tout accepter",
     "rejectAll": "Tout refuser",
     "managePreferences": "Gérer les préférences",
