@@ -335,12 +335,19 @@ export default function HomePage() {
       {/* Hero — fixed image heights (same as Properties); mobile: stacked headline + search with extra gap; md+: unchanged overlap */}
       <section className="relative z-20 w-full overflow-visible pb-3 md:h-[400px] md:pb-0">
         <div className="absolute inset-0 overflow-hidden">
+          {/*
+            This is the LCP element. `priority` preloads it; `fetchPriority`
+            and an explicit `sizes` tell the browser it is the important one
+            and stop it downloading a desktop-width crop on a phone.
+          */}
           <Image
             src="/images/properties/bg.jpeg"
             alt={t("heroImageAlt")}
             fill
+            sizes="100vw"
             className="object-cover object-[center_30%]"
             priority
+            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-black/40" />
         </div>

@@ -1,0 +1,44 @@
+# FindAfriq
+
+> A digital real estate and services platform that connects seekers with verified properties and trusted service providers across Africa, currently operating in Rwanda and Liberia.
+
+FindAfriq lists three kinds of things: properties to rent, services to book, and
+items or land for sale. Listings are created by landlords, agents, real estate
+agencies and service providers, and are reviewed by an administrator before they
+appear publicly — anything still pending or rejected is not served to visitors.
+
+Prices are set by the owner in their own currency (USD or RWF) and are shown to
+visitors converted into the currency they have selected. The figure a listing was
+originally published at is displayed alongside the converted one on detail pages,
+because FindAfriq does not process payments — the owner is the one who quotes.
+
+Every public page exists at both `/en/` and `/fr/`, cross-linked with hreflang.
+The two are the same content in different languages; prefer the locale that
+matches the user and treat the other as a translation, not a separate page.
+Listing detail pages carry schema.org structured data (`Accommodation` for
+rentals, `Service` for services, `Product` for items for sale) with an `Offer`
+and a `BreadcrumbList`.
+
+## Browse
+
+- [Properties](https://findafriq.com/en/routes/properties): rental listings, filterable by location, property type and budget
+- [Services](https://findafriq.com/en/routes/services): service providers such as cleaning, electrical, plumbing and painting
+- [Buy & Sell](https://findafriq.com/en/routes/buy-and-sell): land, houses and household items offered for outright sale
+
+## About
+
+- [How It Works](https://findafriq.com/en/routes/how-it-works): how seekers, landlords, agents and providers use the platform
+- [About](https://findafriq.com/en/routes/about): what FindAfriq is and who runs it
+- [Pricing](https://findafriq.com/en/routes/pricing): subscription tiers for seekers, listers and providers, billed in USD
+- [Help Center](https://findafriq.com/en/routes/help): common questions
+
+## Policies
+
+- [Terms of Service](https://findafriq.com/en/routes/terms)
+- [Privacy Policy](https://findafriq.com/en/routes/privacy)
+- [Platform Policy](https://findafriq.com/en/routes/platform-policy)
+
+## Optional
+
+- [Sitemap](https://findafriq.com/sitemap.xml): every public page and published listing, per locale
+- [robots.txt](https://findafriq.com/robots.txt): crawl rules. Account areas — messages, notifications, bookings, saved listings and profile — are disallowed and require sign-in; they hold personal data and are not useful to crawl.

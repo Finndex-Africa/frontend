@@ -269,7 +269,7 @@
   "cookies": {
     "title": "Nous utilisons des cookies",
     "body": "Nous utilisons des cookies pour améliorer votre navigation, analyser le trafic du site et personnaliser le contenu. En cliquant sur « Tout accepter », vous consentez à notre utilisation des cookies.",
-    "learnMore": "En savoir plus",
+    "learnMore": "Lire notre politique de confidentialité",
     "acceptAll": "Tout accepter",
     "rejectAll": "Tout refuser",
     "managePreferences": "Gérer les préférences",
@@ -294,10 +294,11 @@
     "propertiesListed": "Biens publiés",
     "servicesListed": "Services publiés",
     "buySellListed": "Annonces Acheter & Vendre",
-    "videoTitle": "Présentation de FindAfriq",
     "youtube": "YouTube",
     "learnMore": "En savoir plus",
-    "watchIntro": "Regardez notre présentation — FindAfriq sur"
+    "watchIntro": "Regardez notre présentation — FindAfriq sur",
+    "introVideoTitle": "Introduction à FindAfriq",
+    "playVideo": "Lire la vidéo"
   },
   "propertyTypes": {
     "apartment": "Appartement",
