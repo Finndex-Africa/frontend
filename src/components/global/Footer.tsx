@@ -2,7 +2,9 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 
-const PATTERN_URL = '/images/patterns/rwanda-cultural-pattern.png';
+// WebP: 63.5 KiB -> 23.6 KiB. It is a CSS background, so next/image never sees
+// it and the format has to be chosen here.
+const PATTERN_URL = '/images/patterns/rwanda-cultural-pattern.webp';
 
 export default function Footer() {
     const t = useTranslations('footer');
@@ -73,7 +75,8 @@ export default function Footer() {
                     </ul>
                 </div>
             </div>
-            <div className="container-app py-4 border-t border-gray-300 text-xs text-gray-500">
+            {/* gray-600, not gray-500: on bg-gray-100 that is 6.87:1 vs 4.39:1, which fails WCAG AA. */}
+            <div className="container-app py-4 border-t border-gray-300 text-xs text-gray-600">
                 {/* year passed as a string so ICU doesn't group it as "2 026" in fr */}
                 {t('copyright', { year: String(new Date().getFullYear()) })}
             </div>

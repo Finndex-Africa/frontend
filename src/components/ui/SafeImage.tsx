@@ -12,9 +12,23 @@ interface SafeImageProps {
   className?: string;
   priority?: boolean;
   sizes?: string;
+  /** Override the card default; the hero and other full-bleed art want higher. */
+  quality?: number;
   style?: React.CSSProperties;
   onLoad?: () => void;
 }
+
+/*
+  Without an explicit `sizes`, next/image assumes 100vw and picks a 750px-wide
+  source for a card that renders ~185px wide — Lighthouse measured ~956 KiB of
+  waste across the home page. This mirrors the card grid actually used
+  (grid-cols-2 / md:3 / lg:4 / xl:5) at Tailwind's breakpoints.
+*/
+const CARD_SIZES =
+  "(max-width: 767px) 50vw, (max-width: 1023px) 33vw, (max-width: 1279px) 25vw, 20vw";
+
+/** Thumbnails tolerate more compression than hero art; 75 is next/image's default. */
+const CARD_QUALITY = 65;
 
 // Local placeholders to avoid Unsplash 404s
 const FALLBACK_IMAGES = {
@@ -38,6 +52,7 @@ export function SafeImage({
   className,
   priority,
   sizes,
+  quality,
   style,
   onLoad
 }: SafeImageProps) {
@@ -76,7 +91,8 @@ export function SafeImage({
         unoptimized={isDirectSpacesUrl}
         className={className}
         priority={priority}
-        sizes={sizes}
+        sizes={sizes ?? CARD_SIZES}
+        quality={quality ?? CARD_QUALITY}
         style={style}
         onError={handleError}
         onLoad={onLoad}
@@ -93,7 +109,8 @@ export function SafeImage({
       unoptimized={isDirectSpacesUrl}
       className={className}
       priority={priority}
-      sizes={sizes}
+      sizes={sizes ?? CARD_SIZES}
+      quality={quality ?? CARD_QUALITY}
       style={style}
       onError={handleError}
       onLoad={onLoad}

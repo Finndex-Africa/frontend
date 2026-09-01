@@ -6,6 +6,14 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
   images: {
+    /*
+      Netlify's Next runtime serves /_next/image through its own function, so
+      the Cache-Control in netlify.toml does not apply — the optimiser's own
+      header wins, and it defaulted to 1h. Lighthouse flagged ~3 MB being
+      re-fetched. Optimised output is keyed by url+width+quality, so a long TTL
+      is safe: changing any of those changes the URL.
+    */
+    minimumCacheTTL: 31536000,
     remotePatterns: [
       { protocol: "http", hostname: "localhost" }, // Local development server
       { protocol: "https", hostname: "images.unsplash.com" },
