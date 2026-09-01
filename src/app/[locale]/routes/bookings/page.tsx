@@ -10,6 +10,8 @@ import { Booking, Property, Service } from '@/types/dashboard';
 import { trackBookingConfirmed, trackBookingRejected, trackBookingCancelled } from '@/lib/analytics';
 
 import { useRouter } from '@/i18n/navigation';
+import { useMoney } from '@/lib/currency/CurrencyProvider';
+import { DEFAULT_CURRENCY, isCurrency, type Currency } from '@/lib/currency/config';
 type BookingParticipant = {
     _id: string;
     name?: string;
@@ -35,6 +37,7 @@ function getParticipantDisplayName(participant: BookingParticipant | null): stri
 export default function BookingsPage() {
     const locale = useLocale();
     const router = useRouter();
+    const money = useMoney();
     const [isLoading, setIsLoading] = useState(true);
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
@@ -135,6 +138,21 @@ export default function BookingsPage() {
         const listing = getListingDetails(booking);
         return Boolean(listing && 'propertyType' in listing);
     };
+
+    /*
+      `totalPrice` is `listing.price * duration`, so it inherits the owner's
+      currency. Bookings don't persist a currency of their own, so it has to be
+      read back off the populated listing — hardcoding "$" here billed every
+      RWF booking as dollars.
+    */
+    const getBookingCurrency = (booking: Booking): Currency => {
+        const listing = getListingDetails(booking);
+        const code = (listing as { currency?: string } | null)?.currency;
+        return isCurrency(code) ? code : DEFAULT_CURRENCY;
+    };
+
+    const formatBookingTotal = (booking: Booking) =>
+        money.forListing(booking.totalPrice, getBookingCurrency(booking)).display;
 
     const getCustomer = (booking: Booking) => getBookingParticipant(booking.userId);
 
@@ -386,7 +404,7 @@ export default function BookingsPage() {
                                     </div>
 
                                     <div className="text-right ml-6">
-                                        <div className="text-2xl font-bold text-gray-900">${booking.totalPrice}</div>
+                                        <div className="text-2xl font-bold text-gray-900">{formatBookingTotal(booking)}</div>
                                         <div className="text-sm text-gray-500 mt-1">
                                             Payment: {booking.paymentStatus}
                                         </div>
@@ -455,7 +473,7 @@ export default function BookingsPage() {
                                             )}
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-2xl font-bold text-gray-900">${selectedBooking.totalPrice}</p>
+                                            <p className="text-2xl font-bold text-gray-900">{formatBookingTotal(selectedBooking)}</p>
                                             <p className="text-sm text-gray-500">Total Price</p>
                                         </div>
                                     </div>

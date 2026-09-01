@@ -76,7 +76,10 @@ const adaptPropertyToCard = (
     id: apiProperty._id,
     title: apiProperty.title,
     location: apiProperty.location,
-    price: `$${apiProperty.price}`,
+    // PropertyCard re-parses the digits and formats them itself, so the
+    // currency has to travel with the number or every card renders as USD.
+    price: String(apiProperty.price),
+    currency: apiProperty.currency,
     imageUrl: apiProperty.images?.[0] || defaultImage,
     imageUrls: apiProperty.images?.length ? apiProperty.images : [defaultImage],
     amenities,

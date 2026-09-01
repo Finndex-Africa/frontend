@@ -1,4 +1,5 @@
 import { apiClient } from '@/lib/api-client';
+import type { Currency } from '@/lib/currency/config';
 
 export interface BookmarkToggleResult {
     bookmarked: boolean;
@@ -15,6 +16,8 @@ export interface SavedItem {
         description?: string;
         location: string;
         price?: number;
+        /** Currency the owner priced in; absent on pre-multi-currency rows (all USD). */
+        currency?: Currency;
         images?: string[];
         rating?: number;
         reviewCount?: number;

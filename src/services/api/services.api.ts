@@ -1,5 +1,6 @@
 import { apiClient, PaginatedResponse } from '@/lib/api-client';
 import { Service } from '@/types/dashboard';
+import type { Currency } from '@/lib/currency/config';
 
 export interface ServiceFilters {
     page?: number;
@@ -8,6 +9,8 @@ export interface ServiceFilters {
     status?: string;
     minPrice?: number;
     maxPrice?: number;
+    /** Currency min/maxPrice are expressed in; the backend converts before filtering. */
+    currency?: Currency;
     location?: string;
     q?: string;
     verified?: boolean;
@@ -20,6 +23,8 @@ export interface CreateServiceDto {
     description: string;
     location: string;
     price?: number;
+    /** Currency the provider priced in; the backend normalizes to USD for filtering. */
+    currency?: Currency;
     priceUnit?: string;
     duration?: number;
     included?: string[];
@@ -43,6 +48,8 @@ export const servicesApi = {
         if (filters?.status) params.append('status', filters.status);
         if (filters?.minPrice) params.append('minPrice', filters.minPrice.toString());
         if (filters?.maxPrice) params.append('maxPrice', filters.maxPrice.toString());
+        // Without this the backend reads the budget as USD.
+        if (filters?.currency) params.append('currency', filters.currency);
         if (filters?.location) params.append('location', filters.location);
         if (filters?.q) params.append('q', filters.q);
         if (filters?.verified !== undefined) params.append('verified', filters.verified.toString());

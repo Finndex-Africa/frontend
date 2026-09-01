@@ -18,6 +18,7 @@ import { getUserDisplayName } from "@/lib/display-name";
 import { Link, useRouter } from "@/i18n/navigation";
 import CurrencySelect from "@/components/ui/CurrencySelect";
 import { CURRENCY_META, DEFAULT_CURRENCY, isCurrency, type Currency } from "@/lib/currency/config";
+import { useMoney } from "@/lib/currency/CurrencyProvider";
 function getBedroomDisplay(p: ApiProperty): string {
   const n = p.bedrooms ?? p.rooms;
   return n != null ? `${n} Bedroom${n !== 1 ? "s" : ""}` : "Not specified";
@@ -558,7 +559,9 @@ function EditPropertyModal({
                 Your Agent Fee ({CURRENCY_META[formData.currency as Currency] ?.label ?? DEFAULT_CURRENCY}) <span className="text-red-500">*</span>
               </label>
               <div className="flex items-center max-w-xs">
-                <span className="text-gray-500 mr-2">$</span>
+                <span className="text-gray-500 mr-2">
+                  {CURRENCY_META[(formData.currency as Currency) ?? DEFAULT_CURRENCY].symbol}
+                </span>
                 <input
                   type="number"
                   name="agentFee"
@@ -722,6 +725,11 @@ function PropertyModal({
   isOpen: boolean;
   onClose: () => void;
 }) {
+  // Owner-facing view: shows the figure the owner actually set, in their own
+  // currency, rather than converting into whatever the switcher is on. Matches
+  // how my-services treats provider-owned prices.
+  const money = useMoney();
+
   if (!isOpen || !property) return null;
 
   const amenityRows = getAmenityRowsFromApi(property);
@@ -825,7 +833,7 @@ function PropertyModal({
                 Price
               </label>
               <p className="text-2xl font-bold text-blue-600">
-                ${property.price}
+                {money.format(property.price, (property.currency as Currency) ?? DEFAULT_CURRENCY)}
               </p>
             </div>
             <div>
@@ -995,6 +1003,7 @@ function BuySellListingCard({
   onRepublish: (id: string) => void;
   onView: (listing: BuySellListing) => void;
 }) {
+  const money = useMoney();
   const firstImage = listing.images?.[0];
   const categoryLabel =
     listing.category === "land" ? "Land" :
@@ -1051,7 +1060,9 @@ function BuySellListingCard({
         <p className="text-sm text-gray-500 line-clamp-1 mb-1">📍 {listing.location}</p>
         {subtitle && <p className="text-xs text-gray-500 mb-3">{subtitle}</p>}
         <div className="flex items-baseline gap-1 mb-4 pb-4 border-b border-gray-100">
-          <span className="text-xl font-bold text-gray-900">${listing.price.toLocaleString()}</span>
+          <span className="text-xl font-bold text-gray-900">
+            {money.format(listing.price, (listing.currency as Currency) ?? DEFAULT_CURRENCY)}
+          </span>
         </div>
 
         {/* Rejection reason */}
@@ -1110,6 +1121,7 @@ function BuySellListingCard({
 
 export default function MyListingsPage() {
   const router = useRouter();
+  const money = useMoney();
 
   // ── Main tab ──────────────────────────────────────────────────────────────
   type MainTab = "rentals" | "buy_sell";
@@ -1923,7 +1935,7 @@ export default function MyListingsPage() {
                   <div className="mb-5">
                     <div className="flex items-baseline gap-1">
                       <span className="text-2xl font-bold text-gray-900">
-                        ${property.price}
+                        {money.format(property.price, (property.currency as Currency) ?? DEFAULT_CURRENCY)}
                       </span>
                       <span className="text-sm text-gray-500 font-medium">
                         /month
@@ -2203,7 +2215,9 @@ export default function MyListingsPage() {
 
               <h3 className="text-xl font-bold text-gray-900 mb-1">{buySellViewListing.title}</h3>
               <p className="text-sm text-gray-500 mb-3">📍 {buySellViewListing.location}</p>
-              <p className="text-2xl font-bold text-blue-600 mb-4">${buySellViewListing.price.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-blue-600 mb-4">
+                {money.format(buySellViewListing.price, (buySellViewListing.currency as Currency) ?? DEFAULT_CURRENCY)}
+              </p>
 
               {/* Details */}
               <div className="grid grid-cols-2 gap-2 mb-4">

@@ -5,15 +5,18 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 /**
  * Exchange rates from the backend.
  *
- * Revalidated hourly to match the backend's own cache TTL — there is no point
- * asking more often than it refreshes. Falls back to a static table rather than
- * throwing: an unreachable rates endpoint must not take down every page that
- * happens to render a price.
+ * Revalidated every 5 minutes. The backend caches live rates for longer, but an
+ * admin can set a manual override in dashboard Settings and expects it to reach
+ * shoppers promptly — an hour-long window here made that override look broken.
+ * These are cheap cached calls to our own API, not Wise round-trips.
+ *
+ * Falls back to a static table rather than throwing: an unreachable rates
+ * endpoint must not take down every page that happens to render a price.
  */
 export async function getRates(): Promise<RateTable> {
   try {
     const res = await fetch(`${API_URL}/currency/rates`, {
-      next: { revalidate: 3600 },
+      next: { revalidate: 300 },
     });
     if (!res.ok) throw new Error(`rates endpoint returned ${res.status}`);
 

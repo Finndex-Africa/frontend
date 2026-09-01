@@ -92,6 +92,8 @@ export interface BuySellFilters {
   status?: BuySellStatus;
   minPrice?: number;
   maxPrice?: number;
+  /** Currency min/maxPrice are expressed in; the backend converts before filtering. */
+  currency?: Currency;
   location?: string;
   q?: string;
   sort?: string;

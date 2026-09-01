@@ -333,14 +333,19 @@ export default function EditBuySellPage() {
             </h2>
             <p className="text-sm text-amber-700 mb-4">As an agent or real estate agency, you can set an access fee for this listing.</p>
             <div className="relative max-w-xs">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+                    {CURRENCY_META[currency].symbol}
+                </span>
                 <input
                     type="number"
                     value={agentFee}
                     onChange={e => setAgentFee(e.target.value)}
                     min={0}
                     placeholder="e.g. 500"
-                    className="w-full pl-7 pr-4 py-3 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent bg-white"
+                    /* "RWF" needs more room than "$", or the value renders under the prefix. */
+                    className={`w-full pr-4 py-3 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent bg-white ${
+                        CURRENCY_META[currency].symbol.length > 1 ? "pl-14" : "pl-7"
+                    }`}
                 />
             </div>
         </div>

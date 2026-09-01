@@ -380,6 +380,12 @@ export default function BuySellDetailClient() {
 
   // ── Derived values ────────────────────────────────────────────────────────
   const priceParts = money.forListing(listing.price, listing.currency as Currency);
+  // The agent fee is denominated in the seller's currency, same as `price` —
+  // formatting it separately from the price is what left it stuck in USD.
+  const agentFeeParts = money.forListing(
+    (listing as any).agentFee ?? 0,
+    listing.currency as Currency,
+  );
   const images = listing.images?.length ? listing.images : ["/images/properties/pexels-photo-323780.jpeg"];
   const media = images.map((src) => ({ type: "image" as const, src }));
 
@@ -676,7 +682,7 @@ export default function BuySellDetailClient() {
                           <p className="text-xs text-gray-500 mt-0.5">Fee set by the listing agent or real estate agency.</p>
                           <p className="text-xs text-gray-400 mt-0.5">This fee is paid directly to the agent.</p>
                         </div>
-                        <span className="shrink-0 text-base font-bold text-green-600">${(listing as any).agentFee.toLocaleString()}</span>
+                        <span className="shrink-0 text-base font-bold text-green-600">{agentFeeParts.display}</span>
                       </div>
                       <div className="flex items-start gap-3 p-3 rounded-lg border border-amber-200 bg-amber-50">
                         <div className="shrink-0 w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center">
@@ -694,8 +700,18 @@ export default function BuySellDetailClient() {
                           </svg>
                           <span className="text-sm font-semibold text-gray-700">Total Amount to Pay Agent</span>
                         </div>
-                        <span className="text-base font-bold text-gray-900">${(listing as any).agentFee.toLocaleString()}</span>
+                        <span className="text-base font-bold text-gray-900">{agentFeeParts.display}</span>
                       </div>
+
+                      {/*
+                        Paid directly to the agent, so a converted figure needs
+                        the agent's own number beside it.
+                      */}
+                      {agentFeeParts.isConverted && (
+                        <p className="px-1 text-xs text-gray-500">
+                          {tCurrency("listedBy", { price: agentFeeParts.original })}
+                        </p>
+                      )}
                     </div>
                   )}
 

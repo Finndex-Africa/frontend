@@ -104,6 +104,10 @@ export default function MyServicesPage() {
             if (values.priceUnit) cleanData.priceUnit = values.priceUnit;
             if (values.duration) cleanData.duration = values.duration;
 
+            // The currency the provider priced in. Without this the backend
+            // defaults to USD and an RWF price is stored as dollars.
+            if (values.currency) cleanData.currency = values.currency;
+
             // Handle price (optional, defaults to 0)
             if (values.price !== undefined && values.price !== null && values.price !== '') {
                 cleanData.price = Number(values.price);

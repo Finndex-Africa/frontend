@@ -5,7 +5,7 @@ import { useRouter } from "@/i18n/navigation";
 import { Search, MapPin, Home, Briefcase, DollarSign, X, SlidersHorizontal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { trackSearch, trackFilterCleared } from "@/lib/analytics";
-import { useCurrency } from "@/lib/currency/CurrencyProvider";
+import { useCurrency, useMoney } from "@/lib/currency/CurrencyProvider";
 import { CURRENCY_META } from "@/lib/currency/config";
 
 const PROPERTY_TYPES = [
@@ -56,6 +56,12 @@ export default function SearchBar({
   const t = useTranslations("searchBar");
   const tCurrency = useTranslations("currencySwitcher");
   const { currency } = useCurrency();
+  const money = useMoney();
+  /* Raw input digits render as "RWF6500000"; group them in the active currency. */
+  const formattedBudget = (value: string) =>
+    value && Number.isFinite(Number(value))
+      ? money.format(Number(value), currency)
+      : `${CURRENCY_META[currency].symbol}${value}`;
   const router = useRouter();
   const isBuySell = variant === "buy-sell";
   const isServices = variant === "services";
@@ -175,7 +181,7 @@ export default function SearchBar({
         );
       }
     }
-    if (budget) parts.push(`Max ${CURRENCY_META[currency].symbol}${budget}`);
+    if (budget) parts.push(`Max ${formattedBudget(budget)}`);
     if (!isBuySell && resolvedTab === "services" && serviceName.trim()) parts.push(serviceName.trim());
     return parts.join(" · ");
   };
@@ -272,7 +278,7 @@ export default function SearchBar({
             )}
             {budget && (
               <span className="rounded-full border border-blue-100 bg-blue-50 px-2 py-0.5 text-xs text-blue-700">
-                Max {CURRENCY_META[currency].symbol}{budget}
+                Max {formattedBudget(budget)}
               </span>
             )}
             {!isBuySell && resolvedTab === "services" && serviceName && (
@@ -378,7 +384,9 @@ export default function SearchBar({
                           value={budget}
                           onChange={(e) => setBudget(e.target.value)}
                           placeholder={t("anyPrice")}
-                          className="h-10 w-full rounded-lg border border-gray-200 bg-gray-50 pl-6 pr-3 text-sm text-gray-700 placeholder-gray-400 transition-colors focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100"
+                          className={`h-10 w-full rounded-lg border border-gray-200 bg-gray-50 pr-3 text-sm text-gray-700 placeholder-gray-400 transition-colors focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 ${
+                            CURRENCY_META[currency].symbol.length > 1 ? "pl-12" : "pl-6"
+                          }`}
                         />
                       </div>
                     </>

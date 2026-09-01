@@ -565,6 +565,14 @@ export default function PropertyDetail() {
     property.currency as Currency,
   );
 
+  // The agent fee is denominated in the same currency the owner priced in, so
+  // it converts on the same rate as the rent. Formatting it separately from
+  // `price` is what previously left it stuck in USD.
+  const agentFeeParts = money.forListing(
+    property.agentFee ?? 0,
+    property.currency as Currency,
+  );
+
   if (!property.amenities?.length && features.length < 4) {
     const defaults = [
       { label: "Wi-Fi", desc: "High-speed internet", icon: "📶" },
@@ -924,7 +932,7 @@ export default function PropertyDetail() {
                             <p className="text-xs text-gray-500 mt-0.5">Fee set by the listing {ownerLabelLower}.</p>
                             <p className="text-xs text-gray-400 mt-0.5">This fee is paid to the listing agent.</p>
                           </div>
-                          <span className="shrink-0 text-base font-bold text-green-600">${(property.agentFee ?? 0).toLocaleString()}</span>
+                          <span className="shrink-0 text-base font-bold text-green-600">{agentFeeParts.display}</span>
                         </div>
 
                         {/* Payment coming soon notice */}
@@ -946,8 +954,19 @@ export default function PropertyDetail() {
                             </svg>
                             <span className="text-sm font-semibold text-gray-700">Total Amount to Pay Agent</span>
                           </div>
-                          <span className="text-base font-bold text-gray-900">${(property.agentFee ?? 0).toLocaleString()}</span>
+                          <span className="text-base font-bold text-gray-900">{agentFeeParts.display}</span>
                         </div>
+
+                        {/*
+                          The seeker pays this straight to the agent, so when the
+                          figure has been converted they need the agent's own
+                          number too — otherwise they turn up with the wrong amount.
+                        */}
+                        {agentFeeParts.isConverted && (
+                          <p className="px-1 text-xs text-gray-500">
+                            {tCurrency("listedBy", { price: agentFeeParts.original })}
+                          </p>
+                        )}
                       </div>
                   )}
 
