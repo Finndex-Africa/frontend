@@ -164,7 +164,18 @@ export default async function LocaleLayout({
         {/* Same-origin as the page? Then it's already connected and this is a no-op. */}
         {API_ORIGIN && API_ORIGIN !== SITE_URL && (
           <>
+            {/*
+              Both variants on purpose. A preconnect opens a socket in one of
+              two pools and only a matching request reuses it: `crossorigin`
+              gives the anonymous-CORS pool (what fetch/XHR to another origin
+              uses), the bare one gives the non-CORS pool. Production Lighthouse
+              reported "Unused preconnect. Check that the crossorigin attribute
+              is used properly" with only the CORS variant present, while still
+              listing this origin as worth ~300 ms — so cover both rather than
+              guess. Cost is one extra idle socket.
+            */}
             <link rel="preconnect" href={API_ORIGIN} crossOrigin="" />
+            <link rel="preconnect" href={API_ORIGIN} />
             {/* Fallback for browsers that ignore preconnect. */}
             <link rel="dns-prefetch" href={API_ORIGIN} />
           </>
