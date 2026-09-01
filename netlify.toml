@@ -7,7 +7,10 @@
 
 [build.environment]
   NEXT_TELEMETRY_DISABLED = "1"
-  NODE_VERSION = "20"
+  # Must stay >= 22.13: Corepack installs the pnpm pinned in package.json
+  # (pnpm 11), which imports node:sqlite — a module that does not exist before
+  # Node 22, so pnpm crashes during install rather than at build time.
+  NODE_VERSION = "22"
 
 [[headers]]
   for = "/*"
