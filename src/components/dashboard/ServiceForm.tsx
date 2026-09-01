@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from "next-intl";
 import { useState, useEffect } from 'react';
 import Form from 'antd/es/form';
 import Input from 'antd/es/input';
@@ -32,6 +33,8 @@ export function ServiceForm({
     onCancel,
     loading,
 }: ServiceFormProps) {
+    const t_hints = useTranslations("hints");
+  const t = useTranslations("forms");
     const [form] = Form.useForm();
     const [fileList, setFileList] = useState<UploadFile[]>([]);
 
@@ -101,11 +104,11 @@ export function ServiceForm({
     const beforeUpload = (file: File) => {
         const isImage = file.type.startsWith('image/');
         if (!isImage) {
-            showToast.error('This file type is not allowed. Please use JPG, PNG, GIF, or WebP.');
+            showToast.error(t('fileTypeNotAllowed'));
         }
         const isLt10M = file.size / 1024 / 1024 < 10;
         if (!isLt10M) {
-            showToast.error('This image is too large. Maximum size is 10MB per file. Please choose a smaller image or compress it.');
+            showToast.error(t('fileTooLarge'));
         }
         return isImage && isLt10M;
     };
@@ -152,7 +155,7 @@ export function ServiceForm({
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     }
-                    title="Basic Information"
+                    title={t("basicInformation")}
                 />
                 <Row gutter={[16, 16]}>
                     <Col xs={24}>
@@ -163,7 +166,7 @@ export function ServiceForm({
                         >
                             <Input
                                 size="large"
-                                placeholder="e.g., Professional Cleaning Service"
+                                placeholder={t_hints("e_g_professional_cleaning_service")}
                                 style={{
                                     borderRadius: '12px',
                                     border: '2px solid #e5e7eb',
@@ -184,7 +187,7 @@ export function ServiceForm({
                         >
                             <Select
                                 size="large"
-                                placeholder="Select category"
+                                placeholder={t("selectCategory")}
                                 style={{ borderRadius: '12px' }}
                             >
                                 <Select.Option value="electrical">⚡ Electrical</Select.Option>
@@ -211,7 +214,7 @@ export function ServiceForm({
                         >
                             <Input
                                 size="large"
-                                placeholder="e.g., Paynesville City, Montserrado"
+                                placeholder={t_hints("e_g_paynesville_city_montserrado")}
                                 style={{
                                     borderRadius: '12px',
                                     border: '2px solid #e5e7eb',
@@ -232,7 +235,7 @@ export function ServiceForm({
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     }
-                    title="Pricing (Optional)"
+                    title={t("pricingOptional")}
                 />
                 <Row gutter={[16, 16]}>
                     <Col xs={24} sm={8}>
@@ -247,7 +250,7 @@ export function ServiceForm({
                                     borderRadius: '12px',
                                     border: '2px solid #e5e7eb'
                                 }}
-                                placeholder={selectedCurrency === 'RWF' ? '0 (Optional)' : '0.00 (Optional)'}
+                                placeholder={t_hints("0_00_optional")}
                                 min={0}
                                 // RWF has no minor unit — offering cents there is wrong.
                                 precision={currencyMeta.decimals}
@@ -285,7 +288,7 @@ export function ServiceForm({
                         >
                             <Select
                                 size="large"
-                                placeholder="Select pricing unit"
+                                placeholder={t("selectPricingUnit")}
                                 style={{ borderRadius: '12px' }}
                             >
                                 <Select.Option value="day">📅 Per Day</Select.Option>
@@ -318,7 +321,7 @@ export function ServiceForm({
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                     }
-                    title="Description"
+                    title={t("description")}
                 />
                 <Form.Item
                     name="description"
@@ -345,7 +348,7 @@ export function ServiceForm({
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                     }
-                    title="Service Images *"
+                    title={t("serviceImages")}
                 />
                 <Upload
                     listType="picture-card"
@@ -447,7 +450,7 @@ export function ServiceForm({
                         color: '#6b7280'
                     }}
                 >
-                    Cancel
+                    {t("cancel")}
                 </Button>
             </div>
         </Form>

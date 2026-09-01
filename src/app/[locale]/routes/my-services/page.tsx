@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from 'react';
 
 import { servicesApi } from '@/services/api';
@@ -8,7 +9,7 @@ import { Service as ApiService } from '@/types/dashboard';
 import Image from 'next/image';
 import { ServiceForm } from '@/components/dashboard/ServiceForm';
 import { useToast } from '@/components/ui/Toast';
-import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
+import { useErrorMessage } from "@/lib/error-messages";
 import { trackListingCreated, trackListingEdited } from '@/lib/analytics';
 
 import { useRouter } from '@/i18n/navigation';
@@ -18,6 +19,9 @@ type ModalMode = 'create' | 'edit' | 'view' | null;
 
 export default function MyServicesPage() {
     const money = useMoney();
+  const tErr = useTranslations("errors");
+  const errorMessage = useErrorMessage();
+  const t = useTranslations("myServices");
     const { push: showToast } = useToast();
     const [services, setServices] = useState<ApiService[]>([]);
     const [loading, setLoading] = useState(true);
@@ -49,9 +53,9 @@ export default function MyServicesPage() {
         } catch (error: any) {
             console.error('Error fetching my services:', error);
             if (error.response?.status === 401 || error.response?.status === 403) {
-                setError('Please log in as a service provider to view your services.');
+                setError(tErr("form.loginAsProvider"));
             } else {
-                setError(getUserFriendlyErrorMessage(error, 'Failed to load your services. Please try again later.'));
+                setError(errorMessage(error, "loadMyServices"));
             }
         } finally {
             setLoading(false);
@@ -80,7 +84,7 @@ export default function MyServicesPage() {
                         console.error('❌ Failed to upload image:', error);
                         showToast({
                             title: 'Upload failed',
-                            description: getUserFriendlyErrorMessage(error, 'One or more images could not be uploaded. Check that each file is under 10MB and is JPG, PNG, GIF, or WebP.'),
+                            description: errorMessage(error, "uploadImages"),
                             variant: 'error'
                         });
                     }
@@ -149,7 +153,7 @@ export default function MyServicesPage() {
             });
         } catch (error: any) {
             console.error('Failed to create service:', error);
-            const msg = getUserFriendlyErrorMessage(error, 'Failed to create service. Please try again.');
+            const msg = errorMessage(error, "createService");
             setSubmitError(msg);
             showToast({
                 title: 'Error',
@@ -179,7 +183,7 @@ export default function MyServicesPage() {
                         console.error('Failed to upload image:', error);
                         showToast({
                             title: 'Upload failed',
-                            description: getUserFriendlyErrorMessage(error, 'One or more images could not be uploaded. Check that each file is under 10MB and is JPG, PNG, GIF, or WebP.'),
+                            description: errorMessage(error, "uploadImages"),
                             variant: 'error'
                         });
                     }
@@ -226,7 +230,7 @@ export default function MyServicesPage() {
             });
         } catch (error: any) {
             console.error('Failed to update service:', error);
-            const msg = getUserFriendlyErrorMessage(error, 'Failed to update service. Please try again.');
+            const msg = errorMessage(error, "updateService");
             setSubmitError(msg);
             showToast({
                 title: 'Error',
@@ -252,7 +256,7 @@ export default function MyServicesPage() {
             console.error('Failed to delete service:', error);
             showToast({
                 title: 'Error',
-                description: getUserFriendlyErrorMessage(error, 'Failed to delete service. Please try again.'),
+                description: errorMessage(error, "deleteService"),
                 variant: 'error'
             });
         }
@@ -281,7 +285,7 @@ export default function MyServicesPage() {
             console.error('Failed to unpublish service:', error);
             showToast({
                 title: 'Error',
-                description: getUserFriendlyErrorMessage(error, 'Failed to unpublish service. Please try again.'),
+                description: errorMessage(error, "unpublishService"),
                 variant: 'error'
             });
         }
@@ -354,7 +358,7 @@ export default function MyServicesPage() {
                                 onClick={() => router.push('/routes/login')}
                                 className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                             >
-                                Go to Login
+                                {t("goToLogin")}
                             </button>
                         </div>
                     </div>
@@ -371,7 +375,7 @@ export default function MyServicesPage() {
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                         <div>
                             <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-900 bg-clip-text text-transparent">
-                                My Services
+                                {t("title")}
                             </h1>
                             <p className="text-gray-600 mt-2 text-sm sm:text-base">Manage and track your service listings</p>
                         </div>
@@ -382,7 +386,7 @@ export default function MyServicesPage() {
                             <svg className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                             </svg>
-                            Create New Service
+                            {t("createNewService")}
                         </button>
                     </div>
 
@@ -462,7 +466,7 @@ export default function MyServicesPage() {
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                                 </svg>
-                                Create Your First Service
+                                {t("createFirstService")}
                             </button>
                         </div>
                     </div>
@@ -556,7 +560,7 @@ export default function MyServicesPage() {
                                                     <button
                                                         onClick={(e) => handleEditClick(e, service)}
                                                         className="p-2.5 text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 hover:scale-110 border border-blue-200"
-                                                        title="Edit service"
+                                                        title={t("editService")}
                                                     >
                                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -569,7 +573,7 @@ export default function MyServicesPage() {
                                                                 setUnpublishConfirm(service);
                                                             }}
                                                             className="p-2.5 text-orange-600 hover:bg-orange-50 rounded-xl transition-all duration-200 hover:scale-110 border border-orange-200"
-                                                            title="Unpublish service"
+                                                            title={t("unpublishService")}
                                                         >
                                                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
@@ -579,7 +583,7 @@ export default function MyServicesPage() {
                                                     <button
                                                         onClick={(e) => handleDeleteClick(e, service._id)}
                                                         className="p-2.5 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200 hover:scale-110 border border-red-200"
-                                                        title="Delete service"
+                                                        title={t("deleteService")}
                                                     >
                                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -708,7 +712,7 @@ export default function MyServicesPage() {
                                 {selectedService.status === 'rejected' && (
                                     <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3">
                                         <p className="text-xs font-semibold text-red-800 uppercase tracking-wide mb-1">
-                                            Rejection Reason
+                                            {t("rejectionReason")}
                                         </p>
                                         <p className="text-sm text-red-900 leading-relaxed">
                                             {typeof selectedService.rejectionReason === 'string' &&
@@ -757,7 +761,7 @@ export default function MyServicesPage() {
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
-                                    Edit Service
+                                    {t("editServiceTitle")}
                                 </button>
                                 <button
                                     onClick={() => {
@@ -769,7 +773,7 @@ export default function MyServicesPage() {
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
-                                    Delete Service
+                                    {t("deleteServiceTitle")}
                                 </button>
                             </div>
                         </div>
@@ -795,7 +799,7 @@ export default function MyServicesPage() {
                                 onClick={() => setDeleteConfirm(null)}
                                 className="flex-1 bg-gray-100 text-gray-700 px-6 py-3.5 rounded-xl hover:bg-gray-200 transition-all duration-200 font-semibold border-2 border-gray-200"
                             >
-                                Cancel
+                                {t("cancel")}
                             </button>
                             <button
                                 onClick={() => handleDeleteService(deleteConfirm)}
@@ -804,7 +808,7 @@ export default function MyServicesPage() {
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
-                                Delete Permanently
+                                {t("deletePermanently")}
                             </button>
                         </div>
                     </div>
@@ -832,7 +836,7 @@ export default function MyServicesPage() {
                                 onClick={() => setUnpublishConfirm(null)}
                                 className="flex-1 bg-gray-100 text-gray-700 px-6 py-3.5 rounded-xl hover:bg-gray-200 transition-all duration-200 font-semibold border-2 border-gray-200"
                             >
-                                Cancel
+                                {t("cancel")}
                             </button>
                             <button
                                 onClick={handleUnpublish}
@@ -841,7 +845,7 @@ export default function MyServicesPage() {
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                                 </svg>
-                                Unpublish
+                                {t("unpublish")}
                             </button>
                         </div>
                     </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
+import { useTranslatedContent } from "@/lib/translated-content";
 import { SafeImage } from "@/components/ui/SafeImage";
 import ShareButton from "@/components/ui/ShareButton";
 import { bookmarksApi } from "@/services/api/bookmarks.api";
@@ -15,6 +16,7 @@ export default function BuySellCard({ listing }: { listing: BuySellListing }) {
   const t = useTranslations("buySellCard");
   const money = useMoney();
   const priceParts = money.forListing(listing.price, listing.currency as Currency);
+  const translated = useTranslatedContent(listing);
   const seller = typeof listing.sellerId === "object" ? listing.sellerId : null;
   const sellerName = seller
     ? getUserDisplayName(seller as unknown as Record<string, unknown>, "Seller")
@@ -137,7 +139,7 @@ export default function BuySellCard({ listing }: { listing: BuySellListing }) {
       {/* Info — agent fee intentionally omitted (shown only on detail page) */}
       <div className="p-4">
         <h3 className="font-semibold text-gray-900 text-sm leading-snug line-clamp-2 mb-1">
-          {listing.title}
+          {translated.title.value}
         </h3>
         <p className="text-xs text-gray-500 line-clamp-1 mb-1">📍 {listing.location}</p>
         {subtitle && (

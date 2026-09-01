@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Card, { CardContent } from "../../components/ui/Card";
 import { SafeImage } from "@/components/ui/SafeImage";
 
@@ -13,6 +14,7 @@ export type ServiceProvider = {
 };
 
 export default function ServiceProviderCard({ sp }: { sp: ServiceProvider }) {
+    const t = useTranslations("serviceProvider");
     return (
         <Card interactive>
             <div className="relative h-36 w-full">
@@ -28,7 +30,7 @@ export default function ServiceProviderCard({ sp }: { sp: ServiceProvider }) {
                     <div>
                         <div className="font-semibold flex items-center gap-2">
                             {sp.name}
-                            {sp.verified && <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">Verified</span>}
+                            {sp.verified && <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">{t("verified")}</span>}
                         </div>
                         <div className="text-sm text-gray-600">{sp.location}</div>
                         <div className="mt-2 flex flex-wrap gap-1">
@@ -37,7 +39,7 @@ export default function ServiceProviderCard({ sp }: { sp: ServiceProvider }) {
                             ))}
                         </div>
                     </div>
-                    <a className="btn btn-secondary" href={`mailto:${sp.contact}`}>Contact</a>
+                    <a className="btn btn-secondary" href={`mailto:${sp.contact}`}>{t("contact")}</a>
                 </div>
             </CardContent>
         </Card>

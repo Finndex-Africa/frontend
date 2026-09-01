@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
@@ -103,6 +104,8 @@ export default function BuyAndSellPageContent() {
   // has to be sent alongside the figure for the backend to convert it.
   const { currency } = useCurrency();
   const money = useMoney();
+  const tErr = useTranslations("errors");
+    const tBrowse = useTranslations("browse");
   const [listings, setListings] = useState<BuySellListing[]>([]);
   const searchParams = useSearchParams();
 
@@ -156,9 +159,9 @@ export default function BuyAndSellPageContent() {
       // Merge isBookmarked into each listing — same as how propertiesApi/servicesApi work
       setListings(items.map((l) => ({ ...l, isBookmarked: savedSet.has(l._id) })));
       setTotalPages(res.status === "fulfilled" ? (res.value.pagination?.totalPages ?? 1) : 1);
-      if (res.status === "rejected") setError("Failed to load listings. Please try again.");
+      if (res.status === "rejected") setError(tErr("form.loadListings"));
     } catch {
-      setError("Failed to load listings. Please try again.");
+      setError(tErr("form.loadListings"));
     } finally {
       setLoading(false);
     }
@@ -182,7 +185,7 @@ export default function BuyAndSellPageContent() {
         <div className="absolute inset-0 overflow-hidden">
           <Image
             src="/images/buysell/bg.jpeg"
-            alt="Buy & Sell Marketplace"
+            alt={tBrowse("buySellHeroAlt")}
             fill
             className="object-cover object-center"
             priority
@@ -195,10 +198,10 @@ export default function BuyAndSellPageContent() {
           <div className="flex flex-col items-center justify-center px-4 pt-20 pb-4 text-center text-white md:flex-1 md:pt-0 md:pb-0">
             <HeroVerifiedBadge />
             <h1 className="max-w-3xl mx-auto font-extrabold drop-shadow-lg text-4xl leading-snug sm:text-5xl sm:leading-snug md:text-6xl md:leading-tight mb-4">
-              Buy &amp; Sell on FindAfriq
+              {tBrowse("buySellTitle")}
             </h1>
             <p className="text-white/85 text-lg sm:text-xl mb-6 max-w-xl">
-              Land, houses, and fairly used household items.
+              {tBrowse("buySellSubtitle")}
             </p>
 
             {/* Desktop search (in hero) */}
@@ -258,7 +261,7 @@ export default function BuyAndSellPageContent() {
               onClick={() => { setActiveCategory("all"); setLocationFilter(""); setMaxBudget(undefined); setPage(1); }}
               className="text-gray-500 hover:text-gray-700 text-xs underline"
             >
-              Clear all
+              {tBrowse("clearAll")}
             </button>
           </div>
         </div>
@@ -298,7 +301,7 @@ export default function BuyAndSellPageContent() {
               onClick={fetchListings}
               className="bg-blue-600 text-white px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors"
             >
-              Try Again
+              {tBrowse("tryAgain")}
             </button>
           </div>
         ) : listings.length === 0 ? (

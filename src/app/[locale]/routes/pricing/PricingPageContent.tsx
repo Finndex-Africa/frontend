@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from "next-intl";
 import { useState } from 'react';
 import { Check, X } from 'lucide-react';
 import { LegalContactCard } from '@/components/legal/LegalDocLayout';
@@ -8,10 +9,7 @@ import { trackPricingPlanClicked } from '@/lib/analytics';
 import { Link } from '@/i18n/navigation';
 type TabId = 'landlord' | 'provider';
 
-const TAB_LABEL: Record<TabId, string> = {
-    landlord: 'Landlord/Agent',
-    provider: 'Service Providers',
-};
+const TAB_IDS: TabId[] = ['landlord', 'provider'];
 
 const cardShell =
     'flex flex-col rounded-2xl bg-brand-blue text-white p-6 sm:p-7 shadow-xl ring-1 ring-white/15 min-h-[480px]';
@@ -32,6 +30,7 @@ function FeatureRow({ ok, label, muted }: { ok: boolean; label: string; muted?: 
 }
 
 function ComingSoonModal({ onClose }: { onClose: () => void }) {
+    const t = useTranslations("pricingPage");
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
             <div
@@ -41,15 +40,15 @@ function ComingSoonModal({ onClose }: { onClose: () => void }) {
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
                     <span className="text-3xl">🚧</span>
                 </div>
-                <h2 className="text-xl font-bold text-gray-900 font-heading">Payment Coming Soon</h2>
+                <h2 className="text-xl font-bold text-gray-900 font-heading">{t("paymentComingSoon")}</h2>
                 <p className="mt-3 text-sm text-gray-600 leading-relaxed">
-                    We are not accepting payment now. Payment integration is coming soon and will be available in a future update.
+                    {t("paymentComingSoonBody")}
                 </p>
                 <button
                     onClick={onClose}
                     className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-brand-blue px-5 py-3 text-sm font-bold text-white shadow-md transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/60"
                 >
-                    Got it
+                    {t("gotIt")}
                 </button>
             </div>
         </div>
@@ -69,6 +68,8 @@ function PricingCard({
     rows: { ok: boolean; label: string }[];
     onGetStarted: (plan: string) => void;
 }) {
+    const t = useTranslations("pricingPage");
+    const tFeat = useTranslations("pricingPage.features");
     return (
         <div className={cardShell}>
             <h3 className="text-center text-xl font-bold font-heading tracking-tight">{name}</h3>
@@ -77,14 +78,14 @@ function PricingCard({
             <p className="mt-2 text-center text-xs sm:text-sm text-white/85">{priceCaption}</p>
             <ul className="mt-6 flex-1 space-y-2.5">
                 {rows.map((row) => (
-                    <FeatureRow key={row.label} ok={row.ok} label={row.label} muted={!row.ok} />
+                    <FeatureRow key={row.label} ok={row.ok} label={tFeat(row.label)} muted={!row.ok} />
                 ))}
             </ul>
             <button
                 onClick={() => onGetStarted(name)}
                 className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-brand-yellow px-5 py-3.5 text-center text-sm font-bold text-brand-blue shadow-md transition hover:brightness-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
             >
-                Get started
+                {t("getStarted")}
             </button>
         </div>
     );
@@ -95,108 +96,112 @@ function CustomPricingCard({
 }: {
     rows: { ok: boolean; label: string }[];
 }) {
+    const t = useTranslations("pricingPage");
+    const tFeat = useTranslations("pricingPage.features");
     return (
         <div className={cardShell}>
-            <h3 className="text-center text-xl font-bold font-heading tracking-tight">Custom</h3>
+            <h3 className="text-center text-xl font-bold font-heading tracking-tight">{t("custom")}</h3>
             <div className="my-4 border-t border-white/25" />
-            <p className="text-center text-4xl sm:text-[2.75rem] font-extrabold text-brand-yellow leading-none">Custom</p>
+            <p className="text-center text-4xl sm:text-[2.75rem] font-extrabold text-brand-yellow leading-none">{t("custom")}</p>
             <p className="mt-2 text-center text-xs sm:text-sm text-white/85">Tailored solutions for your unique needs.</p>
             <ul className="mt-6 flex-1 space-y-2.5">
                 {rows.map((row) => (
-                    <FeatureRow key={row.label} ok={row.ok} label={row.label} muted={!row.ok} />
+                    <FeatureRow key={row.label} ok={row.ok} label={tFeat(row.label)} muted={!row.ok} />
                 ))}
             </ul>
             <Link
                 href="/routes/about#contact"
                 className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-brand-yellow px-5 py-3.5 text-center text-sm font-bold text-brand-blue shadow-md transition hover:brightness-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
             >
-                Contact us
+                {t("contactUs")}
             </Link>
         </div>
     );
 }
 
 const LANDLORD_BASIC_ROWS: { ok: boolean; label: string }[] = [
-    { ok: true, label: 'Up to 20 property listings' },
-    { ok: true, label: 'Listing management dashboard' },
-    { ok: true, label: 'Standard search visibility' },
-    { ok: true, label: 'Unlimited property inquiries' },
-    { ok: true, label: 'Property sharing' },
-    { ok: true, label: 'WhatsApp contact integration' },
-    { ok: true, label: 'Direct contact with seekers' },
-    { ok: true, label: 'Verified badge' },
-    { ok: true, label: 'Email notifications' },
-    { ok: true, label: 'Basic customer support' },
-    { ok: false, label: 'Featured listings' },
-    { ok: false, label: 'Top search placement' },
-    { ok: false, label: 'Marketing promotion' },
-    { ok: false, label: 'Premium badge' },
+    { ok: true, label: 'up_to_20_property_listings' },
+    { ok: true, label: 'listing_management_dashboard' },
+    { ok: true, label: 'standard_search_visibility' },
+    { ok: true, label: 'unlimited_property_inquiries' },
+    { ok: true, label: 'property_sharing' },
+    { ok: true, label: 'whatsapp_contact_integration' },
+    { ok: true, label: 'direct_contact_with_seekers' },
+    { ok: true, label: 'verified_badge' },
+    { ok: true, label: 'email_notifications' },
+    { ok: true, label: 'basic_customer_support' },
+    { ok: false, label: 'featured_listings' },
+    { ok: false, label: 'top_search_placement' },
+    { ok: false, label: 'marketing_promotion' },
+    { ok: false, label: 'premium_badge' },
 ];
 
 const LANDLORD_PRO_ROWS: { ok: boolean; label: string }[] = [
-    { ok: true, label: 'Up to 40 property listings' },
-    { ok: true, label: 'Listing management dashboard' },
-    { ok: true, label: 'Standard search visibility' },
-    { ok: true, label: 'Unlimited property inquiries' },
-    { ok: true, label: 'Property sharing' },
-    { ok: true, label: 'WhatsApp contact integration' },
-    { ok: true, label: 'Direct contact with seekers' },
-    { ok: true, label: 'Verified badge' },
-    { ok: true, label: 'Email notifications' },
-    { ok: true, label: 'Featured listings' },
-    { ok: true, label: 'Top search placement' },
-    { ok: true, label: 'Priority customer support' },
-    { ok: false, label: 'Marketing promotion' },
-    { ok: false, label: 'Premium badge' },
+    { ok: true, label: 'up_to_40_property_listings' },
+    { ok: true, label: 'listing_management_dashboard' },
+    { ok: true, label: 'standard_search_visibility' },
+    { ok: true, label: 'unlimited_property_inquiries' },
+    { ok: true, label: 'property_sharing' },
+    { ok: true, label: 'whatsapp_contact_integration' },
+    { ok: true, label: 'direct_contact_with_seekers' },
+    { ok: true, label: 'verified_badge' },
+    { ok: true, label: 'email_notifications' },
+    { ok: true, label: 'featured_listings' },
+    { ok: true, label: 'top_search_placement' },
+    { ok: true, label: 'priority_customer_support' },
+    { ok: false, label: 'marketing_promotion' },
+    { ok: false, label: 'premium_badge' },
 ];
 
 const LANDLORD_PREMIUM_ROWS: { ok: boolean; label: string }[] = [
-    { ok: true, label: 'Unlimited property listings' },
-    { ok: true, label: 'Listing management dashboard' },
-    { ok: true, label: 'Standard search visibility' },
-    { ok: true, label: 'Unlimited property inquiries' },
-    { ok: true, label: 'Property sharing' },
-    { ok: true, label: 'WhatsApp contact integration' },
-    { ok: true, label: 'Direct contact with seekers' },
-    { ok: true, label: 'Verified badge' },
-    { ok: true, label: 'Email notifications' },
-    { ok: true, label: 'Featured listings' },
-    { ok: true, label: 'Top search placement' },
-    { ok: true, label: 'Premium badge' },
-    { ok: true, label: 'Marketing promotion' },
-    { ok: true, label: 'Premium support' },
+    { ok: true, label: 'unlimited_property_listings' },
+    { ok: true, label: 'listing_management_dashboard' },
+    { ok: true, label: 'standard_search_visibility' },
+    { ok: true, label: 'unlimited_property_inquiries' },
+    { ok: true, label: 'property_sharing' },
+    { ok: true, label: 'whatsapp_contact_integration' },
+    { ok: true, label: 'direct_contact_with_seekers' },
+    { ok: true, label: 'verified_badge' },
+    { ok: true, label: 'email_notifications' },
+    { ok: true, label: 'featured_listings' },
+    { ok: true, label: 'top_search_placement' },
+    { ok: true, label: 'premium_badge' },
+    { ok: true, label: 'marketing_promotion' },
+    { ok: true, label: 'premium_support' },
 ];
 
 function LandlordCards({ onGetStarted }: { onGetStarted: (plan: string) => void }) {
+    const t = useTranslations("pricingPage");
+    const tFeat = useTranslations("pricingPage.features");
     return (
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
             <PricingCard
-                name="Basic"
+                name={t("basic")}
                 price="$10"
-                priceCaption="Per month. Prices in USD."
+                priceCaption={t("perMonth")}
                 rows={LANDLORD_BASIC_ROWS}
                 onGetStarted={onGetStarted}
             />
             <PricingCard
-                name="Pro"
+                name={t("pro")}
                 price="$20"
-                priceCaption="Per month. Prices in USD."
+                priceCaption={t("perMonth")}
                 rows={LANDLORD_PRO_ROWS}
                 onGetStarted={onGetStarted}
             />
             <PricingCard
-                name="Premium"
+                name={t("premium")}
                 price="$30"
-                priceCaption="Per month. Prices in USD."
+                priceCaption={t("perMonth")}
                 rows={LANDLORD_PREMIUM_ROWS}
                 onGetStarted={onGetStarted}
             />
             <CustomPricingCard
                 rows={[
-                    { ok: true, label: 'Dedicated account manager' },
-                    { ok: true, label: 'Banner promotion' },
-                    { ok: true, label: 'Platform advertising (Ads)' },
-                    { ok: true, label: 'Homepage feature placement' },
+                    { ok: true, label: 'dedicated_account_manager' },
+                    { ok: true, label: 'banner_promotion' },
+                    { ok: true, label: 'platform_advertising_ads' },
+                    { ok: true, label: 'homepage_feature_placement' },
                 ]}
             />
         </div>
@@ -204,86 +209,88 @@ function LandlordCards({ onGetStarted }: { onGetStarted: (plan: string) => void 
 }
 
 const PROVIDER_BASIC_ROWS: { ok: boolean; label: string }[] = [
-    { ok: true, label: 'Up to 5 service listings' },
-    { ok: true, label: 'Listing management dashboard' },
-    { ok: true, label: 'Unlimited service inquiries' },
-    { ok: true, label: 'Service sharing' },
-    { ok: true, label: 'WhatsApp contact integration' },
-    { ok: true, label: 'Direct contact with customers' },
-    { ok: true, label: 'Verified business badge' },
-    { ok: true, label: 'Standard search visibility' },
-    { ok: true, label: 'Email notifications' },
-    { ok: true, label: 'Basic support' },
-    { ok: false, label: 'Featured service listings' },
-    { ok: false, label: 'Top search placement' },
-    { ok: false, label: 'Marketing promotion' },
-    { ok: false, label: 'Premium badge' },
+    { ok: true, label: 'up_to_5_service_listings' },
+    { ok: true, label: 'listing_management_dashboard' },
+    { ok: true, label: 'unlimited_service_inquiries' },
+    { ok: true, label: 'service_sharing' },
+    { ok: true, label: 'whatsapp_contact_integration' },
+    { ok: true, label: 'direct_contact_with_customers' },
+    { ok: true, label: 'verified_business_badge' },
+    { ok: true, label: 'standard_search_visibility' },
+    { ok: true, label: 'email_notifications' },
+    { ok: true, label: 'basic_support' },
+    { ok: false, label: 'featured_service_listings' },
+    { ok: false, label: 'top_search_placement' },
+    { ok: false, label: 'marketing_promotion' },
+    { ok: false, label: 'premium_badge' },
 ];
 
 const PROVIDER_PRO_ROWS: { ok: boolean; label: string }[] = [
-    { ok: true, label: 'Up to 10 service listings' },
-    { ok: true, label: 'Listing management dashboard' },
-    { ok: true, label: 'Unlimited service inquiries' },
-    { ok: true, label: 'Service sharing' },
-    { ok: true, label: 'WhatsApp contact integration' },
-    { ok: true, label: 'Direct contact with customers' },
-    { ok: true, label: 'Verified business badge' },
-    { ok: true, label: 'Standard search visibility' },
-    { ok: true, label: 'Email notifications' },
-    { ok: true, label: 'Featured service listings' },
-    { ok: true, label: 'Top search placement' },
-    { ok: true, label: 'Priority support' },
-    { ok: false, label: 'Marketing promotion' },
-    { ok: false, label: 'Premium badge' },
+    { ok: true, label: 'up_to_10_service_listings' },
+    { ok: true, label: 'listing_management_dashboard' },
+    { ok: true, label: 'unlimited_service_inquiries' },
+    { ok: true, label: 'service_sharing' },
+    { ok: true, label: 'whatsapp_contact_integration' },
+    { ok: true, label: 'direct_contact_with_customers' },
+    { ok: true, label: 'verified_business_badge' },
+    { ok: true, label: 'standard_search_visibility' },
+    { ok: true, label: 'email_notifications' },
+    { ok: true, label: 'featured_service_listings' },
+    { ok: true, label: 'top_search_placement' },
+    { ok: true, label: 'priority_support' },
+    { ok: false, label: 'marketing_promotion' },
+    { ok: false, label: 'premium_badge' },
 ];
 
 const PROVIDER_PREMIUM_ROWS: { ok: boolean; label: string }[] = [
-    { ok: true, label: 'Unlimited service listings' },
-    { ok: true, label: 'Listing management dashboard' },
-    { ok: true, label: 'Unlimited service inquiries' },
-    { ok: true, label: 'Service sharing' },
-    { ok: true, label: 'WhatsApp contact integration' },
-    { ok: true, label: 'Direct contact with customers' },
-    { ok: true, label: 'Verified business badge' },
-    { ok: true, label: 'Standard search visibility' },
-    { ok: true, label: 'Email notifications' },
-    { ok: true, label: 'Featured service listings' },
-    { ok: true, label: 'Top search placement' },
-    { ok: true, label: 'Premium badge' },
-    { ok: true, label: 'Marketing promotion' },
-    { ok: true, label: 'Premium support' },
+    { ok: true, label: 'unlimited_service_listings' },
+    { ok: true, label: 'listing_management_dashboard' },
+    { ok: true, label: 'unlimited_service_inquiries' },
+    { ok: true, label: 'service_sharing' },
+    { ok: true, label: 'whatsapp_contact_integration' },
+    { ok: true, label: 'direct_contact_with_customers' },
+    { ok: true, label: 'verified_business_badge' },
+    { ok: true, label: 'standard_search_visibility' },
+    { ok: true, label: 'email_notifications' },
+    { ok: true, label: 'featured_service_listings' },
+    { ok: true, label: 'top_search_placement' },
+    { ok: true, label: 'premium_badge' },
+    { ok: true, label: 'marketing_promotion' },
+    { ok: true, label: 'premium_support' },
 ];
 
 function ServiceProviderCards({ onGetStarted }: { onGetStarted: (plan: string) => void }) {
+    const t = useTranslations("pricingPage");
+    const tFeat = useTranslations("pricingPage.features");
     return (
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
             <PricingCard
-                name="Basic"
+                name={t("basic")}
                 price="$20"
-                priceCaption="Per month. Prices in USD."
+                priceCaption={t("perMonth")}
                 rows={PROVIDER_BASIC_ROWS}
                 onGetStarted={onGetStarted}
             />
             <PricingCard
-                name="Pro"
+                name={t("pro")}
                 price="$30"
-                priceCaption="Per month. Prices in USD."
+                priceCaption={t("perMonth")}
                 rows={PROVIDER_PRO_ROWS}
                 onGetStarted={onGetStarted}
             />
             <PricingCard
-                name="Premium"
+                name={t("premium")}
                 price="$50"
-                priceCaption="Per month. Prices in USD."
+                priceCaption={t("perMonth")}
                 rows={PROVIDER_PREMIUM_ROWS}
                 onGetStarted={onGetStarted}
             />
             <CustomPricingCard
                 rows={[
-                    { ok: true, label: 'Dedicated account manager' },
-                    { ok: true, label: 'Banner promotion' },
-                    { ok: true, label: 'Platform advertising (Ads)' },
-                    { ok: true, label: 'Homepage feature placement' },
+                    { ok: true, label: 'dedicated_account_manager' },
+                    { ok: true, label: 'banner_promotion' },
+                    { ok: true, label: 'platform_advertising_ads' },
+                    { ok: true, label: 'homepage_feature_placement' },
                 ]}
             />
         </div>
@@ -291,6 +298,8 @@ function ServiceProviderCards({ onGetStarted }: { onGetStarted: (plan: string) =
 }
 
 export default function PricingPageContent() {
+    const t = useTranslations("pricingPage");
+    const tFeat = useTranslations("pricingPage.features");
     const [tab, setTab] = useState<TabId>('landlord');
     const [showModal, setShowModal] = useState(false);
 
@@ -300,8 +309,8 @@ export default function PricingPageContent() {
     };
 
     const headings: Record<TabId, string> = {
-        landlord: 'Landlord, Agent & Real Estate Agency Packages and Pricing',
-        provider: 'Service Provider Packages and Pricing',
+        landlord: t('landlordHeading'),
+        provider: t('providerHeading'),
     };
 
     return (
@@ -320,9 +329,9 @@ export default function PricingPageContent() {
                     <div
                         className="inline-flex flex-wrap justify-center gap-1 rounded-full bg-white p-1.5 shadow-md ring-1 ring-brand-blue/15"
                         role="tablist"
-                        aria-label="Pricing audience"
+                        aria-label={t("pricingAudience")}
                     >
-                        {(Object.keys(TAB_LABEL) as TabId[]).map((id) => (
+                        {TAB_IDS.map((id) => (
                             <button
                                 key={id}
                                 type="button"
@@ -335,7 +344,7 @@ export default function PricingPageContent() {
                                 }`}
                                 onClick={() => setTab(id)}
                             >
-                                {TAB_LABEL[id]}
+                                {id === 'landlord' ? t('landlordTab') : t('providerTab')}
                             </button>
                         ))}
                     </div>
@@ -351,20 +360,20 @@ export default function PricingPageContent() {
                 <div className="rounded-2xl border border-brand-blue/20 bg-brand-blue p-6 sm:p-8 text-white shadow-lg">
                     <p className="text-lg font-bold font-heading">Need help choosing?</p>
                     <p className="mt-2 text-sm text-white/80">
-                        We can walk you through listing packages, authorization fees, and provider subscriptions.
+                        {t("helpBody")}
                     </p>
                     <div className="mt-5 flex flex-wrap gap-3">
                         <Link
                             href="/routes/help"
                             className="inline-flex items-center justify-center rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-slate-900 hover:bg-white/90"
                         >
-                            Help center
+                            {t("helpCenter")}
                         </Link>
                         <Link
                             href="/routes/about#contact"
                             className="inline-flex items-center justify-center rounded-lg bg-white/10 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/15"
                         >
-                            Contact us
+                            {t("contactUs")}
                         </Link>
                     </div>
                 </div>

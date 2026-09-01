@@ -1,9 +1,11 @@
+import { getTranslations } from 'next-intl/server';
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-export const metadata = {
-  title: "How It Works | FindAfriq",
-  description:
-    "Learn how FindAfriq connects seekers with verified properties and trusted service providers — in just a few simple steps.",
-};
+export async function generateMetadata() {
+    const tMeta = await getTranslations('metadata');
+    // Root layout applies the "%s | FindAfriq" title template.
+    return { title: tMeta('howItWorksTitle'), description: tMeta('howItWorksDesc') };
+}
 
 const seekerSteps = [
   {
@@ -94,30 +96,39 @@ const trustFeatures = [
   },
 ];
 
+type Step = { title: string; description: string };
+type Faq = { q: string; a: string };
+
 export default function HowItWorksPage() {
+  const t = useTranslations("howItWorks");
+  // Arrays live in the catalog; icons/step numbers stay in code.
+  const seekerCopy = t.raw("seekerSteps") as Step[];
+  const providerCopy = t.raw("providerSteps") as Step[];
+  const trustCopy = t.raw("trustFeatures") as Step[];
+  const faqCopy = t.raw("faqs") as Faq[];
+
   return (
     <div className="min-h-screen bg-white">
       {/* Hero */}
       <section className="bg-blue-600 py-16 px-4 text-center text-white">
         <h1 className="text-4xl md:text-5xl font-extrabold mb-4">
-          How It Works
+          {t("hero.title")}
         </h1>
         <p className="text-lg md:text-xl max-w-2xl mx-auto text-blue-100">
-          FindAfriq makes it simple to find verified properties, book trusted
-          services, and connect with the right people — all in one place.
+          {t("hero.subtitle")}
         </p>
         <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             href="/routes/login"
             className="bg-white text-blue-600 font-semibold px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            Get Started
+            {t("hero.getStarted")}
           </Link>
           <Link
             href="/routes/properties"
             className="border-2 border-white text-white font-semibold px-8 py-3 rounded-lg hover:bg-white/10 transition-colors"
           >
-            Browse Properties
+            {t("hero.browseProperties")}
           </Link>
         </div>
       </section>
@@ -126,14 +137,14 @@ export default function HowItWorksPage() {
       <section className="container-app py-16 px-4">
         <div className="text-center mb-12">
           <span className="inline-block bg-blue-50 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full mb-3 uppercase tracking-wide">
-            For Seekers &amp; Clients
+            {t("seekers.heading")}
           </span>
           <h2 className="text-3xl font-bold text-gray-900">
-            Find what you&apos;re looking for in 4 steps
+            {t("seekers.subheading")}
           </h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {seekerSteps.map((s) => (
+          {seekerSteps.map((s, i) => (
             <div
               key={s.step}
               className="relative bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow"
@@ -142,9 +153,9 @@ export default function HowItWorksPage() {
                 {s.step}
               </div>
               <div className="text-4xl mb-4">{s.icon}</div>
-              <h3 className="font-bold text-gray-900 mb-2">{s.title}</h3>
+              <h3 className="font-bold text-gray-900 mb-2">{seekerCopy[i].title}</h3>
               <p className="text-sm text-gray-600 leading-relaxed">
-                {s.description}
+                {seekerCopy[i].description}
               </p>
             </div>
           ))}
@@ -158,14 +169,14 @@ export default function HowItWorksPage() {
       <section className="container-app py-16 px-4">
         <div className="text-center mb-12">
           <span className="inline-block bg-green-50 text-green-700 text-xs font-semibold px-3 py-1 rounded-full mb-3 uppercase tracking-wide">
-            For Landlords &amp; Service Providers
+            {t("providers.heading")}
           </span>
           <h2 className="text-3xl font-bold text-gray-900">
-            Start reaching clients in 4 easy steps
+            {t("providers.subheading")}
           </h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {providerSteps.map((s) => (
+          {providerSteps.map((s, i) => (
             <div
               key={s.step}
               className="relative bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow"
@@ -174,9 +185,9 @@ export default function HowItWorksPage() {
                 {s.step}
               </div>
               <div className="text-4xl mb-4">{s.icon}</div>
-              <h3 className="font-bold text-gray-900 mb-2">{s.title}</h3>
+              <h3 className="font-bold text-gray-900 mb-2">{providerCopy[i].title}</h3>
               <p className="text-sm text-gray-600 leading-relaxed">
-                {s.description}
+                {providerCopy[i].description}
               </p>
             </div>
           ))}
@@ -188,23 +199,22 @@ export default function HowItWorksPage() {
         <div className="container-app">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900">
-              Why trust FindAfriq?
+              {t("trust.heading")}
             </h2>
             <p className="text-gray-600 mt-2 max-w-xl mx-auto">
-              We&apos;re built on transparency, verification, and community.
-              Here&apos;s what makes us different.
+              {t("trust.subheading")}
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {trustFeatures.map((f) => (
+            {trustFeatures.map((f, i) => (
               <div
                 key={f.title}
                 className="bg-white rounded-2xl border border-gray-200 p-6 text-center shadow-sm"
               >
                 <div className="text-4xl mb-3">{f.icon}</div>
-                <h3 className="font-bold text-gray-900 mb-2">{f.title}</h3>
+                <h3 className="font-bold text-gray-900 mb-2">{trustCopy[i].title}</h3>
                 <p className="text-sm text-gray-600 leading-relaxed">
-                  {f.description}
+                  {trustCopy[i].description}
                 </p>
               </div>
             ))}
@@ -215,31 +225,10 @@ export default function HowItWorksPage() {
       {/* FAQ */}
       <section className="container-app py-16 px-4 max-w-3xl mx-auto">
         <h2 className="text-3xl font-bold text-gray-900 text-center mb-10">
-          Frequently Asked Questions
+          {t("faqHeading")}
         </h2>
         <div className="space-y-4">
-          {[
-            {
-              q: "Is FindAfriq free to use?",
-              a: "Browsing properties and services on FindAfriq is completely free. Listing fees may apply for landlords and service providers — check our Pricing page for details.",
-            },
-            {
-              q: "How are listings verified?",
-              a: "Our team manually reviews each listing before it goes live. We check documents, photos, and provider identity to ensure everything is legitimate.",
-            },
-            {
-              q: "Can I message a landlord before booking?",
-              a: "Yes! You can message any landlord or service provider directly through the platform before committing to anything.",
-            },
-            {
-              q: "What happens if I have an issue with a listing?",
-              a: "You can report any listing or user directly from the platform. Our support team reviews all reports and takes action within 24–48 hours.",
-            },
-            {
-              q: "Is my personal information safe?",
-              a: "Absolutely. We never share your personal contact details without your consent. All communication happens securely within FindAfriq.",
-            },
-          ].map((item, i) => (
+          {faqCopy.map((item, i) => (
             <details
               key={i}
               className="group bg-white border border-gray-200 rounded-xl overflow-hidden"
@@ -270,16 +259,15 @@ export default function HowItWorksPage() {
 
       {/* CTA */}
       <section className="bg-blue-600 py-16 px-4 text-center text-white">
-        <h2 className="text-3xl font-bold mb-4">Ready to get started?</h2>
+        <h2 className="text-3xl font-bold mb-4">{t("cta.heading")}</h2>
         <p className="text-blue-100 mb-8 max-w-xl mx-auto">
-          Join thousands of people already using FindAfriq to find homes,
-          services, and connect with trusted providers across Africa.
+          {t("cta.body")}
         </p>
         <Link
           href="/routes/login"
           className="inline-block bg-white text-blue-600 font-semibold px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors"
         >
-          Create Your Free Account
+          {t("cta.button")}
         </Link>
       </section>
     </div>

@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { useEnumLabel, useOptionalEnumLabel } from "@/lib/enum-labels";
+import { useTranslatedContent } from "@/lib/translated-content";
+import TranslatedText from "@/components/ui/TranslatedText";
 import { useParams } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import MediaCarousel from "@/components/domain/MediaCarousel";
@@ -12,7 +15,7 @@ import { propertiesApi, messagesApi } from "@/services/api";
 import { Property as ApiProperty } from "@/types/dashboard";
 import { bookmarksApi } from "@/services/api/bookmarks.api";
 import { apiClient } from "@/lib/api-client";
-import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
+import { useErrorMessage } from "@/lib/error-messages";
 import ChatBox from "@/components/dashboard/ChatBox";
 import ReviewsList from "@/components/reviews/ReviewsList";
 import { isUserVerifiedByAdmin } from "@/lib/user-verification";
@@ -77,7 +80,7 @@ function normalizeAmenityEntry(
   if (typeof raw === "string") {
     const label = raw.trim();
     if (!label) return null;
-    return { label, desc: "Available", icon: getAmenityIcon(label) };
+    return { label, desc: "", icon: getAmenityIcon(label) };
   }
   if (raw && typeof raw === "object") {
     const o = raw as Record<string, unknown>;
@@ -98,7 +101,7 @@ function normalizeAmenityEntry(
     const desc =
       typeof o.description === "string" && o.description.trim()
         ? (o.description as string).trim()
-        : "Available";
+        : "";
     return { label, desc, icon };
   }
   return null;
@@ -117,12 +120,24 @@ function AmenityIconDisplay({ icon }: { icon: string }) {
 export default function PropertyDetail() {
   const money = useMoney();
   const tCurrency = useTranslations("currencySwitcher");
+  const errorMessage = useErrorMessage();
+  const t = useTranslations("propertyDetail");
+  const tStatus = useTranslations("propertyStatus");
+  // Amenity labels arrive from the DB as free text ("Water", "electricity"),
+  // so normalize + look up, falling back to the raw value.
+  const amenityLabel = useEnumLabel("amenities");
+  const ownerRoleLabel = useEnumLabel("ownerRoles");
+  // Strict: a miss falls through to the description stored on the listing.
+  const amenityDescription = useOptionalEnumLabel("amenityDescriptions");
+  const locale = useLocale();
   const params = useParams();
   const propertyId = params?.id as string;
 
   useScrollDepth();
 
   const [property, setProperty] = useState<ApiProperty | null>(null);
+  // Airbnb-style: show the translation, keep the original one click away.
+  const translated = useTranslatedContent(property);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<{
@@ -155,10 +170,10 @@ export default function PropertyDetail() {
     try {
       const result = await bookmarksApi.toggle("property", propertyId);
       setIsSaved(result.bookmarked);
-      toast.success(result.bookmarked ? "Saved to favorites!" : "Removed from saved listings");
+      toast.success(result.bookmarked ? t("savedToast") : t("removedToast"));
     } catch {
       setIsSaved(prev);
-      toast.error("Failed to update saved listings.");
+      toast.error(t("saveFailed"));
     } finally {
       setSavingBookmark(false);
     }
@@ -213,6 +228,7 @@ export default function PropertyDetail() {
     buildGoogleMapsEmbedUrlAsync({
       location: property.location,
       mapCoordinates: property.mapCoordinates,
+      language: locale,
     }).then((url) => {
       if (!cancelled) setMapEmbedUrl(url);
     });
@@ -220,7 +236,7 @@ export default function PropertyDetail() {
     return () => {
       cancelled = true;
     };
-  }, [property]);
+  }, [property, locale]);
 
   const fetchProperty = async () => {
     try {
@@ -240,7 +256,7 @@ export default function PropertyDetail() {
       });
     } catch (error) {
       console.error("Error fetching property:", error);
-      setError("Failed to load property details. Please try again later.");
+      setError(t("loadPropertyFailed"));
     } finally {
       setLoading(false);
     }
@@ -294,19 +310,19 @@ export default function PropertyDetail() {
 
     // Validate required fields
     if (!bookingData.contactPhone.trim()) {
-      toast.error("Please provide your contact phone number");
+      toast.error(t("phoneRequired"));
       return;
     }
 
     if (!bookingData.moveInDate) {
-      toast.error("Please select your preferred move-in date");
+      toast.error(t("moveInDateRequired"));
       return;
     }
 
     // Validate date is in the future
     const moveInDate = new Date(bookingData.moveInDate);
     if (moveInDate <= new Date()) {
-      toast.error("Move-in date must be in the future");
+      toast.error(t("moveInDateFuture"));
       return;
     }
 
@@ -362,15 +378,11 @@ export default function PropertyDetail() {
           message: "",
         });
       } else {
-        throw new Error(response.message || "Failed to create booking");
+        throw new Error(response.message || t("bookingFailed"));
       }
     } catch (error: any) {
       console.error("Booking error:", error);
-      const errorMessage = getUserFriendlyErrorMessage(
-        error,
-        "Failed to submit booking. Please try again.",
-      );
-      toast.error(errorMessage);
+      toast.error(errorMessage(error, "submitBooking"));
     } finally {
       setSubmitting(false);
     }
@@ -378,21 +390,21 @@ export default function PropertyDetail() {
   const statusConfig = {
     pending: {
       icon: "⏳",
-      text: "Pending Approval",
+      text: tStatus("pending"),
       bg: "bg-amber-50",
       border: "border-amber-200",
       text_color: "text-amber-800",
     },
     rejected: {
       icon: "❌",
-      text: "Not Available",
+      text: tStatus("rejected"),
       bg: "bg-red-50",
       border: "border-red-200",
       text_color: "text-red-800",
     },
     rented: {
       icon: "🏠",
-      text: "Currently Rented",
+      text: tStatus("rented"),
       bg: "bg-gray-50",
       border: "border-gray-200",
       text_color: "text-gray-800",
@@ -432,7 +444,7 @@ export default function PropertyDetail() {
     }
 
     if (!recipientId) {
-      toast.error("This listing has no contact. Please try another property.");
+      toast.error(t("noContact"));
       return;
     }
 
@@ -455,7 +467,7 @@ export default function PropertyDetail() {
       const threadId = threadResponse.data?._id;
 
       if (!threadId) {
-        toast.error("Could not start conversation. Please try again.");
+        toast.error(t("conversationFailed"));
         return;
       }
 
@@ -474,10 +486,7 @@ export default function PropertyDetail() {
       setShowContactModal(false);
     } catch (error: any) {
       toast.error(
-        getUserFriendlyErrorMessage(
-          error,
-          "Failed to send message. Please try again.",
-        ),
+        errorMessage(error, "sendMessage"),
       );
     } finally {
       setSubmitting(false);
@@ -501,7 +510,7 @@ export default function PropertyDetail() {
             onClick={() => (window.location.href = "/routes/properties")}
             className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors"
           >
-            Back to Properties
+            {t("backToProperties")}
           </button>
         </div>
       </div>
@@ -524,7 +533,13 @@ export default function PropertyDetail() {
   const media = images.map((src) => ({ type: "image" as const, src }));
 
   // Amenities: normalize API shapes ({ label } | { name } | string | URL icons)
-  const features: { label: string; desc: string; icon: string }[] = [];
+  const features: {
+    label: string;
+    desc: string;
+    icon: string;
+    /** Already localized via t(); skip the raw-DB-value lookup on render. */
+    localized?: boolean;
+  }[] = [];
   if (property.amenities && property.amenities.length > 0) {
     property.amenities.forEach((a: unknown) => {
       const row = normalizeAmenityEntry(a);
@@ -534,28 +549,35 @@ export default function PropertyDetail() {
   const bedroomCount =
     property.bedrooms != null ? property.bedrooms : property.rooms;
   features.push({
-    label: "Bedrooms",
-    desc: bedroomCount != null ? `${bedroomCount} rooms` : "Not specified",
+    label: t("bedrooms"),
+    desc:
+      bedroomCount != null
+        ? t("bedroomCount", { count: bedroomCount })
+        : t("notSpecified"),
     icon: "🛏️",
+    localized: true,
   });
   if (property.bathrooms)
     features.push({
-      label: "Bathrooms",
-      desc: `${property.bathrooms} bathrooms`,
+      label: t("bathrooms"),
+      desc: t("bathroomCount", { count: property.bathrooms }),
       icon: "🚿",
+      localized: true,
     });
   if (property.area != null) {
     features.push({
-      label: "Distance",
-      desc: `${property.area} min from main road`,
+      label: t("distance"),
+      desc: t("minFromMainRoad", { minutes: property.area }),
       icon: "🚗",
+      localized: true,
     });
   }
   if (property.furnished !== undefined) {
     features.push({
-      label: property.furnished ? "Furnished" : "Unfurnished",
-      desc: property.furnished ? "Includes furniture" : "No furniture included",
+      label: property.furnished ? t("furnished") : t("unfurnished"),
+      desc: property.furnished ? t("includesFurniture") : t("noFurniture"),
       icon: "🪑",
+      localized: true,
     });
   }
 
@@ -575,9 +597,24 @@ export default function PropertyDetail() {
 
   if (!property.amenities?.length && features.length < 4) {
     const defaults = [
-      { label: "Wi-Fi", desc: "High-speed internet", icon: "📶" },
-      { label: "Security", desc: "24/7 security", icon: "🔒" },
-      { label: "Parking", desc: "Secure parking", icon: "🚗" },
+      {
+        label: amenityLabel("wifi"),
+        desc: t("highSpeedInternet"),
+        icon: "📶",
+        localized: true,
+      },
+      {
+        label: amenityLabel("security"),
+        desc: t("security247"),
+        icon: "🔒",
+        localized: true,
+      },
+      {
+        label: amenityLabel("parking"),
+        desc: t("secureParking"),
+        icon: "🚗",
+        localized: true,
+      },
     ];
     features.push(...defaults.slice(0, 6 - features.length));
   }
@@ -598,12 +635,16 @@ export default function PropertyDetail() {
           <header>
             <div className="text-xs uppercase font-semibold tracking-wide text-[#ffcc00] bg-[#ffcc00]/10 px-2 py-1 rounded inline-block">
               {property.status === "approved"
-                ? "For Rent"
-                : property.status?.toUpperCase() || "AVAILABLE"}
+                ? t("forRent")
+                : tStatus.has(property.status ?? "")
+                  ? tStatus(property.status as string)
+                  : tStatus("available")}
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mt-2">
-              {property.title}
-            </h1>
+            <TranslatedText
+              text={translated.title}
+              as="h1"
+              className="text-2xl md:text-3xl font-bold text-gray-900 mt-2"
+            />
             <p className="text-gray-600 text-base mt-1">{property.location}</p>
 
             {typeof property.rating === "number" && property.rating > 0 && (
@@ -619,7 +660,7 @@ export default function PropertyDetail() {
                 </span>
                 {property.reviewCount && (
                   <span className="text-gray-600 text-sm">
-                    ({property.reviewCount} reviews)
+                    {t("reviews", { count: property.reviewCount })}
                   </span>
                 )}
               </div>
@@ -627,12 +668,12 @@ export default function PropertyDetail() {
             <div className="mt-4 flex items-center gap-3 flex-wrap">
               <ShareButton
                 title={property.title}
-                text={`Check out this property: ${property.title} in ${property.location}`}
+                text={t("shareText", { title: property.title, location: property.location })}
               />
               <button
                 type="button"
                 disabled={savingBookmark}
-                aria-label={isSaved ? "Remove from favorites" : "Save to favorites"}
+                aria-label={isSaved ? t("removeFromFavorites") : t("saveToFavorites")}
                 onClick={handleToggleSave}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all text-sm font-medium disabled:opacity-60 ${
                   isSaved
@@ -647,7 +688,7 @@ export default function PropertyDetail() {
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
-                {savingBookmark ? "..." : isSaved ? "Saved" : "Save"}
+                {savingBookmark ? "..." : isSaved ? t("saved") : t("save")}
               </button>
             </div>
           </header>
@@ -655,16 +696,22 @@ export default function PropertyDetail() {
           {/* ABOUT */}
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">
-              About this place
+              {t("aboutThisPlace")}
             </h2>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              {property.description ||
-                "A wonderful property waiting for you to make it your home."}
-            </p>
+            {property.description ? (
+              <TranslatedText
+                text={translated.description}
+                className="text-gray-600 text-sm leading-relaxed"
+              />
+            ) : (
+              <p className="text-gray-600 text-sm leading-relaxed">
+                {t("descriptionFallback")}
+              </p>
+            )}
             {property.availableFrom && (
               <p className="text-gray-600 text-sm mt-3">
-                <span className="font-semibold">Available from:</span>{" "}
-                {new Date(property.availableFrom).toLocaleDateString()}
+                <span className="font-semibold">{t("availableFrom")}</span>{" "}
+                {new Date(property.availableFrom).toLocaleDateString(locale)}
               </p>
             )}
           </section>
@@ -672,7 +719,7 @@ export default function PropertyDetail() {
           {/* WHAT THIS PLACE OFFERS */}
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              What this place offers
+              {t("whatThisPlaceOffers")}
             </h2>
             <div className="grid sm:grid-cols-2 gap-3">
               {features.map((f, i) => (
@@ -683,9 +730,15 @@ export default function PropertyDetail() {
                   <AmenityIconDisplay icon={f.icon} />
                   <div>
                     <div className="font-medium text-gray-900 text-sm">
-                      {f.label}
+                      {f.localized ? f.label : amenityLabel(f.label)}
                     </div>
-                    <div className="text-xs text-gray-500">{f.desc}</div>
+                    <div className="text-xs text-gray-500">
+                      {f.localized
+                        ? f.desc
+                        : amenityDescription(f.label) ||
+                          f.desc ||
+                          t("amenityAvailable")}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -695,7 +748,7 @@ export default function PropertyDetail() {
           {/* MAP SECTION */}
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Where you&apos;ll be
+              {t("whereYoullBe")}
             </h2>
             <div className="w-full h-56 rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
               {mapEmbedUrl ? (
@@ -705,11 +758,11 @@ export default function PropertyDetail() {
                   height="100%"
                   loading="lazy"
                   className="border-0"
-                  title={`Map showing ${property.location}`}
+                  title={t("mapTitle", { location: property.location })}
                 />
               ) : (
                 <div className="flex h-full items-center justify-center text-sm text-gray-500">
-                  Loading map...
+                  {t("loadingMap")}
                 </div>
               )}
             </div>
@@ -790,7 +843,7 @@ export default function PropertyDetail() {
                 return (
                   <>
                     <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                      Managed By
+                      {t("managedBy")}
                     </h2>
                     <button
                       type="button"
@@ -822,18 +875,22 @@ export default function PropertyDetail() {
                           </p>
                           {showVerifiedBadge ? (
                             <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium shrink-0">
-                              Verified
+                              {t("verified")}
                             </span>
                           ) : (
                             <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full font-medium shrink-0">
-                              Not Verified
+                              {t("notVerified")}
                             </span>
                           )}
                         </div>
                         <p className="text-gray-500 text-xs">
                           {isAdminOwner
-                            ? "FindAfriq Admin"
-                            : `Registered ${getPropertyOwnerRegistrationLabel(property)} on FindAfriq`}
+                            ? t("findafriqAdmin")
+                            : t("registeredOn", {
+                                role: ownerRoleLabel(
+                                  getPropertyOwnerRegistrationLabel(property),
+                                ),
+                              })}
                         </p>
                         {ownerEmail ? (
                           <p className="text-gray-500 text-xs mt-1 truncate">
@@ -855,7 +912,7 @@ export default function PropertyDetail() {
                                 d="M9 5l7 7-7 7"
                               />
                             </svg>
-                            View Profile
+                            {t("viewProfile")}
                           </span>
                         </div>
                       </div>
@@ -884,18 +941,18 @@ export default function PropertyDetail() {
                   {property.isPremium && (
                     <div className="mb-3 inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-amber-500 text-white rounded-full text-xs font-bold shadow-sm">
                       <span>⭐</span>
-                      <span>Premium Listing</span>
+                      <span>{t("premiumListing")}</span>
                     </div>
                   )}
 
                   <div>
                     <div className="flex items-baseline gap-1.5">
                       <div className="text-4xl font-bold text-gray-900">
-                        {property.price ? priceParts.display : "Contact"}
+                        {property.price ? priceParts.display : t("contact")}
                       </div>
                       {property.price && (
                         <span className="text-gray-500 text-base font-medium">
-                          /month
+                          {t("perMonth")}
                         </span>
                       )}
                     </div>
@@ -916,7 +973,7 @@ export default function PropertyDetail() {
                   {/* Agent Fee Section */}
                   {shouldShowAgentFee(property) && (
                       <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4 space-y-3">
-                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Payment Details</p>
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{t("paymentDetails")}</p>
 
                         {/* Agent Fee row */}
                         <div className="flex items-start gap-3 p-3 rounded-lg border border-gray-100 bg-gray-50">
@@ -927,10 +984,10 @@ export default function PropertyDetail() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-sm font-semibold text-gray-900">Agent Fee</span>
+                              <span className="text-sm font-semibold text-gray-900">{t("agentFee")}</span>
                             </div>
-                            <p className="text-xs text-gray-500 mt-0.5">Fee set by the listing {ownerLabelLower}.</p>
-                            <p className="text-xs text-gray-400 mt-0.5">This fee is paid to the listing agent.</p>
+                            <p className="text-xs text-gray-500 mt-0.5">{t("feeSetBy", { owner: ownerLabelLower })}</p>
+                            <p className="text-xs text-gray-400 mt-0.5">{t("feePaidToAgent")}</p>
                           </div>
                           <span className="shrink-0 text-base font-bold text-green-600">{agentFeeParts.display}</span>
                         </div>
@@ -941,8 +998,8 @@ export default function PropertyDetail() {
                             <span className="text-white text-sm font-bold">!</span>
                           </div>
                           <div>
-                            <p className="text-xs font-bold text-amber-800">Payment Integration Coming Soon!</p>
-                            <p className="text-xs text-amber-700 mt-0.5">You&apos;ll pay the total amount directly to the agent. Please contact the agent for payment instructions.</p>
+                            <p className="text-xs font-bold text-amber-800">{t("paymentComingSoonTitle")}</p>
+                            <p className="text-xs text-amber-700 mt-0.5">{t("paymentComingSoonBody")}</p>
                           </div>
                         </div>
 
@@ -952,7 +1009,7 @@ export default function PropertyDetail() {
                             <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
-                            <span className="text-sm font-semibold text-gray-700">Total Amount to Pay Agent</span>
+                            <span className="text-sm font-semibold text-gray-700">{t("totalToPayAgent")}</span>
                           </div>
                           <span className="text-base font-bold text-gray-900">{agentFeeParts.display}</span>
                         </div>
@@ -997,13 +1054,13 @@ export default function PropertyDetail() {
                     >
                       <Calendar className="w-4 h-4" />
                       <span>
-                        {currentUser ? "Book Viewing Now" : "Sign in to Book"}
+                        {currentUser ? t("bookViewingNow") : t("signInToBook")}
                       </span>
                       {!currentUser && <Lock className="w-3.5 h-3.5" />}
                     </button>
                   ) : (
                     <div className="w-full h-12 flex items-center justify-center text-sm font-medium text-gray-500 bg-gray-100 rounded-lg border border-gray-200">
-                      Booking Not Available
+                      {t("bookingNotAvailable")}
                     </div>
                   )}
 
@@ -1021,8 +1078,8 @@ export default function PropertyDetail() {
                     </svg>
                     <span>
                       {currentUser
-                        ? `WhatsApp ${ownerLabel}`
-                        : "Sign in to WhatsApp"}
+                        ? t("whatsappOwner", { role: ownerRoleLabel(ownerLabel) })
+                        : t("signInToWhatsApp")}
                     </span>
                     {!currentUser && <Lock className="w-3.5 h-3.5" />}
                   </button>
@@ -1038,13 +1095,13 @@ export default function PropertyDetail() {
                   <MessageCircle className="w-7 h-7 text-gray-500" />
                 </div>
                 <p className="text-sm font-medium text-gray-900 mb-2">
-                  Message the {ownerLabel}
+                  {t("messageTheAgent", { role: ownerRoleLabel(ownerLabel) })}
                 </p>
                 <p className="text-xs text-gray-500 mb-4">
-                  Sign in to start a conversation
+                  {t("signInToStartConversation")}
                 </p>
                 <button className="h-10 w-full rounded-lg bg-gray-900 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-gray-800">
-                  Sign In to Chat
+                  {t("signInToChat")}
                 </button>
               </div>
             ) : currentUser ? (
@@ -1102,9 +1159,8 @@ export default function PropertyDetail() {
 
             <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
               <p className="text-xs font-medium text-blue-900">
-                💡 <span className="font-semibold">Tip:</span> Book a viewing to
-                see this property in person. Response time is usually within 24
-                hours.
+                💡 <span className="font-semibold">{t("tipLabel")}</span>{" "}
+                {t("bookingTip")}
               </p>
             </div>
             </div>
@@ -1121,17 +1177,17 @@ export default function PropertyDetail() {
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0 pr-2">
                   <h3 className="text-lg sm:text-2xl font-bold text-white truncate">
-                    Book This Property
+                    {t("bookThisProperty")}
                   </h3>
                   <p className="text-xs sm:text-sm text-blue-100 mt-1">
-                    Complete the form to submit your request
+                    {t("bookingFormSubtitle")}
                   </p>
                 </div>
                 <button
                   onClick={() => setShowBookingModal(false)}
                   className="text-white/80 hover:text-white hover:bg-white/10 rounded-full p-2 transition-all ml-4"
                   disabled={submitting}
-                  aria-label="Close modal"
+                  aria-label={t("closeModal")}
                 >
                   <svg
                     className="w-5 h-5"
@@ -1207,7 +1263,7 @@ export default function PropertyDetail() {
                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                       />
                     </svg>
-                    Preferred Move-in Date
+                    {t("preferredMoveInDate")}
                     <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -1241,7 +1297,7 @@ export default function PropertyDetail() {
                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
-                    Desired Rental Period
+                    {t("desiredRentalPeriod")}
                   </label>
                   <select
                     value={bookingData.rentalPeriod}
@@ -1253,11 +1309,15 @@ export default function PropertyDetail() {
                     }
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:border-gray-300 cursor-pointer"
                   >
-                    <option value="1">1 month</option>
-                    <option value="3">3 months</option>
-                    <option value="6">6 months</option>
-                    <option value="12">12 months (1 year)</option>
-                    <option value="24">24 months (2 years)</option>
+                    <option value="1">{t("rentalMonths", { count: 1 })}</option>
+                    <option value="3">{t("rentalMonths", { count: 3 })}</option>
+                    <option value="6">{t("rentalMonths", { count: 6 })}</option>
+                    <option value="12">
+                      {t("rentalYears", { months: 12, years: 1 })}
+                    </option>
+                    <option value="24">
+                      {t("rentalYears", { months: 24, years: 2 })}
+                    </option>
                   </select>
                 </div>
 
@@ -1277,7 +1337,7 @@ export default function PropertyDetail() {
                         d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
                       />
                     </svg>
-                    Contact Phone
+                    {t("contactPhone")}
                     <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -1289,7 +1349,7 @@ export default function PropertyDetail() {
                         contactPhone: e.target.value,
                       })
                     }
-                    placeholder="+231 886 149 219"
+                    placeholder={t("phonePlaceholder")}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:border-gray-300"
                     required
                   />
@@ -1314,7 +1374,7 @@ export default function PropertyDetail() {
                         d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
                       />
                     </svg>
-                    Additional Message
+                    {t("additionalMessage")}
                     <span className="text-xs font-normal text-gray-500">
                       (Optional)
                     </span>
@@ -1328,7 +1388,7 @@ export default function PropertyDetail() {
                         message: e.target.value,
                       })
                     }
-                    placeholder="Share any questions, special requests, or additional information..."
+                    placeholder={t("bookingMessagePlaceholder")}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:border-gray-300 resize-none"
                   />
                 </div>
@@ -1350,11 +1410,10 @@ export default function PropertyDetail() {
                   </svg>
                   <div className="flex-1">
                     <p className="text-sm font-medium text-blue-900">
-                      What happens next?
+                      {t("whatHappensNext")}
                     </p>
                     <p className="text-sm text-blue-800 mt-1">
-                      The property owner will receive your request and contact
-                      you within 24-48 hours to confirm the viewing details.
+                      {t("whatHappensNextBody")}
                     </p>
                   </div>
                 </div>
@@ -1369,7 +1428,7 @@ export default function PropertyDetail() {
                   onClick={() => setShowBookingModal(false)}
                   disabled={submitting}
                 >
-                  Cancel
+                  {t("cancel")}
                 </button>
                 <button
                   className="w-full sm:flex-[2] h-11 sm:h-12 text-sm font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg sm:rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 order-1 sm:order-2"
@@ -1397,7 +1456,7 @@ export default function PropertyDetail() {
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         ></path>
                       </svg>
-                      <span>Submitting...</span>
+                      <span>{t("submitting")}</span>
                     </>
                   ) : (
                     <>
@@ -1414,7 +1473,7 @@ export default function PropertyDetail() {
                           d="M5 13l4 4L19 7"
                         />
                       </svg>
-                      <span>Submit Booking Request</span>
+                      <span>{t("submitBookingRequest")}</span>
                     </>
                   )}
                 </button>
@@ -1434,7 +1493,7 @@ export default function PropertyDetail() {
                   Contact {ownerLabel}
                 </h3>
                 <p className="text-sm text-gray-600 mt-1">
-                  Send a direct message
+                  {t("sendDirectMessage")}
                 </p>
               </div>
               <button
@@ -1465,7 +1524,7 @@ export default function PropertyDetail() {
                 <input
                   type="text"
                   id="contact-subject"
-                  placeholder="e.g., Questions about the property"
+                  placeholder={t("subjectPlaceholder")}
                   defaultValue={`Inquiry about ${property?.title || "your property"}`}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 />
@@ -1477,7 +1536,7 @@ export default function PropertyDetail() {
                 <textarea
                   id="contact-message"
                   rows={6}
-                  placeholder="Ask about availability, amenities, or request more information..."
+                  placeholder={t("messagePlaceholder")}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
                 />
               </div>
@@ -1494,7 +1553,7 @@ export default function PropertyDetail() {
                   onClick={() => setShowContactModal(false)}
                   disabled={submitting}
                 >
-                  Cancel
+                  {t("cancel")}
                 </Button>
                 <Button
                   className="flex-1 h-12 text-sm font-semibold bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl shadow-lg transition-all disabled:opacity-50"
@@ -1514,7 +1573,7 @@ export default function PropertyDetail() {
                     if (message.trim()) {
                       handleSendMessage(subject, message);
                     } else {
-                      toast.error("Please enter a message before sending.");
+                      toast.error(t("messageRequired"));
                     }
                   }}
                   disabled={submitting}

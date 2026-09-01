@@ -1831,7 +1831,7 @@ export default function Navbar() {
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-gray-500">
-                    Type:
+                    {t("type")}
                   </span>
                   <span
                     className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${

@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from "next-intl";
 import { useState, useEffect } from 'react';
 import { serviceProvidersApi, type OnboardProviderDto } from '@/services/api/service-providers.api';
 
@@ -24,6 +25,9 @@ const SERVICE_TYPES = [
 ];
 
 export default function ServiceProviderOnboarding({ isOpen, onClose, onSuccess }: ServiceProviderOnboardingProps) {
+  const t_hints = useTranslations("hints");
+  const tErr = useTranslations("errors");
+  const t = useTranslations("forms");
     const [step, setStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
@@ -77,21 +81,21 @@ export default function ServiceProviderOnboarding({ isOpen, onClose, onSuccess }
         // Validation for each step
         if (step === 1) {
             if (!formData.businessName.trim()) {
-                setError('Please enter your business name');
+                setError(tErr("form.businessNameRequired"));
                 return;
             }
         } else if (step === 2) {
             if (formData.serviceTypes.length === 0) {
-                setError('Please select at least one service type');
+                setError(tErr("form.serviceTypeRequired"));
                 return;
             }
         } else if (step === 3) {
             if (!formData.location.trim()) {
-                setError('Please enter your location');
+                setError(tErr("form.locationRequired"));
                 return;
             }
             if (!formData.phone.trim()) {
-                setError('Please enter your phone number');
+                setError(tErr("form.phoneRequired"));
                 return;
             }
         }
@@ -108,12 +112,12 @@ export default function ServiceProviderOnboarding({ isOpen, onClose, onSuccess }
         setError('');
 
         if (!formData.description.trim()) {
-            setError('Please provide a description of your services');
+            setError(tErr("form.descriptionRequired"));
             return;
         }
 
         if (formData.experience < 0) {
-            setError('Please enter your years of experience');
+            setError(tErr("form.experienceRequired"));
             return;
         }
 
@@ -189,7 +193,7 @@ export default function ServiceProviderOnboarding({ isOpen, onClose, onSuccess }
                                     name="businessName"
                                     value={formData.businessName}
                                     onChange={handleInputChange}
-                                    placeholder="e.g., Best Cleaners Ltd"
+                                    placeholder={t_hints("e_g_best_cleaners_ltd")}
                                     className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-lg"
                                     autoFocus
                                 />
@@ -254,7 +258,7 @@ export default function ServiceProviderOnboarding({ isOpen, onClose, onSuccess }
                                     name="location"
                                     value={formData.location}
                                     onChange={handleInputChange}
-                                    placeholder="e.g., Nairobi, Kenya"
+                                    placeholder={t_hints("e_g_nairobi_kenya")}
                                     className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                                 />
                             </div>
@@ -316,7 +320,7 @@ export default function ServiceProviderOnboarding({ isOpen, onClose, onSuccess }
                                     value={formData.experience}
                                     onChange={handleInputChange}
                                     min="0"
-                                    placeholder="e.g., 5"
+                                    placeholder={t_hints("e_g_5")}
                                     className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                                 />
                             </div>
@@ -328,7 +332,7 @@ export default function ServiceProviderOnboarding({ isOpen, onClose, onSuccess }
                                     value={formData.description}
                                     onChange={handleInputChange}
                                     rows={5}
-                                    placeholder="Tell customers about your services, expertise, and what makes your business special..."
+                                    placeholder={t("describeBusiness")}
                                     className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
                                 />
                                 <p className="text-sm text-gray-500 mt-2">{formData.description.length} characters</p>
@@ -353,7 +357,7 @@ export default function ServiceProviderOnboarding({ isOpen, onClose, onSuccess }
                                 onClick={handleNext}
                                 className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg hover:shadow-xl"
                             >
-                                Continue
+                                {t("continue")}
                             </button>
                         ) : (
                             <button
@@ -364,11 +368,11 @@ export default function ServiceProviderOnboarding({ isOpen, onClose, onSuccess }
                                 {isSubmitting ? (
                                     <>
                                         <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                                        Creating Profile...
+                                        {t("creatingProfile")}
                                     </>
                                 ) : (
                                     <>
-                                        Complete Setup
+                                        {t("completeSetup")}
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                         </svg>

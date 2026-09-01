@@ -49,6 +49,7 @@ node_modules/
 
 # Netlify
 .netlify/
+.next-verify/
 
 # Local backups of .env — never commit (they contain live secrets)
 .env.bak*

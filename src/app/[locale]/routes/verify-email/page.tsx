@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
@@ -8,6 +9,7 @@ import { trackEmailVerified } from "@/lib/analytics";
 
 import { useRouter } from "@/i18n/navigation";
 function VerifyEmailContent() {
+  const t = useTranslations("verifyEmail");
     const searchParams = useSearchParams();
     const router = useRouter();
     const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
@@ -86,7 +88,7 @@ function VerifyEmailContent() {
                             onClick={() => router.push('/routes/login')}
                             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
                         >
-                            Go to Login Now
+                            {t("goToLoginNow")}
                         </button>
                     </div>
                 )}
@@ -106,13 +108,13 @@ function VerifyEmailContent() {
                                 onClick={() => router.push('/routes/login')}
                                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
                             >
-                                Go to Login
+                                {t("goToLogin")}
                             </button>
                             <button
                                 onClick={() => router.push('/')}
                                 className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-lg transition-colors"
                             >
-                                Go to Homepage
+                                {t("goToHomepage")}
                             </button>
                         </div>
                     </div>
@@ -123,6 +125,7 @@ function VerifyEmailContent() {
 }
 
 export default function VerifyEmailPage() {
+  const t = useTranslations("verifyEmail");
     return (
         <Suspense fallback={
             <div className="min-h-screen flex items-center justify-center">

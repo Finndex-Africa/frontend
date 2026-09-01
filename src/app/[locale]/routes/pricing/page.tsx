@@ -1,11 +1,12 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import PricingPageContent from './PricingPageContent';
 
-export const metadata: Metadata = {
-    title: 'Pricing Model | FindAfriq',
-    description:
-        'Seeker packages, landlord/agent listing tiers, and service provider subscriptions — transparent USD pricing.',
-};
+export async function generateMetadata() {
+    const tMeta = await getTranslations('metadata');
+    // Root layout applies the "%s | FindAfriq" title template.
+    return { title: tMeta('pricingTitle'), description: tMeta('pricingDesc') };
+}
 
 export default function PricingPage() {
     return <PricingPageContent />;

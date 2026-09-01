@@ -1,18 +1,21 @@
 'use client';
 
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState, useRef } from 'react';
 
 import Image from 'next/image';
 import { usersApi } from '@/services/api/users.api';
 import { mediaApi } from '@/services/api/media.api';
-import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
+import { useErrorMessage } from "@/lib/error-messages";
 import { getProviderProfileUser, isUserIdVerified } from '@/lib/user-verification';
 import { serviceProvidersApi, type ServiceProviderProfile, type UpdateProviderDto } from '@/services/api/service-providers.api';
 import ServiceProviderOnboarding from '@/components/ServiceProviderOnboarding';
 
 import { useRouter } from '@/i18n/navigation';
 export default function ProfilePage() {
+  const tErr = useTranslations("errors");
+  const errorMessage = useErrorMessage();
+  const t = useTranslations("profilePage");
     const locale = useLocale();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);
@@ -131,13 +134,13 @@ export default function ProfilePage() {
 
         // Validate file type
         if (!file.type.startsWith('image/')) {
-            setError('Please select an image file');
+            setError(tErr("form.selectImageFile"));
             return;
         }
 
         // Validate file size (5MB max)
         if (file.size > 5 * 1024 * 1024) {
-            setError('Image size must be less than 5MB');
+            setError(tErr("form.imageTooLarge5mb"));
             return;
         }
 
@@ -168,7 +171,7 @@ export default function ProfilePage() {
             setSuccess('Profile image updated successfully');
         } catch (err: any) {
             console.error('Image upload failed:', err);
-            setError(getUserFriendlyErrorMessage(err, 'Failed to upload image. Please try again.'));
+            setError(errorMessage(err, "uploadImage"));
         } finally {
             setUploadingImage(false);
         }
@@ -209,7 +212,7 @@ export default function ProfilePage() {
             setIsEditing(false);
         } catch (err: any) {
             console.error('Profile update failed:', err);
-            setError(getUserFriendlyErrorMessage(err, 'Failed to update profile. Please try again.'));
+            setError(errorMessage(err, "updateProfile"));
         } finally {
             setIsSaving(false);
         }
@@ -221,12 +224,12 @@ export default function ProfilePage() {
         setSuccess('');
 
         if (passwordData.newPassword !== passwordData.confirmPassword) {
-            setError('New passwords do not match');
+            setError(tErr("form.passwordsDoNotMatch"));
             return;
         }
 
         if (passwordData.newPassword.length < 8) {
-            setError('Password must be at least 8 characters long');
+            setError(tErr("form.passwordMinLength"));
             return;
         }
 
@@ -242,7 +245,7 @@ export default function ProfilePage() {
             setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
         } catch (err: any) {
             console.error('Password change failed:', err);
-            setError(getUserFriendlyErrorMessage(err, 'Failed to change password. Please try again.'));
+            setError(errorMessage(err, "changePassword"));
         } finally {
             setIsSaving(false);
         }
@@ -334,7 +337,7 @@ export default function ProfilePage() {
                         {isEditing && (
                             <div className="absolute top-6 right-6 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-white text-sm font-medium border border-white/30 flex items-center gap-2 animate-fadeIn">
                                 <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                                Editing Mode
+                                {t("editingMode")}
                             </div>
                         )}
 
@@ -347,7 +350,7 @@ export default function ProfilePage() {
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
-                                Edit Profile
+                                {t("editProfile")}
                             </button>
                         )}
                     </div>
@@ -361,7 +364,7 @@ export default function ProfilePage() {
                                         {formData.avatar ? (
                                             <Image
                                                 src={formData.avatar}
-                                                alt="Profile"
+                                                alt={t("profileAlt")}
                                                 fill
                                                 sizes="128px"
                                                 className="object-cover"
@@ -417,7 +420,7 @@ export default function ProfilePage() {
                                                 name="firstName"
                                                 value={formData.firstName}
                                                 onChange={handleInputChange}
-                                                placeholder="First Name"
+                                                placeholder={t("firstName")}
                                                 className="px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                             />
                                             <input
@@ -425,7 +428,7 @@ export default function ProfilePage() {
                                                 name="lastName"
                                                 value={formData.lastName}
                                                 onChange={handleInputChange}
-                                                placeholder="Last Name"
+                                                placeholder={t("lastName")}
                                                 className="px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                             />
                                         </div>
@@ -443,7 +446,7 @@ export default function ProfilePage() {
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                         </svg>
                                     </div>
-                                    Account Information
+                                    {t("accountInformation")}
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="group">
@@ -451,7 +454,7 @@ export default function ProfilePage() {
                                             <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                             </svg>
-                                            Email Address
+                                            {t("emailAddress")}
                                         </label>
                                         <div className="flex items-center gap-3 px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl group-hover:border-blue-300 transition-colors">
                                             <span className="text-gray-700 font-medium">{user?.email || 'Not provided'}</span>
@@ -460,7 +463,7 @@ export default function ProfilePage() {
                                             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                                             </svg>
-                                            Email cannot be changed
+                                            {t("emailCannotChange")}
                                         </p>
                                     </div>
 
@@ -469,7 +472,7 @@ export default function ProfilePage() {
                                             <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                             </svg>
-                                            Phone Number
+                                            {t("phoneNumber")}
                                         </label>
                                         {isEditing ? (
                                             <input
@@ -528,7 +531,7 @@ export default function ProfilePage() {
                                             <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                             </svg>
-                                            Account Type
+                                            {t("accountType")}
                                         </label>
                                         <div className="flex items-center gap-3 px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl group-hover:border-blue-300 transition-colors">
                                             <span className="text-gray-700 font-medium capitalize">
@@ -542,7 +545,7 @@ export default function ProfilePage() {
                                             <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
-                                            Member Since
+                                            {t("memberSince")}
                                         </label>
                                         <div className="flex items-center gap-3 px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl group-hover:border-blue-300 transition-colors">
                                             <span className="text-gray-700 font-medium">
@@ -567,7 +570,7 @@ export default function ProfilePage() {
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                                 </svg>
                                             </div>
-                                            Business Information
+                                            {t("businessInformation")}
                                         </h3>
                                         {!isEditingProvider && (
                                             <button
@@ -577,7 +580,7 @@ export default function ProfilePage() {
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                 </svg>
-                                                Edit Business Info
+                                                {t("editBusinessInfo")}
                                             </button>
                                         )}
                                     </div>
@@ -588,7 +591,7 @@ export default function ProfilePage() {
                                                 <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                                 </svg>
-                                                Business Name
+                                                {t("businessName")}
                                             </label>
                                             {isEditingProvider ? (
                                                 <input
@@ -610,7 +613,7 @@ export default function ProfilePage() {
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 </svg>
-                                                Location
+                                                {t("location")}
                                             </label>
                                             {isEditingProvider ? (
                                                 <input
@@ -631,7 +634,7 @@ export default function ProfilePage() {
                                                 <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                                 </svg>
-                                                Years of Experience
+                                                {t("yearsOfExperience")}
                                             </label>
                                             {isEditingProvider ? (
                                                 <input
@@ -652,7 +655,7 @@ export default function ProfilePage() {
                                                 <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                                                 </svg>
-                                                Website
+                                                {t("website")}
                                             </label>
                                             {isEditingProvider ? (
                                                 <input
@@ -685,7 +688,7 @@ export default function ProfilePage() {
                                                 <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                                                 </svg>
-                                                Verification Status
+                                                {t("verificationStatus")}
                                             </label>
                                             <div className="flex items-center gap-3 px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl group-hover:border-purple-300 transition-colors">
                                                 {(() => {
@@ -709,7 +712,7 @@ export default function ProfilePage() {
                                                 <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                                                 </svg>
-                                                Service Types
+                                                {t("serviceTypes")}
                                             </label>
                                             <div className="flex flex-wrap gap-2 px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl group-hover:border-purple-300 transition-colors">
                                                 {providerProfile.serviceTypes?.map((service, index) => (
@@ -725,7 +728,7 @@ export default function ProfilePage() {
                                                 <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                                                 </svg>
-                                                Description
+                                                {t("description")}
                                             </label>
                                             {isEditingProvider ? (
                                                 <textarea
@@ -746,7 +749,7 @@ export default function ProfilePage() {
                                                 <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                                                 </svg>
-                                                Rating
+                                                {t("rating")}
                                             </label>
                                             <div className="flex items-center gap-3 px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl group-hover:border-purple-300 transition-colors">
                                                 <span className="text-2xl font-bold text-yellow-500">{providerProfile.rating.toFixed(1)}</span>
@@ -759,7 +762,7 @@ export default function ProfilePage() {
                                                 <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
-                                                Completed Jobs
+                                                {t("completedJobs")}
                                             </label>
                                             <div className="flex items-center gap-3 px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl group-hover:border-purple-300 transition-colors">
                                                 <span className="text-2xl font-bold text-green-600">{providerProfile.completedJobs}</span>
@@ -794,7 +797,7 @@ export default function ProfilePage() {
                                                 disabled={isSaving}
                                                 className="px-8 py-3 text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all font-semibold disabled:opacity-50 shadow-sm"
                                             >
-                                                Cancel
+                                                {t("cancel")}
                                             </button>
                                             <button
                                                 onClick={async () => {
@@ -810,7 +813,7 @@ export default function ProfilePage() {
                                                         setIsEditingProvider(false);
                                                     } catch (err: any) {
                                                         console.error('Provider update failed:', err);
-                                                        setError(getUserFriendlyErrorMessage(err, 'Failed to update business information. Please try again.'));
+                                                        setError(errorMessage(err, "updateBusinessInfo"));
                                                     } finally {
                                                         setIsSaving(false);
                                                     }
@@ -821,14 +824,14 @@ export default function ProfilePage() {
                                                 {isSaving ? (
                                                     <>
                                                         <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                                                        Saving...
+                                                        {t("saving")}
                                                     </>
                                                 ) : (
                                                     <>
                                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                                         </svg>
-                                                        Save Changes
+                                                        {t("saveChanges")}
                                                     </>
                                                 )}
                                             </button>
@@ -854,7 +857,7 @@ export default function ProfilePage() {
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                                 </svg>
-                                                Set Up Business Profile
+                                                {t("setUpBusinessProfile")}
                                             </button>
                                         </div>
                                     </div>
@@ -869,7 +872,7 @@ export default function ProfilePage() {
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                         </svg>
                                     </div>
-                                    Security Settings
+                                    {t("securitySettings")}
                                 </h3>
                                 <button
                                     onClick={() => setShowPasswordModal(true)}
@@ -900,7 +903,7 @@ export default function ProfilePage() {
                                         disabled={isSaving}
                                         className="px-8 py-3 text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all font-semibold disabled:opacity-50 shadow-sm"
                                     >
-                                        Cancel
+                                        {t("cancel")}
                                     </button>
                                     <button
                                         onClick={handleSaveProfile}
@@ -910,14 +913,14 @@ export default function ProfilePage() {
                                         {isSaving ? (
                                             <>
                                                 <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                                                Saving Changes...
+                                                {t("savingChanges")}
                                             </>
                                         ) : (
                                             <>
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                                 </svg>
-                                                Save Changes
+                                                {t("saveChanges")}
                                             </>
                                         )}
                                     </button>
@@ -989,7 +992,7 @@ export default function ProfilePage() {
                                     disabled={isSaving}
                                     className="px-6 py-2.5 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
                                 >
-                                    Cancel
+                                    {t("cancel")}
                                 </button>
                                 <button
                                     type="submit"

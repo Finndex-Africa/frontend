@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import ServiceDetailClient from './ServiceDetailClient';
 import JsonLd, { listingJsonLd, breadcrumbJsonLd } from '@/components/global/JsonLd';
@@ -15,7 +16,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const { id, locale } = await params;
     const service = await fetchServiceForOg(id);
     if (!service) {
-        return { title: 'Service | FindAfriq' };
+        const tMeta = await getTranslations('metadata');
+        return { title: tMeta('serviceFallback') };
     }
     return buildServiceShareMetadata(service, locale);
 }

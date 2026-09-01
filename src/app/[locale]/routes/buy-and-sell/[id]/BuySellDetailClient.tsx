@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+import { useEnumLabel } from "@/lib/enum-labels";
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
@@ -13,11 +15,10 @@ import { buySellApi } from "@/services/api/buy-sell.api";
 import { messagesApi } from "@/services/api";
 import { apiClient } from "@/lib/api-client";
 import { BuySellListing, BuySellSeller } from "@/types/buy-sell";
-import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
+import { useErrorMessage } from "@/lib/error-messages";
 import { getUserDisplayName } from "@/lib/display-name";
 import { isUserVerifiedByAdmin } from "@/lib/user-verification";
 import { buildGoogleMapsEmbedUrlAsync } from "@/lib/google-maps";
-import { useTranslations } from "next-intl";
 import { useMoney } from "@/lib/currency/CurrencyProvider";
 import type { Currency } from "@/lib/currency/config";
 
@@ -138,6 +139,12 @@ function StatusBanner({ status }: { status: string }) {
 export default function BuySellDetailClient() {
   const money = useMoney();
   const tCurrency = useTranslations("currencySwitcher");
+  const t_hints = useTranslations("hints");
+  const tErr = useTranslations("errors");
+  const errorMessage = useErrorMessage();
+  const t = useTranslations("buySellDetail");
+  const subcategoryLabel = useEnumLabel("buySellSubcategories");
+  const unitLabel = useEnumLabel("landUnits");
   const params = useParams();
   const listingId = params?.id as string;
 
@@ -209,7 +216,7 @@ export default function BuySellDetailClient() {
       toast.success(result.bookmarked ? "Saved to favorites!" : "Removed from saved listings");
     } catch {
       setIsSaved(prev); // revert
-      toast.error("Failed to update saved listings. Please try again.");
+      toast.error(t("saveFailed"));
     } finally {
       setSavingBookmark(false);
     }
@@ -228,7 +235,7 @@ export default function BuySellDetailClient() {
       }
       setError(null);
     } catch (err) {
-      setError("Failed to load listing. Please try again later.");
+      setError(tErr("form.loadListingDetails"));
     } finally {
       setLoading(false);
     }
@@ -253,15 +260,15 @@ export default function BuySellDetailClient() {
   const handleSubmitBooking = async () => {
     if (!currentUser || !listing || bookingSubmitting) return;
     if (!bookingData.contactPhone.trim()) {
-      toast.error("Please provide your contact phone number");
+      toast.error(t("phoneRequired"));
       return;
     }
     if (!bookingData.viewingDate) {
-      toast.error("Please select a preferred viewing date");
+      toast.error(t("dateRequired"));
       return;
     }
     if (new Date(bookingData.viewingDate) <= new Date()) {
-      toast.error("Viewing date must be in the future");
+      toast.error(t("dateFuture"));
       return;
     }
     try {
@@ -294,14 +301,14 @@ export default function BuySellDetailClient() {
 
       const response = await apiClient.post("/bookings", bookingPayload);
       if (response.success) {
-        toast.success("Viewing request submitted! The seller will contact you soon.");
+        toast.success(t("bookingSuccess"));
         setShowBookingModal(false);
         setBookingData(prev => ({ ...prev, viewingDate: "", message: "" }));
       } else {
         throw new Error(response.message || "Failed to submit viewing request");
       }
     } catch (err: any) {
-      toast.error(getUserFriendlyErrorMessage(err, "Failed to submit request. Please try again."));
+      toast.error(errorMessage(err, "submitRequest"));
     } finally {
       setBookingSubmitting(false);
     }
@@ -327,7 +334,7 @@ export default function BuySellDetailClient() {
     const seller = resolveSeller(listing);
     const sellerId = seller?._id;
     if (!sellerId) {
-      toast.error("Unable to contact seller at this time.");
+      toast.error(t("noContact"));
       return;
     }
     try {
@@ -341,13 +348,13 @@ export default function BuySellDetailClient() {
         },
       });
       const threadId = threadResponse.data?._id;
-      if (!threadId) { toast.error("Could not start conversation. Please try again."); return; }
+      if (!threadId) { toast.error(t("conversationFailed")); return; }
       const fullMessage = `${subject ? `[${subject}] ` : ""}${message}\n\nFrom: ${currentUser.firstName || "User"}${currentUser.email ? ` (${currentUser.email})` : ""}`;
       await apiClient.post("/messages/send", { threadId, text: fullMessage });
-      toast.success("Message sent! The seller will respond soon.");
+      toast.success(t("messageSent"));
       setShowContactModal(false);
     } catch (err: any) {
-      toast.error(getUserFriendlyErrorMessage(err, "Failed to send message. Please try again."));
+      toast.error(errorMessage(err, "sendMessage"));
     } finally {
       setSubmitting(false);
     }
@@ -371,7 +378,7 @@ export default function BuySellDetailClient() {
             onClick={() => (window.location.href = "/routes/buy-and-sell")}
             className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors"
           >
-            Back to Listings
+            {t("backToListings")}
           </button>
         </div>
       </div>
@@ -391,8 +398,8 @@ export default function BuySellDetailClient() {
 
   const seller = resolveSeller(listing);
   const sellerName = seller
-    ? getUserDisplayName(seller as unknown as Record<string, unknown>, seller.email || "Seller")
-    : "Seller";
+    ? getUserDisplayName(seller as unknown as Record<string, unknown>, seller.email || t("seller"))
+    : t("seller");
   const sellerInitial = sellerName.charAt(0).toUpperCase();
   const sellerAvatar = seller?.avatar || "";
   const sellerId = seller?._id || (typeof listing.sellerId === "string" ? listing.sellerId : "");
@@ -410,33 +417,33 @@ export default function BuySellDetailClient() {
 
   if (listing.category === "land") {
     if (listing.landSubcategory)
-      detailRows.push({ icon: "🏷️", label: "Land Type", value: SUBCATEGORY_LABEL[listing.landSubcategory] || listing.landSubcategory });
+      detailRows.push({ icon: "🏷️", label: t("landType"), value: subcategoryLabel(listing.landSubcategory) });
     if (listing.landSize != null && listing.unit)
-      detailRows.push({ icon: "📐", label: "Land Size", value: `${listing.landSize.toLocaleString()} ${UNIT_LABEL[listing.unit] || listing.unit}` });
+      detailRows.push({ icon: "📐", label: t("landSize"), value: `${listing.landSize.toLocaleString()} ${unitLabel(listing.unit)}` });
     if (listing.ownershipStatus)
-      detailRows.push({ icon: "📋", label: "Ownership", value: listing.ownershipStatus });
+      detailRows.push({ icon: "📋", label: t("ownership"), value: listing.ownershipStatus });
   }
 
   if (listing.category === "house") {
     if (listing.houseSubcategory)
-      detailRows.push({ icon: "🏡", label: "House Type", value: SUBCATEGORY_LABEL[listing.houseSubcategory] || listing.houseSubcategory });
+      detailRows.push({ icon: "🏡", label: t("houseType"), value: subcategoryLabel(listing.houseSubcategory) });
     if (listing.propertyType)
-      detailRows.push({ icon: "🏗️", label: "Structure", value: listing.propertyType });
+      detailRows.push({ icon: "🏗️", label: t("structure"), value: listing.propertyType });
     if (listing.bedrooms != null)
-      detailRows.push({ icon: "🛏️", label: "Bedrooms", value: `${listing.bedrooms}` });
+      detailRows.push({ icon: "🛏️", label: t("bedrooms"), value: `${listing.bedrooms}` });
     if (listing.bathrooms != null)
-      detailRows.push({ icon: "🚿", label: "Bathrooms", value: `${listing.bathrooms}` });
+      detailRows.push({ icon: "🚿", label: t("bathrooms"), value: `${listing.bathrooms}` });
   }
 
   if (listing.category === "household_item") {
     if (listing.itemSubcategory)
-      detailRows.push({ icon: "🏷️", label: "Category", value: SUBCATEGORY_LABEL[listing.itemSubcategory] || listing.itemSubcategory });
+      detailRows.push({ icon: "🏷️", label: t("category"), value: subcategoryLabel(listing.itemSubcategory) });
     if (listing.condition)
-      detailRows.push({ icon: "✨", label: "Condition", value: listing.condition === "new" ? "Brand New" : "Fairly Used" });
+      detailRows.push({ icon: "✨", label: t("condition"), value: listing.condition === "new" ? t("brandNew") : t("fairlyUsed") });
     if (listing.warranty != null)
-      detailRows.push({ icon: "🛡️", label: "Warranty", value: listing.warranty ? "Included" : "No warranty" });
+      detailRows.push({ icon: "🛡️", label: t("warranty"), value: listing.warranty ? t("warrantyIncluded") : t("noWarranty") });
     if (listing.deliveryAvailable != null)
-      detailRows.push({ icon: "🚚", label: "Delivery", value: listing.deliveryAvailable ? "Available" : "Pickup only" });
+      detailRows.push({ icon: "🚚", label: t("delivery"), value: listing.deliveryAvailable ? t("deliveryAvailable") : t("pickupOnly") });
   }
 
   // Amenities for house listings
@@ -518,7 +525,7 @@ export default function BuySellDetailClient() {
 
           {/* Description */}
           <section>
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">About this listing</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">{t("aboutThisListing")}</h2>
             <p className="text-gray-600 text-sm leading-relaxed">
               {listing.description || "No description provided."}
             </p>
@@ -527,7 +534,7 @@ export default function BuySellDetailClient() {
           {/* Category-specific details */}
           {detailRows.length > 0 && (
             <section>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Listing Details</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">{t("listingDetails")}</h2>
               <div className="grid sm:grid-cols-2 gap-3">
                 {detailRows.map((r, i) => (
                   <DetailRow key={i} icon={r.icon} label={r.label} value={r.value} />
@@ -539,7 +546,7 @@ export default function BuySellDetailClient() {
           {/* Amenities (house only) */}
           {amenities.length > 0 && (
             <section>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Amenities & Features</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">{t("amenitiesFeatures")}</h2>
               <div className="grid sm:grid-cols-2 gap-3">
                 {amenities.map((a, i) => (
                   <div
@@ -559,7 +566,7 @@ export default function BuySellDetailClient() {
 
           {/* Map */}
           <section>
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Location</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">{t("location")}</h2>
             <div className="w-full h-56 rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
               {mapEmbedUrl ? (
                 <iframe
@@ -568,7 +575,7 @@ export default function BuySellDetailClient() {
                   height="100%"
                   loading="lazy"
                   className="border-0"
-                  title={`Map showing ${listing.location}`}
+                  title={t("mapTitle", { location: listing.location })}
                 />
               ) : (
                 <div className="flex h-full items-center justify-center text-sm text-gray-500">
@@ -582,7 +589,7 @@ export default function BuySellDetailClient() {
           {/* Seller / Managed By */}
           {seller && (
             <section>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Listed By</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">{t("listedBy")}</h2>
               <button
                 type="button"
                 onClick={() => { if (sellerId) window.location.href = `/routes/profile-view/${sellerId}`; }}
@@ -605,13 +612,13 @@ export default function BuySellDetailClient() {
                   <div className="flex flex-wrap items-center gap-2 mb-1">
                     <p className="font-semibold text-gray-900 text-sm">{sellerName}</p>
                     {showVerified ? (
-                      <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium shrink-0">Verified</span>
+                      <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium shrink-0">{t("verified")}</span>
                     ) : (
-                      <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full font-medium shrink-0">Not Verified</span>
+                      <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full font-medium shrink-0">{t("notVerified")}</span>
                     )}
                   </div>
                   <p className="text-gray-500 text-xs">
-                    {isAdminSeller ? "FindAfriq Admin" : "Registered seller on FindAfriq"}
+                    {isAdminSeller ? t("findafriqAdmin") : t("registeredSeller")}
                   </p>
                   {seller.email && (
                     <p className="text-gray-500 text-xs mt-1 truncate">{seller.email}</p>
@@ -620,7 +627,7 @@ export default function BuySellDetailClient() {
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
-                    View Profile
+                    {t("viewProfile")}
                   </div>
                 </div>
               </button>
@@ -651,7 +658,7 @@ export default function BuySellDetailClient() {
                   {listing.isPremium && (
                     <div className="mb-3 inline-flex items-center gap-1.5 px-3 py-1.5 bg-linear-to-r from-amber-400 to-amber-500 text-white rounded-full text-xs font-bold shadow-sm">
                       <span>⭐</span>
-                      <span>Premium Listing</span>
+                      <span>{t("premiumListing")}</span>
                     </div>
                   )}
 
@@ -660,7 +667,7 @@ export default function BuySellDetailClient() {
                       {priceParts.display}
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">Listed price</p>
+                  <p className="text-xs text-gray-500 mt-1">{t("listedPrice")}</p>
                   {/* The seller's own figure — this is the screen before contact. */}
                   {priceParts.isConverted && (
                     <p className="text-sm text-gray-500 mt-0.5">
@@ -678,7 +685,7 @@ export default function BuySellDetailClient() {
                           </svg>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span className="text-sm font-semibold text-gray-900">Agent Fee</span>
+                          <span className="text-sm font-semibold text-gray-900">{t("agentFee")}</span>
                           <p className="text-xs text-gray-500 mt-0.5">Fee set by the listing agent or real estate agency.</p>
                           <p className="text-xs text-gray-400 mt-0.5">This fee is paid directly to the agent.</p>
                         </div>
@@ -698,7 +705,7 @@ export default function BuySellDetailClient() {
                           <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                           </svg>
-                          <span className="text-sm font-semibold text-gray-700">Total Amount to Pay Agent</span>
+                          <span className="text-sm font-semibold text-gray-700">{t("totalToPayAgent")}</span>
                         </div>
                         <span className="text-base font-bold text-gray-900">{agentFeeParts.display}</span>
                       </div>
@@ -735,7 +742,7 @@ export default function BuySellDetailClient() {
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                     </svg>
-                    <span>{currentUser ? "WhatsApp Seller" : "Sign in to WhatsApp"}</span>
+                    <span>{currentUser ? t("whatsappSeller") : t("signInToWhatsApp")}</span>
                     {!currentUser && <Lock className="w-3.5 h-3.5" />}
                   </button>
 
@@ -752,7 +759,7 @@ export default function BuySellDetailClient() {
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      <span>{currentUser ? "Book Viewing Now" : "Sign in to Book"}</span>
+                      <span>{currentUser ? t("bookViewingNow") : t("signInToBook")}</span>
                       {!currentUser && <Lock className="w-3.5 h-3.5" />}
                     </button>
                   )}
@@ -767,13 +774,13 @@ export default function BuySellDetailClient() {
                   <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-linear-to-br from-gray-200 to-gray-300 flex items-center justify-center">
                     <MessageCircle className="w-7 h-7 text-gray-500" />
                   </div>
-                  <p className="text-sm font-medium text-gray-900 mb-2">Message the Seller</p>
-                  <p className="text-xs text-gray-500 mb-4">Sign in to start a conversation</p>
+                  <p className="text-sm font-medium text-gray-900 mb-2">{t("messageTheSeller")}</p>
+                  <p className="text-xs text-gray-500 mb-4">{t("signInToStartConversation")}</p>
                   <button
                     onClick={() => (window.location.href = "/routes/login")}
                     className="h-10 w-full rounded-lg bg-gray-900 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-gray-800"
                   >
-                    Sign In to Chat
+                    {t("signInToChat")}
                   </button>
                 </div>
               ) : sellerId && !isOwnListing ? (
@@ -782,7 +789,7 @@ export default function BuySellDetailClient() {
                     <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center">
                       <MessageCircle className="w-4 h-4 text-blue-600" />
                     </div>
-                    <span className="text-sm font-semibold text-gray-900">Message Seller</span>
+                    <span className="text-sm font-semibold text-gray-900">{t("messageSeller")}</span>
                   </div>
                   <ChatBox
                     userId={currentUser.id}
@@ -811,8 +818,8 @@ export default function BuySellDetailClient() {
             <div className="sticky top-0 bg-blue-600 px-4 sm:px-6 py-4 sm:py-5 rounded-t-xl sm:rounded-t-2xl">
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0 pr-2">
-                  <h3 className="text-lg sm:text-2xl font-bold text-white truncate">Book a Viewing</h3>
-                  <p className="text-xs sm:text-sm text-blue-100 mt-1">Schedule a time to view this listing</p>
+                  <h3 className="text-lg sm:text-2xl font-bold text-white truncate">{t("bookAViewing")}</h3>
+                  <p className="text-xs sm:text-sm text-blue-100 mt-1">{t("bookingSubtitle")}</p>
                 </div>
                 <button
                   onClick={() => setShowBookingModal(false)}
@@ -848,7 +855,7 @@ export default function BuySellDetailClient() {
                   <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  Preferred Viewing Date <span className="text-red-500">*</span>
+                  {t("preferredViewingDate")} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="date"
@@ -866,7 +873,7 @@ export default function BuySellDetailClient() {
                   <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
-                  Contact Phone <span className="text-red-500">*</span>
+                  {t("contactPhone")} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="tel"
@@ -889,13 +896,13 @@ export default function BuySellDetailClient() {
                   rows={3}
                   value={bookingData.message}
                   onChange={e => setBookingData(prev => ({ ...prev, message: e.target.value }))}
-                  placeholder="Any specific time preference or questions for the seller..."
+                  placeholder={t("notesPlaceholder")}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
                 />
               </div>
 
               <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4 text-sm text-blue-800">
-                The seller will receive your request and contact you to confirm the viewing details.
+                {t("viewingInfo")}
               </div>
             </div>
 
@@ -907,7 +914,7 @@ export default function BuySellDetailClient() {
                   onClick={() => setShowBookingModal(false)}
                   disabled={bookingSubmitting}
                 >
-                  Cancel
+                  {t("cancel")}
                 </button>
                 <button
                   className="w-full sm:flex-[2] h-11 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2 order-1 sm:order-2"
@@ -915,9 +922,9 @@ export default function BuySellDetailClient() {
                   disabled={bookingSubmitting}
                 >
                   {bookingSubmitting ? (
-                    <><svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/></svg>Submitting…</>
+                    <><svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/></svg>{t("submitting")}</>
                   ) : (
-                    <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>Submit Viewing Request</>
+                    <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>{t("submitViewingRequest")}</>
                   )}
                 </button>
               </div>
@@ -932,8 +939,8 @@ export default function BuySellDetailClient() {
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-2xl font-bold text-gray-900">Contact Seller</h3>
-                <p className="text-sm text-gray-600 mt-1">Send a direct message</p>
+                <h3 className="text-2xl font-bold text-gray-900">{t("contactSeller")}</h3>
+                <p className="text-sm text-gray-600 mt-1">{t("sendDirectMessage")}</p>
               </div>
               <button
                 onClick={() => setShowContactModal(false)}
@@ -948,21 +955,21 @@ export default function BuySellDetailClient() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">📋 Subject</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">📋 {t("subject")}</label>
                 <input
                   type="text"
                   id="bs-contact-subject"
                   defaultValue={`Inquiry about ${listing?.title || "your listing"}`}
-                  placeholder="e.g., Questions about the listing"
+                  placeholder={t_hints("e_g_questions_about_the_listing")}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">💬 Your Message</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">💬 {t("yourMessage")}</label>
                 <textarea
                   id="bs-contact-message"
                   rows={5}
-                  placeholder="Ask about the item, negotiate the price, or request more details..."
+                  placeholder={t("messagePlaceholder")}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
                 />
               </div>
@@ -979,7 +986,7 @@ export default function BuySellDetailClient() {
                   onClick={() => setShowContactModal(false)}
                   disabled={submitting}
                 >
-                  Cancel
+                  {t("cancel")}
                 </button>
                 <button
                   className="flex-1 h-12 text-sm font-semibold bg-linear-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl shadow-lg transition-all disabled:opacity-50"
@@ -990,11 +997,11 @@ export default function BuySellDetailClient() {
                     if (message.trim()) {
                       handleSendMessage(subject, message);
                     } else {
-                      toast.error("Please enter a message before sending.");
+                      toast.error(t("messageRequired"));
                     }
                   }}
                 >
-                  {submitting ? "Sending…" : "Send Message ✉️"}
+                  {submitting ? t("sending") : `${t("sendMessage")} ✉️`}
                 </button>
               </div>
             </div>

@@ -1,10 +1,11 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 
-export const metadata: Metadata = {
-    title: 'Help & FAQ | FindAfriq',
-    description:
-        'Frequently asked questions about FindAfriq — properties, services, accounts, safety, and support.',
-};
+export async function generateMetadata() {
+    const tMeta = await getTranslations('metadata');
+    // Root layout applies the "%s | FindAfriq" title template.
+    return { title: tMeta('helpTitle'), description: tMeta('helpDesc') };
+}
 
 export default function HelpLayout({ children }: { children: React.ReactNode }) {
     return children;

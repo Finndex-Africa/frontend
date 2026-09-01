@@ -1,234 +1,142 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import {
     BulletList,
     LegalContactCard,
     LegalDocLayout,
     LegalSection,
     LegalSubheading,
+    LegalTranslationNotice,
     PolicyTable,
 } from '@/components/legal/LegalDocLayout';
 
 import { Link } from '@/i18n/navigation';
-export const metadata: Metadata = {
-    title: 'Platform Policy | FindAfriq',
-    description: 'Rules governing use of the FindAfriq platform, enforcement, and penalties.',
-};
 
-export default function PlatformPolicyPage() {
+export async function generateMetadata(): Promise<Metadata> {
+    const t = await getTranslations('platformPolicyPage');
+    return {
+        title: t('title'),
+        description: t('subtitle'),
+    };
+}
+
+export default async function PlatformPolicyPage() {
+    const t = await getTranslations('platformPolicyPage');
+    const tLegal = await getTranslations('legal');
+    const s = t.raw('s') as Record<
+        string,
+        Record<string, string | string[] | string[][]>
+    >;
+    const str = (path: string, key: string) => s[path][key] as string;
+    const list = (path: string, key: string) => s[path][key] as string[];
+    const rows = (path: string, key: string) => s[path][key] as string[][];
+
     return (
-        <LegalDocLayout
-            title="FindAfriq Platform Policy"
-            subtitle="Rules governing use of the platform, enforcement, and penalties for all users."
-        >
-            <LegalSection title="1. Purpose">
-                <p>
-                    This Policy outlines the rules governing the use of the FindAfriq platform and establishes clear
-                    penalties for violations to ensure trust, safety, and professionalism across all users.
-                </p>
+        <LegalDocLayout title={t('title')} subtitle={t('subtitle')}>
+            <LegalTranslationNotice notice={tLegal('translationNotice')} />
+
+            <LegalSection title={str('purpose', 't')}>
+                <p>{str('purpose', 'p1')}</p>
             </LegalSection>
 
-            <LegalSection title="2. Scope">
-                <p>This policy applies to all users of FindAfriq, including:</p>
-                <BulletList items={['Landlords', 'Real Estate Agents', 'Seekers', 'Service Providers']} />
+            <LegalSection title={str('scope', 't')}>
+                <p>{str('scope', 'p1')}</p>
+                <BulletList items={list('scope', 'items')} />
             </LegalSection>
 
-            <LegalSection title="3. Core platform principles">
-                <p>All users must adhere to the following principles:</p>
-                <BulletList
-                    items={[
-                        'Accuracy – Provide truthful and updated information',
-                        'Transparency – No hidden or misleading details',
-                        'Professionalism – Respectful communication and conduct',
-                        'Legality – Compliance with all applicable laws',
-                        'Integrity – No fraudulent or deceptive activities',
-                    ]}
-                />
+            <LegalSection title={str('principles', 't')}>
+                <p>{str('principles', 'p1')}</p>
+                <BulletList items={list('principles', 'items')} />
             </LegalSection>
 
-            <LegalSection title="4. Prohibited activities">
-                <p>The following actions are strictly prohibited.</p>
+            <LegalSection title={str('prohibited', 't')}>
+                <p>{str('prohibited', 'p1')}</p>
 
-                <LegalSubheading>4.1 Listings &amp; content violations</LegalSubheading>
-                <BulletList
-                    items={[
-                        'Posting fake or non-existent properties',
-                        'Uploading misleading descriptions, pricing, or images',
-                        'Listing unavailable or already rented/sold properties',
-                        'Using stolen or unauthorized images',
-                    ]}
-                />
+                <LegalSubheading>{str('prohibited', 'h1')}</LegalSubheading>
+                <BulletList items={list('prohibited', 'i1')} />
 
-                <LegalSubheading>4.2 Fraud &amp; misconduct</LegalSubheading>
-                <BulletList
-                    items={[
-                        'Scamming or attempting to defraud users',
-                        'Impersonation of agents, landlords, or businesses',
-                        'Requesting unauthorized payments outside agreed terms',
-                        'Manipulating platform fees or processes',
-                    ]}
-                />
+                <LegalSubheading>{str('prohibited', 'h2')}</LegalSubheading>
+                <BulletList items={list('prohibited', 'i2')} />
 
-                <LegalSubheading>4.3 User behavior violations</LegalSubheading>
-                <BulletList
-                    items={[
-                        'Harassment, abuse, or threats',
-                        'Discrimination or hate speech',
-                        'Spamming or excessive unsolicited contact',
-                    ]}
-                />
+                <LegalSubheading>{str('prohibited', 'h3')}</LegalSubheading>
+                <BulletList items={list('prohibited', 'i3')} />
 
-                <LegalSubheading>4.4 Business &amp; platform abuse</LegalSubheading>
-                <BulletList
-                    items={[
-                        'Unauthorized commercial use of the platform',
-                        'Circumventing subscription or listing payments',
-                        'Creating multiple accounts to bypass restrictions',
-                    ]}
-                />
+                <LegalSubheading>{str('prohibited', 'h4')}</LegalSubheading>
+                <BulletList items={list('prohibited', 'i4')} />
             </LegalSection>
 
-            <LegalSection title="5. Enforcement structure">
-                <p>Violations are categorized into three levels based on severity:</p>
+            <LegalSection title={str('enforcement', 't')}>
+                <p>{str('enforcement', 'p1')}</p>
                 <PolicyTable
-                    headers={['Level', 'Description']}
-                    rows={[
-                        ['Level 1', 'Minor violations (warnings applicable)'],
-                        ['Level 2', 'Moderate violations (temporary restrictions)'],
-                        ['Level 3', 'Severe violations (permanent removal)'],
-                    ]}
+                    headers={list('enforcement', 'headers')}
+                    rows={rows('enforcement', 'rows')}
                 />
             </LegalSection>
 
-            <LegalSection title="6. Penalty framework">
-                <LegalSubheading>6.1 Landlords &amp; agents</LegalSubheading>
-                <PolicyTable
-                    headers={['Violation', 'Penalty']}
-                    rows={[
-                        ['First-time inaccurate listing', 'Warning + listing removal'],
-                        ['Repeated misleading listings', 'Account suspension (7–14 days)'],
-                        ['Fake or fraudulent property', 'Immediate account termination'],
-                        ['Refusal to update unavailable listing', 'Listing removal + warning'],
-                        ['Scam involvement', 'Permanent ban + blacklisting'],
-                    ]}
-                />
+            <LegalSection title={str('penalties', 't')}>
+                <LegalSubheading>{str('penalties', 'h1')}</LegalSubheading>
+                <PolicyTable headers={list('penalties', 'headers')} rows={rows('penalties', 'r1')} />
 
-                <LegalSubheading>6.2 Service providers</LegalSubheading>
-                <PolicyTable
-                    headers={['Violation', 'Penalty']}
-                    rows={[
-                        ['False business information', 'Warning + profile correction'],
-                        ['Poor service complaints (verified)', 'Temporary suspension'],
-                        ['Repeated misconduct', 'Subscription termination (no refund)'],
-                        ['Fraud or scam activity', 'Permanent ban'],
-                    ]}
-                />
+                <LegalSubheading>{str('penalties', 'h2')}</LegalSubheading>
+                <PolicyTable headers={list('penalties', 'headers')} rows={rows('penalties', 'r2')} />
 
-                <LegalSubheading>6.3 Seekers</LegalSubheading>
-                <PolicyTable
-                    headers={['Violation', 'Penalty']}
-                    rows={[
-                        ['Misuse of agent contact access', 'Warning'],
-                        ['Harassment of agents/providers', 'Account suspension'],
-                        ['Fraudulent behavior', 'Permanent account ban'],
-                    ]}
-                />
+                <LegalSubheading>{str('penalties', 'h3')}</LegalSubheading>
+                <PolicyTable headers={list('penalties', 'headers')} rows={rows('penalties', 'r3')} />
 
-                <LegalSubheading>6.4 General platform violations (all users)</LegalSubheading>
-                <PolicyTable
-                    headers={['Violation', 'Penalty']}
-                    rows={[
-                        ['Spam or abuse', 'Warning or suspension'],
-                        ['Multiple fake accounts', 'Account termination'],
-                        ['Unauthorized commercial activity', 'Account suspension or removal'],
-                        ['Platform manipulation', 'Immediate restriction or ban'],
-                    ]}
-                />
+                <LegalSubheading>{str('penalties', 'h4')}</LegalSubheading>
+                <PolicyTable headers={list('penalties', 'headers')} rows={rows('penalties', 'r4')} />
             </LegalSection>
 
-            <LegalSection title="7. Financial policy enforcement">
-                <p>Aligned with your pricing model:</p>
-                <BulletList
-                    items={[
-                        'Listing Fees (Basic, Pro, Premium): Non-refundable after publication',
-                        'Authorization Fees (Seekers): Non-transferable and non-refundable',
-                        'Subscriptions (Service Providers): No refunds for unused periods; suspension does not extend subscription duration',
-                    ]}
-                />
+            <LegalSection title={str('financial', 't')}>
+                <p>{str('financial', 'p1')}</p>
+                <BulletList items={list('financial', 'items')} />
                 <p className="text-sm text-gray-600">
-                    See also:{' '}
+                    {str('financial', 'seeAlso')}{' '}
                     <Link href="/routes/pricing" className="text-[#0000FF] font-medium hover:underline">
-                        Pricing model
+                        {str('financial', 'pricingLink')}
                     </Link>
                     .
                 </p>
             </LegalSection>
 
-            <LegalSection title="8. Listing &amp; content moderation">
-                <p>FindAfriq reserves the right to:</p>
-                <BulletList
-                    items={[
-                        'Remove or edit any listing without notice',
-                        'Reject listings that do not meet standards',
-                        'Verify properties and user identities',
-                        'Assign or revoke “Verified” badges',
-                    ]}
-                />
+            <LegalSection title={str('moderation', 't')}>
+                <p>{str('moderation', 'p1')}</p>
+                <BulletList items={list('moderation', 'items')} />
             </LegalSection>
 
-            <LegalSection title="9. Reporting &amp; dispute handling">
-                <p>Users are encouraged to report:</p>
-                <BulletList items={['Fake listings', 'Fraudulent users', 'Misconduct or abuse']} />
-                <p className="font-medium text-gray-900">Process:</p>
+            <LegalSection title={str('reporting', 't')}>
+                <p>{str('reporting', 'p1')}</p>
+                <BulletList items={list('reporting', 'items')} />
+                <p className="font-medium text-gray-900">{str('reporting', 'p2')}</p>
                 <ol className="list-decimal pl-5 space-y-2 text-gray-700">
-                    <li>Complaint submission</li>
-                    <li>Investigation by FindAfriq</li>
-                    <li>Decision &amp; enforcement</li>
-                    <li>Notification to involved parties</li>
+                    {list('reporting', 'steps').map((step) => (
+                        <li key={step}>{step}</li>
+                    ))}
                 </ol>
             </LegalSection>
 
-            <LegalSection title="10. Appeals process">
-                <p>Users may appeal penalties by:</p>
-                <BulletList
-                    items={[
-                        'Submitting a formal request via email',
-                        'Providing evidence to support their case',
-                    ]}
-                />
-                <p>FindAfriq reserves the final decision.</p>
+            <LegalSection title={str('appeals', 't')}>
+                <p>{str('appeals', 'p1')}</p>
+                <BulletList items={list('appeals', 'items')} />
+                <p>{str('appeals', 'p2')}</p>
             </LegalSection>
 
-            <LegalSection title="11. Account suspension &amp; termination">
-                <p>FindAfriq may:</p>
-                <BulletList
-                    items={[
-                        'Suspend accounts temporarily for investigation',
-                        'Permanently terminate accounts for severe violations',
-                        'Block access without prior notice in critical cases',
-                    ]}
-                />
+            <LegalSection title={str('suspension', 't')}>
+                <p>{str('suspension', 'p1')}</p>
+                <BulletList items={list('suspension', 'items')} />
             </LegalSection>
 
-            <LegalSection title="12. Legal &amp; compliance">
-                <BulletList
-                    items={[
-                        'Violations involving fraud may be reported to authorities',
-                        'Users remain legally responsible for their actions outside the platform',
-                        'FindAfriq is not liable for user-to-user transactions',
-                    ]}
-                />
+            <LegalSection title={str('legal', 't')}>
+                <BulletList items={list('legal', 'items')} />
             </LegalSection>
 
-            <LegalSection title="13. Policy updates">
-                <p>
-                    FindAfriq reserves the right to update this policy at any time. Continued use of the platform implies
-                    acceptance of the updated policy.
-                </p>
+            <LegalSection title={str('updates', 't')}>
+                <p>{str('updates', 'p1')}</p>
             </LegalSection>
 
-            <LegalSection title="14. Conclusion">
-                <p>This policy ensures that FindAfriq remains a trusted, transparent, and secure platform for connecting:</p>
-                <BulletList items={['Verified properties', 'Trusted agents', 'Reliable service providers']} />
+            <LegalSection title={str('conclusion', 't')}>
+                <p>{str('conclusion', 'p1')}</p>
+                <BulletList items={list('conclusion', 'items')} />
             </LegalSection>
 
             <LegalContactCard />

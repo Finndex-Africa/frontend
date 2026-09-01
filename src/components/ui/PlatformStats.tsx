@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 import { useEffect, useState, useRef } from 'react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
@@ -77,6 +78,7 @@ function StatCard({
 }
 
 export default function PlatformStats() {
+    const t = useTranslations("home");
     const [stats, setStats] = useState<Stats | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
@@ -145,7 +147,7 @@ export default function PlatformStats() {
         <div className="bg-white py-6">
             <div className="container-app">
                 <h2 className="text-xl sm:text-2xl font-bold text-center mb-6 text-gray-900">
-                    Our Platform at a Glance
+                    {t("platformAtAGlance")}
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-4xl mx-auto">
                     <StatCard

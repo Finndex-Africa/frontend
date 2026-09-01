@@ -81,6 +81,11 @@ export interface BuySellListing {
   condition?: ItemCondition;
   warranty?: boolean;
   deliveryAvailable?: boolean;
+
+  /** i18n — populated by the backend translation module. */
+  sourceLang?: string;
+  translations?: Record<string, { title?: string; description?: string }>;
+  translationSource?: 'machine' | 'human';
 }
 
 // ─── Filters ───────────────────────────────────────────────────────────────

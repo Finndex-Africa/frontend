@@ -1,226 +1,159 @@
 import type { Metadata } from 'next';
-import { BulletList, LegalContactCard, LegalDocLayout, LegalSection, LegalSubheading } from '@/components/legal/LegalDocLayout';
+import { getTranslations } from 'next-intl/server';
+import {
+    BulletList,
+    LegalContactCard,
+    LegalDocLayout,
+    LegalSection,
+    LegalSubheading,
+    LegalTranslationNotice,
+} from '@/components/legal/LegalDocLayout';
 
 import { Link } from '@/i18n/navigation';
-export const metadata: Metadata = {
-    title: 'Terms & Conditions | FindAfriq',
-    description: 'Terms governing your use of the FindAfriq platform.',
-};
 
-export default function TermsPage() {
+export async function generateMetadata(): Promise<Metadata> {
+    const t = await getTranslations('termsPage');
+    return {
+        title: t('title'),
+        description: t('subtitle'),
+    };
+}
+
+export default async function TermsPage() {
+    const t = await getTranslations('termsPage');
+    const tLegal = await getTranslations('legal');
+    // Section copy lives in messages/*.json under termsPage.s
+    const s = t.raw('s') as Record<string, Record<string, string | string[]>>;
+    const str = (path: string, key: string) => s[path][key] as string;
+    const list = (path: string, key: string) => s[path][key] as string[];
+
     return (
-        <LegalDocLayout
-            title="FindAfriq Terms and Conditions"
-            subtitle="Welcome to FindAfriq. These Terms govern your access to and use of the FindAfriq platform."
-        >
-            <LegalSection title="Introduction">
-                <p>
-                    These Terms and Conditions (“Terms”) govern your access to and use of the FindAfriq platform,
-                    including our website, services, and applications (collectively, the “Platform”). By accessing or using
-                    FindAfriq, you agree to be bound by these Terms. If you do not agree, please do not use the Platform.
-                </p>
+        <LegalDocLayout title={t('title')} subtitle={t('subtitle')}>
+            <LegalTranslationNotice notice={tLegal('translationNotice')} />
+
+            <LegalSection title={str('intro', 't')}>
+                <p>{str('intro', 'p1')}</p>
             </LegalSection>
 
-            <LegalSection title="1. About FindAfriq">
-                <p>FindAfriq is a digital platform that connects:</p>
-                <BulletList items={['Landlord', 'Real estate agents', 'Seekers', 'Service providers']} />
-                <p>We facilitate listings, visibility, and connections but do not act as a direct party in transactions.</p>
+            <LegalSection title={str('about', 't')}>
+                <p>{str('about', 'p1')}</p>
+                <BulletList items={list('about', 'items')} />
+                <p>{str('about', 'p2')}</p>
             </LegalSection>
 
-            <LegalSection title="2. User eligibility">
-                <p>To use FindAfriq, you must:</p>
-                <BulletList
-                    items={[
-                        'Be at least 18 years old',
-                        'Provide accurate and complete information',
-                        'Use the platform in compliance with applicable laws',
-                    ]}
-                />
+            <LegalSection title={str('eligibility', 't')}>
+                <p>{str('eligibility', 'p1')}</p>
+                <BulletList items={list('eligibility', 'items')} />
             </LegalSection>
 
-            <LegalSection title="3. User categories">
-                <LegalSubheading>a. Landlord &amp; agents</LegalSubheading>
-                <BulletList
-                    items={[
-                        'Can post property listings under selected packages',
-                        'Responsible for accuracy of listings',
-                        'Must ensure properties are legitimate and available',
-                    ]}
-                />
-                <LegalSubheading>b. Seekers</LegalSubheading>
-                <BulletList
-                    items={[
-                        'Can browse listings and contact agents',
-                        'Pay a one-time platform authorization fee based on property size',
-                        'Pay agents directly for services (FindAfriq does not collect commissions)',
-                    ]}
-                />
-                <LegalSubheading>c. Service providers</LegalSubheading>
-                <BulletList
-                    items={[
-                        'Subscribe to access the platform',
-                        'Receive customer inquiries and visibility',
-                        'Must provide genuine and professional services',
-                    ]}
-                />
+            <LegalSection title={str('categories', 't')}>
+                <LegalSubheading>{str('categories', 'a')}</LegalSubheading>
+                <BulletList items={list('categories', 'aItems')} />
+                <LegalSubheading>{str('categories', 'b')}</LegalSubheading>
+                <BulletList items={list('categories', 'bItems')} />
+                <LegalSubheading>{str('categories', 'c')}</LegalSubheading>
+                <BulletList items={list('categories', 'cItems')} />
             </LegalSection>
 
-            <LegalSection title="4. Pricing &amp; payments">
-                <LegalSubheading>4.1 Property listing fees</LegalSubheading>
-                <BulletList
-                    items={['Basic, Pro, and Premium packages available', 'Payments are non-refundable once listing is published']}
-                />
-                <LegalSubheading>4.2 Platform authorization fee</LegalSubheading>
-                <BulletList
-                    items={[
-                        'Paid by seekers based on property size',
-                        'This fee grants access to agent services via the platform',
-                        'This is not a rental payment or commission',
-                    ]}
-                />
-                <LegalSubheading>4.3 Service provider subscription</LegalSubheading>
-                <BulletList
-                    items={[
-                        'Subscription plans (Basic, Pro, Premium) are time-based',
-                        'Services are active only within the subscription duration',
-                        'No refunds for unused subscription periods',
-                    ]}
-                />
+            <LegalSection title={str('pricing', 't')}>
+                <LegalSubheading>{str('pricing', 'h1')}</LegalSubheading>
+                <BulletList items={list('pricing', 'i1')} />
+                <LegalSubheading>{str('pricing', 'h2')}</LegalSubheading>
+                <BulletList items={list('pricing', 'i2')} />
+                <LegalSubheading>{str('pricing', 'h3')}</LegalSubheading>
+                <BulletList items={list('pricing', 'i3')} />
                 <p className="text-sm text-gray-600">
-                    Details:{' '}
+                    {str('pricing', 'detailsLabel')}{' '}
                     <Link href="/routes/pricing" className="text-[#0000FF] font-medium hover:underline">
-                        Pricing model
+                        {str('pricing', 'pricingLink')}
                     </Link>
                     .
                 </p>
             </LegalSection>
 
-            <LegalSection title="5. Platform role &amp; limitations">
-                <p>FindAfriq:</p>
-                <BulletList
-                    items={[
-                        'Does not own, manage, or inspect properties',
-                        'Does not guarantee the accuracy of listings',
-                        'Is not responsible for agreements between users',
-                        'Does not handle rental or service payments between users',
-                    ]}
-                />
+            <LegalSection title={str('role', 't')}>
+                <p>{str('role', 'p1')}</p>
+                <BulletList items={list('role', 'items')} />
             </LegalSection>
 
-            <LegalSection title="6. User responsibilities">
-                <p>All users agree to:</p>
-                <BulletList
-                    items={[
-                        'Provide truthful and accurate information',
-                        'Avoid fraudulent, misleading, or illegal activities',
-                        'Respect other users’ rights and privacy',
-                    ]}
-                />
-                <p className="font-medium text-gray-900">Prohibited actions include:</p>
-                <BulletList
-                    items={[
-                        'Posting fake listings',
-                        'Scamming or misrepresentation',
-                        'Harassment or abuse',
-                        'Unauthorized commercial use',
-                    ]}
-                />
+            <LegalSection title={str('responsibilities', 't')}>
+                <p>{str('responsibilities', 'p1')}</p>
+                <BulletList items={list('responsibilities', 'items')} />
+                <p className="font-medium text-gray-900">{str('responsibilities', 'p2')}</p>
+                <BulletList items={list('responsibilities', 'items2')} />
             </LegalSection>
 
-            <LegalSection title="7. Verification &amp; trust">
-                <p>FindAfriq may:</p>
-                <BulletList items={['Verify certain users or listings', 'Provide “Verified” badges']} />
+            <LegalSection title={str('verification', 't')}>
+                <p>{str('verification', 'p1')}</p>
+                <BulletList items={list('verification', 'items')} />
             </LegalSection>
 
-            <LegalSection title="8. Listings &amp; content">
-                <p>Users are responsible for:</p>
-                <BulletList items={['All content uploaded (images, descriptions, pricing)', 'Ensuring content does not violate laws or rights']} />
-                <p>FindAfriq reserves the right to:</p>
-                <BulletList items={['Remove or edit content', 'Suspend accounts violating policies']} />
+            <LegalSection title={str('listings', 't')}>
+                <p>{str('listings', 'p1')}</p>
+                <BulletList items={list('listings', 'items')} />
+                <p>{str('listings', 'p2')}</p>
+                <BulletList items={list('listings', 'items2')} />
             </LegalSection>
 
-            <LegalSection title="9. Transactions between users">
-                <BulletList
-                    items={[
-                        'All negotiations and agreements occur outside the platform',
-                        'FindAfriq is not liable for disputes, losses, or damages',
-                        'Users are encouraged to document agreements properly',
-                        'Users should report any misconduct to FindAfriq',
-                    ]}
-                />
+            <LegalSection title={str('transactions', 't')}>
+                <BulletList items={list('transactions', 'items')} />
             </LegalSection>
 
-            <LegalSection title="10. Cancellation &amp; termination">
-                <p>FindAfriq may:</p>
-                <BulletList items={['Suspend or terminate accounts for violations', 'Remove listings without notice']} />
-                <p>Users may stop using the platform at any time.</p>
+            <LegalSection title={str('termination', 't')}>
+                <p>{str('termination', 'p1')}</p>
+                <BulletList items={list('termination', 'items')} />
+                <p>{str('termination', 'p2')}</p>
             </LegalSection>
 
-            <LegalSection title="11. Limitation of liability">
-                <p>FindAfriq is not liable for:</p>
-                <BulletList
-                    items={[
-                        'Fraudulent listings or users',
-                        'Property condition or availability',
-                        'Financial losses from transactions',
-                        'Service quality from providers',
-                    ]}
-                />
+            <LegalSection title={str('liability', 't')}>
+                <p>{str('liability', 'p1')}</p>
+                <BulletList items={list('liability', 'items')} />
             </LegalSection>
 
-            <LegalSection title="12. Privacy">
+            <LegalSection title={str('privacy', 't')}>
                 <p>
-                    Your use of FindAfriq is also governed by our{' '}
+                    {str('privacy', 'p1')}{' '}
                     <Link href="/routes/privacy" className="text-[#0000FF] font-medium hover:underline">
-                        Privacy Policy
+                        {str('privacy', 'link')}
                     </Link>
-                    . We are committed to protecting your data.
+                    {str('privacy', 'p2')}
                 </p>
             </LegalSection>
 
-            <LegalSection title="13. Intellectual property">
-                <p>
-                    All platform content, branding, and materials belong to FindAfriq. Users may not copy, reproduce, or
-                    distribute without permission.
-                </p>
+            <LegalSection title={str('ip', 't')}>
+                <p>{str('ip', 'p1')}</p>
             </LegalSection>
 
-            <LegalSection title="14. Modifications to terms">
-                <p>
-                    FindAfriq reserves the right to update these Terms at any time. Continued use of the platform means you
-                    accept the updated Terms.
-                </p>
+            <LegalSection title={str('modifications', 't')}>
+                <p>{str('modifications', 'p1')}</p>
             </LegalSection>
 
-            <LegalSection title="15. Governing law">
-                <p>These Terms shall be governed by the laws of the jurisdiction where FindAfriq operates.</p>
+            <LegalSection title={str('law', 't')}>
+                <p>{str('law', 'p1')}</p>
             </LegalSection>
 
-            <LegalSection title="16. Contact information">
-                <p>For questions or support, contact:</p>
+            <LegalSection title={str('contact', 't')}>
+                <p>{str('contact', 'p1')}</p>
                 <p className="font-semibold text-gray-900">FindAfriq</p>
                 <ul className="list-none space-y-1 text-gray-700 pl-0">
                     <li>
-                        Email:{' '}
+                        {str('contact', 'email')}{' '}
                         <a href="mailto:info@findafriq.com" className="text-[#0000FF] font-medium hover:underline">
                             info@findafriq.com
                         </a>
                     </li>
                     <li>
-                        Website:{' '}
+                        {str('contact', 'website')}{' '}
                         <a href="https://www.findafriq.com" className="text-[#0000FF] font-medium hover:underline">
                             www.findafriq.com
                         </a>
                     </li>
-                    <li>Phone: +231 779 922 382 | WhatsApp: +231 886 149 219</li>
+                    <li>{str('contact', 'phone')}</li>
                 </ul>
             </LegalSection>
 
-            <LegalSection title="17. Acceptance">
-                <p>
-                    By using FindAfriq, you acknowledge that you have read, understood, and agreed to these Terms and
-                    Conditions.
-                </p>
+            <LegalSection title={str('acceptance', 't')}>
+                <p>{str('acceptance', 'p1')}</p>
             </LegalSection>
 
             <div className="flex flex-wrap gap-3 text-sm">
@@ -228,13 +161,13 @@ export default function TermsPage() {
                     href="/routes/platform-policy"
                     className="inline-flex items-center rounded-lg border border-gray-200 bg-white px-4 py-2 font-medium text-gray-800 shadow-sm hover:bg-gray-50"
                 >
-                    Platform policy
+                    {t('platformPolicyLink')}
                 </Link>
                 <Link
                     href="/routes/privacy"
                     className="inline-flex items-center rounded-lg border border-gray-200 bg-white px-4 py-2 font-medium text-gray-800 shadow-sm hover:bg-gray-50"
                 >
-                    Privacy policy
+                    {t('privacyPolicyLink')}
                 </Link>
             </div>
 

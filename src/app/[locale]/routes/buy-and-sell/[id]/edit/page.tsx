@@ -1,12 +1,13 @@
 'use client';
 
+import { useTranslations } from "next-intl";
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { buySellApi } from '@/services/api';
 import { mediaApi } from '@/services/api/media.api';
 import { showToast } from '@/lib/toast';
-import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
+import { useErrorMessage } from "@/lib/error-messages";
 import { geocodeAddress } from '@/lib/google-maps';
 import { isAgentLikeUserType } from '@/lib/agent-user-types';
 import type {
@@ -56,6 +57,9 @@ const CATEGORY_ICON: Record<BuySellCategory, string> = {
 const inputCls = 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent';
 
 export default function EditBuySellPage() {
+  const t_hints = useTranslations("hints");
+  const errorMessage = useErrorMessage();
+  const t = useTranslations("forms");
     const router = useRouter();
     const params = useParams();
     const listingId = params?.id as string;
@@ -176,7 +180,7 @@ export default function EditBuySellPage() {
                 populateForm(listing);
             })
             .catch(err => {
-                setFetchError(getUserFriendlyErrorMessage(err, 'Failed to load listing.'));
+                setFetchError(errorMessage(err, "loadListing"));
             })
             .finally(() => setFetchLoading(false));
     }, [listingId, populateForm]);
@@ -186,7 +190,7 @@ export default function EditBuySellPage() {
         const files = Array.from(e.target.files || []);
         const totalAfter = existingImages.length + newImageFiles.length + files.length;
         if (totalAfter > 10) {
-            showToast.warning('You can upload a maximum of 10 images total.');
+            showToast.warning(t("maxImagesTotal"));
             return;
         }
         setNewImageFiles(prev => [...prev, ...files]);
@@ -219,7 +223,7 @@ export default function EditBuySellPage() {
 
         const totalImages = existingImages.length + newImageFiles.length;
         if (totalImages < 1) {
-            showToast.error('Please keep at least 1 image on the listing.');
+            showToast.error(t("minOneImage"));
             return;
         }
 
@@ -243,7 +247,7 @@ export default function EditBuySellPage() {
 
             if (category === 'land') {
                 if (!landData.landSize || !landData.ownershipStatus || !landData.sellerPhone) {
-                    showToast.error('Please fill in all required land fields.');
+                    showToast.error(t("landFieldsRequired"));
                     setSaving(false);
                     return;
                 }
@@ -266,7 +270,7 @@ export default function EditBuySellPage() {
                 };
             } else if (category === 'house') {
                 if (!houseData.bedrooms || !houseData.bathrooms || !houseData.propertyType) {
-                    showToast.error('Please fill in all required house fields.');
+                    showToast.error(t("houseFieldsRequired"));
                     setSaving(false);
                     return;
                 }
@@ -310,10 +314,10 @@ export default function EditBuySellPage() {
                 await buySellApi.update(listingId, updatePayload as import('@/types/buy-sell').UpdateBuySellDto);
             }
 
-            showToast.success('Listing updated! Changes will be reviewed before going live.');
+            showToast.success(t("listingUpdated"));
             router.push('/routes/my-listings');
         } catch (error: unknown) {
-            const msg = getUserFriendlyErrorMessage(error, 'Failed to update listing. Please try again.');
+            const msg = errorMessage(error, "updateListing");
             setFormError(msg);
             showToast.error(msg);
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -329,7 +333,7 @@ export default function EditBuySellPage() {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Agent Fee (Optional)
+                {t("agentFeeOptional")}
             </h2>
             <p className="text-sm text-amber-700 mb-4">As an agent or real estate agency, you can set an access fee for this listing.</p>
             <div className="relative max-w-xs">
@@ -341,7 +345,7 @@ export default function EditBuySellPage() {
                     value={agentFee}
                     onChange={e => setAgentFee(e.target.value)}
                     min={0}
-                    placeholder="e.g. 500"
+                    placeholder={t_hints("e_g_500")}
                     /* "RWF" needs more room than "$", or the value renders under the prefix. */
                     className={`w-full pr-4 py-3 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent bg-white ${
                         CURRENCY_META[currency].symbol.length > 1 ? "pl-14" : "pl-7"
@@ -376,7 +380,7 @@ export default function EditBuySellPage() {
                                 </svg>
                             </button>
                             <span className="absolute bottom-1 left-1 bg-black/50 text-white text-[10px] px-1.5 py-0.5 rounded">
-                                Saved
+                                {t("saved")}
                             </span>
                         </div>
                     ))}
@@ -439,7 +443,7 @@ export default function EditBuySellPage() {
                 disabled={saving}
                 className="px-8 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
-                Cancel
+                {t("cancel")}
             </button>
         </div>
     );
@@ -470,7 +474,7 @@ export default function EditBuySellPage() {
                         onClick={() => router.push('/routes/my-listings')}
                         className="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
                     >
-                        Back to My Listings
+                        {t("backToMyListings")}
                     </button>
                 </div>
             </div>
@@ -543,7 +547,7 @@ export default function EditBuySellPage() {
                                             value={landData.title}
                                             onChange={e => setLandData(p => ({ ...p, title: e.target.value }))}
                                             className={inputCls}
-                                            placeholder="e.g., Prime Residential Land in Monrovia"
+                                            placeholder={t_hints("e_g_prime_residential_land_in_monrovia")}
                                         />
                                     </div>
 
@@ -556,7 +560,7 @@ export default function EditBuySellPage() {
                                             value={landData.description}
                                             onChange={e => setLandData(p => ({ ...p, description: e.target.value }))}
                                             className={inputCls}
-                                            placeholder="Describe the land, surroundings, access roads..."
+                                            placeholder={t("describeLand")}
                                         />
                                     </div>
 
@@ -571,7 +575,7 @@ export default function EditBuySellPage() {
                                                 value={landData.price}
                                                 onChange={e => setLandData(p => ({ ...p, price: e.target.value }))}
                                                 className={`${inputCls} flex-1 min-w-0`}
-                                                placeholder="e.g., 25000"
+                                                placeholder={t_hints("e_g_25000")}
                                             />
                                             <CurrencySelect value={currency} onChange={setCurrency} />
                                             </div>
@@ -585,7 +589,7 @@ export default function EditBuySellPage() {
                                                 value={landData.location}
                                                 onChange={e => setLandData(p => ({ ...p, location: e.target.value }))}
                                                 className={inputCls}
-                                                placeholder="e.g., Old Road, Monrovia"
+                                                placeholder={t_hints("e_g_old_road_monrovia")}
                                             />
                                         </div>
                                     </div>
@@ -600,7 +604,7 @@ export default function EditBuySellPage() {
                                                 value={landData.landSize}
                                                 onChange={e => setLandData(p => ({ ...p, landSize: e.target.value }))}
                                                 className={inputCls}
-                                                placeholder="e.g., 5"
+                                                placeholder={t_hints("e_g_5")}
                                             />
                                         </div>
                                         <div>
@@ -644,7 +648,7 @@ export default function EditBuySellPage() {
                                             value={landData.ownershipStatus}
                                             onChange={e => setLandData(p => ({ ...p, ownershipStatus: e.target.value }))}
                                             className={inputCls}
-                                            placeholder="e.g., C of O, Survey Plan, Deed of Assignment"
+                                            placeholder={t_hints("e_g_c_of_o_survey_plan_deed_of_assignmen")}
                                         />
                                     </div>
 
@@ -658,7 +662,7 @@ export default function EditBuySellPage() {
                                                 value={landData.sellerPhone}
                                                 onChange={e => setLandData(p => ({ ...p, sellerPhone: e.target.value }))}
                                                 className={inputCls}
-                                                placeholder="e.g., +231 886 149 219"
+                                                placeholder={t_hints("e_g_231_886_149_219")}
                                             />
                                         </div>
                                         <div>
@@ -668,7 +672,7 @@ export default function EditBuySellPage() {
                                                 value={landData.whatsappNumber}
                                                 onChange={e => setLandData(p => ({ ...p, whatsappNumber: e.target.value }))}
                                                 className={inputCls}
-                                                placeholder="e.g., +231 886 149 219"
+                                                placeholder={t_hints("e_g_231_886_149_219")}
                                             />
                                         </div>
                                     </div>
@@ -696,7 +700,7 @@ export default function EditBuySellPage() {
                                             value={houseData.title}
                                             onChange={e => setHouseData(p => ({ ...p, title: e.target.value }))}
                                             className={inputCls}
-                                            placeholder="e.g., Modern 4-Bedroom Duplex for Sale"
+                                            placeholder={t_hints("e_g_modern_4_bedroom_duplex_for_sale")}
                                         />
                                     </div>
 
@@ -709,7 +713,7 @@ export default function EditBuySellPage() {
                                             value={houseData.description}
                                             onChange={e => setHouseData(p => ({ ...p, description: e.target.value }))}
                                             className={inputCls}
-                                            placeholder="Describe the property, features, and surroundings..."
+                                            placeholder={t("describeHouse")}
                                         />
                                     </div>
 
@@ -724,7 +728,7 @@ export default function EditBuySellPage() {
                                                 value={houseData.price}
                                                 onChange={e => setHouseData(p => ({ ...p, price: e.target.value }))}
                                                 className={`${inputCls} flex-1 min-w-0`}
-                                                placeholder="e.g., 120000"
+                                                placeholder={t_hints("e_g_120000")}
                                             />
                                             <CurrencySelect value={currency} onChange={setCurrency} />
                                             </div>
@@ -738,7 +742,7 @@ export default function EditBuySellPage() {
                                                 value={houseData.location}
                                                 onChange={e => setHouseData(p => ({ ...p, location: e.target.value }))}
                                                 className={inputCls}
-                                                placeholder="e.g., Sinkor, Monrovia"
+                                                placeholder={t_hints("e_g_sinkor_monrovia")}
                                             />
                                         </div>
                                     </div>
@@ -753,7 +757,7 @@ export default function EditBuySellPage() {
                                                 value={houseData.bedrooms}
                                                 onChange={e => setHouseData(p => ({ ...p, bedrooms: e.target.value }))}
                                                 className={inputCls}
-                                                placeholder="e.g., 4"
+                                                placeholder={t_hints("e_g_4")}
                                             />
                                         </div>
                                         <div>
@@ -765,7 +769,7 @@ export default function EditBuySellPage() {
                                                 value={houseData.bathrooms}
                                                 onChange={e => setHouseData(p => ({ ...p, bathrooms: e.target.value }))}
                                                 className={inputCls}
-                                                placeholder="e.g., 3"
+                                                placeholder={t_hints("e_g_3")}
                                             />
                                         </div>
                                         <div>
@@ -777,7 +781,7 @@ export default function EditBuySellPage() {
                                                 value={houseData.propertyType}
                                                 onChange={e => setHouseData(p => ({ ...p, propertyType: e.target.value }))}
                                                 className={inputCls}
-                                                placeholder="e.g., Duplex, Bungalow"
+                                                placeholder={t_hints("e_g_duplex_bungalow")}
                                             />
                                         </div>
                                     </div>
@@ -837,7 +841,7 @@ export default function EditBuySellPage() {
                                             value={itemData.title}
                                             onChange={e => setItemData(p => ({ ...p, title: e.target.value }))}
                                             className={inputCls}
-                                            placeholder="e.g., Leather Sofa Set"
+                                            placeholder={t_hints("e_g_leather_sofa_set")}
                                         />
                                     </div>
 
@@ -894,7 +898,7 @@ export default function EditBuySellPage() {
                                                 value={itemData.price}
                                                 onChange={e => setItemData(p => ({ ...p, price: e.target.value }))}
                                                 className={`${inputCls} flex-1 min-w-0`}
-                                                placeholder="e.g., 350"
+                                                placeholder={t_hints("e_g_350")}
                                             />
                                             <CurrencySelect value={currency} onChange={setCurrency} />
                                             </div>
@@ -908,7 +912,7 @@ export default function EditBuySellPage() {
                                                 value={itemData.location}
                                                 onChange={e => setItemData(p => ({ ...p, location: e.target.value }))}
                                                 className={inputCls}
-                                                placeholder="e.g., Congo Town, Monrovia"
+                                                placeholder={t_hints("e_g_congo_town_monrovia")}
                                             />
                                         </div>
                                     </div>
@@ -922,7 +926,7 @@ export default function EditBuySellPage() {
                                             value={itemData.description}
                                             onChange={e => setItemData(p => ({ ...p, description: e.target.value }))}
                                             className={inputCls}
-                                            placeholder="Describe the item, its condition, any defects..."
+                                            placeholder={t("describeItem")}
                                         />
                                     </div>
 

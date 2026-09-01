@@ -1,6 +1,11 @@
 "use client";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useEnumLabel } from "@/lib/enum-labels";
+import {
+    useTranslatedContent,
+    type TranslatableEntity,
+} from "@/lib/translated-content";
 
 import { SafeImage } from "@/components/ui/SafeImage";
 import ShareButton from "@/components/ui/ShareButton";
@@ -23,6 +28,10 @@ export type Service = {
         name: string;
         photo?: string;
     };
+    /** i18n passthrough — resolved by the card, see lib/translated-content. */
+    sourceLang?: string;
+    translations?: Record<string, { title?: string; description?: string }>;
+    translationSource?: 'machine' | 'human';
 };
 
 export default function ServiceCard({
@@ -37,7 +46,14 @@ export default function ServiceCard({
 }) {
     // Badge/tags are built from the backend `category` by several page-level
     // adapters, so translate here at render time to cover all of them.
+    const tCommon = useTranslations("common");
     const categoryLabel = useEnumLabel("serviceCategories");
+    // ServiceCard's view-model calls the title `name`, but the backend
+    // translates it under the `title` key — remap for the lookup.
+    const translated = useTranslatedContent({
+        ...service,
+        title: service.name,
+    } as TranslatableEntity);
     const router = useRouter();
     const [saved, setSaved] = useState(service.isBookmarked ?? false);
     const [toggling, setToggling] = useState(false);
@@ -126,7 +142,7 @@ export default function ServiceCard({
                                     compact ? 'text-[12px] sm:text-[15px]' : 'text-[15px]'
                                 }`}
                             >
-                                {service.name}
+                                {translated.title.value}
                             </h3>
                             <p
                                 className={`text-gray-600 flex items-center gap-1 mt-0.5 ${
@@ -200,7 +216,7 @@ export default function ServiceCard({
                         </div>
                         {!compact && (
                         <span className="text-brand-blue hover:text-brand-blue font-medium text-[13px]">
-                            View Details →
+                            {tCommon("viewDetails")} →
                         </span>
                         )}
                     </div>

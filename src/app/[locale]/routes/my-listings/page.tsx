@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState, useCallback } from "react";
 
 import { propertiesApi, buySellApi } from "@/services/api";
@@ -9,7 +10,7 @@ import Image from "next/image";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { MIN_PROPERTY_LISTING_IMAGES } from "@/lib/property-images";
 import { showToast } from "@/lib/toast";
-import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
+import { useErrorMessage } from "@/lib/error-messages";
 import { trackListingEdited, trackListingUnpublished } from "@/lib/analytics";
 import { geocodeAddress } from "@/lib/google-maps";
 import { isAgentLikeUserType } from "@/lib/agent-user-types";
@@ -89,6 +90,9 @@ function EditPropertyModal({
   onSave: (data: Partial<ApiProperty>) => Promise<void>;
   canSetAgentFee?: boolean;
 }) {
+  const t_hints = useTranslations("hints");
+  const errorMessage = useErrorMessage();
+  const t = useTranslations("myListings");
   const [formData, setFormData] = useState<Partial<ApiProperty>>({});
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -177,7 +181,7 @@ function EditPropertyModal({
     const totalImages = images.length + newImageFiles.length + files.length;
 
     if (totalImages > 10) {
-      showToast.warning("You can only have up to 10 images total");
+      showToast.warning(t("maxImages"));
       return;
     }
 
@@ -215,17 +219,17 @@ function EditPropertyModal({
     }
 
     if (formData.bedrooms === undefined || formData.bedrooms === null) {
-      showToast.error("Please enter the number of bedrooms.");
+      showToast.error(t("bedroomsRequired"));
       return;
     }
 
     if (formData.bathrooms === undefined || formData.bathrooms === null) {
-      showToast.error("Please enter the number of bathrooms.");
+      showToast.error(t("bathroomsRequired"));
       return;
     }
 
     if (canSetAgentFee && (formData.agentFee === undefined || formData.agentFee === null)) {
-      showToast.error("Please enter your agent fee.");
+      showToast.error(t("agentFeeRequired"));
       return;
     }
 
@@ -286,7 +290,7 @@ function EditPropertyModal({
       onClose();
     } catch (error: any) {
       console.error("Failed to save property:", error);
-      const msg = getUserFriendlyErrorMessage(error, "Failed to save property. Please try again.");
+      const msg = errorMessage(error, "saveProperty");
       setFormError(msg);
       showToast.error(msg);
     } finally {
@@ -301,7 +305,7 @@ function EditPropertyModal({
       <div className="bg-white rounded-2xl w-full max-w-3xl max-h-[95vh] flex flex-col shadow-2xl animate-in fade-in zoom-in duration-200">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 flex justify-between items-center rounded-t-2xl flex-shrink-0">
-          <h2 className="text-2xl font-bold text-white">Edit Property</h2>
+          <h2 className="text-2xl font-bold text-white">{t("editProperty")}</h2>
           <button
             onClick={onClose}
             className="text-white hover:bg-blue-800 p-2 rounded-lg transition-colors"
@@ -348,7 +352,7 @@ function EditPropertyModal({
           {/* Image Section */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Property Images
+              {t("propertyImages")}
             </label>
             <p className="text-xs text-gray-600 mb-4">
               Upload at least {MIN_PROPERTY_LISTING_IMAGES} images (required), up to 10 total (Max 10MB each)
@@ -376,7 +380,7 @@ function EditPropertyModal({
                     />
                     {index === 0 && (
                       <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs font-semibold px-2 py-1 rounded shadow">
-                        Primary
+                        {t("primary")}
                       </div>
                     )}
                     <button
@@ -462,7 +466,7 @@ function EditPropertyModal({
                     />
                   </svg>
                   <span className="text-sm text-gray-600 font-medium">
-                    Add Images
+                    {t("addImages")}
                   </span>
                   <span className="text-xs text-gray-500 mt-1">
                     {10 - images.length - newImageFiles.length} left
@@ -478,7 +482,7 @@ function EditPropertyModal({
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Title
+                {t("titleField")}
               </label>
               <input
                 type="text"
@@ -486,13 +490,13 @@ function EditPropertyModal({
                 value={formData.title || ""}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Property title"
+                placeholder={t("titlePlaceholder")}
                 required
               />
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Location
+                {t("location")}
               </label>
               <input
                 type="text"
@@ -500,7 +504,7 @@ function EditPropertyModal({
                 value={formData.location || ""}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="City, Area, Country"
+                placeholder={t("locationPlaceholder")}
                 required
               />
             </div>
@@ -510,7 +514,7 @@ function EditPropertyModal({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Price
+                {t("price")}
               </label>
               <div className="flex items-center gap-2">
                 <input
@@ -533,7 +537,7 @@ function EditPropertyModal({
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Property Type
+                {t("propertyType")}
               </label>
               <select
                 name="propertyType"
@@ -551,9 +555,9 @@ function EditPropertyModal({
 
           {canSetAgentFee && (
             <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-4">
-              <h3 className="text-sm font-semibold text-gray-900 mb-1">Agent Fee</h3>
+              <h3 className="text-sm font-semibold text-gray-900 mb-1">{t("agentFee")}</h3>
               <p className="text-xs text-gray-600 mb-3">
-                Set the fee you charge for this listing. It will be shown to seekers on the property page.
+                {t("agentFeeHelp")}
               </p>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Your Agent Fee ({CURRENCY_META[formData.currency as Currency] ?.label ?? DEFAULT_CURRENCY}) <span className="text-red-500">*</span>
@@ -591,7 +595,7 @@ function EditPropertyModal({
                 required
                 min={0}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="e.g., 3"
+                placeholder={t_hints("e_g_3")}
               />
             </div>
             <div>
@@ -606,12 +610,12 @@ function EditPropertyModal({
                 required
                 min={0}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="e.g., 2"
+                placeholder={t_hints("e_g_2")}
               />
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Minutes from main road
+                {t("minutesFromRoad")}
               </label>
               <input
                 type="number"
@@ -634,14 +638,14 @@ function EditPropertyModal({
               className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
             />
             <label className="ml-3 text-sm font-semibold text-gray-700">
-              This property is furnished
+              {t("isFurnished")}
             </label>
           </div>
 
           {/* Description */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Description
+              {t("description")}
             </label>
             <textarea
               name="description"
@@ -649,7 +653,7 @@ function EditPropertyModal({
               onChange={handleChange}
               rows={4}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              placeholder="Describe your property..."
+              placeholder={t("descriptionPlaceholder")}
             />
           </div>
 
@@ -657,7 +661,7 @@ function EditPropertyModal({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Available From
+                {t("availableFrom")}
               </label>
               <input
                 type="date"
@@ -669,7 +673,7 @@ function EditPropertyModal({
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Available To
+                {t("availableTo")}
               </label>
               <input
                 type="date"
@@ -689,7 +693,7 @@ function EditPropertyModal({
             disabled={loading}
             className="flex-1 px-6 py-3 text-gray-700 bg-white border-2 border-gray-300 hover:bg-gray-100 rounded-lg font-semibold transition-colors disabled:opacity-50"
           >
-            Cancel
+            {t("cancel")}
           </button>
           <button
             onClick={handleSubmit}
@@ -707,7 +711,7 @@ function EditPropertyModal({
               ? newImageFiles.length > 0
                 ? "Uploading images..."
                 : "Saving changes..."
-              : "Save Changes"}
+              : t("saveChanges")}
           </button>
         </div>
       </div>
@@ -730,6 +734,7 @@ function PropertyModal({
   // how my-services treats provider-owned prices.
   const money = useMoney();
 
+  const t = useTranslations("myListings");
   if (!isOpen || !property) return null;
 
   const amenityRows = getAmenityRowsFromApi(property);
@@ -781,7 +786,7 @@ function PropertyModal({
           {property.status === "rejected" && (
             <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3">
               <p className="text-xs font-semibold text-red-800 uppercase tracking-wide mb-1">
-                Rejection Reason
+                {t("rejectionReason")}
               </p>
               <p className="text-sm text-red-900 leading-relaxed">
                 {rejectionReason ||
@@ -824,13 +829,13 @@ function PropertyModal({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-semibold text-gray-500 uppercase">
-                Location
+                {t("location")}
               </label>
               <p className="text-gray-900 font-medium">{property.location}</p>
             </div>
             <div>
               <label className="text-xs font-semibold text-gray-500 uppercase">
-                Price
+                {t("price")}
               </label>
               <p className="text-2xl font-bold text-blue-600">
                 {money.format(property.price, (property.currency as Currency) ?? DEFAULT_CURRENCY)}
@@ -846,7 +851,7 @@ function PropertyModal({
             </div>
             <div>
               <label className="text-xs font-semibold text-gray-500 uppercase">
-                Status
+                {t("status")}
               </label>
               <span
                 className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
@@ -867,11 +872,11 @@ function PropertyModal({
           {/* Amenities from API */}
           <div>
             <label className="text-xs font-semibold text-gray-500 uppercase block mb-3">
-              Amenities
+              {t("amenities")}
             </label>
             {amenityRows.length === 0 ? (
               <p className="text-sm text-gray-500 italic">
-                No amenities listed for this property.
+                {t("noAmenities")}
               </p>
             ) : (
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -900,7 +905,7 @@ function PropertyModal({
           {/* Structural fields (not the amenities array) */}
           <div>
             <label className="text-xs font-semibold text-gray-500 uppercase block mb-3">
-              Details
+              {t("details")}
             </label>
             <div className="grid grid-cols-2 gap-3">
               <div className="flex items-center text-gray-700 text-sm">
@@ -941,7 +946,7 @@ function PropertyModal({
           {property.description && (
             <div>
               <label className="text-xs font-semibold text-gray-500 uppercase block mb-2">
-                Description
+                {t("description")}
               </label>
               <p className="text-gray-700 text-sm leading-relaxed">
                 {property.description}
@@ -954,7 +959,7 @@ function PropertyModal({
             {property.availableFrom && (
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase">
-                  Available From
+                  {t("availableFrom")}
                 </label>
                 <p className="text-gray-900 font-medium">
                   {new Date(property.availableFrom).toLocaleDateString()}
@@ -964,7 +969,7 @@ function PropertyModal({
             {property.availableTo && (
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase">
-                  Available To
+                  {t("availableTo")}
                 </label>
                 <p className="text-gray-900 font-medium">
                   {new Date(property.availableTo).toLocaleDateString()}
@@ -980,7 +985,7 @@ function PropertyModal({
             onClick={onClose}
             className="w-full px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-lg font-medium transition-colors"
           >
-            Close
+            {t("close")}
           </button>
         </div>
       </div>
@@ -1004,6 +1009,7 @@ function BuySellListingCard({
   onView: (listing: BuySellListing) => void;
 }) {
   const money = useMoney();
+  const t = useTranslations("myListings");
   const firstImage = listing.images?.[0];
   const categoryLabel =
     listing.category === "land" ? "Land" :
@@ -1092,7 +1098,7 @@ function BuySellListingCard({
               onClick={() => onDelete(listing._id)}
               className="px-3 py-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors"
             >
-              Delete
+              {t("delete")}
             </button>
           </div>
           {listing.status === "approved" && (
@@ -1100,7 +1106,7 @@ function BuySellListingCard({
               onClick={() => onUnpublish(listing._id)}
               className="w-full px-3 py-2 text-sm font-semibold text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-xl transition-colors"
             >
-              Unpublish
+              {t("unpublish")}
             </button>
           )}
           {listing.status === "suspended" && (
@@ -1108,7 +1114,7 @@ function BuySellListingCard({
               onClick={() => onRepublish(listing._id)}
               className="w-full px-3 py-2 text-sm font-semibold text-green-600 bg-green-50 hover:bg-green-100 rounded-xl transition-colors"
             >
-              Republish
+              {t("republish")}
             </button>
           )}
         </div>
@@ -1120,6 +1126,8 @@ function BuySellListingCard({
 // ─── Main page ─────────────────────────────────────────────────────────────
 
 export default function MyListingsPage() {
+  const errorMessage = useErrorMessage();
+  const t = useTranslations("myListings");
   const router = useRouter();
   const money = useMoney();
 
@@ -1215,7 +1223,7 @@ export default function MyListingsPage() {
     } catch (err) {
       console.error("Failed to fetch properties:", err);
       setError(
-        getUserFriendlyErrorMessage(
+        errorMessage(
           err,
           "Failed to load your listings. Please try again later.",
         ),
@@ -1284,14 +1292,11 @@ export default function MyListingsPage() {
       trackListingEdited({ id: selectedEditProperty._id, type: "property" });
       setShowEditModal(false);
       setSelectedEditProperty(null);
-      showToast.success("Property updated successfully.");
+      showToast.success(t("updateSuccess"));
     } catch (err: any) {
       console.error("Failed to update property:", err);
       showToast.error(
-        getUserFriendlyErrorMessage(
-          err,
-          "Failed to save property. Please try again.",
-        ),
+        errorMessage(err, "saveProperty"),
       );
     }
   };
@@ -1322,7 +1327,7 @@ export default function MyListingsPage() {
       showCustomNotification(
         "error",
         "Unpublish Failed",
-        getUserFriendlyErrorMessage(
+        errorMessage(
           err,
           "Failed to unpublish property. Please try again.",
         ),
@@ -1351,7 +1356,7 @@ export default function MyListingsPage() {
       showCustomNotification(
         "error",
         "Republish Failed",
-        getUserFriendlyErrorMessage(
+        errorMessage(
           err,
           "Failed to republish property. Please try again.",
         ),
@@ -1366,9 +1371,9 @@ export default function MyListingsPage() {
       await buySellApi.delete(id);
       setBuySellListings(prev => prev.filter(l => l._id !== id));
       setBuySellDeleteConfirm(null);
-      showToast.success("Listing deleted.");
+      showToast.success(t("deleted"));
     } catch (err) {
-      showToast.error(getUserFriendlyErrorMessage(err, "Failed to delete listing."));
+      showToast.error(errorMessage(err, "deleteListing"));
     }
   };
 
@@ -1384,9 +1389,9 @@ export default function MyListingsPage() {
       await buySellApi.unpublish(id);
       setBuySellListings(prev => prev.map(l => l._id === id ? { ...l, status: "suspended" } : l));
       setBuySellUnpublishConfirm(null);
-      showToast.success("Listing unpublished. You can republish it at any time.");
+      showToast.success(t("unpublished"));
     } catch (err) {
-      showToast.error(getUserFriendlyErrorMessage(err, "Failed to unpublish listing."));
+      showToast.error(errorMessage(err, "unpublishListing"));
     }
   };
 
@@ -1394,9 +1399,9 @@ export default function MyListingsPage() {
     try {
       await buySellApi.republish(id);
       setBuySellListings(prev => prev.map(l => l._id === id ? { ...l, status: "pending" } : l));
-      showToast.success("Listing resubmitted for review.");
+      showToast.success(t("resubmitted"));
     } catch (err) {
-      showToast.error(getUserFriendlyErrorMessage(err, "Failed to republish listing."));
+      showToast.error(errorMessage(err, "republishListing"));
     }
   };
 
@@ -1477,8 +1482,8 @@ export default function MyListingsPage() {
         <div className="mb-10">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-6">
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">My Listings</h1>
-              <p className="text-lg text-gray-600">Manage everything you&apos;ve posted on FindAfriq</p>
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">{t("title")}</h1>
+              <p className="text-lg text-gray-600">{t("subtitle")}</p>
             </div>
             {/* Contextual CTA button */}
             {mainTab === "rentals" ? (
@@ -1489,7 +1494,7 @@ export default function MyListingsPage() {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                Add Rental Listing
+                {t("addRentalListing")}
               </button>
             ) : (
               <Link
@@ -1499,7 +1504,7 @@ export default function MyListingsPage() {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                Post a Listing
+                {t("postAListing")}
               </Link>
             )}
           </div>
@@ -1515,7 +1520,7 @@ export default function MyListingsPage() {
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
-                Rentals
+                {t("rentals")}
               </button>
             )}
             <button
@@ -1526,7 +1531,7 @@ export default function MyListingsPage() {
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
-              Buy &amp; Sell
+              {t("buyAndSell")}
             </button>
           </div>
 
@@ -1537,7 +1542,7 @@ export default function MyListingsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 mb-1">
-                    Total Properties
+                    {t("totalProperties")}
                   </p>
                   <p className="text-3xl font-bold text-gray-900">
                     {stats.total}
@@ -1564,7 +1569,7 @@ export default function MyListingsPage() {
             <div className="bg-white rounded-xl p-5 shadow-md border border-gray-100">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">Live</p>
+                  <p className="text-sm font-medium text-gray-600 mb-1">{t("live")}</p>
                   <p className="text-3xl font-bold text-green-600">
                     {stats.approved}
                   </p>
@@ -1591,7 +1596,7 @@ export default function MyListingsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 mb-1">
-                    Pending Review
+                    {t("pendingReview")}
                   </p>
                   <p className="text-3xl font-bold text-yellow-600">
                     {stats.pending}
@@ -1619,7 +1624,7 @@ export default function MyListingsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 mb-1">
-                    Rejected
+                    {t("rejected")}
                   </p>
                   <p className="text-3xl font-bold text-red-600">
                     {stats.rejected}
@@ -1810,7 +1815,7 @@ export default function MyListingsPage() {
                       d="M12 4v16m8-8H4"
                     />
                   </svg>
-                  Create Your First Listing
+                  {t("createFirstListing")}
                 </button>
               )}
             </div>
@@ -1950,7 +1955,7 @@ export default function MyListingsPage() {
                         onClick={() => handleView(property)}
                         className="flex-1 px-4 py-2.5 text-sm font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors duration-200"
                       >
-                        View Details
+                        {t("viewDetails")}
                       </button>
                       <button
                         onClick={() => handleEdit(property)}
@@ -1980,7 +1985,7 @@ export default function MyListingsPage() {
                             d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
                           />
                         </svg>
-                        Unpublish
+                        {t("unpublish")}
                       </button>
                     )}
                     {property.status === "suspended" && (
@@ -2010,7 +2015,7 @@ export default function MyListingsPage() {
                             d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                           />
                         </svg>
-                        Republish
+                        {t("republish")}
                       </button>
                     )}
                   </div>
@@ -2065,7 +2070,7 @@ export default function MyListingsPage() {
                 <p className="text-gray-600 mb-8">
                   {buySellStatusFilter === "all"
                     ? "Start by posting your first Buy & Sell listing."
-                    : `You don't have any ${buySellStatusFilter} listings.`}
+                    : t("noFilteredListings", { status: buySellStatusFilter })}
                 </p>
                 {buySellStatusFilter === "all" && (
                   <Link
@@ -2075,7 +2080,7 @@ export default function MyListingsPage() {
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
-                    Post Your First Listing
+                    {t("postFirstListing")}
                   </Link>
                 )}
               </div>
@@ -2132,21 +2137,20 @@ export default function MyListingsPage() {
               </svg>
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-3 text-center">
-              Unpublish Property?
+              {t("unpublishPropertyQ")}
             </h3>
             <p className="text-gray-600 mb-2 text-center font-medium">
               {unpublishConfirm.title}
             </p>
             <p className="text-gray-500 mb-8 text-center text-sm">
-              This will remove the property from public listings. You can
-              republish it later by editing and resubmitting for approval.
+              {t("unpublishBody")}
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={() => setUnpublishConfirm(null)}
                 className="flex-1 bg-gray-100 text-gray-700 px-6 py-3.5 rounded-xl hover:bg-gray-200 transition-all duration-200 font-semibold border-2 border-gray-200"
               >
-                Cancel
+                {t("cancel")}
               </button>
               <button
                 onClick={handleUnpublish}
@@ -2165,7 +2169,7 @@ export default function MyListingsPage() {
                     d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
                   />
                 </svg>
-                Unpublish
+                {t("unpublish")}
               </button>
             </div>
             </div>
@@ -2258,13 +2262,13 @@ export default function MyListingsPage() {
                   onClick={() => setBuySellViewListing(null)}
                   className="flex-1 h-11 text-sm font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-colors"
                 >
-                  Close
+                  {t("close")}
                 </button>
                 <Link
                   href={`/routes/buy-and-sell/${buySellViewListing._id}`}
                   className="flex-1 h-11 flex items-center justify-center text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors"
                 >
-                  View Full Page
+                  {t("viewFullPage")}
                 </Link>
               </div>
             </div>
@@ -2292,7 +2296,7 @@ export default function MyListingsPage() {
               </svg>
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-3 text-center">
-              Unpublish Listing?
+              {t("unpublishListingQ")}
             </h3>
             <p className="text-gray-600 mb-2 text-center font-medium">
               {buySellUnpublishConfirm.title}
@@ -2305,7 +2309,7 @@ export default function MyListingsPage() {
                 onClick={() => setBuySellUnpublishConfirm(null)}
                 className="flex-1 bg-gray-100 text-gray-700 px-6 py-3.5 rounded-xl hover:bg-gray-200 transition-all duration-200 font-semibold border-2 border-gray-200"
               >
-                Cancel
+                {t("cancel")}
               </button>
               <button
                 onClick={confirmBuySellUnpublish}
@@ -2324,7 +2328,7 @@ export default function MyListingsPage() {
                     d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
                   />
                 </svg>
-                Unpublish
+                {t("unpublish")}
               </button>
             </div>
           </div>
@@ -2336,23 +2340,23 @@ export default function MyListingsPage() {
         <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8">
             <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-red-50 flex items-center justify-center text-3xl">🗑️</div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-3 text-center">Delete Listing?</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-3 text-center">{t("deleteListingQ")}</h3>
             <p className="text-gray-600 mb-2 text-center font-medium">{buySellDeleteConfirm.title}</p>
             <p className="text-gray-500 mb-8 text-center text-sm">
-              This action cannot be undone. The listing will be permanently removed.
+              {t("deleteBody")}
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={() => setBuySellDeleteConfirm(null)}
                 className="flex-1 bg-gray-100 text-gray-700 px-6 py-3.5 rounded-xl hover:bg-gray-200 font-semibold border-2 border-gray-200"
               >
-                Cancel
+                {t("cancel")}
               </button>
               <button
                 onClick={() => handleBuySellDelete(buySellDeleteConfirm._id)}
                 className="flex-1 bg-red-600 text-white px-6 py-3.5 rounded-xl hover:bg-red-700 font-semibold shadow-lg"
               >
-                Delete
+                {t("delete")}
               </button>
             </div>
           </div>

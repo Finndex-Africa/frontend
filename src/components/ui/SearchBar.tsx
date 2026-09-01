@@ -228,7 +228,7 @@ export default function SearchBar({
               <button
                 onClick={clearAll}
                 className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 sm:p-1.5"
-                aria-label="Clear filters"
+                aria-label={t("clearFilters")}
               >
                 <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </button>
@@ -312,7 +312,7 @@ export default function SearchBar({
                     }`}
                   >
                     <Home className="h-4 w-4" />
-                    Properties
+                    {t("properties")}
                   </button>
                   <button
                     type="button"
@@ -324,7 +324,7 @@ export default function SearchBar({
                     }`}
                   >
                     <Briefcase className="h-4 w-4" />
-                    Services
+                    {t("services")}
                   </button>
                 </div>
               )}
@@ -333,7 +333,7 @@ export default function SearchBar({
                 <div>
                   <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-gray-600">
                     <MapPin className="h-3.5 w-3.5" />
-                    Location
+                    {t("location")}
                   </label>
                   <input
                     type="text"
@@ -394,7 +394,7 @@ export default function SearchBar({
                     <>
                       <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-gray-600">
                         <Search className="h-3.5 w-3.5" />
-                        Service Name
+                        {t("serviceName")}
                       </label>
                       <input
                         type="text"
@@ -414,7 +414,7 @@ export default function SearchBar({
                   onClick={clearAll}
                   className="text-sm font-medium text-gray-500 underline underline-offset-2 hover:text-gray-700"
                 >
-                  Clear all
+                  {t("clearAll")}
                 </button>
                 <button
                   type="submit"
