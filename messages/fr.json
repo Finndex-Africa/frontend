@@ -244,7 +244,7 @@
   "cookies": {
     "title": "Nous utilisons des cookies",
     "body": "Nous utilisons des cookies pour améliorer votre navigation, analyser le trafic du site et personnaliser le contenu. En cliquant sur « Tout accepter », vous consentez à notre utilisation des cookies.",
-    "learnMore": "En savoir plus",
+    "learnMore": "Lire notre politique de confidentialité",
     "acceptAll": "Tout accepter",
     "rejectAll": "Tout refuser",
     "managePreferences": "Gérer les préférences",
@@ -266,7 +266,9 @@
     "howItWorks": "Comment ça marche",
     "propertiesListed": "Biens publiés",
     "servicesListed": "Services publiés",
-    "buySellListed": "Annonces Acheter & Vendre"
+    "buySellListed": "Annonces Acheter & Vendre",
+    "introVideoTitle": "Introduction à FindAfriq",
+    "playVideo": "Lire la vidéo"
   },
   "propertyTypes": {
     "apartment": "Appartement",

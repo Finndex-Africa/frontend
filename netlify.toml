@@ -10,6 +10,28 @@
   NODE_VERSION = "22.23.1"
   PNPM_FLAGS = "--prod=false"
 
+# Next emits content-hashed filenames under /_next/static, so these can be
+# cached forever — a new build produces new URLs. Lighthouse flagged ~3 MB of
+# assets being re-fetched because everything was served with default headers.
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Optimised images are keyed by url+width+quality, so they are equally safe to
+# pin; the query string changes when the source or transform changes.
+[[headers]]
+  for = "/_next/image*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Static files under /public are NOT content-hashed, so they get a shorter TTL
+# with revalidation rather than immutable.
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
 [[headers]]
   for = "/*"
   [headers.values]

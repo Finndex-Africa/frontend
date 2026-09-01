@@ -53,3 +53,6 @@ node_modules/
 # Local backups of .env — never commit (they contain live secrets)
 .env.bak*
 .env.*.bak
+
+# Local Lighthouse reports (pnpm run perf)
+.perf/
