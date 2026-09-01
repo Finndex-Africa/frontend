@@ -63,6 +63,17 @@ export default withSentryConfig(withNextIntl(nextConfig), {
     excludeDebugStatements: true,
     excludeReplayShadowDom: true,
     excludeReplayIframe: true,
+
+    /*
+      Strips Sentry's performance/tracing instrumentation. Safe here because
+      instrumentation-client.ts runs with tracesSampleRate 0 — the code was
+      being shipped on every page and never used.
+
+      NOTE: if you ever want tracing, set SENTRY_TRACES_SAMPLE_RATE *and*
+      remove this flag. The flag wins; leaving it set would make a non-zero
+      sample rate silently do nothing.
+    */
+    excludeTracing: true,
   },
 
   // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
