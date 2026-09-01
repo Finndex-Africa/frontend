@@ -15,7 +15,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { propertiesApi, servicesApi } from "@/services/api";
 import { buySellApi } from "@/services/api";
-import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
+import { useErrorMessage } from "@/lib/error-messages";
 import {
   Property as ApiProperty,
   Service as ApiService,
@@ -91,6 +91,9 @@ const adaptPropertyToCard = (
       : undefined,
     propertyType: propertyType || undefined,
     isBookmarked: apiProperty.isBookmarked,
+    sourceLang: apiProperty.sourceLang,
+    translations: apiProperty.translations,
+    translationSource: apiProperty.translationSource,
   };
 };
 
@@ -140,10 +143,14 @@ const adaptServiceToCard = (
       : undefined,
     provider,
     isBookmarked: apiService.isBookmarked,
+    sourceLang: apiService.sourceLang,
+    translations: apiService.translations,
+    translationSource: apiService.translationSource,
   };
 };
 
 export default function HomePage() {
+  const errorMessage = useErrorMessage();
   const locale = useLocale();
   const t = useTranslations("home");
   const tCard = useTranslations("propertyCard");
@@ -229,7 +236,7 @@ export default function HomePage() {
           error?.response?.data || error?.message,
         );
         setPropertiesError(
-          getUserFriendlyErrorMessage(
+          errorMessage(
             error,
             t("propertiesLoadError"),
           ),
@@ -260,7 +267,7 @@ export default function HomePage() {
       } catch (error) {
         console.error("Error fetching services:", error);
         setServicesError(
-          getUserFriendlyErrorMessage(
+          errorMessage(
             error,
             t("servicesLoadError"),
           ),

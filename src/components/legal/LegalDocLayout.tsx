@@ -1,4 +1,7 @@
+'use client';
+
 import type { ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
 
 export function LegalDocLayout({
     title,
@@ -107,22 +110,23 @@ export function PolicyTable({
 }
 
 export function LegalContactCard() {
+    const t = useTranslations('legal');
     return (
         <div className="rounded-2xl border border-gray-200 bg-slate-50 p-6 sm:p-8 ring-1 ring-gray-100">
-            <p className="text-sm font-semibold uppercase tracking-wide text-gray-500">Contact</p>
+            <p className="text-sm font-semibold uppercase tracking-wide text-gray-500">{t('contact')}</p>
             <p className="mt-2 text-gray-700">
                 <span className="font-semibold text-gray-900">FindAfriq</span>
                 <br />
-                Paynesville City, Montserrado County
+                {t('address')}
                 <br />
-                Website:{' '}
+                {t('website')}{' '}
                 <a href="https://www.findafriq.com" className="text-[#0000FF] font-medium hover:underline">
                     www.findafriq.com
                 </a>
                 <br />
-                Tel: +231 779 922 382 · WhatsApp: +231 886 149 219
+                {t('tel')}
                 <br />
-                Email:{' '}
+                {t('email')}{' '}
                 <a href="mailto:info@findafriq.com" className="text-[#0000FF] font-medium hover:underline">
                     info@findafriq.com
                 </a>
@@ -137,6 +141,22 @@ export function LegalContactCard() {
                     youtube.com/@Findafriq
                 </a>
             </p>
+        </div>
+    );
+}
+
+/**
+ * Shown on translated legal documents.
+ *
+ * Machine/staff translations of binding terms are not authoritative — the
+ * English original governs. Renders nothing when the notice is empty, which is
+ * the case for the English locale.
+ */
+export function LegalTranslationNotice({ notice }: { notice: string }) {
+    if (!notice.trim()) return null;
+    return (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            {notice}
         </div>
     );
 }

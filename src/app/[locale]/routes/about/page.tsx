@@ -1,10 +1,15 @@
 'use client';
 
+import { useTranslations } from "next-intl";
 import Image from 'next/image';
 import TestimonialsSection from '@/components/ui/TestimonialsSection';
 
 import { Link } from '@/i18n/navigation';
 export default function About() {
+    const t = useTranslations("aboutPage");
+    const audiences = t.raw("audiences") as { title: string; text: string }[];
+    const propertyTags = t.raw("propertyTags") as string[];
+    const serviceTags = t.raw("serviceTags") as string[];
     return (
         <div className="min-h-screen bg-gray-50">
             {/* HERO */}
@@ -23,29 +28,29 @@ export default function About() {
                 <div className="relative container-app px-4 py-16 sm:py-20">
                     <div className="max-w-3xl">
                         <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
-                            About FindAfriq
+                            {t("heroTitle")}
                         </h1>
                         <p className="mt-4 text-white/85 text-base sm:text-lg leading-relaxed">
-                            FindAfriq is a digital real estate and services platform that connects seekers with verified properties and trusted service providers seamlessly.
+                            {t("heroBody")}
                         </p>
                         <div className="mt-7 flex flex-wrap gap-3">
                             <Link
                                 href="/routes/properties"
                                 className="inline-flex items-center justify-center rounded-lg bg-white text-slate-900 px-5 py-2.5 text-sm font-semibold hover:bg-white/90 transition"
                             >
-                                Browse properties
+                                {t("browseProperties")}
                             </Link>
                             <Link
                                 href="/routes/services"
                                 className="inline-flex items-center justify-center rounded-lg bg-blue-600 text-white px-5 py-2.5 text-sm font-semibold hover:bg-blue-700 transition"
                             >
-                                Explore services
+                                {t("exploreServices")}
                             </Link>
                             <a
                                 href="#contact"
                                 className="inline-flex items-center justify-center rounded-lg bg-white/10 text-white px-5 py-2.5 text-sm font-semibold hover:bg-white/15 transition"
                             >
-                                Contact
+                                {t("contact")}
                             </a>
                         </div>
                     </div>
@@ -58,7 +63,7 @@ export default function About() {
                     {/* Left: what we do + story */}
                     <div className="lg:col-span-7 space-y-6">
                         <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 p-7 sm:p-8">
-                            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">What we do</h2>
+                            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">{t("whatWeDo")}</h2>
                             <div className="mt-4 space-y-4 text-gray-700 leading-relaxed">
                                 <p>
                                     We provide a trusted digital marketplace where landlords and agents can list verified properties,
@@ -75,15 +80,8 @@ export default function About() {
                             <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 p-6 h-full">
                                 <div className="text-sm font-semibold text-blue-700">Our story</div>
                                 <p className="mt-2 text-gray-700 leading-relaxed text-sm sm:text-[15px]">
-                                    FindAfriq is a digital real estate and services
-                                    platform that connects seekers with verified
-                                    properties and trusted service providers seamlessly.
-                                    We provide a trusted digital marketplace
-                                    where landlords and agents can list verified
-                                    properties, seekers can easily discover
-                                    available rental properties, and housing
-                                    service providers can connect with people
-                                    who need their services.
+                                    {t("whatWeDoP1")}
+                                    {t("whatWeDoP2")}
                                 </p>
                             </div>
                             <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 p-6 h-full">
@@ -91,19 +89,19 @@ export default function About() {
                                 <ul className="mt-3 space-y-2 text-sm sm:text-[15px] text-gray-700">
                                     <li className="flex gap-2">
                                         <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600" aria-hidden="true" />
-                                        Verified property listings you can trust
+                                        {t("bullet1")}
                                     </li>
                                     <li className="flex gap-2">
                                         <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600" aria-hidden="true" />
-                                        Trusted service providers for your home
+                                        {t("bullet2")}
                                     </li>
                                     <li className="flex gap-2">
                                         <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600" aria-hidden="true" />
-                                        Faster discovery with clear details
+                                        {t("bullet3")}
                                     </li>
                                     <li className="flex gap-2">
                                         <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600" aria-hidden="true" />
-                                        A safer experience built for reliability
+                                        {t("bullet4")}
                                     </li>
                                 </ul>
                             </div>
@@ -129,15 +127,15 @@ export default function About() {
                             <ul className="mt-3 space-y-2 text-sm text-blue-900/90">
                                 <li className="flex gap-2">
                                     <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600" aria-hidden="true" />
-                                    Verified property listings
+                                    {t("card1")}
                                 </li>
                                 <li className="flex gap-2">
                                     <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600" aria-hidden="true" />
-                                    Trusted service providers
+                                    {t("card2")}
                                 </li>
                                 <li className="flex gap-2">
                                     <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600" aria-hidden="true" />
-                                    Simple, secure discovery
+                                    {t("card3")}
                                 </li>
                             </ul>
                         </div>
@@ -148,9 +146,9 @@ export default function About() {
             {/* SOLUTIONS */}
             <section className="container-app px-4 pb-12 sm:pb-16">
                 <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 p-7 sm:p-8">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Our solutions</h2>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">{t("ourSolutions")}</h2>
                     <p className="mt-3 text-gray-700 leading-relaxed max-w-3xl">
-                        FindAfriq provides a simple and trusted digital platform that connects all participants in the rental housing and services ecosystem.
+                        {t("solutionsIntro")}
                     </p>
 
                     <div className="mt-7 grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -159,17 +157,17 @@ export default function About() {
                             <div className="flex items-center justify-between gap-3">
                                 <div className="font-semibold text-gray-900">Properties</div>
                                 <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full ring-1 ring-blue-100">
-                                    Verified listings
+                                    {t("verifiedListings")}
                                 </span>
                             </div>
                             <p className="mt-2 text-gray-700 leading-relaxed text-sm">
-                                Discover and list verified spaces for living and business.
+                                {t("verifiedListingsBody")}
                             </p>
                             <div className="mt-4 flex flex-wrap gap-2">
-                                {['Apartments', 'Office spaces'].map((t) => (
-                                    <span key={t} className="inline-flex items-center gap-2 rounded-full bg-gray-50 px-3 py-1 text-sm text-gray-700 ring-1 ring-gray-200">
+                                {propertyTags.map((tag) => (
+                                    <span key={tag} className="inline-flex items-center gap-2 rounded-full bg-gray-50 px-3 py-1 text-sm text-gray-700 ring-1 ring-gray-200">
                                         <span className="h-2 w-2 rounded-full bg-blue-600" aria-hidden="true" />
-                                        {t}
+                                        {tag}
                                     </span>
                                 ))}
                             </div>
@@ -180,11 +178,11 @@ export default function About() {
                             <div className="flex items-center justify-between gap-3">
                                 <div className="font-semibold text-gray-900">Services</div>
                                 <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full ring-1 ring-blue-100">
-                                    Trusted providers
+                                    {t("trustedProviders")}
                                 </span>
                             </div>
                             <p className="mt-2 text-gray-700 leading-relaxed text-sm">
-                                Connect with service providers to make managing a home or property easier.
+                                {t("trustedProvidersBody")}
                             </p>
                             <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 text-sm text-gray-700">
                                 {[
@@ -210,25 +208,12 @@ export default function About() {
 
             {/* WHO WE SERVE */}
             <section className="container-app px-4 pb-12 sm:pb-16">
-                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Who we serve</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">{t("whoWeServe")}</h2>
                 <p className="mt-3 text-gray-700 leading-relaxed max-w-3xl">
-                    We build with every participant in mind from first-time renters to property owners and service professionals.
+                    {t("whoWeServeIntro")}
                 </p>
                 <div className="mt-7 grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {[
-                        {
-                            title: 'Seekers',
-                            text: 'Browse and discover reliable and verified rental homes in your city.',
-                        },
-                        {
-                            title: 'Landlords & Agents',
-                            text: 'List units, reach more tenants, and reduce vacancy periods with verified listings.',
-                        },
-                        {
-                            title: 'Service Providers',
-                            text: 'Connect with people moving into new homes and looking for trusted support.',
-                        },
-                    ].map((item) => (
+                    {audiences.map((item) => (
                         <div key={item.title} className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 p-7">
                             <div className="font-semibold text-gray-900">{item.title}</div>
                             <div className="mt-2 text-gray-700 leading-relaxed">{item.text}</div>
@@ -241,10 +226,10 @@ export default function About() {
             <section className="container-app px-4 pb-12 sm:pb-16">
                 <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 px-7 py-10 sm:px-12 sm:py-14">
                     <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 text-center mb-4">
-                        Trusted &amp; Supported by
+                        {t("partnersLine1")}
                     </p>
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center leading-snug">
-                        Leading Organizations &amp; Institutions
+                        {t("partnersLine2")}
                     </h2>
                     <div className="mt-6 sm:mt-8 grid grid-cols-3 gap-6 sm:gap-10 items-center justify-items-center">
                         {[
@@ -274,9 +259,9 @@ export default function About() {
             {/* CONTACT */}
             <section id="contact" className="container-app px-4 py-12 sm:py-16">
                 <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 p-7 sm:p-8">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Connect with us</h2>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">{t("connectWithUs")}</h2>
                     <p className="mt-3 text-gray-700 leading-relaxed max-w-2xl">
-                        Questions, partnerships, listings, or onboarding support we’re here to help.
+                        {t("connectBody")}
                     </p>
                     <div className="mt-7 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                         <div className="rounded-xl border border-gray-200 p-5">
@@ -301,13 +286,13 @@ export default function About() {
                             href="/routes/login"
                             className="inline-flex items-center justify-center rounded-lg bg-blue-600 text-white px-6 py-3 text-sm font-semibold hover:bg-blue-700 transition"
                         >
-                            Get Started
+                            {t("getStarted")}
                         </Link>
                         <Link
                             href="/routes/properties"
                             className="inline-flex items-center justify-center rounded-lg bg-gray-100 text-gray-900 px-6 py-3 text-sm font-semibold hover:bg-gray-200 transition"
                         >
-                            Browse properties
+                            {t("browseProperties")}
                         </Link>
                     </div>
                 </div>

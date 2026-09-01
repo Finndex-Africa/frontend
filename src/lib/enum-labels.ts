@@ -35,9 +35,17 @@ function humanize(value: string): string {
  *   propertyType("house")             // "House" / "Maison"
  *   propertyType("geodesic_dome")     // "Geodesic Dome" (both locales)
  */
-export function useEnumLabel(
-  namespace: "propertyTypes" | "serviceCategories" | "buySellCategories",
-) {
+type EnumNamespace =
+  | "propertyTypes"
+  | "serviceCategories"
+  | "buySellCategories"
+  | "amenities"
+  | "amenityDescriptions"
+  | "ownerRoles"
+  | "buySellSubcategories"
+  | "landUnits";
+
+export function useEnumLabel(namespace: EnumNamespace) {
   const t = useTranslations(namespace);
 
   return useCallback(
@@ -45,6 +53,26 @@ export function useEnumLabel(
       if (!value) return "";
       const key = normalizeEnumKey(value);
       return t.has(key) ? t(key) : humanize(value);
+    },
+    [t],
+  );
+}
+
+/**
+ * Same lookup, but returns "" instead of humanizing when there's no entry.
+ *
+ * Use where a miss should fall through to another source rather than echo the
+ * input — e.g. amenity descriptions, which fall back to the value stored on
+ * the listing itself.
+ */
+export function useOptionalEnumLabel(namespace: EnumNamespace) {
+  const t = useTranslations(namespace);
+
+  return useCallback(
+    (value: string | null | undefined): string => {
+      if (!value) return "";
+      const key = normalizeEnumKey(value);
+      return t.has(key) ? t(key) : "";
     },
     [t],
   );

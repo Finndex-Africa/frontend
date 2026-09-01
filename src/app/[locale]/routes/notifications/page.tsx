@@ -1,6 +1,6 @@
 'use client';
 
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from 'react';
 
 import { notificationsApi } from '@/services/api/notifications.api';
@@ -8,6 +8,7 @@ import { Notification } from '@/types/dashboard';
 
 import { useRouter } from '@/i18n/navigation';
 export default function NotificationsPage() {
+  const t = useTranslations("notificationsPage");
     const locale = useLocale();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);
@@ -131,7 +132,7 @@ export default function NotificationsPage() {
                             onClick={handleMarkAllAsRead}
                             className="px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         >
-                            Mark all as read
+                            {t("markAllAsRead")}
                         </button>
                     )}
                 </div>
@@ -290,7 +291,7 @@ export default function NotificationsPage() {
                                     onClick={closeModal}
                                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                                 >
-                                    Close
+                                    {t("close")}
                                 </button>
                             </div>
                         </div>

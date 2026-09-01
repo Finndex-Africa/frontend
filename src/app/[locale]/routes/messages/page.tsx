@@ -1,6 +1,6 @@
 'use client';
 
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from "next-intl";
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { StreamChat } from 'stream-chat';
@@ -20,6 +20,7 @@ import 'stream-chat-react/dist/css/v2/index.css';
 
 // Custom channel preview component
 const CustomChannelPreview = (props: ChannelPreviewUIComponentProps & { onMobileClick?: () => void }) => {
+    const t = useTranslations("messagesPage");
     const locale = useLocale();
     const { channel, setActiveChannel, activeChannel, onMobileClick } = props;
     const { client } = useChatContext();
@@ -56,7 +57,7 @@ const CustomChannelPreview = (props: ChannelPreviewUIComponentProps & { onMobile
         }
 
         if (hours < 48) {
-            return 'Yesterday';
+            return t('yesterday');
         }
 
         return messageDate.toLocaleDateString(locale, {
@@ -125,6 +126,8 @@ const CustomChannelPreview = (props: ChannelPreviewUIComponentProps & { onMobile
 };
 
 export default function MessagesPage() {
+  const tErr = useTranslations("errors");
+  const t = useTranslations("messagesPage");
     const [client, setClient] = useState<StreamChat | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -135,7 +138,7 @@ export default function MessagesPage() {
         const userData = localStorage.getItem('user') || sessionStorage.getItem('user');
         if (!userData) {
             setLoading(false);
-            setError('Please log in to view messages');
+            setError(tErr("form.loginToViewMessages"));
             return;
         }
 
@@ -316,10 +319,10 @@ export default function MessagesPage() {
                                                 />
                                             </svg>
                                             <p className="text-center text-gray-600 font-medium text-sm md:text-base">
-                                                No messages yet
+                                                {t("noMessages")}
                                             </p>
                                             <p className="text-center text-gray-500 text-xs md:text-sm mt-1">
-                                                Your conversations will appear here
+                                                {t("conversationsAppearHere")}
                                             </p>
                                         </div>
                                     )}
@@ -339,7 +342,7 @@ export default function MessagesPage() {
                                                 <button
                                                     onClick={() => setShowChat(false)}
                                                     className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
-                                                    aria-label="Back to conversations"
+                                                    aria-label={t("backToConversations")}
                                                 >
                                                     <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />

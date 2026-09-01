@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from "next-intl";
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
@@ -10,7 +11,7 @@ import VerifiedTrustedBanner from "@/components/ui/VerifiedTrustedBanner";
 import Pagination from "@/components/ui/Pagination";
 import { servicesApi } from "@/services/api";
 import { Service as ApiService } from "@/types/dashboard";
-import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
+import { useErrorMessage } from "@/lib/error-messages";
 
 import { useRouter } from "@/i18n/navigation";
 // Adapter function to convert API data to component types
@@ -51,10 +52,16 @@ const adaptServiceToCard = (apiService: ApiService): Service => {
         badge: apiService.category ? apiService.category.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : undefined,
         provider,
         isBookmarked: apiService.isBookmarked,
+        sourceLang: apiService.sourceLang,
+        translations: apiService.translations,
+        translationSource: apiService.translationSource,
     };
 };
 
 function ServicesContent() {
+  const errorMessage = useErrorMessage();
+    const tBrowse = useTranslations("browse");
+    const tCommon = useTranslations("common");
     const searchParams = useSearchParams();
     const router = useRouter();
     const [services, setServices] = useState<Service[]>([]);
@@ -148,7 +155,7 @@ function ServicesContent() {
             setError(null);
         } catch (error) {
             console.error('Error fetching services:', error);
-            setError(getUserFriendlyErrorMessage(error, 'Failed to load services. Please try again later.'));
+            setError(errorMessage(error, "loadServices"));
         } finally {
             setLoading(false);
         }
@@ -166,7 +173,7 @@ function ServicesContent() {
                 <div className="absolute inset-0 overflow-hidden">
                     <Image
                         src="/images/services/cleaning1.jpeg"
-                        alt="Services Hero"
+                        alt={tBrowse("servicesHeroAlt")}
                         fill
                         className="object-cover"
                         priority
@@ -177,10 +184,10 @@ function ServicesContent() {
                     <div className="flex flex-col items-center justify-center px-4 pt-20 pb-2 text-center text-white md:flex-1 md:pt-0 md:pb-0">
                         <HeroVerifiedBadge />
                         <h1 className="mb-2 max-w-4xl text-xl font-extrabold leading-tight sm:text-3xl md:mb-4 md:text-5xl">
-                            Find Trusted Services
+                            {tBrowse("findTrustedServices")}
                         </h1>
                         <p className="mb-2 text-sm text-white/90 sm:text-lg md:mb-4 md:text-xl">
-                            Connect with verified service providers for all your needs
+                            {tBrowse("servicesSubtitle")}
                         </p>
                         <div className="mx-auto mt-4 hidden w-full max-w-3xl md:block">
                             <SearchBar
@@ -223,7 +230,7 @@ function ServicesContent() {
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
-                                Clear All
+                                {tBrowse("clearAll")}
                             </button>
                         </div>
                         <div className="flex flex-wrap gap-2">
@@ -275,7 +282,7 @@ function ServicesContent() {
                             onClick={() => window.location.reload()}
                             className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm sm:text-base"
                         >
-                            Retry
+                            {tBrowse("retry")}
                         </button>
                     </div>
                 ) : services.length === 0 ? (
@@ -286,7 +293,7 @@ function ServicesContent() {
                     <>
                         <div className="mb-4 sm:mb-6">
                             <p className="text-gray-600 text-sm sm:text-base">
-                                Showing {services.length} services
+                                {tCommon("showingServices", { count: services.length })}
                             </p>
                         </div>
 

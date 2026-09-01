@@ -37,6 +37,11 @@ export interface Service {
     isBookmarked?: boolean;
     createdAt: string;
     updatedAt: string;
+
+    /** i18n — populated by the backend translation module. */
+    sourceLang?: string;
+    translations?: Record<string, { title?: string; description?: string }>;
+    translationSource?: 'machine' | 'human';
 }
 
 export interface Property {
@@ -75,6 +80,11 @@ export interface Property {
     };
     createdAt: string;
     updatedAt: string;
+
+    /** i18n — populated by the backend translation module. */
+    sourceLang?: string;
+    translations?: Record<string, { title?: string; description?: string }>;
+    translationSource?: 'machine' | 'human';
 }
 
 export interface Agent {

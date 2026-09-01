@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from "next-intl";
 import { useState, useEffect, useCallback } from "react";
 
 import PropertyCard, { Property } from "@/components/domain/PropertyCard";
@@ -44,6 +45,7 @@ function adaptSavedServiceToCard(item: SavedItem): Service {
 
 /** Buy & Sell card with its own heart button for the favorites page */
 function BuySellFavCard({ item, onRemove }: { item: SavedItem; onRemove: () => void }) {
+  const t = useTranslations("favoritesPage");
     const [saved, setSaved] = useState(true);
     const [toggling, setToggling] = useState(false);
     const l = item.listing;
@@ -114,6 +116,8 @@ function BuySellFavCard({ item, onRemove }: { item: SavedItem; onRemove: () => v
 type Tab = 'all' | 'property' | 'service' | 'buy-sell';
 
 export default function FavoritesPage() {
+  const tErr = useTranslations("errors");
+  const t = useTranslations("favoritesPage");
     const router = useRouter();
     const [items, setItems] = useState<SavedItem[]>([]);
     const [loading, setLoading] = useState(true);
@@ -130,7 +134,7 @@ export default function FavoritesPage() {
         setError(null);
         bookmarksApi.getAll()
             .then(data => setItems(data))
-            .catch(() => setError('Failed to load saved items. Please try again.'))
+            .catch(() => setError(tErr("form.loadSavedItems")))
             .finally(() => setLoading(false));
     }, [router]);
 
@@ -216,7 +220,7 @@ export default function FavoritesPage() {
                                 : `You haven't saved any ${activeTab === 'buy-sell' ? 'buy & sell' : activeTab} listings yet.`}
                         </p>
                         <Link href="/" className="inline-block bg-blue-600 text-white text-sm font-semibold px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-colors">
-                            Explore listings
+                            {t("exploreListings")}
                         </Link>
                     </div>
                 )}
@@ -226,7 +230,7 @@ export default function FavoritesPage() {
                         {properties.length > 0 && (
                             <section>
                                 <h2 className="text-base font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                                    Saved Properties
+                                    {t("savedProperties")}
                                     <span className="text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100 px-2 py-0.5 rounded-full">{properties.length}</span>
                                 </h2>
                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 gap-y-6 sm:gap-x-4 sm:gap-y-8">
@@ -245,7 +249,7 @@ export default function FavoritesPage() {
                         {services.length > 0 && (
                             <section>
                                 <h2 className="text-base font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                                    Saved Services
+                                    {t("savedServices")}
                                     <span className="text-xs font-medium bg-purple-50 text-purple-700 border border-purple-100 px-2 py-0.5 rounded-full">{services.length}</span>
                                 </h2>
                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 gap-y-6 sm:gap-x-4 sm:gap-y-8">
@@ -264,7 +268,7 @@ export default function FavoritesPage() {
                         {buySell.length > 0 && (
                             <section>
                                 <h2 className="text-base font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                                    Saved Buy &amp; Sell
+                                    {t("savedBuySell")}
                                     <span className="text-xs font-medium bg-orange-50 text-orange-700 border border-orange-100 px-2 py-0.5 rounded-full">{buySell.length}</span>
                                 </h2>
                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 gap-y-6 sm:gap-x-4 sm:gap-y-8">

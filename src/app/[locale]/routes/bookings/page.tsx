@@ -1,11 +1,11 @@
 'use client';
 
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from 'react';
 
 import toast, { Toaster } from 'react-hot-toast';
 import { bookingsApi, isProviderRole, parseBookingsList } from '@/services/api/bookings.api';
-import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
+import { useErrorMessage } from "@/lib/error-messages";
 import { Booking, Property, Service } from '@/types/dashboard';
 import { trackBookingConfirmed, trackBookingRejected, trackBookingCancelled } from '@/lib/analytics';
 
@@ -33,6 +33,8 @@ function getParticipantDisplayName(participant: BookingParticipant | null): stri
 }
 
 export default function BookingsPage() {
+  const errorMessage = useErrorMessage();
+  const t = useTranslations("bookingsPage");
     const locale = useLocale();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);
@@ -180,12 +182,12 @@ export default function BookingsPage() {
             setActionLoading(bookingId);
             await bookingsApi.confirm(bookingId);
             trackBookingConfirmed(bookingId);
-            toast.success('Booking confirmed successfully');
+            toast.success(t('confirmed'));
             await refreshBookings();
             handleCloseModal();
         } catch (error: any) {
             console.error('Failed to confirm booking:', error);
-            toast.error(getUserFriendlyErrorMessage(error, 'Failed to confirm booking. Please try again.'));
+            toast.error(errorMessage(error, "confirmBooking"));
         } finally {
             setActionLoading(null);
         }
@@ -194,7 +196,7 @@ export default function BookingsPage() {
     const handleRejectBooking = async (bookingId: string) => {
         const reason = rejectReason.trim();
         if (!reason) {
-            toast.error('Please provide a reason for rejection');
+            toast.error(t('reasonRequired'));
             return;
         }
         if (actionLoading) return;
@@ -202,12 +204,12 @@ export default function BookingsPage() {
             setActionLoading(bookingId);
             await bookingsApi.reject(bookingId, reason);
             trackBookingRejected(bookingId, reason);
-            toast.success('Booking rejected');
+            toast.success(t('rejected'));
             await refreshBookings();
             handleCloseModal();
         } catch (error: any) {
             console.error('Failed to reject booking:', error);
-            toast.error(getUserFriendlyErrorMessage(error, 'Failed to reject booking. Please try again.'));
+            toast.error(errorMessage(error, "rejectBooking"));
         } finally {
             setActionLoading(null);
         }
@@ -221,13 +223,13 @@ export default function BookingsPage() {
             setActionLoading(bookingId);
             await bookingsApi.cancel(bookingId, reason);
             trackBookingCancelled(bookingId, isProvider ? 'provider' : 'customer');
-            toast.success('Booking cancelled');
+            toast.success(t('cancelled'));
             await refreshBookings();
             setShowDetailsModal(false);
             setSelectedBooking(null);
         } catch (error: any) {
             console.error('Failed to cancel booking:', error);
-            toast.error(getUserFriendlyErrorMessage(error, 'Failed to cancel booking. Please try again.'));
+            toast.error(errorMessage(error, "cancelBooking"));
         } finally {
             setActionLoading(null);
         }
@@ -312,13 +314,13 @@ export default function BookingsPage() {
                                     onClick={() => router.push('/routes/properties')}
                                     className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
                                 >
-                                    Browse Properties
+                                    {t("browseProperties")}
                                 </button>
                                 <button
                                     onClick={() => router.push('/routes/services')}
                                     className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors"
                                 >
-                                    Browse Services
+                                    {t("browseServices")}
                                 </button>
                             </div>
                         )}
@@ -401,7 +403,7 @@ export default function BookingsPage() {
                                         onClick={() => handleViewDetails(booking)}
                                         className="px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                                     >
-                                        View Details
+                                        {t("viewDetails")}
                                     </button>
                                 </div>
                             </div>
@@ -611,13 +613,13 @@ export default function BookingsPage() {
                                     className="rounded-lg border border-red-200 bg-red-50 p-4 scroll-mb-24"
                                 >
                                     <label htmlFor="reject-reason" className="block text-sm font-semibold text-gray-900 mb-2">
-                                        Reason for rejection
+                                        {t("reasonForRejection")}
                                     </label>
                                     <textarea
                                         id="reject-reason"
                                         value={rejectReason}
                                         onChange={(e) => setRejectReason(e.target.value)}
-                                        placeholder="Explain why you are rejecting this booking..."
+                                        placeholder={t("rejectionPlaceholder")}
                                         rows={4}
                                         className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-200"
                                         autoFocus
@@ -632,7 +634,7 @@ export default function BookingsPage() {
                                 onClick={handleCloseModal}
                                 className="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
                             >
-                                Close
+                                {t("close")}
                             </button>
                             {selectedBooking.status === 'pending' && isProvider && (
                                 <>
@@ -664,7 +666,7 @@ export default function BookingsPage() {
                                                 disabled={actionLoading === selectedBooking._id}
                                                 className="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50"
                                             >
-                                                Reject
+                                                {t("reject")}
                                             </button>
                                             <button
                                                 onClick={() => handleConfirmBooking(selectedBooking._id)}

@@ -1,5 +1,5 @@
 [build]
-  command = "pnpm install --frozen-lockfile && pnpm run build"
+  command = "corepack pnpm install --frozen-lockfile && corepack pnpm run build"
   publish = ".next"
 
 [[plugins]]
@@ -7,10 +7,7 @@
 
 [build.environment]
   NEXT_TELEMETRY_DISABLED = "1"
-  # Must stay >= 22.13: Corepack installs the pnpm pinned in package.json
-  # (pnpm 11), which imports node:sqlite — a module that does not exist before
-  # Node 22, so pnpm crashes during install rather than at build time.
-  NODE_VERSION = "22"
+  NODE_VERSION = "22.23.1"
 
 # Next emits content-hashed filenames under /_next/static, so these can be
 # cached forever — a new build produces new URLs. Lighthouse flagged ~3 MB of

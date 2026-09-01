@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from 'react';
 import {
     isE164Phone,
@@ -8,7 +9,7 @@ import {
     type SubmitUserReportDto,
     type UserReportCategory,
 } from '@/services/api/user-reports.api';
-import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
+import { useErrorMessage } from "@/lib/error-messages";
 
 interface UserReportModalProps {
     open: boolean;
@@ -62,31 +63,32 @@ function isValidEmail(value: string): boolean {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 }
 
+/** Returns catalog keys (under `userReport`), not copy — this runs outside React. */
 function validateFormFields(form: FormState): FormErrors {
     const errors: FormErrors = {};
 
     if (form.fullName.trim().length < 2) {
-        errors.fullName = 'Please enter your full name (at least 2 characters).';
+        errors.fullName = 'fullNameMin';
     }
 
     if (!form.email.trim()) {
-        errors.email = 'Please enter your email address.';
+        errors.email = 'emailRequired';
     } else if (!isValidEmail(form.email)) {
-        errors.email = 'Please enter a valid email address.';
+        errors.email = 'emailInvalid';
     }
 
     if (!form.phone.trim()) {
-        errors.phone = 'Please enter your phone number.';
+        errors.phone = 'phoneRequired';
     } else if (!isE164Phone(form.phone)) {
-        errors.phone = 'Use international format, e.g. +231886149241.';
+        errors.phone = 'phoneFormat';
     }
 
     if (!form.reportCategory) {
-        errors.reportCategory = 'Please select a report category.';
+        errors.reportCategory = 'categoryRequired';
     }
 
     if (form.reportedTarget.trim().length < 2) {
-        errors.reportedTarget = 'Please enter the name or email of the person or listing you are reporting.';
+        errors.reportedTarget = 'targetRequired';
     }
 
     return errors;
@@ -119,11 +121,12 @@ function FieldLabel({ htmlFor, required, children }: { htmlFor?: string; require
     );
 }
 
-function FieldError({ message }: { message?: string }) {
-    if (!message) return null;
+function FieldError({ messageKey }: { messageKey?: string }) {
+    const t = useTranslations('userReport');
+    if (!messageKey) return null;
     return (
         <p className={fieldErrorClass} role="alert">
-            {message}
+            {t(messageKey)}
         </p>
     );
 }
@@ -140,7 +143,7 @@ function FormField({
     return (
         <div id={`user-report-field-${fieldKey}`}>
             {children}
-            <FieldError message={error} />
+            <FieldError messageKey={error} />
         </div>
     );
 }
@@ -150,6 +153,10 @@ function inputClassName(hasError: boolean): string {
 }
 
 export default function UserReportModal({ open, onClose }: UserReportModalProps) {
+  const t_hints = useTranslations("hints");
+  const errorMessage = useErrorMessage();
+    const t = useTranslations("userReport");
+    const tCat = useTranslations("reportCategories");
     const [form, setForm] = useState<FormState>(INITIAL_FORM);
     const [fieldErrors, setFieldErrors] = useState<FormErrors>({});
     const [loading, setLoading] = useState(false);
@@ -208,7 +215,7 @@ export default function UserReportModal({ open, onClose }: UserReportModalProps)
             await userReportsApi.submit(payload);
             setSubmitted(true);
         } catch (err: unknown) {
-            setError(getUserFriendlyErrorMessage(err, 'Failed to submit report. Please try again.'));
+            setError(errorMessage(err, "submitReport"));
         } finally {
             setLoading(false);
         }
@@ -232,17 +239,17 @@ export default function UserReportModal({ open, onClose }: UserReportModalProps)
                 <div className="relative flex items-start justify-between gap-4 px-5 py-4 border-b border-gray-200 shrink-0 bg-linear-to-r from-blue-700 to-blue-600 text-white sm:px-6 sm:py-5">
                     <div className="min-w-0 pr-10">
                         <h2 id="user-report-modal-title" className="text-xl sm:text-2xl font-bold tracking-tight">
-                            Findafriq User Report Form
+                            {t("title")}
                         </h2>
                         <p className="text-sm text-white/90 mt-1">
-                            Report fraud, fake listings, or other concerns on the platform.
+                            {t("subtitle")}
                         </p>
                     </div>
                     <button
                         type="button"
                         onClick={handleClose}
                         className="absolute top-3 right-3 sm:top-4 sm:right-4 shrink-0 rounded-lg p-2 text-white/90 hover:bg-white/15 hover:text-white transition-colors z-10"
-                        aria-label="Close"
+                        aria-label={t("close")}
                     >
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -260,14 +267,14 @@ export default function UserReportModal({ open, onClose }: UserReportModalProps)
                             </div>
                             <h3 className="text-lg font-semibold text-gray-900">Report submitted</h3>
                             <p className="mt-2 text-sm text-gray-600">
-                                Thank you. Our team will review your report and take appropriate action.
+                                {t("thankYou")}
                             </p>
                             <button
                                 type="button"
                                 onClick={handleClose}
                                 className="mt-6 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
                             >
-                                Close
+                                {t('close')}
                             </button>
                         </div>
                     ) : (
@@ -280,13 +287,13 @@ export default function UserReportModal({ open, onClose }: UserReportModalProps)
 
                             {Object.keys(fieldErrors).length > 0 && !error && (
                                 <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
-                                    Please fix the highlighted fields below.
+                                    {t("fixFields")}
                                 </div>
                             )}
 
                             <FormField fieldKey="fullName" error={fieldErrors.fullName}>
                                 <FieldLabel htmlFor="user-report-fullName" required>
-                                    Full Name
+                                    {t('fullName')}
                                 </FieldLabel>
                                 <input
                                     id="user-report-fullName"
@@ -294,14 +301,14 @@ export default function UserReportModal({ open, onClose }: UserReportModalProps)
                                     value={form.fullName}
                                     onChange={(e) => patchForm({ fullName: e.target.value })}
                                     className={inputClassName(!!fieldErrors.fullName)}
-                                    placeholder="Jane Doe"
+                                    placeholder={t("namePlaceholder")}
                                     aria-invalid={!!fieldErrors.fullName}
                                 />
                             </FormField>
 
                             <FormField fieldKey="email" error={fieldErrors.email}>
                                 <FieldLabel htmlFor="user-report-email" required>
-                                    Email Address
+                                    {t('emailAddress')}
                                 </FieldLabel>
                                 <input
                                     id="user-report-email"
@@ -316,7 +323,7 @@ export default function UserReportModal({ open, onClose }: UserReportModalProps)
 
                             <FormField fieldKey="phone" error={fieldErrors.phone}>
                                 <FieldLabel htmlFor="user-report-phone" required>
-                                    Phone Number
+                                    {t('phoneNumber')}
                                 </FieldLabel>
                                 <input
                                     id="user-report-phone"
@@ -328,13 +335,13 @@ export default function UserReportModal({ open, onClose }: UserReportModalProps)
                                     aria-invalid={!!fieldErrors.phone}
                                 />
                                 <p className="mt-1 text-xs text-gray-500">
-                                    International format, e.g. +231886149241
+                                    {t_hints("international_format_e_g_231886149241")}
                                 </p>
                             </FormField>
 
                             <FormField fieldKey="reportCategory" error={fieldErrors.reportCategory}>
                                 <FieldLabel htmlFor="user-report-category" required>
-                                    Report Category
+                                    {t('reportCategory')}
                                 </FieldLabel>
                                 <select
                                     id="user-report-category"
@@ -345,10 +352,10 @@ export default function UserReportModal({ open, onClose }: UserReportModalProps)
                                     className={`${inputClassName(!!fieldErrors.reportCategory)} bg-white`}
                                     aria-invalid={!!fieldErrors.reportCategory}
                                 >
-                                    <option value="">Select a category</option>
-                                    {USER_REPORT_CATEGORIES.map(({ value, label }) => (
+                                    <option value="">{t_hints("select_a_category")}</option>
+                                    {USER_REPORT_CATEGORIES.map(({ value }) => (
                                         <option key={value} value={value}>
-                                            {label}
+                                            {tCat(value)}
                                         </option>
                                     ))}
                                 </select>
@@ -356,7 +363,7 @@ export default function UserReportModal({ open, onClose }: UserReportModalProps)
 
                             <FormField fieldKey="reportedTarget" error={fieldErrors.reportedTarget}>
                                 <FieldLabel htmlFor="user-report-target" required>
-                                    Who Are You Reporting? (Name or Email of the Person/Listing)
+                                    {t('whoReporting')}
                                 </FieldLabel>
                                 <input
                                     id="user-report-target"
@@ -364,7 +371,7 @@ export default function UserReportModal({ open, onClose }: UserReportModalProps)
                                     value={form.reportedTarget}
                                     onChange={(e) => patchForm({ reportedTarget: e.target.value })}
                                     className={inputClassName(!!fieldErrors.reportedTarget)}
-                                    placeholder="john@example.com or listing name"
+                                    placeholder={t("whoPlaceholder")}
                                     aria-invalid={!!fieldErrors.reportedTarget}
                                 />
                             </FormField>
@@ -374,7 +381,7 @@ export default function UserReportModal({ open, onClose }: UserReportModalProps)
                                 disabled={loading}
                                 className="w-full rounded-lg bg-blue-600 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                             >
-                                {loading ? 'Submitting…' : 'Submit Report'}
+                                {loading ? t('submitting') : t('submitReport')}
                             </button>
                         </form>
                     )}
