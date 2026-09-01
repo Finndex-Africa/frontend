@@ -14,7 +14,7 @@ import LaunchCelebrationOverlay from "@/components/global/LaunchCelebrationOverl
 import CookieConsent from "@/components/global/CookieConsent";
 import { Providers } from "@/providers";
 import JsonLd, { siteJsonLd } from "@/components/global/JsonLd";
-import { GoogleAnalytics } from "@next/third-parties/google";
+import ConsentedAnalytics from "@/components/global/ConsentedAnalytics";
 import {
   routing,
   localeHtmlLang,
@@ -37,6 +37,20 @@ const whitneyMedium = localFont({
 });
 
 const SITE_URL = "https://findafriq.com";
+
+/*
+  The home page fetches properties, services and buy&sell from the API before it
+  can render a single card, so the API origin sits on the critical path to LCP:
+  HTML -> JS -> API -> images. Preconnecting gets DNS + TLS out of the way while
+  the JS is still downloading. Lighthouse estimated ~320 ms.
+*/
+const API_ORIGIN = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_API_URL || "").origin;
+  } catch {
+    return null;
+  }
+})();
 const SITE_NAME = "FindAfriq";
 
 /** Pre-render both locales at build time. */
@@ -146,6 +160,27 @@ export default async function LocaleLayout({
 
   return (
     <html lang={localeHtmlLang[locale]} suppressHydrationWarning>
+      <head>
+        {/* Same-origin as the page? Then it's already connected and this is a no-op. */}
+        {API_ORIGIN && API_ORIGIN !== SITE_URL && (
+          <>
+            {/*
+              Both variants on purpose. A preconnect opens a socket in one of
+              two pools and only a matching request reuses it: `crossorigin`
+              gives the anonymous-CORS pool (what fetch/XHR to another origin
+              uses), the bare one gives the non-CORS pool. Production Lighthouse
+              reported "Unused preconnect. Check that the crossorigin attribute
+              is used properly" with only the CORS variant present, while still
+              listing this origin as worth ~300 ms — so cover both rather than
+              guess. Cost is one extra idle socket.
+            */}
+            <link rel="preconnect" href={API_ORIGIN} crossOrigin="" />
+            <link rel="preconnect" href={API_ORIGIN} />
+            {/* Fallback for browsers that ignore preconnect. */}
+            <link rel="dns-prefetch" href={API_ORIGIN} />
+          </>
+        )}
+      </head>
       {/* suppressHydrationWarning: avoids mismatch when browser extensions (e.g. security tools) inject attributes like bis_skin_checked into the DOM */}
       <body
         className={`${whitneyBold.variable} ${whitneyMedium.variable} font-body antialiased`}
@@ -168,7 +203,7 @@ export default async function LocaleLayout({
           </Providers>
         </NextIntlClientProvider>
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
-          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+          <ConsentedAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
         )}
       </body>
     </html>

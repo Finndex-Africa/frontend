@@ -3,6 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@11.18.0",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "browserslist": [
+    "chrome >= 111",
+    "edge >= 111",
+    "firefox >= 111",
+    "safari >= 16.4",
+    "not dead"
+  ],
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -10,6 +20,7 @@
     "lint": "eslint",
     "test": "pnpm run lint",
     "check:i18n": "node scripts/check-i18n.mjs",
+    "perf": "node scripts/perf.mjs",
     "assistant:tokens": "node scripts/assistant-tokens.mjs"
   },
   "dependencies": {

@@ -7,7 +7,32 @@
 
 [build.environment]
   NEXT_TELEMETRY_DISABLED = "1"
-  NODE_VERSION = "20"
+  # Must stay >= 22.13: Corepack installs the pnpm pinned in package.json
+  # (pnpm 11), which imports node:sqlite — a module that does not exist before
+  # Node 22, so pnpm crashes during install rather than at build time.
+  NODE_VERSION = "22"
+
+# Next emits content-hashed filenames under /_next/static, so these can be
+# cached forever — a new build produces new URLs. Lighthouse flagged ~3 MB of
+# assets being re-fetched because everything was served with default headers.
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Optimised images are keyed by url+width+quality, so they are equally safe to
+# pin; the query string changes when the source or transform changes.
+[[headers]]
+  for = "/_next/image*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Static files under /public are NOT content-hashed, so they get a shorter TTL
+# with revalidation rather than immutable.
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
 
 [[headers]]
   for = "/*"
