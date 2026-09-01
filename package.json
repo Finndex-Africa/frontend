@@ -13,6 +13,7 @@
     "lint": "eslint",
     "test": "pnpm run lint",
     "check:i18n": "node scripts/check-i18n.mjs",
+    "perf": "node scripts/perf.mjs",
     "assistant:tokens": "node scripts/assistant-tokens.mjs"
   },
   "dependencies": {
