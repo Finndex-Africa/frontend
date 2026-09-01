@@ -13,7 +13,8 @@ import TestingDisclaimer from "@/components/global/TestingDisclaimer";
 import LaunchCelebrationOverlay from "@/components/global/LaunchCelebrationOverlay";
 import CookieConsent from "@/components/global/CookieConsent";
 import { Providers } from "@/providers";
-import { GoogleAnalytics } from "@next/third-parties/google";
+import JsonLd, { siteJsonLd } from "@/components/global/JsonLd";
+import ConsentedAnalytics from "@/components/global/ConsentedAnalytics";
 import {
   routing,
   localeHtmlLang,
@@ -36,6 +37,20 @@ const whitneyMedium = localFont({
 });
 
 const SITE_URL = "https://findafriq.com";
+
+/*
+  The home page fetches properties, services and buy&sell from the API before it
+  can render a single card, so the API origin sits on the critical path to LCP:
+  HTML -> JS -> API -> images. Preconnecting gets DNS + TLS out of the way while
+  the JS is still downloading. Lighthouse estimated ~320 ms.
+*/
+const API_ORIGIN = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_API_URL || "").origin;
+  } catch {
+    return null;
+  }
+})();
 const SITE_NAME = "FindAfriq";
 
 /** Pre-render both locales at build time. */
@@ -138,13 +153,29 @@ export default async function LocaleLayout({
   // Enables static rendering for this locale's pages.
   setRequestLocale(locale);
 
+  // Sitewide Organization + WebSite graph. Server-rendered so crawlers that
+  // don't run JavaScript still see it.
+  const tMeta = await getTranslations({ locale, namespace: "metadata" });
+  const siteSchema = siteJsonLd(locale as Locale, tMeta("description"));
+
   return (
     <html lang={localeHtmlLang[locale]} suppressHydrationWarning>
+      <head>
+        {/* Same-origin as the page? Then it's already connected and this is a no-op. */}
+        {API_ORIGIN && API_ORIGIN !== SITE_URL && (
+          <>
+            <link rel="preconnect" href={API_ORIGIN} crossOrigin="" />
+            {/* Fallback for browsers that ignore preconnect. */}
+            <link rel="dns-prefetch" href={API_ORIGIN} />
+          </>
+        )}
+      </head>
       {/* suppressHydrationWarning: avoids mismatch when browser extensions (e.g. security tools) inject attributes like bis_skin_checked into the DOM */}
       <body
         className={`${whitneyBold.variable} ${whitneyMedium.variable} font-body antialiased`}
         suppressHydrationWarning
       >
+        <JsonLd data={siteSchema} />
         <NextIntlClientProvider>
           <Providers>
             <ConditionalNavbar />
@@ -161,7 +192,7 @@ export default async function LocaleLayout({
           </Providers>
         </NextIntlClientProvider>
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
-          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+          <ConsentedAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
         )}
       </body>
     </html>
