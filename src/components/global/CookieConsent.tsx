@@ -138,8 +138,19 @@ export default function CookieConsent() {
                                         </h3>
                                         <p className="text-sm text-gray-600 leading-relaxed">
                                             {t('body')}{' '}
+                                            {/*
+                                              "Learn more" on its own is on
+                                              Lighthouse's generic link-text
+                                              blocklist and tells a crawler or a
+                                              screen reader nothing about the
+                                              destination. The aria-label is what
+                                              both actually read; it still starts
+                                              with the visible text, so it meets
+                                              WCAG 2.5.3 (Label in Name).
+                                            */}
                                             <Link
                                                 href="/routes/privacy"
+                                                aria-label={t('learnMoreLabel')}
                                                 className="text-blue-600 hover:underline font-medium"
                                             >
                                                 {t('learnMore')}
