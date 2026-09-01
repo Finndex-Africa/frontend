@@ -35,6 +35,8 @@ import {
   trackChatStarted,
 } from "@/lib/analytics";
 import { useScrollDepth } from "@/lib/hooks/useScrollDepth";
+import { useMoney } from "@/lib/currency/CurrencyProvider";
+import type { Currency } from "@/lib/currency/config";
 
 const LOCAL_PROPERTY_IMAGE = "/images/properties/pexels-photo-323780.jpeg";
 
@@ -116,6 +118,8 @@ function AmenityIconDisplay({ icon }: { icon: string }) {
 }
 
 export default function PropertyDetail() {
+  const money = useMoney();
+  const tCurrency = useTranslations("currencySwitcher");
   const errorMessage = useErrorMessage();
   const t = useTranslations("propertyDetail");
   const tStatus = useTranslations("propertyStatus");
@@ -578,6 +582,19 @@ export default function PropertyDetail() {
   }
 
   // Add default highlights only when the listing has no custom amenities
+  const priceParts = money.forListing(
+    property.price,
+    property.currency as Currency,
+  );
+
+  // The agent fee is denominated in the same currency the owner priced in, so
+  // it converts on the same rate as the rent. Formatting it separately from
+  // `price` is what previously left it stuck in USD.
+  const agentFeeParts = money.forListing(
+    property.agentFee ?? 0,
+    property.currency as Currency,
+  );
+
   if (!property.amenities?.length && features.length < 4) {
     const defaults = [
       {
@@ -928,17 +945,28 @@ export default function PropertyDetail() {
                     </div>
                   )}
 
-                  <div className="flex items-baseline gap-1.5">
-                    <div className="text-4xl font-bold text-gray-900">
-                      $
-                      {property.price
-                        ? property.price.toLocaleString()
-                        : t("contact")}
+                  <div>
+                    <div className="flex items-baseline gap-1.5">
+                      <div className="text-4xl font-bold text-gray-900">
+                        {property.price ? priceParts.display : t("contact")}
+                      </div>
+                      {property.price && (
+                        <span className="text-gray-500 text-base font-medium">
+                          {t("perMonth")}
+                        </span>
+                      )}
                     </div>
-                    {property.price && (
-                      <span className="text-gray-500 text-base font-medium">
-                        {t("perMonth")}
-                      </span>
+                    {/*
+                      Unlike the cards, the detail page shows the owner's own
+                      figure when it differs. This is the last screen before a
+                      seeker contacts them, and FindAfriq does not process the
+                      payment — so the number the owner will actually quote has
+                      to be visible here or the seeker gets a surprise.
+                    */}
+                    {priceParts.isConverted && (
+                      <p className="mt-1 text-sm text-gray-500">
+                        {tCurrency("listedBy", { price: priceParts.original })}
+                      </p>
                     )}
                   </div>
 
@@ -961,7 +989,7 @@ export default function PropertyDetail() {
                             <p className="text-xs text-gray-500 mt-0.5">{t("feeSetBy", { owner: ownerLabelLower })}</p>
                             <p className="text-xs text-gray-400 mt-0.5">{t("feePaidToAgent")}</p>
                           </div>
-                          <span className="shrink-0 text-base font-bold text-green-600">${(property.agentFee ?? 0).toLocaleString()}</span>
+                          <span className="shrink-0 text-base font-bold text-green-600">{agentFeeParts.display}</span>
                         </div>
 
                         {/* Payment coming soon notice */}
@@ -983,8 +1011,19 @@ export default function PropertyDetail() {
                             </svg>
                             <span className="text-sm font-semibold text-gray-700">{t("totalToPayAgent")}</span>
                           </div>
-                          <span className="text-base font-bold text-gray-900">${(property.agentFee ?? 0).toLocaleString()}</span>
+                          <span className="text-base font-bold text-gray-900">{agentFeeParts.display}</span>
                         </div>
+
+                        {/*
+                          The seeker pays this straight to the agent, so when the
+                          figure has been converted they need the agent's own
+                          number too — otherwise they turn up with the wrong amount.
+                        */}
+                        {agentFeeParts.isConverted && (
+                          <p className="px-1 text-xs text-gray-500">
+                            {tCurrency("listedBy", { price: agentFeeParts.original })}
+                          </p>
+                        )}
                       </div>
                   )}
 
@@ -1196,7 +1235,7 @@ export default function PropertyDetail() {
                     </p>
                     <div className="flex items-center gap-2 mt-2">
                       <span className="text-base sm:text-lg font-bold text-blue-600">
-                        ${property?.price?.toLocaleString()}
+                        {money.forListing(property?.price, property?.currency as Currency).display}
                       </span>
                       <span className="text-xs text-gray-500">
                         /{property?.priceUnit || "month"}

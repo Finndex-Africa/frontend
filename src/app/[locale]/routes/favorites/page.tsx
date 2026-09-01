@@ -7,6 +7,7 @@ import PropertyCard, { Property } from "@/components/domain/PropertyCard";
 import ServiceCard, { Service } from "@/components/domain/ServiceCard";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { bookmarksApi, SavedItem } from "@/services/api/bookmarks.api";
+import { useMoney } from "@/lib/currency/CurrencyProvider";
 
 import { Link, useRouter } from "@/i18n/navigation";
 const defaultPropertyImage = '/images/properties/pexels-photo-323780.jpeg';
@@ -17,7 +18,10 @@ function adaptSavedPropertyToCard(item: SavedItem): Property {
         id: l._id,
         title: l.title,
         location: l.location,
-        price: `$${l.price ?? 0}`,
+        // PropertyCard parses the digits back out and formats them itself; the
+        // currency has to ride along or it renders every saved listing as USD.
+        price: String(l.price ?? 0),
+        currency: l.currency,
         imageUrl: l.images?.[0] || defaultPropertyImage,
         imageUrls: l.images?.length ? l.images : [defaultPropertyImage],
         amenities: [],
@@ -48,7 +52,9 @@ function BuySellFavCard({ item, onRemove }: { item: SavedItem; onRemove: () => v
   const t = useTranslations("favoritesPage");
     const [saved, setSaved] = useState(true);
     const [toggling, setToggling] = useState(false);
+    const money = useMoney();
     const l = item.listing;
+    const priceParts = money.forListing(l.price, l.currency);
     const images = l.images ?? [];
     const categoryLabel =
         l.category === 'land' ? 'Land for Sale' :
@@ -107,7 +113,7 @@ function BuySellFavCard({ item, onRemove }: { item: SavedItem; onRemove: () => v
             <h3 className="text-[12px] sm:text-[14px] font-medium text-gray-900 line-clamp-1">{l.title}</h3>
             <p className="text-[11px] sm:text-[13px] text-gray-500 line-clamp-1">{l.location}</p>
             {l.price != null && (
-                <p className="text-[12px] sm:text-[15px] font-semibold text-gray-900 mt-0.5">${l.price.toLocaleString()}</p>
+                <p className="text-[12px] sm:text-[15px] font-semibold text-gray-900 mt-0.5">{priceParts.display}</p>
             )}
         </Link>
     );

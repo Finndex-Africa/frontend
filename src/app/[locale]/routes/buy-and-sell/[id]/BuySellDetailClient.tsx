@@ -19,6 +19,8 @@ import { useErrorMessage } from "@/lib/error-messages";
 import { getUserDisplayName } from "@/lib/display-name";
 import { isUserVerifiedByAdmin } from "@/lib/user-verification";
 import { buildGoogleMapsEmbedUrlAsync } from "@/lib/google-maps";
+import { useMoney } from "@/lib/currency/CurrencyProvider";
+import type { Currency } from "@/lib/currency/config";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -135,6 +137,8 @@ function StatusBanner({ status }: { status: string }) {
 // ─── Main component ──────────────────────────────────────────────────────────
 
 export default function BuySellDetailClient() {
+  const money = useMoney();
+  const tCurrency = useTranslations("currencySwitcher");
   const t_hints = useTranslations("hints");
   const tErr = useTranslations("errors");
   const errorMessage = useErrorMessage();
@@ -382,6 +386,13 @@ export default function BuySellDetailClient() {
   }
 
   // ── Derived values ────────────────────────────────────────────────────────
+  const priceParts = money.forListing(listing.price, listing.currency as Currency);
+  // The agent fee is denominated in the seller's currency, same as `price` —
+  // formatting it separately from the price is what left it stuck in USD.
+  const agentFeeParts = money.forListing(
+    (listing as any).agentFee ?? 0,
+    listing.currency as Currency,
+  );
   const images = listing.images?.length ? listing.images : ["/images/properties/pexels-photo-323780.jpeg"];
   const media = images.map((src) => ({ type: "image" as const, src }));
 
@@ -653,10 +664,16 @@ export default function BuySellDetailClient() {
 
                   <div className="flex items-baseline gap-1.5">
                     <div className="text-4xl font-bold text-gray-900">
-                      ${listing.price.toLocaleString()}
+                      {priceParts.display}
                     </div>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">{t("listedPrice")}</p>
+                  {/* The seller's own figure — this is the screen before contact. */}
+                  {priceParts.isConverted && (
+                    <p className="text-sm text-gray-500 mt-0.5">
+                      {tCurrency("listedBy", { price: priceParts.original })}
+                    </p>
+                  )}
 
                   {(listing as any).agentFee != null && (
                     <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4 space-y-3">
@@ -672,7 +689,7 @@ export default function BuySellDetailClient() {
                           <p className="text-xs text-gray-500 mt-0.5">Fee set by the listing agent or real estate agency.</p>
                           <p className="text-xs text-gray-400 mt-0.5">This fee is paid directly to the agent.</p>
                         </div>
-                        <span className="shrink-0 text-base font-bold text-green-600">${(listing as any).agentFee.toLocaleString()}</span>
+                        <span className="shrink-0 text-base font-bold text-green-600">{agentFeeParts.display}</span>
                       </div>
                       <div className="flex items-start gap-3 p-3 rounded-lg border border-amber-200 bg-amber-50">
                         <div className="shrink-0 w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center">
@@ -690,8 +707,18 @@ export default function BuySellDetailClient() {
                           </svg>
                           <span className="text-sm font-semibold text-gray-700">{t("totalToPayAgent")}</span>
                         </div>
-                        <span className="text-base font-bold text-gray-900">${(listing as any).agentFee.toLocaleString()}</span>
+                        <span className="text-base font-bold text-gray-900">{agentFeeParts.display}</span>
                       </div>
+
+                      {/*
+                        Paid directly to the agent, so a converted figure needs
+                        the agent's own number beside it.
+                      */}
+                      {agentFeeParts.isConverted && (
+                        <p className="px-1 text-xs text-gray-500">
+                          {tCurrency("listedBy", { price: agentFeeParts.original })}
+                        </p>
+                      )}
                     </div>
                   )}
 
@@ -818,7 +845,7 @@ export default function BuySellDetailClient() {
                 <div className="min-w-0">
                   <p className="font-semibold text-gray-900 text-sm truncate">{listing?.title}</p>
                   <p className="text-xs text-gray-500 mt-0.5">{listing?.location}</p>
-                  <p className="text-base font-bold text-blue-600 mt-1">${listing?.price.toLocaleString()}</p>
+                  <p className="text-base font-bold text-blue-600 mt-1">{priceParts.display}</p>
                 </div>
               </div>
 

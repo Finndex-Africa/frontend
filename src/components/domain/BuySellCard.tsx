@@ -8,10 +8,14 @@ import ShareButton from "@/components/ui/ShareButton";
 import { bookmarksApi } from "@/services/api/bookmarks.api";
 import type { BuySellListing } from "@/types/buy-sell";
 import { getUserDisplayName } from "@/lib/display-name";
+import { useMoney } from "@/lib/currency/CurrencyProvider";
+import type { Currency } from "@/lib/currency/config";
 
 import { Link } from "@/i18n/navigation";
 export default function BuySellCard({ listing }: { listing: BuySellListing }) {
   const t = useTranslations("buySellCard");
+  const money = useMoney();
+  const priceParts = money.forListing(listing.price, listing.currency as Currency);
   const translated = useTranslatedContent(listing);
   const seller = typeof listing.sellerId === "object" ? listing.sellerId : null;
   const sellerName = seller
@@ -143,7 +147,7 @@ export default function BuySellCard({ listing }: { listing: BuySellListing }) {
         )}
         <div className="flex items-center justify-between mt-2">
           <span className="text-base font-bold text-gray-900">
-            ${listing.price.toLocaleString()}
+            {priceParts.display}
           </span>
           {listing.isPremium && (
             <span className="text-xs font-semibold text-yellow-700 bg-yellow-50 border border-yellow-200 px-2 py-0.5 rounded-full">

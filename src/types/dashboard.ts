@@ -1,3 +1,4 @@
+import type { Currency } from "@/lib/currency/config";
 export type UserRole = 'admin' | 'agent' | 'real_estate_agency' | 'landlord' | 'service_provider' | 'home_seeker' | 'guest' | 'seeker' | 'provider';
 
 export enum ServiceCategory {
@@ -23,6 +24,10 @@ export interface Service {
     category: string;
     location: string;
     price?: number;
+    /** Currency the provider priced in; absent on pre-multi-currency rows (all USD). */
+    currency?: Currency;
+    /** Backend-normalized USD price used for filtering and sorting. */
+    priceUsd?: number;
     priceUnit?: string;
     status: 'pending' | 'active' | 'rejected' | 'inactive';
     rejectionReason?: string;
@@ -51,6 +56,10 @@ export interface Property {
     propertyType: string;
     location: string;
     price: number;
+    /** Currency the seller priced in; absent on pre-multi-currency listings (all USD). */
+    currency?: Currency;
+    /** Backend-normalized USD price used for filtering and sorting. */
+    priceUsd?: number;
     status: 'pending' | 'approved' | 'rejected' | 'rented' | 'archived' | 'suspended';
     rejectionReason?: string;
     bedrooms?: number;

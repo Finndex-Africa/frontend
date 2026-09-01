@@ -20,6 +20,8 @@ import type {
 } from '@/types/buy-sell';
 
 import { useRouter } from '@/i18n/navigation';
+import CurrencySelect from "@/components/ui/CurrencySelect";
+import { CURRENCY_META, DEFAULT_CURRENCY, type Currency } from "@/lib/currency/config";
 // ─── Amenity options (same as property/new) ────────────────────────────────
 const AMENITY_OPTIONS = [
     { value: 'Water', icon: '💧' },
@@ -68,6 +70,9 @@ const defaultItem = {
 };
 
 export default function NewBuySellPage() {
+    // One currency per listing: the seller prices in a single currency and the
+    // agent fee follows it, so there is nothing to reconcile at submit time.
+    const [currency, setCurrency] = useState<Currency>(DEFAULT_CURRENCY);
   const t_hints = useTranslations("hints");
   const errorMessage = useErrorMessage();
   const t = useTranslations("forms");
@@ -186,6 +191,7 @@ export default function NewBuySellPage() {
                     title: landData.title,
                     description: landData.description,
                     price: Number(landData.price),
+                    currency,
                     location: landData.location,
                     images: imageUrls,
                     landSize: Number(landData.landSize),
@@ -215,6 +221,7 @@ export default function NewBuySellPage() {
                     title: houseData.title,
                     description: houseData.description,
                     price: Number(houseData.price),
+                    currency,
                     location: houseData.location,
                     images: imageUrls,
                     bedrooms: Number(houseData.bedrooms),
@@ -231,6 +238,7 @@ export default function NewBuySellPage() {
                     title: itemData.title,
                     description: itemData.description,
                     price: Number(itemData.price),
+                    currency,
                     location: itemData.location,
                     images: imageUrls,
                     itemSubcategory: itemData.itemSubcategory,
@@ -263,7 +271,7 @@ export default function NewBuySellPage() {
                 {t("agentFeeHelpBuyers")}
             </p>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-                Your Agent Fee (USD) <span className="text-red-500">*</span>
+                Your Agent Fee ({CURRENCY_META[currency].label}) <span className="text-red-500">*</span>
             </label>
             <input
                 type="number"
@@ -454,15 +462,21 @@ export default function NewBuySellPage() {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                    Price (USD) <span className="text-red-500">*</span>
+                                                    Price ({CURRENCY_META[currency].label}) <span className="text-red-500">*</span>
                                                 </label>
+                                                <div className="flex gap-2">
                                                 <input
                                                     type="number" required min="0"
                                                     value={landData.price}
                                                     onChange={e => setLandData(p => ({ ...p, price: e.target.value }))}
-                                                    className={inputCls}
+                                                    className={`${inputCls} flex-1 min-w-0`}
                                                     placeholder={t_hints("e_g_25000")}
                                                 />
+                                                <CurrencySelect
+                                                    value={currency}
+                                                    onChange={setCurrency}
+                                                />
+                                                </div>
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -612,15 +626,21 @@ export default function NewBuySellPage() {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                    Price (USD) <span className="text-red-500">*</span>
+                                                    Price ({CURRENCY_META[currency].label}) <span className="text-red-500">*</span>
                                                 </label>
+                                                <div className="flex gap-2">
                                                 <input
                                                     type="number" required min="0"
                                                     value={houseData.price}
                                                     onChange={e => setHouseData(p => ({ ...p, price: e.target.value }))}
-                                                    className={inputCls}
+                                                    className={`${inputCls} flex-1 min-w-0`}
                                                     placeholder={t_hints("e_g_120000")}
                                                 />
+                                                <CurrencySelect
+                                                    value={currency}
+                                                    onChange={setCurrency}
+                                                />
+                                                </div>
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -781,15 +801,21 @@ export default function NewBuySellPage() {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                    Price (USD) <span className="text-red-500">*</span>
+                                                    Price ({CURRENCY_META[currency].label}) <span className="text-red-500">*</span>
                                                 </label>
+                                                <div className="flex gap-2">
                                                 <input
                                                     type="number" required min="0"
                                                     value={itemData.price}
                                                     onChange={e => setItemData(p => ({ ...p, price: e.target.value }))}
-                                                    className={inputCls}
+                                                    className={`${inputCls} flex-1 min-w-0`}
                                                     placeholder={t_hints("e_g_350")}
                                                 />
+                                                <CurrencySelect
+                                                    value={currency}
+                                                    onChange={setCurrency}
+                                                />
+                                                </div>
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-2">

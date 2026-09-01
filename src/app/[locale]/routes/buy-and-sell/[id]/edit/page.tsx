@@ -20,6 +20,8 @@ import type {
 } from '@/types/buy-sell';
 
 import { useRouter } from '@/i18n/navigation';
+import CurrencySelect from "@/components/ui/CurrencySelect";
+import { CURRENCY_META, DEFAULT_CURRENCY, isCurrency, type Currency } from "@/lib/currency/config";
 // ─── Constants ─────────────────────────────────────────────────────────────
 const AMENITY_OPTIONS = [
     { value: 'Water', icon: '💧' },
@@ -70,6 +72,9 @@ export default function EditBuySellPage() {
 
     // Listing meta
     const [category, setCategory] = useState<BuySellCategory | null>(null);
+    // Seeded from the listing on load so an edit does not silently re-denominate
+    // a price the seller set in another currency.
+    const [currency, setCurrency] = useState<Currency>(DEFAULT_CURRENCY);
 
     // ── Land form state ────────────────────────────────────────────────────
     const [landData, setLandData] = useState({
@@ -119,6 +124,8 @@ export default function EditBuySellPage() {
     // ── Fetch listing and populate form ───────────────────────────────────
     const populateForm = useCallback((listing: BuySellListing) => {
         setCategory(listing.category);
+        // Pre-multi-currency listings have no `currency`; they were all USD.
+        setCurrency(isCurrency(listing.currency) ? listing.currency : DEFAULT_CURRENCY);
         setExistingImages(listing.images ?? []);
         if ((listing as any).agentFee != null) setAgentFee(String((listing as any).agentFee));
 
@@ -249,6 +256,7 @@ export default function EditBuySellPage() {
                     title: landData.title,
                     description: landData.description,
                     price: Number(landData.price),
+                    currency,
                     location: landData.location,
                     images: allImages,
                     landSize: Number(landData.landSize),
@@ -275,6 +283,7 @@ export default function EditBuySellPage() {
                     title: houseData.title,
                     description: houseData.description,
                     price: Number(houseData.price),
+                    currency,
                     location: houseData.location,
                     images: allImages,
                     bedrooms: Number(houseData.bedrooms),
@@ -290,6 +299,7 @@ export default function EditBuySellPage() {
                     title: itemData.title,
                     description: itemData.description,
                     price: Number(itemData.price),
+                    currency,
                     location: itemData.location,
                     images: allImages,
                     itemSubcategory: itemData.itemSubcategory,
@@ -327,14 +337,19 @@ export default function EditBuySellPage() {
             </h2>
             <p className="text-sm text-amber-700 mb-4">As an agent or real estate agency, you can set an access fee for this listing.</p>
             <div className="relative max-w-xs">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+                    {CURRENCY_META[currency].symbol}
+                </span>
                 <input
                     type="number"
                     value={agentFee}
                     onChange={e => setAgentFee(e.target.value)}
                     min={0}
                     placeholder={t_hints("e_g_500")}
-                    className="w-full pl-7 pr-4 py-3 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent bg-white"
+                    /* "RWF" needs more room than "$", or the value renders under the prefix. */
+                    className={`w-full pr-4 py-3 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent bg-white ${
+                        CURRENCY_META[currency].symbol.length > 1 ? "pl-14" : "pl-7"
+                    }`}
                 />
             </div>
         </div>
@@ -552,15 +567,18 @@ export default function EditBuySellPage() {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Price (USD) <span className="text-red-500">*</span>
+                                                Price ({CURRENCY_META[currency].label}) <span className="text-red-500">*</span>
                                             </label>
+                                            <div className="flex gap-2">
                                             <input
                                                 type="number" required min="0"
                                                 value={landData.price}
                                                 onChange={e => setLandData(p => ({ ...p, price: e.target.value }))}
-                                                className={inputCls}
+                                                className={`${inputCls} flex-1 min-w-0`}
                                                 placeholder={t_hints("e_g_25000")}
                                             />
+                                            <CurrencySelect value={currency} onChange={setCurrency} />
+                                            </div>
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -702,15 +720,18 @@ export default function EditBuySellPage() {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Price (USD) <span className="text-red-500">*</span>
+                                                Price ({CURRENCY_META[currency].label}) <span className="text-red-500">*</span>
                                             </label>
+                                            <div className="flex gap-2">
                                             <input
                                                 type="number" required min="0"
                                                 value={houseData.price}
                                                 onChange={e => setHouseData(p => ({ ...p, price: e.target.value }))}
-                                                className={inputCls}
+                                                className={`${inputCls} flex-1 min-w-0`}
                                                 placeholder={t_hints("e_g_120000")}
                                             />
+                                            <CurrencySelect value={currency} onChange={setCurrency} />
+                                            </div>
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -869,15 +890,18 @@ export default function EditBuySellPage() {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Price (USD) <span className="text-red-500">*</span>
+                                                Price ({CURRENCY_META[currency].label}) <span className="text-red-500">*</span>
                                             </label>
+                                            <div className="flex gap-2">
                                             <input
                                                 type="number" required min="0"
                                                 value={itemData.price}
                                                 onChange={e => setItemData(p => ({ ...p, price: e.target.value }))}
-                                                className={inputCls}
+                                                className={`${inputCls} flex-1 min-w-0`}
                                                 placeholder={t_hints("e_g_350")}
                                             />
+                                            <CurrencySelect value={currency} onChange={setCurrency} />
+                                            </div>
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">

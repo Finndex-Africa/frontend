@@ -2110,5 +2110,18 @@
       "network": "Connexion perdue. Vérifiez votre connexion et réessayez.",
       "rateLimited": "Vous envoyez des messages trop rapidement. Veuillez patienter."
     }
+  },
+  "currencySwitcher": {
+    "label": "Devise",
+    "changeCurrency": "Changer de devise",
+    "approx": "env.",
+    "approxLabel": "Conversion approximative, mise à jour régulièrement",
+    "priceIn": "Prix en",
+    "budgetIn": "Budget en",
+    "names": {
+      "USD": "Dollar américain (USD)",
+      "RWF": "Franc rwandais (RWF)"
+    },
+    "listedBy": "Indiqué par le propriétaire à {price}"
   }
 }

@@ -1,3 +1,4 @@
+import type { Currency } from "@/lib/currency/config";
 // ─── Enums / Union Types ───────────────────────────────────────────────────
 
 export type BuySellCategory = 'land' | 'house' | 'household_item';
@@ -41,6 +42,10 @@ export interface BuySellListing {
   description: string;
   category: BuySellCategory;
   price: number;
+  /** Currency the seller priced in. Absent on pre-multi-currency listings (all USD). */
+  currency?: Currency;
+  /** Price normalized to USD by the backend; used for filtering and sorting. */
+  priceUsd?: number;
   location: string;
   images: string[];
   status: BuySellStatus;
@@ -92,6 +97,8 @@ export interface BuySellFilters {
   status?: BuySellStatus;
   minPrice?: number;
   maxPrice?: number;
+  /** Currency min/maxPrice are expressed in; the backend converts before filtering. */
+  currency?: Currency;
   location?: string;
   q?: string;
   sort?: string;

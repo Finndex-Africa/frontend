@@ -11,6 +11,7 @@ import BuySellCard from "@/components/domain/BuySellCard";
 import HeroVerifiedBadge from "@/components/ui/HeroVerifiedBadge";
 import VerifiedTrustedBanner from "@/components/ui/VerifiedTrustedBanner";
 import type { BuySellListing, BuySellCategory } from "@/types/buy-sell";
+import { useCurrency, useMoney } from "@/lib/currency/CurrencyProvider";
 
 // ─── Category config ────────────────────────────────────────────────────────
 
@@ -99,6 +100,10 @@ function Pagination({ page, totalPages, onPage }: { page: number; totalPages: nu
 // ─── Main component ─────────────────────────────────────────────────────────
 
 export default function BuyAndSellPageContent() {
+  // The budget the seeker typed is in the currency they are browsing in, so it
+  // has to be sent alongside the figure for the backend to convert it.
+  const { currency } = useCurrency();
+  const money = useMoney();
   const tErr = useTranslations("errors");
     const tBrowse = useTranslations("browse");
   const [listings, setListings] = useState<BuySellListing[]>([]);
@@ -142,7 +147,7 @@ export default function BuyAndSellPageContent() {
           status: "approved",
           ...(activeCategory !== "all" ? { category: activeCategory } : {}),
           ...(locationFilter ? { location: locationFilter } : {}),
-          ...(maxBudget ? { maxPrice: maxBudget } : {}),
+          ...(maxBudget ? { maxPrice: maxBudget, currency } : {}),
         }),
         token ? bookmarksApi.getAll("buy-sell") : Promise.resolve([]),
       ]);
@@ -160,7 +165,7 @@ export default function BuyAndSellPageContent() {
     } finally {
       setLoading(false);
     }
-  }, [page, activeCategory, locationFilter, maxBudget]);
+  }, [page, activeCategory, locationFilter, maxBudget, currency]);
 
   useEffect(() => {
     fetchListings();
@@ -247,7 +252,7 @@ export default function BuyAndSellPageContent() {
             )}
             {maxBudget && (
               <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 text-xs px-2.5 py-1 rounded-full">
-                💰 Max ${maxBudget.toLocaleString()}
+                💰 Max {money.format(maxBudget, currency)}
                 <button type="button" onClick={() => { setMaxBudget(undefined); setPage(1); }} className="ml-1 text-blue-400 hover:text-blue-700">×</button>
               </span>
             )}

@@ -13,6 +13,8 @@ import TestingDisclaimer from "@/components/global/TestingDisclaimer";
 import LaunchCelebrationOverlay from "@/components/global/LaunchCelebrationOverlay";
 import CookieConsent from "@/components/global/CookieConsent";
 import { Providers } from "@/providers";
+import { CurrencyProvider } from "@/lib/currency/CurrencyProvider";
+import { getRates } from "@/lib/currency/server";
 import JsonLd, { siteJsonLd } from "@/components/global/JsonLd";
 import ConsentedAnalytics from "@/components/global/ConsentedAnalytics";
 import {
@@ -153,6 +155,9 @@ export default async function LocaleLayout({
   // Enables static rendering for this locale's pages.
   setRequestLocale(locale);
 
+  // Rates only — no cookie read here, or every page becomes dynamic.
+  // The currency preference is read client-side in CurrencyProvider.
+  const rates = await getRates();
   // Sitewide Organization + WebSite graph. Server-rendered so crawlers that
   // don't run JavaScript still see it.
   const tMeta = await getTranslations({ locale, namespace: "metadata" });
@@ -188,6 +193,7 @@ export default async function LocaleLayout({
       >
         <JsonLd data={siteSchema} />
         <NextIntlClientProvider>
+          <CurrencyProvider rates={rates}>
           <Providers>
             <ConditionalNavbar />
             <main className="min-h-screen pt-16 md:pt-0 pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
@@ -201,6 +207,7 @@ export default async function LocaleLayout({
             <LaunchCelebrationOverlay />
             <CookieConsent />
           </Providers>
+          </CurrencyProvider>
         </NextIntlClientProvider>
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
           <ConsentedAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />

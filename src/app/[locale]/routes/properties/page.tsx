@@ -13,6 +13,7 @@ import { propertiesApi } from "@/services/api";
 import { Property as ApiProperty } from "@/types/dashboard";
 import { useErrorMessage } from "@/lib/error-messages";
 import { normalizeApiEntityList } from "@/lib/normalize-api-entity";
+import { useCurrency, useMoney } from "@/lib/currency/CurrencyProvider";
 
 import { useRouter } from "@/i18n/navigation";
 // Adapter function to convert API data to component types
@@ -45,7 +46,10 @@ const adaptPropertyToCard = (apiProperty: ApiProperty): Property => {
         id: apiProperty._id,
         title: apiProperty.title,
         location: apiProperty.location,
-        price: `$${apiProperty.price}`,
+        // PropertyCard re-parses the digits and formats them itself, so the
+        // currency has to travel with the number or every card renders as USD.
+        price: String(apiProperty.price),
+        currency: apiProperty.currency,
         imageUrl: apiProperty.images?.[0] || defaultImage,
         imageUrls: apiProperty.images?.length ? apiProperty.images : [defaultImage],
         amenities,
@@ -61,6 +65,10 @@ const adaptPropertyToCard = (apiProperty: ApiProperty): Property => {
 };
 
 function PropertiesContent() {
+    // The budget in the URL is in whatever currency the seeker is browsing in,
+    // so it has to be sent with the request for the backend to convert it.
+    const { currency } = useCurrency();
+    const money = useMoney();
   const errorMessage = useErrorMessage();
     const tBrowse = useTranslations("browse");
     const tCommon = useTranslations("common");
@@ -121,7 +129,7 @@ function PropertiesContent() {
     useEffect(() => {
         fetchProperties();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, locationParam, typeParam, maxPriceParam]);
+    }, [page, locationParam, typeParam, maxPriceParam, currency]);
 
     const fetchProperties = async () => {
         try {
@@ -136,7 +144,10 @@ function PropertiesContent() {
 
             if (locationParam) filters.location = locationParam;
             if (typeParam) filters.propertyType = typeParam;
-            if (maxPriceParam) filters.maxPrice = parseInt(maxPriceParam);
+            if (maxPriceParam) {
+                filters.maxPrice = parseInt(maxPriceParam);
+                filters.currency = currency;
+            }
 
             const response = await propertiesApi.getAll(filters);
 
@@ -266,7 +277,7 @@ function PropertiesContent() {
                                     onClick={() => removeFilter('maxPrice')}
                                     className="bg-white px-3 py-1 rounded-full text-sm border border-blue-300 flex items-center gap-1.5 hover:bg-blue-100 transition-colors group"
                                 >
-                                    Max Budget: ${maxPriceParam}
+                                    Max Budget: {money.format(Number(maxPriceParam), currency)}
                                     <svg className="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                     </svg>

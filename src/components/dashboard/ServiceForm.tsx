@@ -15,6 +15,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import type { UploadFile } from 'antd/es/upload/interface';
 import type { Service } from '@/types/dashboard';
 import { showToast } from '@/lib/toast';
+import { CURRENCIES, CURRENCY_META, DEFAULT_CURRENCY, type Currency } from '@/lib/currency/config';
 
 const { TextArea } = Input;
 const { Text } = Typography;
@@ -36,6 +37,15 @@ export function ServiceForm({
   const t = useTranslations("forms");
     const [form] = Form.useForm();
     const [fileList, setFileList] = useState<UploadFile[]>([]);
+
+    /*
+      The price field's label, prefix and thousands formatting all follow the
+      chosen currency. Watching the form value rather than holding separate
+      state keeps it correct when antd resets the form between create and edit.
+    */
+    const selectedCurrency: Currency =
+        (Form.useWatch('currency', form) as Currency) ?? DEFAULT_CURRENCY;
+    const currencyMeta = CURRENCY_META[selectedCurrency] ?? CURRENCY_META[DEFAULT_CURRENCY];
 
     // Load existing images when editing
     useEffect(() => {
@@ -228,10 +238,10 @@ export function ServiceForm({
                     title={t("pricingOptional")}
                 />
                 <Row gutter={[16, 16]}>
-                    <Col xs={24} sm={12}>
+                    <Col xs={24} sm={8}>
                         <Form.Item
                             name="price"
-                            label={<span style={{ fontWeight: '600', color: '#374151' }}>Price (USD)</span>}
+                            label={<span style={{ fontWeight: '600', color: '#374151' }}>Price ({currencyMeta.label})</span>}
                         >
                             <InputNumber
                                 size="large"
@@ -242,13 +252,36 @@ export function ServiceForm({
                                 }}
                                 placeholder={t_hints("0_00_optional")}
                                 min={0}
-                                precision={2}
-                                formatter={(value) => value ? `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : ''}
-                                parser={(value) => Number(value!.replace(/\$\s?|(,*)/g, '')) as any}
+                                // RWF has no minor unit — offering cents there is wrong.
+                                precision={currencyMeta.decimals}
+                                formatter={(value) =>
+                                    value ? `${currencyMeta.symbol} ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : ''
+                                }
+                                parser={(value) =>
+                                    Number(String(value ?? '').replace(/[^0-9.]/g, '')) as any
+                                }
                             />
                         </Form.Item>
                     </Col>
-                    <Col xs={24} sm={12}>
+                    <Col xs={24} sm={8}>
+                        <Form.Item
+                            name="currency"
+                            initialValue={DEFAULT_CURRENCY}
+                            label={<span style={{ fontWeight: '600', color: '#374151' }}>Currency</span>}
+                        >
+                            <Select
+                                size="large"
+                                style={{ borderRadius: '12px' }}
+                            >
+                                {CURRENCIES.map((code) => (
+                                    <Select.Option key={code} value={code}>
+                                        {CURRENCY_META[code].label}
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                    </Col>
+                    <Col xs={24} sm={8}>
                         <Form.Item
                             name="priceUnit"
                             label={<span style={{ fontWeight: '600', color: '#374151' }}>Price Unit</span>}
