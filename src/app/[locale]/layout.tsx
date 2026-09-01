@@ -13,6 +13,7 @@ import TestingDisclaimer from "@/components/global/TestingDisclaimer";
 import LaunchCelebrationOverlay from "@/components/global/LaunchCelebrationOverlay";
 import CookieConsent from "@/components/global/CookieConsent";
 import { Providers } from "@/providers";
+import JsonLd, { siteJsonLd } from "@/components/global/JsonLd";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import {
   routing,
@@ -138,6 +139,11 @@ export default async function LocaleLayout({
   // Enables static rendering for this locale's pages.
   setRequestLocale(locale);
 
+  // Sitewide Organization + WebSite graph. Server-rendered so crawlers that
+  // don't run JavaScript still see it.
+  const tMeta = await getTranslations({ locale, namespace: "metadata" });
+  const siteSchema = siteJsonLd(locale as Locale, tMeta("description"));
+
   return (
     <html lang={localeHtmlLang[locale]} suppressHydrationWarning>
       {/* suppressHydrationWarning: avoids mismatch when browser extensions (e.g. security tools) inject attributes like bis_skin_checked into the DOM */}
@@ -145,6 +151,7 @@ export default async function LocaleLayout({
         className={`${whitneyBold.variable} ${whitneyMedium.variable} font-body antialiased`}
         suppressHydrationWarning
       >
+        <JsonLd data={siteSchema} />
         <NextIntlClientProvider>
           <Providers>
             <ConditionalNavbar />

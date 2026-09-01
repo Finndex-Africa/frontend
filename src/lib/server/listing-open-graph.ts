@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import type { Property } from '@/types/dashboard';
 import type { Service } from '@/types/dashboard';
+import type { BuySellListing } from '@/types/buy-sell';
+import { locales, defaultLocale, localeOgTag, type Locale } from '@/i18n/routing';
 
 const DEFAULT_SITE_URL = 'https://findafriq.com';
 const SITE_NAME = 'FindAfriq';
@@ -21,6 +23,29 @@ export function toAbsoluteAssetUrl(imageUrl: string | undefined): string | undef
     const site = getSiteUrl();
     const path = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
     return `${site}${path}`;
+}
+
+function asLocale(value: string | undefined): Locale {
+    return (locales as readonly string[]).includes(value ?? '')
+        ? (value as Locale)
+        : defaultLocale;
+}
+
+/**
+ * Canonical + hreflang for a listing.
+ *
+ * Every URL on this site carries its locale (/en/…, /fr/…). Emitting a
+ * locale-less canonical pointed search engines at a path that only redirects,
+ * which wastes crawl budget and splits ranking signals between the two.
+ */
+function localizedAlternates(locale: Locale, path: string): Metadata['alternates'] {
+    return {
+        canonical: `/${locale}${path}`,
+        languages: {
+            ...Object.fromEntries(locales.map((l) => [l, `/${l}${path}`])),
+            'x-default': `/${defaultLocale}${path}`,
+        },
+    };
 }
 
 async function fetchListingJson<T>(path: string): Promise<T | null> {
@@ -49,10 +74,15 @@ export async function fetchServiceForOg(id: string): Promise<Service | null> {
     return fetchListingJson<Service>(`/services/${encodeURIComponent(id)}`);
 }
 
-export function buildPropertyShareMetadata(property: Property): Metadata {
+export async function fetchBuySellForOg(id: string): Promise<BuySellListing | null> {
+    return fetchListingJson<BuySellListing>(`/buy-sell/${encodeURIComponent(id)}`);
+}
+
+export function buildPropertyShareMetadata(property: Property, locale?: string): Metadata {
     const siteUrl = getSiteUrl();
+    const lang = asLocale(locale);
     const canonicalPath = `/routes/property/${property._id}`;
-    const absoluteUrl = `${siteUrl}${canonicalPath}`;
+    const absoluteUrl = `${siteUrl}/${lang}${canonicalPath}`;
     const title = property.title || 'Property listing';
     const description =
         [property.location, property.description?.slice(0, 160)].filter(Boolean).join(' · ') ||
@@ -67,7 +97,7 @@ export function buildPropertyShareMetadata(property: Property): Metadata {
     return {
         title,
         description,
-        alternates: { canonical: canonicalPath },
+        alternates: localizedAlternates(lang, canonicalPath),
         openGraph: {
             type: 'website',
             siteName: SITE_NAME,
@@ -75,7 +105,7 @@ export function buildPropertyShareMetadata(property: Property): Metadata {
             description,
             url: absoluteUrl,
             images,
-            locale: 'en_US',
+            locale: localeOgTag[lang],
         },
         twitter: {
             card: 'summary_large_image',
@@ -86,10 +116,11 @@ export function buildPropertyShareMetadata(property: Property): Metadata {
     };
 }
 
-export function buildServiceShareMetadata(service: Service): Metadata {
+export function buildServiceShareMetadata(service: Service, locale?: string): Metadata {
     const siteUrl = getSiteUrl();
+    const lang = asLocale(locale);
     const canonicalPath = `/routes/service/${service._id}`;
-    const absoluteUrl = `${siteUrl}${canonicalPath}`;
+    const absoluteUrl = `${siteUrl}/${lang}${canonicalPath}`;
     const title = service.title || 'Service listing';
     const description =
         [service.category, service.description?.slice(0, 160)].filter(Boolean).join(' · ') ||
@@ -104,7 +135,7 @@ export function buildServiceShareMetadata(service: Service): Metadata {
     return {
         title,
         description,
-        alternates: { canonical: canonicalPath },
+        alternates: localizedAlternates(lang, canonicalPath),
         openGraph: {
             type: 'website',
             siteName: SITE_NAME,
@@ -112,7 +143,58 @@ export function buildServiceShareMetadata(service: Service): Metadata {
             description,
             url: absoluteUrl,
             images,
-            locale: 'en_US',
+            locale: localeOgTag[lang],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title,
+            description,
+            images: images.map((i) => i.url),
+        },
+    };
+}
+
+/**
+ * Buy & Sell listings previously shared one hardcoded title and description,
+ * so every listing looked like duplicate content to a crawler and none could
+ * rank on its own terms. This derives both from the listing itself.
+ */
+export function buildBuySellShareMetadata(
+    listing: BuySellListing,
+    locale?: string,
+): Metadata {
+    const siteUrl = getSiteUrl();
+    const lang = asLocale(locale);
+    const canonicalPath = `/routes/buy-and-sell/${listing._id}`;
+    const absoluteUrl = `${siteUrl}/${lang}${canonicalPath}`;
+    const title = listing.title || 'Listing';
+    const kind =
+        listing.category === 'land'
+            ? 'Land for sale'
+            : listing.category === 'house'
+              ? 'House for sale'
+              : 'Item for sale';
+    const description =
+        [kind, listing.location, listing.description?.slice(0, 140)]
+            .filter(Boolean)
+            .join(' · ') || `View this listing on ${SITE_NAME}`;
+    const imageUrl = toAbsoluteAssetUrl(listing.images?.[0]);
+    const images = imageUrl
+        ? [{ url: imageUrl, alt: title }]
+        : [{ url: `${siteUrl}/icon-512.png`, alt: SITE_NAME }];
+
+    return {
+        title,
+        description,
+        alternates: localizedAlternates(lang, canonicalPath),
+        openGraph: {
+            type: 'website',
+            siteName: SITE_NAME,
+            title,
+            description,
+            url: absoluteUrl,
+            images,
+            locale: localeOgTag[lang],
         },
         twitter: {
             card: 'summary_large_image',
