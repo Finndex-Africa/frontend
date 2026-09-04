@@ -263,21 +263,25 @@ export default function About() {
                     <p className="mt-3 text-gray-700 leading-relaxed max-w-2xl">
                         {t("connectBody")}
                     </p>
-                    <div className="mt-7 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <div className="mt-7 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                         <div className="rounded-xl border border-gray-200 p-5">
-                            <div className="text-xs font-semibold text-gray-500 uppercase">Office Tel</div>
-                            <div className="mt-2 font-semibold text-gray-900">+231 - 779 922 382</div>
+                            <div className="text-xs font-semibold text-gray-500 uppercase">{t("contactPhone")}</div>
+                            <div className="mt-2 font-semibold text-gray-900">{t("phoneValue")}</div>
                         </div>
                         <div className="rounded-xl border border-gray-200 p-5">
-                            <div className="text-xs font-semibold text-gray-500 uppercase">WhatsApp</div>
-                            <div className="mt-2 font-semibold text-gray-900">+231 - 886 149 219</div>
+                            <div className="text-xs font-semibold text-gray-500 uppercase">{t("contactWhatsapp")}</div>
+                            <div className="mt-2 font-semibold text-gray-900">{t("whatsappValue")}</div>
                         </div>
                         <div className="rounded-xl border border-gray-200 p-5">
-                            <div className="text-xs font-semibold text-gray-500 uppercase">Platform</div>
+                            <div className="text-xs font-semibold text-gray-500 uppercase">{t("contactAddress")}</div>
+                            <div className="mt-2 font-semibold text-gray-900">{t("addressValue")}</div>
+                        </div>
+                        <div className="rounded-xl border border-gray-200 p-5">
+                            <div className="text-xs font-semibold text-gray-500 uppercase">{t("contactPlatform")}</div>
                             <div className="mt-2 font-semibold text-gray-900">www.findafriq.com</div>
                         </div>
                         <div className="rounded-xl border border-gray-200 p-5">
-                            <div className="text-xs font-semibold text-gray-500 uppercase">Email</div>
+                            <div className="text-xs font-semibold text-gray-500 uppercase">{t("contactEmail")}</div>
                             <div className="mt-2 font-semibold text-gray-900">info@findafriq.com</div>
                         </div>
                     </div>

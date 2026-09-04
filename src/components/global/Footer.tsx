@@ -29,6 +29,31 @@ export default function Footer() {
                     </div>
                     <p className="text-gray-600 mt-2">{t('tagline')}</p>
 
+                    {/* Contact details */}
+                    <address className="not-italic mt-4 space-y-2 text-gray-600">
+                        <div className="flex items-start gap-2">
+                            <svg className="w-4 h-4 mt-0.5 shrink-0 text-gray-500" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
+                                <path d="M12 2a7 7 0 00-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 00-7-7zm0 9.5A2.5 2.5 0 1112 6.5a2.5 2.5 0 010 5z" />
+                            </svg>
+                            <span>
+                                <span className="sr-only">{t('addressLabel')}: </span>
+                                {t('address')}
+                            </span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                            <svg className="w-4 h-4 mt-0.5 shrink-0 text-gray-500" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
+                                <path d="M6.6 10.8a15.1 15.1 0 006.6 6.6l2.2-2.2a1 1 0 011-.24 11.4 11.4 0 003.6.58 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.46.58 3.6a1 1 0 01-.25 1l-2.23 2.2z" />
+                            </svg>
+                            <span>
+                                <span className="sr-only">{t('phoneLabel')}: </span>
+                                {/* tel: needs the digits unspaced, the label stays readable */}
+                                <a href="tel:+250795784530" className="hover:text-gray-900 transition-colors">
+                                    {t('phone')}
+                                </a>
+                            </span>
+                        </div>
+                    </address>
+
                     {/* Social Media Icons */}
                     <div className="flex gap-4 mt-6">
                         <a href="https://www.facebook.com/profile.php?id=61577745584378" target="_blank" rel="noopener noreferrer" aria-label="FindAfriq on Facebook" className="text-gray-600 hover:text-blue-600 transition-colors">

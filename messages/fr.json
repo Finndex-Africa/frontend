@@ -87,6 +87,10 @@
     "platformPolicy": "Règles de la plateforme",
     "termsAndConditions": "Conditions générales",
     "pricing": "Tarifs",
+    "address": "Kigali, Rwanda",
+    "phone": "+250 795 784 530",
+    "addressLabel": "Notre adresse",
+    "phoneLabel": "Appelez-nous",
     "copyright": "© {year} FindAfriq, Inc. Tous droits réservés."
   },
   "home": {
@@ -296,8 +300,8 @@
     "buySellListed": "Annonces Acheter & Vendre",
     "youtube": "YouTube",
     "learnMore": "En savoir plus",
-    "watchIntro": "Regardez notre présentation — FindAfriq sur",
-    "introVideoTitle": "Introduction à FindAfriq",
+    "watchIntro": "Découvrez le Rwanda — plus de contenu FindAfriq sur",
+    "introVideoTitle": "Visit Rwanda",
     "playVideo": "Lire la vidéo"
   },
   "propertyTypes": {
@@ -458,7 +462,7 @@
     "preferredMoveInDate": "Date d'emménagement souhaitée",
     "desiredRentalPeriod": "Durée de location souhaitée",
     "contactPhone": "Téléphone de contact",
-    "phonePlaceholder": "+231 886 149 219",
+    "phonePlaceholder": "+250 795 784 530",
     "additionalMessage": "Message complémentaire",
     "bookingMessagePlaceholder": "Partagez vos questions, demandes particulières ou toute autre information...",
     "rentalMonths": "{count, plural, one {# mois} other {# mois}}",
@@ -825,7 +829,7 @@
     "emailRequired": "Veuillez saisir votre adresse e-mail.",
     "emailInvalid": "Veuillez saisir une adresse e-mail valide.",
     "phoneRequired": "Veuillez saisir votre numéro de téléphone.",
-    "phoneFormat": "Utilisez le format international, par ex. +231886149241.",
+    "phoneFormat": "Utilisez le format international, par ex. +250795784530.",
     "categoryRequired": "Veuillez sélectionner une catégorie de signalement.",
     "targetRequired": "Veuillez saisir le nom ou l'e-mail de la personne ou de l'annonce que vous signalez."
   },
@@ -980,9 +984,6 @@
     "back": "Verso",
     "uploadBusinessDoc": "Téléversez un scan ou une photo de votre document officiel d'immatriculation (PDF ou image).",
     "businessRegistration": "Immatriculation de l'entreprise",
-    "downloadAgreementHelp": "Téléchargez le contrat d'agent, signez-le, puis téléversez la copie signée (PDF ou image).",
-    "downloadAgreement": "Télécharger le contrat d'agent",
-    "signedAgreement": "Contrat d'agent signé",
     "selfie": "Selfie"
   },
   "verifyEmail": {
@@ -1190,7 +1191,15 @@
       "Déménagement",
       "Sécurité",
       "Maintenance"
-    ]
+    ],
+    "contactPhone": "Téléphone",
+    "contactAddress": "Adresse",
+    "contactPlatform": "Plateforme",
+    "contactEmail": "E-mail",
+    "addressValue": "Kigali, Rwanda",
+    "phoneValue": "+250 795 784 530",
+    "contactWhatsapp": "WhatsApp",
+    "whatsappValue": "+231 886 149 219"
   },
   "helpPage": {
     "pageTitle": "FindAfriq — Questions fréquentes (FAQ)",
@@ -1573,7 +1582,7 @@
         "p1": "Pour toute question ou assistance, contactez :",
         "email": "E-mail :",
         "website": "Site web :",
-        "phone": "Téléphone : +231 779 922 382 | WhatsApp : +231 886 149 219"
+        "phone": "Téléphone : +250 795 784 530 | WhatsApp : +231 886 149 219"
       },
       "acceptance": {
         "t": "17. Acceptation",
@@ -1586,9 +1595,9 @@
   "legal": {
     "translationNotice": "Cette traduction est fournie à titre indicatif. En cas de divergence, la version anglaise fait foi.",
     "contact": "Contact",
-    "address": "Paynesville City, comté de Montserrado",
+    "address": "Kigali, Rwanda",
     "website": "Site web :",
-    "tel": "Tél. : +231 779 922 382 · WhatsApp : +231 886 149 219",
+    "tel": "Tél. : +250 795 784 530 · WhatsApp : +231 886 149 219",
     "email": "E-mail :"
   },
   "privacyPage": {
@@ -2007,7 +2016,8 @@
       "updateBusinessInfo": "Impossible de mettre à jour les informations de l'entreprise. Veuillez réessayer.",
       "changePassword": "Impossible de modifier le mot de passe. Veuillez réessayer.",
       "uploadImage": "Impossible de téléverser l'image. Veuillez réessayer.",
-      "uploadImages": "Une ou plusieurs images n'ont pas pu être téléversées. Vérifiez que chaque fichier fait moins de 10 Mo et est au format JPG, PNG, GIF ou WebP."
+      "uploadImages": "Une ou plusieurs images n'ont pas pu être téléversées. Vérifiez que chaque fichier fait moins de 10 Mo et est au format JPG, PNG, GIF ou WebP.",
+      "submitServiceRequest": "Échec de l'envoi de votre demande. Veuillez réessayer."
     },
     "form": {
       "loginToViewMessages": "Connectez-vous pour consulter vos messages",
@@ -2021,7 +2031,6 @@
       "idNumberRequired": "Le numéro de pièce d'identité est obligatoire.",
       "idFrontRequired": "Veuillez téléverser le recto de votre pièce d'identité.",
       "businessCertRequired": "Veuillez téléverser votre certificat d'immatriculation.",
-      "agreementRequired": "Veuillez téléverser votre contrat d'agent signé.",
       "selectImageFile": "Veuillez sélectionner un fichier image",
       "imageTooLarge5mb": "L'image doit faire moins de 5 Mo",
       "passwordsDoNotMatch": "Les nouveaux mots de passe ne correspondent pas",
@@ -2062,26 +2071,26 @@
     "e_g_350": "par ex. 350",
     "e_g_4": "par ex. 4",
     "e_g_5": "par ex. 5",
-    "e_g_231_886_149_219": "par ex. +231 886 149 219",
+    "e_g_231_886_149_219": "par ex. +250 795 784 530",
     "e_g_250_700_000_000": "par ex. +250 700 000 000",
     "e_g_best_cleaners_ltd": "par ex. Best Cleaners Ltd",
     "e_g_c_of_o_survey_plan_deed_of_assignmen": "par ex. titre foncier, plan cadastral, acte de cession",
-    "e_g_congo_town_monrovia": "par ex. Congo Town, Monrovia",
+    "e_g_congo_town_monrovia": "par ex. Kacyiru, Kigali",
     "e_g_duplex_bungalow": "par ex. duplex, bungalow",
     "e_g_leather_sofa_set": "par ex. canapé en cuir",
-    "e_g_luxury_3br_apartment_in_westlands": "par ex. appartement de luxe 3 chambres à Westlands",
+    "e_g_luxury_3br_apartment_in_westlands": "par ex. appartement de luxe 3 chambres à Nyarutarama",
     "e_g_modern_4_bedroom_duplex_for_sale": "par ex. duplex moderne 4 chambres à vendre",
-    "e_g_nairobi_kenya": "par ex. Nairobi, Kenya",
-    "e_g_old_road_monrovia": "par ex. Old Road, Monrovia",
-    "e_g_paynesville_city_montserrado": "par ex. Paynesville City, Montserrado",
-    "e_g_prime_residential_land_in_monrovia": "par ex. terrain résidentiel de premier choix à Monrovia",
+    "e_g_nairobi_kenya": "par ex. Kigali, Rwanda",
+    "e_g_old_road_monrovia": "par ex. KG 11 Ave, Kigali",
+    "e_g_paynesville_city_montserrado": "par ex. Kimironko, Kigali",
+    "e_g_prime_residential_land_in_monrovia": "par ex. terrain résidentiel de premier choix à Kigali",
     "e_g_professional_cleaning_service": "par ex. service de nettoyage professionnel",
     "e_g_questions_about_the_listing": "par ex. questions sur l'annonce",
-    "e_g_sinkor_monrovia": "par ex. Sinkor, Monrovia",
-    "e_g_westlands_nairobi": "par ex. Westlands, Nairobi",
+    "e_g_sinkor_monrovia": "par ex. Nyarutarama, Kigali",
+    "e_g_westlands_nairobi": "par ex. Nyarutarama, Kigali",
     "0_00_optional": "0,00 (facultatif)",
-    "international_format_e_g_231886149241": "Format international, par ex. +231886149241",
-    "use_international_format_e_g_23188614924": "Utilisez le format international, par ex. +231886149241.",
+    "international_format_e_g_231886149241": "Format international, par ex. +250795784530",
+    "use_international_format_e_g_23188614924": "Utilisez le format international, par ex. +250795784530.",
     "select_a_category": "Sélectionnez une catégorie"
   },
   "assistant": {
@@ -2123,5 +2132,39 @@
       "RWF": "Franc rwandais (RWF)"
     },
     "listedBy": "Indiqué par le propriétaire à {price}"
+  },
+  "requestService": {
+    "heading": "Demander un service",
+    "body": "Vous ne trouvez pas ce que vous cherchez ? Dites-nous ce dont vous avez besoin et notre équipe vous aidera à le trouver.",
+    "cta": "Demander un service",
+    "modalTitle": "Demander un service",
+    "modalSubtitle": "Dites-nous ce dont vous avez besoin et notre équipe vous recontactera.",
+    "close": "Fermer",
+    "fullName": "Nom complet",
+    "fullNamePlaceholder": "Jeanne Dupont",
+    "email": "Adresse e-mail",
+    "emailPlaceholder": "vous@exemple.com",
+    "phone": "Numéro de téléphone",
+    "phoneOptional": "Numéro de téléphone (facultatif)",
+    "phonePlaceholder": "+250 795 784 530",
+    "phoneHint": "Format international, par ex. +250795784530",
+    "details": "Que recherchez-vous ?",
+    "detailsPlaceholder": "Décrivez le bien, le service ou l'article dont vous avez besoin — plus c'est précis, mieux nous pourrons vous aider.",
+    "location": "Localisation souhaitée (facultatif)",
+    "locationPlaceholder": "par ex. Kacyiru, Kigali",
+    "budget": "Budget (facultatif)",
+    "budgetPlaceholder": "par ex. 300 000 - 500 000 RWF / mois",
+    "submit": "Envoyer la demande",
+    "submitting": "Envoi…",
+    "successTitle": "Demande reçue",
+    "successBody": "Merci — notre équipe examinera votre demande et vous recontactera sous peu.",
+    "fixFields": "Veuillez corriger les champs signalés.",
+    "errors": {
+      "fullNameMin": "Veuillez saisir votre nom complet.",
+      "emailRequired": "Veuillez saisir votre adresse e-mail.",
+      "emailInvalid": "Veuillez saisir une adresse e-mail valide.",
+      "phoneInvalid": "Utilisez le format international, par ex. +250795784530.",
+      "detailsMin": "Merci de préciser un peu plus votre besoin (au moins 10 caractères)."
+    }
   }
 }

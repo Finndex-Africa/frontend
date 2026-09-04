@@ -14,6 +14,7 @@ import { Service as ApiService } from "@/types/dashboard";
 import { useErrorMessage } from "@/lib/error-messages";
 
 import { useRouter } from "@/i18n/navigation";
+import RequestServiceSection from "@/components/sections/RequestServiceSection";
 // Adapter function to convert API data to component types
 const adaptServiceToCard = (apiService: ApiService): Service => {
     // Extract tags from category and description
@@ -312,6 +313,9 @@ function ServicesContent() {
                     </>
                 )}
             </div>
+
+            {/* Nothing matched? Capture the demand before they bounce. */}
+            <RequestServiceSection category="service" />
         </div>
     );
 }

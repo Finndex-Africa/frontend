@@ -331,7 +331,7 @@ export default function UserReportModal({ open, onClose }: UserReportModalProps)
                                     value={form.phone}
                                     onChange={(e) => patchForm({ phone: e.target.value })}
                                     className={inputClassName(!!fieldErrors.phone)}
-                                    placeholder="+231886149241"
+                                    placeholder="+250795784530"
                                     aria-invalid={!!fieldErrors.phone}
                                 />
                                 <p className="mt-1 text-xs text-gray-500">

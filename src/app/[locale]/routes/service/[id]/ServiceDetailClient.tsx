@@ -851,7 +851,7 @@ export default function ServiceDetail() {
                                         type="tel"
                                         value={bookingData.contactPhone}
                                         onChange={(e) => setBookingData({ ...bookingData, contactPhone: e.target.value })}
-                                        placeholder="+231 886 149 219"
+                                        placeholder="+250 795 784 530"
                                         className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all hover:border-gray-300"
                                         required
                                     />
