@@ -21,7 +21,8 @@ interface PlatformStats {
     totalBuySell: number;
 }
 
-const FINDAFRIQ_INTRO_VIDEO_ID = 'W7e_E5S_YKA';
+// Visit Rwanda showcase: https://youtu.be/-kerFdxWG-w
+const DISCOVER_VIDEO_ID = '-kerFdxWG-w';
 
 export default function AdvertisementBanner() {
     const t = useTranslations("advertBanner");
@@ -176,7 +177,7 @@ export default function AdvertisementBanner() {
                         <div className="flex flex-col gap-2 w-full">
                             <div className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-2xl bg-black ring-2 ring-white/20">
                                 <LiteYouTube
-                                    videoId={FINDAFRIQ_INTRO_VIDEO_ID}
+                                    videoId={DISCOVER_VIDEO_ID}
                                     title={t("introVideoTitle")}
                                     playLabel={t("playVideo")}
                                 />

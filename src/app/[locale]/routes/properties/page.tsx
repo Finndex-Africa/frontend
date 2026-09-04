@@ -16,6 +16,7 @@ import { normalizeApiEntityList } from "@/lib/normalize-api-entity";
 import { useCurrency, useMoney } from "@/lib/currency/CurrencyProvider";
 
 import { useRouter } from "@/i18n/navigation";
+import RequestServiceSection from "@/components/sections/RequestServiceSection";
 // Adapter function to convert API data to component types
 const adaptPropertyToCard = (apiProperty: ApiProperty): Property => {
     const amenities = [];
@@ -328,6 +329,9 @@ function PropertiesContent() {
                     </>
                 )}
             </div>
+
+            {/* Nothing matched? Capture the demand before they bounce. */}
+            <RequestServiceSection category="property" />
         </div>
     );
 }

@@ -87,6 +87,10 @@
     "platformPolicy": "Platform Policy",
     "termsAndConditions": "Terms & Conditions",
     "pricing": "Pricing",
+    "address": "Kigali, Rwanda",
+    "phone": "+250 795 784 530",
+    "addressLabel": "Our address",
+    "phoneLabel": "Call us",
     "copyright": "© {year} FindAfriq, Inc. All rights reserved."
   },
   "home": {
@@ -296,8 +300,8 @@
     "buySellListed": "Buy & Sell Listed",
     "youtube": "YouTube",
     "learnMore": "Learn More",
-    "watchIntro": "Watch our introduction — FindAfriq on",
-    "introVideoTitle": "Introduction to FindAfriq",
+    "watchIntro": "Discover Rwanda — more from FindAfriq on",
+    "introVideoTitle": "Visit Rwanda",
     "playVideo": "Play video"
   },
   "propertyTypes": {
@@ -458,7 +462,7 @@
     "preferredMoveInDate": "Preferred Move-in Date",
     "desiredRentalPeriod": "Desired Rental Period",
     "contactPhone": "Contact Phone",
-    "phonePlaceholder": "+231 886 149 219",
+    "phonePlaceholder": "+250 795 784 530",
     "additionalMessage": "Additional Message",
     "bookingMessagePlaceholder": "Share any questions, special requests, or additional information...",
     "rentalMonths": "{count, plural, one {# month} other {# months}}",
@@ -825,7 +829,7 @@
     "emailRequired": "Please enter your email address.",
     "emailInvalid": "Please enter a valid email address.",
     "phoneRequired": "Please enter your phone number.",
-    "phoneFormat": "Use international format, e.g. +231886149241.",
+    "phoneFormat": "Use international format, e.g. +250795784530.",
     "categoryRequired": "Please select a report category.",
     "targetRequired": "Please enter the name or email of the person or listing you are reporting."
   },
@@ -980,9 +984,6 @@
     "back": "Back",
     "uploadBusinessDoc": "Upload a scan or photo of your official business registration document (PDF or image).",
     "businessRegistration": "Business registration",
-    "downloadAgreementHelp": "Download the Agent Agreement, sign it, then upload the signed copy (PDF or image).",
-    "downloadAgreement": "Download Agent Agreement",
-    "signedAgreement": "Signed Agent Agreement",
     "selfie": "Selfie"
   },
   "verifyEmail": {
@@ -1190,7 +1191,15 @@
       "Moving",
       "Security",
       "Maintenance"
-    ]
+    ],
+    "contactPhone": "Phone",
+    "contactAddress": "Address",
+    "contactPlatform": "Platform",
+    "contactEmail": "Email",
+    "addressValue": "Kigali, Rwanda",
+    "phoneValue": "+250 795 784 530",
+    "contactWhatsapp": "WhatsApp",
+    "whatsappValue": "+231 886 149 219"
   },
   "helpPage": {
     "pageTitle": "FindAfriq — Frequently Asked Questions (FAQ)",
@@ -1573,7 +1582,7 @@
         "p1": "For questions or support, contact:",
         "email": "Email:",
         "website": "Website:",
-        "phone": "Phone: +231 779 922 382 | WhatsApp: +231 886 149 219"
+        "phone": "Phone: +250 795 784 530 | WhatsApp: +231 886 149 219"
       },
       "acceptance": {
         "t": "17. Acceptance",
@@ -1586,9 +1595,9 @@
   "legal": {
     "translationNotice": "",
     "contact": "Contact",
-    "address": "Paynesville City, Montserrado County",
+    "address": "Kigali, Rwanda",
     "website": "Website:",
-    "tel": "Tel: +231 779 922 382 · WhatsApp: +231 886 149 219",
+    "tel": "Tel: +250 795 784 530 · WhatsApp: +231 886 149 219",
     "email": "Email:"
   },
   "privacyPage": {
@@ -2007,7 +2016,8 @@
       "updateBusinessInfo": "Failed to update business information. Please try again.",
       "changePassword": "Failed to change password. Please try again.",
       "uploadImage": "Failed to upload image. Please try again.",
-      "uploadImages": "One or more images could not be uploaded. Check that each file is under 10MB and is JPG, PNG, GIF, or WebP."
+      "uploadImages": "One or more images could not be uploaded. Check that each file is under 10MB and is JPG, PNG, GIF, or WebP.",
+      "submitServiceRequest": "Failed to send your request. Please try again."
     },
     "form": {
       "loginToViewMessages": "Please log in to view messages",
@@ -2021,7 +2031,6 @@
       "idNumberRequired": "ID number is required.",
       "idFrontRequired": "Please upload the front of your ID.",
       "businessCertRequired": "Please upload your business registration certificate.",
-      "agreementRequired": "Please upload your signed Agent Agreement.",
       "selectImageFile": "Please select an image file",
       "imageTooLarge5mb": "Image size must be less than 5MB",
       "passwordsDoNotMatch": "New passwords do not match",
@@ -2062,26 +2071,26 @@
     "e_g_350": "e.g., 350",
     "e_g_4": "e.g., 4",
     "e_g_5": "e.g., 5",
-    "e_g_231_886_149_219": "e.g., +231 886 149 219",
+    "e_g_231_886_149_219": "e.g., +250 795 784 530",
     "e_g_250_700_000_000": "e.g., +250 700 000 000",
     "e_g_best_cleaners_ltd": "e.g., Best Cleaners Ltd",
     "e_g_c_of_o_survey_plan_deed_of_assignmen": "e.g., C of O, Survey Plan, Deed of Assignment",
-    "e_g_congo_town_monrovia": "e.g., Congo Town, Monrovia",
+    "e_g_congo_town_monrovia": "e.g., Kacyiru, Kigali",
     "e_g_duplex_bungalow": "e.g., Duplex, Bungalow",
     "e_g_leather_sofa_set": "e.g., Leather Sofa Set",
-    "e_g_luxury_3br_apartment_in_westlands": "e.g., Luxury 3BR Apartment in Westlands",
+    "e_g_luxury_3br_apartment_in_westlands": "e.g., Luxury 3BR Apartment in Nyarutarama",
     "e_g_modern_4_bedroom_duplex_for_sale": "e.g., Modern 4-Bedroom Duplex for Sale",
-    "e_g_nairobi_kenya": "e.g., Nairobi, Kenya",
-    "e_g_old_road_monrovia": "e.g., Old Road, Monrovia",
-    "e_g_paynesville_city_montserrado": "e.g., Paynesville City, Montserrado",
-    "e_g_prime_residential_land_in_monrovia": "e.g., Prime Residential Land in Monrovia",
+    "e_g_nairobi_kenya": "e.g., Kigali, Rwanda",
+    "e_g_old_road_monrovia": "e.g., KG 11 Ave, Kigali",
+    "e_g_paynesville_city_montserrado": "e.g., Kimironko, Kigali",
+    "e_g_prime_residential_land_in_monrovia": "e.g., Prime Residential Land in Kigali",
     "e_g_professional_cleaning_service": "e.g., Professional Cleaning Service",
     "e_g_questions_about_the_listing": "e.g., Questions about the listing",
-    "e_g_sinkor_monrovia": "e.g., Sinkor, Monrovia",
-    "e_g_westlands_nairobi": "e.g., Westlands, Nairobi",
+    "e_g_sinkor_monrovia": "e.g., Nyarutarama, Kigali",
+    "e_g_westlands_nairobi": "e.g., Nyarutarama, Kigali",
     "0_00_optional": "0.00 (Optional)",
-    "international_format_e_g_231886149241": "International format, e.g. +231886149241",
-    "use_international_format_e_g_23188614924": "Use international format, e.g. +231886149241.",
+    "international_format_e_g_231886149241": "International format, e.g. +250795784530",
+    "use_international_format_e_g_23188614924": "Use international format, e.g. +250795784530.",
     "select_a_category": "Select a category"
   },
   "assistant": {
@@ -2123,5 +2132,39 @@
       "RWF": "Rwandan Franc (RWF)"
     },
     "listedBy": "Listed by the owner at {price}"
+  },
+  "requestService": {
+    "heading": "Request Service",
+    "body": "Can't find what you're looking for? Let us know what you need, and our team will help you find it.",
+    "cta": "Request Service",
+    "modalTitle": "Request Service",
+    "modalSubtitle": "Tell us what you need and our team will follow up with you.",
+    "close": "Close",
+    "fullName": "Full name",
+    "fullNamePlaceholder": "Jane Doe",
+    "email": "Email address",
+    "emailPlaceholder": "you@example.com",
+    "phone": "Phone number",
+    "phoneOptional": "Phone number (optional)",
+    "phonePlaceholder": "+250 795 784 530",
+    "phoneHint": "International format, e.g. +250795784530",
+    "details": "What are you looking for?",
+    "detailsPlaceholder": "Describe the property, service, or item you need — the more detail, the better we can help.",
+    "location": "Preferred location (optional)",
+    "locationPlaceholder": "e.g. Kacyiru, Kigali",
+    "budget": "Budget (optional)",
+    "budgetPlaceholder": "e.g. 300,000 - 500,000 RWF / month",
+    "submit": "Send request",
+    "submitting": "Sending…",
+    "successTitle": "Request received",
+    "successBody": "Thanks — our team will review your request and get back to you shortly.",
+    "fixFields": "Please correct the highlighted fields.",
+    "errors": {
+      "fullNameMin": "Please enter your full name.",
+      "emailRequired": "Please enter your email address.",
+      "emailInvalid": "Please enter a valid email address.",
+      "phoneInvalid": "Use international format, e.g. +250795784530.",
+      "detailsMin": "Please tell us a little more about what you need (at least 10 characters)."
+    }
   }
 }

@@ -879,7 +879,7 @@ export default function BuySellDetailClient() {
                   type="tel"
                   value={bookingData.contactPhone}
                   onChange={e => setBookingData(prev => ({ ...prev, contactPhone: e.target.value }))}
-                  placeholder="+231 886 149 219"
+                  placeholder="+250 795 784 530"
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 />
               </div>

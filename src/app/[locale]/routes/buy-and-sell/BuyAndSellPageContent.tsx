@@ -12,6 +12,7 @@ import HeroVerifiedBadge from "@/components/ui/HeroVerifiedBadge";
 import VerifiedTrustedBanner from "@/components/ui/VerifiedTrustedBanner";
 import type { BuySellListing, BuySellCategory } from "@/types/buy-sell";
 import { useCurrency, useMoney } from "@/lib/currency/CurrencyProvider";
+import RequestServiceSection from "@/components/sections/RequestServiceSection";
 
 // ─── Category config ────────────────────────────────────────────────────────
 
@@ -330,6 +331,8 @@ export default function BuyAndSellPageContent() {
         )}
       </section>
 
+      {/* Nothing matched? Capture the demand before they bounce. */}
+      <RequestServiceSection category="buy_and_sell" />
     </div>
   );
 }
