@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useCurrency } from "@/lib/currency/CurrencyProvider";
-import { CURRENCIES, CURRENCY_META, type Currency } from "@/lib/currency/config";
+import { CURRENCY_META, type Currency } from "@/lib/currency/config";
 
 /**
  * Currency picker, deliberately mirroring LanguageSwitcher so the two read as a
@@ -19,7 +19,7 @@ export default function CurrencySwitcher({
   variant?: "dropdown" | "inline";
 }) {
   const t = useTranslations("currencySwitcher");
-  const { currency, setCurrency } = useCurrency();
+  const { currency, setCurrency, availableCurrencies } = useCurrency();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -44,6 +44,10 @@ export default function CurrencySwitcher({
     setOpen(false);
   };
 
+  // With one convertible currency there is nothing to pick between, and an
+  // inert control reads as broken. Rendering nothing is the honest state.
+  if (availableCurrencies.length < 2) return null;
+
   if (variant === "inline") {
     return (
       <div
@@ -51,7 +55,7 @@ export default function CurrencySwitcher({
         role="group"
         aria-label={t("changeCurrency")}
       >
-        {CURRENCIES.map((c) => (
+        {availableCurrencies.map((c) => (
           <button
             key={c}
             type="button"
@@ -89,7 +93,7 @@ export default function CurrencySwitcher({
           aria-label={t("label")}
           className="absolute right-0 mt-2 w-44 rounded-xl border border-gray-200 bg-white py-1 shadow-lg z-50"
         >
-          {CURRENCIES.map((c) => (
+          {availableCurrencies.map((c) => (
             <li key={c}>
               <button
                 type="button"

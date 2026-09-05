@@ -16,12 +16,18 @@ import {
   RateTable,
   convert,
   isCurrency,
+  supportedCurrencies,
 } from "./config";
 
 type CurrencyContextValue = {
   /** The currency the visitor is browsing in. */
   currency: Currency;
   setCurrency: (next: Currency) => void;
+  /**
+   * The currencies we hold a usable rate for. Pickers must offer these rather
+   * than the full `CURRENCIES` list.
+   */
+  availableCurrencies: Currency[];
   rates: RateTable;
   /**
    * True when rates came from the static fallback rather than a live provider.
@@ -65,7 +71,22 @@ export function CurrencyProvider({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const [currency, setCurrencyState] = useState<Currency>(readCurrencyCookie);
+  const [preferred, setCurrencyState] = useState<Currency>(readCurrencyCookie);
+
+  const availableCurrencies = useMemo(
+    () => supportedCurrencies(rates),
+    [rates],
+  );
+
+  /**
+   * A saved preference we have no rate for would label prices in that currency
+   * while `convert` quietly returns the seller's original figure — the switcher
+   * says RWF, the price stays in USD. Fall back until the rate returns, without
+   * clearing the cookie, so the preference is honoured again once it does.
+   */
+  const currency = availableCurrencies.includes(preferred)
+    ? preferred
+    : DEFAULT_CURRENCY;
 
   const setCurrency = useCallback(
     (next: Currency) => {
@@ -84,10 +105,11 @@ export function CurrencyProvider({
     () => ({
       currency,
       setCurrency,
+      availableCurrencies,
       rates,
       ratesAreStale: rates.provider === "fallback",
     }),
-    [currency, setCurrency, rates],
+    [currency, setCurrency, availableCurrencies, rates],
   );
 
   return (

@@ -47,6 +47,25 @@ export const FALLBACK_RATES: RateTable = {
   fetchedAt: new Date(0).toISOString(),
 };
 
+/**
+ * The currencies we can actually price in right now.
+ *
+ * `CURRENCIES` is the set the app knows how to format; this is the subset the
+ * rate table can convert to. They diverge whenever a rate is unavailable — no
+ * Wise token, no configured fallback — and offering a currency we cannot
+ * convert to renders its label over unconverted prices, which reads as a
+ * broken switcher. The default is always included so the list is never empty.
+ */
+export function supportedCurrencies(table: RateTable): Currency[] {
+  const supported = CURRENCIES.filter((c) => {
+    const rate = table.rates[c];
+    return typeof rate === "number" && rate > 0;
+  });
+  return supported.includes(DEFAULT_CURRENCY)
+    ? supported
+    : [DEFAULT_CURRENCY, ...supported];
+}
+
 /** Converts between any two supported currencies via the USD base. */
 export function convert(
   amount: number,
