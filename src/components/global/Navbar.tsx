@@ -435,13 +435,22 @@ export default function Navbar() {
               </div>
             )}
             {!isMounted ? (
-              <Button
-                variant="primary"
-                className="px-4"
-                onClick={() => router.push("/routes/login")}
-              >
-                {t("signIn")}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="secondary"
+                  className="px-4"
+                  onClick={() => router.push("/routes/login")}
+                >
+                  {t("signIn")}
+                </Button>
+                <Button
+                  variant="primary"
+                  className="px-4"
+                  onClick={() => router.push("/routes/login?mode=signup")}
+                >
+                  {t("signUp")}
+                </Button>
+              </div>
             ) : isLoggedIn ? (
               <div className="relative" ref={menuRef}>
                 <button
@@ -1003,13 +1012,22 @@ export default function Navbar() {
                 )}
               </div>
             ) : (
-              <Button
-                variant="primary"
-                className="px-4"
-                onClick={() => router.push("/routes/login")}
-              >
-                {t("signIn")}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="secondary"
+                  className="px-4"
+                  onClick={() => router.push("/routes/login")}
+                >
+                  {t("signIn")}
+                </Button>
+                <Button
+                  variant="primary"
+                  className="px-4"
+                  onClick={() => router.push("/routes/login?mode=signup")}
+                >
+                  {t("signUp")}
+                </Button>
+              </div>
             )}
           </div>
 
@@ -1659,16 +1677,28 @@ export default function Navbar() {
                     </Button>
                   </>
                 ) : (
-                  <Button
-                    variant="primary"
-                    className="w-full !justify-start"
-                    onClick={() => {
-                      router.push("/routes/login");
-                      setShowMobileMenu(false);
-                    }}
-                  >
-                    {t("signIn")}
-                  </Button>
+                  <div className="flex flex-col gap-2 w-full">
+                    <Button
+                      variant="secondary"
+                      className="w-full !justify-start"
+                      onClick={() => {
+                        router.push("/routes/login");
+                        setShowMobileMenu(false);
+                      }}
+                    >
+                      {t("signIn")}
+                    </Button>
+                    <Button
+                      variant="primary"
+                      className="w-full !justify-start"
+                      onClick={() => {
+                        router.push("/routes/login?mode=signup");
+                        setShowMobileMenu(false);
+                      }}
+                    >
+                      {t("signUp")}
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>

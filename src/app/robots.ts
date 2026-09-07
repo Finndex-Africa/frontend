@@ -13,6 +13,7 @@ const PRIVATE_PATHS = [
     "/routes/bookings",
     "/routes/favorites",
     "/routes/login",
+    "/routes/pricing",
     "/routes/verify-email",
     "/routes/verify-identity",
     "/forgot-password",

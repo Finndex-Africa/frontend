@@ -134,10 +134,6 @@ export default function NewPropertyPage() {
             return;
         }
 
-        if (canSetAgentFee && formData.agentFee === '') {
-            showToast.error(t("agentFeeRequired"));
-            return;
-        }
 
         setLoading(true);
         setFormError(null);
@@ -340,19 +336,18 @@ export default function NewPropertyPage() {
 
                             {canSetAgentFee && (
                                 <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/50 p-4">
-                                    <h3 className="text-sm font-semibold text-gray-900 mb-1">Agent Fee</h3>
+                                    <h3 className="text-sm font-semibold text-gray-900 mb-1">{t("agentFeeOptional")}</h3>
                                     <p className="text-xs text-gray-600 mb-3">
                                         {t("agentFeeHelpSeekers")}
                                     </p>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Your Agent Fee ({CURRENCY_META[formData.currency].label}) <span className="text-red-500">*</span>
+                                        {t("agentFeeOptional")} ({CURRENCY_META[formData.currency].label})
                                     </label>
                                     <input
                                         type="number"
                                         name="agentFee"
                                         value={formData.agentFee}
                                         onChange={handleChange}
-                                        required
                                         min="0"
                                         step="0.01"
                                         className="w-full max-w-xs px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"

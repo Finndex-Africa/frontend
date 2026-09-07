@@ -13,6 +13,7 @@ import { propertiesApi } from "@/services/api";
 import { Property as ApiProperty } from "@/types/dashboard";
 import { useErrorMessage } from "@/lib/error-messages";
 import { normalizeApiEntityList } from "@/lib/normalize-api-entity";
+import { isFeaturedListing, sortFeaturedFirst } from "@/lib/featured";
 import { useCurrency, useMoney } from "@/lib/currency/CurrencyProvider";
 
 import { useRouter } from "@/i18n/navigation";
@@ -59,6 +60,7 @@ const adaptPropertyToCard = (apiProperty: ApiProperty): Property => {
         dates: apiProperty.availableFrom ? `Available from ${new Date(apiProperty.availableFrom).toLocaleDateString()}` : undefined,
         propertyType: propertyType || undefined,
         isBookmarked: apiProperty.isBookmarked,
+        isPremium: isFeaturedListing(apiProperty),
         sourceLang: apiProperty.sourceLang,
         translations: apiProperty.translations,
         translationSource: apiProperty.translationSource,
@@ -160,7 +162,10 @@ function PropertiesContent() {
             );
             const paginationData = response.pagination || response.data?.pagination;
 
-            const adaptedProperties = propertiesData.map(adaptPropertyToCard);
+            const adaptedProperties = sortFeaturedFirst(
+                propertiesData.map(adaptPropertyToCard),
+                (property) => Boolean(property.isPremium),
+            );
             setProperties(adaptedProperties);
 
             // Set total pages from pagination data

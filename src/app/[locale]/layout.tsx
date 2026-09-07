@@ -54,6 +54,8 @@ const API_ORIGIN = (() => {
   }
 })();
 const SITE_NAME = "FindAfriq";
+const DEFAULT_TITLE =
+  "Findafriq | Find Verified Properties and Trusted Service Providers";
 
 /** Pre-render both locales at build time. */
 export function generateStaticParams() {
@@ -72,7 +74,7 @@ export async function generateMetadata({
   return {
     metadataBase: new URL(SITE_URL),
     title: {
-      default: SITE_NAME,
+      default: DEFAULT_TITLE,
       template: `%s | ${SITE_NAME}`,
     },
     description,
@@ -107,7 +109,7 @@ export async function generateMetadata({
     openGraph: {
       type: "website",
       siteName: SITE_NAME,
-      title: SITE_NAME,
+      title: DEFAULT_TITLE,
       description,
       url: `${SITE_URL}/${locale}`,
       images: [
@@ -123,7 +125,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: SITE_NAME,
+      title: DEFAULT_TITLE,
       description,
       images: ["/icon-512.png"],
     },

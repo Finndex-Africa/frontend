@@ -29,6 +29,7 @@ export type Property = {
     propertyType?: string;
     /** Initial bookmark state from the API listing response */
     isBookmarked?: boolean;
+    isPremium?: boolean;
     /** i18n passthrough — resolved by the card, see lib/translated-content. */
     sourceLang?: string;
     translations?: Record<string, { title?: string; description?: string }>;
@@ -290,18 +291,25 @@ export default function PropertyCard({
                     {p.amenities.slice(0, 3).join(" · ")}
                 </div>
 
-                <div className="pt-0.5">
-                    <span
-                        className={`font-semibold text-gray-900 ${compact ? "text-[12px] sm:text-[15px]" : "text-[15px]"}`}
-                    >
-                        {priceParts.display || t("priceUnavailable")}
-                    </span>
-                    <span
-                        className={`text-gray-500 font-normal ${compact ? "text-[10px] sm:text-[13px]" : "text-[13px]"}`}
-                    >
-                        {" "}
-                        {t("perMonth")}
-                    </span>
+                <div className="pt-0.5 flex items-center justify-between gap-2">
+                    <div>
+                        <span
+                            className={`font-semibold text-gray-900 ${compact ? "text-[12px] sm:text-[15px]" : "text-[15px]"}`}
+                        >
+                            {priceParts.display || t("priceUnavailable")}
+                        </span>
+                        <span
+                            className={`text-gray-500 font-normal ${compact ? "text-[10px] sm:text-[13px]" : "text-[13px]"}`}
+                        >
+                            {" "}
+                            {t("perMonth")}
+                        </span>
+                    </div>
+                    {p.isPremium && (
+                        <span className="text-xs font-semibold text-yellow-700 bg-yellow-50 border border-yellow-200 px-2 py-0.5 rounded-full shrink-0">
+                            {t("featured")}
+                        </span>
+                    )}
                 </div>
             </div>
         </Link>

@@ -63,11 +63,7 @@ export default async function TermsPage() {
                 <LegalSubheading>{str('pricing', 'h3')}</LegalSubheading>
                 <BulletList items={list('pricing', 'i3')} />
                 <p className="text-sm text-gray-600">
-                    {str('pricing', 'detailsLabel')}{' '}
-                    <Link href="/routes/pricing" className="text-[#0000FF] font-medium hover:underline">
-                        {str('pricing', 'pricingLink')}
-                    </Link>
-                    .
+                    {str('pricing', 'comingSoon')}
                 </p>
             </LegalSection>
 

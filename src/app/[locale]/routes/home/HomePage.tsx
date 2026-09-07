@@ -25,6 +25,7 @@ import { useAuth } from "@/providers";
 import { normalizeApiEntityList } from "@/lib/normalize-api-entity";
 import { bookmarksApi } from "@/services/api/bookmarks.api";
 import BuySellCard from "@/components/domain/BuySellCard";
+import { isFeaturedListing, sortFeaturedFirst } from "@/lib/featured";
 
 
 const partnerLogos = [
@@ -94,6 +95,7 @@ const adaptPropertyToCard = (
       : undefined,
     propertyType: propertyType || undefined,
     isBookmarked: apiProperty.isBookmarked,
+    isPremium: isFeaturedListing(apiProperty),
     sourceLang: apiProperty.sourceLang,
     translations: apiProperty.translations,
     translationSource: apiProperty.translationSource,
@@ -146,6 +148,7 @@ const adaptServiceToCard = (
       : undefined,
     provider,
     isBookmarked: apiService.isBookmarked,
+    isPremium: isFeaturedListing(apiService),
     sourceLang: apiService.sourceLang,
     translations: apiService.translations,
     translationSource: apiService.translationSource,
@@ -227,8 +230,11 @@ export default function HomePage() {
         const propertiesData = normalizeApiEntityList<ApiProperty>(
           response.data?.data || response.data,
         );
-        const adaptedProperties = propertiesData.map((prop) =>
-          adaptPropertyToCard(prop, tCard, locale),
+        const adaptedProperties = sortFeaturedFirst(
+          propertiesData.map((prop) =>
+            adaptPropertyToCard(prop, tCard, locale),
+          ),
+          (property) => Boolean(property.isPremium),
         );
         setProperties(adaptedProperties);
         setPropertiesError(null);
@@ -262,8 +268,11 @@ export default function HomePage() {
         });
         // Handle both response structures: response.data.data or response.data
         const servicesData = response.data?.data || response.data;
-        const adaptedServices = servicesData.map((svc: ApiService) =>
-          adaptServiceToCard(svc, tCard),
+        const adaptedServices = sortFeaturedFirst(
+          servicesData.map((svc: ApiService) =>
+            adaptServiceToCard(svc, tCard),
+          ),
+          (service) => Boolean(service.isPremium),
         );
         setServices(adaptedServices);
         setServicesError(null);
@@ -298,7 +307,12 @@ export default function HomePage() {
         const saved = savedItems.status === "fulfilled" ? savedItems.value : [];
         const savedSet = new Set(saved.map((s) => s.listing._id));
 
-        setBuySellListings(items.map((l) => ({ ...l, isBookmarked: savedSet.has(l._id) })));
+        setBuySellListings(
+          sortFeaturedFirst(
+            items.map((l) => ({ ...l, isBookmarked: savedSet.has(l._id) })),
+            (listing) => isFeaturedListing(listing),
+          ),
+        );
 
         const buySellTotal = res.status === "fulfilled" ? (res.value.pagination?.totalItems ?? 0) : 0;
         setListingCounts(prev => prev ? { ...prev, buySell: buySellTotal } : { properties: 0, services: 0, buySell: buySellTotal });

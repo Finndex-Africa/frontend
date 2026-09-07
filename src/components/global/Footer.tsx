@@ -96,7 +96,6 @@ export default function Footer() {
                         <li><Link href="/routes/privacy" className="hover:text-gray-900 transition-colors">{t('privacyPolicy')}</Link></li>
                         <li><Link href="/routes/platform-policy" className="hover:text-gray-900 transition-colors">{t('platformPolicy')}</Link></li>
                         <li><Link href="/routes/terms" className="hover:text-gray-900 transition-colors">{t('termsAndConditions')}</Link></li>
-                        <li><Link href="/routes/pricing" className="hover:text-gray-900 transition-colors">{t('pricing')}</Link></li>
                     </ul>
                 </div>
             </div>

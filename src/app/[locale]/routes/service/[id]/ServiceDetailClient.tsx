@@ -17,7 +17,8 @@ import { bookmarksApi } from "@/services/api/bookmarks.api";
 import ChatBox from "@/components/dashboard/ChatBox";
 import ReviewsList from "@/components/reviews/ReviewsList";
 import { isUserVerifiedByAdmin } from "@/lib/user-verification";
-import { getUserDisplayName } from '@/lib/display-name';
+import { getUserDisplayName, getUserPhone } from '@/lib/display-name';
+import { isFeaturedListing } from '@/lib/featured';
 import { serviceProvidersApi, type ServiceProviderProfile } from '@/services/api/service-providers.api';
 import {
     trackListingViewed,
@@ -462,6 +463,8 @@ export default function ServiceDetail() {
                                 ((providerUserObj as Record<string, unknown>).userType === 'admin' ||
                                     (providerUserObj as Record<string, unknown>).role === 'admin');
 
+                            const providerPhone = getUserPhone(providerUserObj as Record<string, unknown> | null);
+
                             return (
                                 <>
                                     <h2 className="text-lg font-semibold text-gray-900 mb-4">{t("managedBy")}</h2>
@@ -512,13 +515,11 @@ export default function ServiceDetail() {
                                                         )
                                                     ) : null}
                                                 </div>
-                                                <p className="text-gray-500 text-xs">
-                                                    {isAdminProvider
-                                                        ? 'FindAfriq Admin'
-                                                        : providerIdValue
-                                                            ? 'Registered service provider on FindAfriq'
-                                                            : 'Provider information not available'}
-                                                </p>
+                                                {isAdminProvider ? (
+                                                    <p className="text-gray-500 text-xs">FindAfriq Admin</p>
+                                                ) : !providerIdValue ? (
+                                                    <p className="text-gray-500 text-xs">Lister information not available</p>
+                                                ) : null}
                                                 {providerEmail && (
                                                     <p className="text-gray-500 text-xs mt-1 flex items-center gap-1">
                                                         <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -527,6 +528,9 @@ export default function ServiceDetail() {
                                                         </svg>
                                                         {providerEmail}
                                                     </p>
+                                                )}
+                                                {providerPhone && (
+                                                    <p className="text-gray-500 text-xs mt-1">{providerPhone}</p>
                                                 )}
                                                 {providerProfile?.website && (
                                                     <p className="text-gray-500 text-xs mt-1 flex items-center gap-1">
@@ -592,6 +596,12 @@ export default function ServiceDetail() {
                         <aside className="lg:sticky lg:top-[calc(4rem+0.75rem)] lg:z-30 shrink-0">
                             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
                                 <div className="bg-linear-to-br from-blue-50 to-white p-6">
+                                        {isFeaturedListing(service) && (
+                                            <div className="mb-3 inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-amber-500 text-white rounded-full text-xs font-bold shadow-sm">
+                                                <span>⭐</span>
+                                                <span>{t("featured")}</span>
+                                            </div>
+                                        )}
                                         <div className="flex items-baseline gap-1.5">
                                             <div className="text-4xl font-bold text-gray-900">
                                                 {hasListPrice ? priceParts.display : 'Contact for Price'}

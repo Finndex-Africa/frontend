@@ -16,7 +16,7 @@ import { messagesApi } from "@/services/api";
 import { apiClient } from "@/lib/api-client";
 import { BuySellListing, BuySellSeller } from "@/types/buy-sell";
 import { useErrorMessage } from "@/lib/error-messages";
-import { getUserDisplayName } from "@/lib/display-name";
+import { getUserDisplayName, getUserPhone } from "@/lib/display-name";
 import { isUserVerifiedByAdmin } from "@/lib/user-verification";
 import { buildGoogleMapsEmbedUrlAsync } from "@/lib/google-maps";
 import { useMoney } from "@/lib/currency/CurrencyProvider";
@@ -408,6 +408,8 @@ export default function BuySellDetailClient() {
   const isAdminSeller =
     seller &&
     (seller.userType === "admin" || (seller as unknown as Record<string, unknown>).role === "admin");
+  const sellerPhone =
+    getUserPhone(seller as unknown as Record<string, unknown>) || listing.sellerPhone || "";
 
   const categoryLabel = CATEGORY_LABEL[listing.category] || listing.category;
   const isApproved = listing.status === "approved";
@@ -586,7 +588,7 @@ export default function BuySellDetailClient() {
           </section>
 
 
-          {/* Seller / Managed By */}
+          {/* Listed By */}
           {seller && (
             <section>
               <h2 className="text-lg font-semibold text-gray-900 mb-4">{t("listedBy")}</h2>
@@ -617,11 +619,14 @@ export default function BuySellDetailClient() {
                       <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full font-medium shrink-0">{t("notVerified")}</span>
                     )}
                   </div>
-                  <p className="text-gray-500 text-xs">
-                    {isAdminSeller ? t("findafriqAdmin") : t("registeredSeller")}
-                  </p>
+                  {isAdminSeller ? (
+                    <p className="text-gray-500 text-xs">{t("findafriqAdmin")}</p>
+                  ) : null}
                   {seller.email && (
                     <p className="text-gray-500 text-xs mt-1 truncate">{seller.email}</p>
+                  )}
+                  {sellerPhone && (
+                    <p className="text-gray-500 text-xs mt-1 truncate">{sellerPhone}</p>
                   )}
                   <div className="flex items-center gap-1 mt-2 text-xs text-blue-600 font-medium">
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -686,8 +691,8 @@ export default function BuySellDetailClient() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <span className="text-sm font-semibold text-gray-900">{t("agentFee")}</span>
-                          <p className="text-xs text-gray-500 mt-0.5">Fee set by the listing agent or real estate agency.</p>
-                          <p className="text-xs text-gray-400 mt-0.5">This fee is paid directly to the agent.</p>
+                          <p className="text-xs text-gray-500 mt-0.5">{t("feeSetByLister")}</p>
+                          <p className="text-xs text-gray-400 mt-0.5">{t("feePaidToLister")}</p>
                         </div>
                         <span className="shrink-0 text-base font-bold text-green-600">{agentFeeParts.display}</span>
                       </div>
@@ -697,7 +702,7 @@ export default function BuySellDetailClient() {
                         </div>
                         <div>
                           <p className="text-xs font-bold text-amber-800">Payment Integration Coming Soon!</p>
-                          <p className="text-xs text-amber-700 mt-0.5">Please contact the agent for payment instructions.</p>
+                          <p className="text-xs text-amber-700 mt-0.5">Please contact the lister for payment instructions.</p>
                         </div>
                       </div>
                       <div className="flex items-center justify-between px-1">

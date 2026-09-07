@@ -62,6 +62,14 @@ export default function AuthPage() {
     }
   }, [role, router]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("mode") === "signup") {
+      setIsLogin(false);
+    }
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -336,6 +344,11 @@ export default function AuthPage() {
                         </option>
                       ))}
                     </select>
+                    {userType === "HomeSeeker" && (
+                      <p className="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 leading-relaxed">
+                        {t("userTypes.HomeSeeker.description")}
+                      </p>
+                    )}
                     {userType === "ServiceProvider" && (
                       <p className="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 leading-relaxed">
                         {t("serviceProviderNameNotice")}

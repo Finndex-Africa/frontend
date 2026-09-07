@@ -10,8 +10,6 @@ import {
     PolicyTable,
 } from '@/components/legal/LegalDocLayout';
 
-import { Link } from '@/i18n/navigation';
-
 export async function generateMetadata(): Promise<Metadata> {
     const t = await getTranslations('platformPolicyPage');
     return {
@@ -91,11 +89,7 @@ export default async function PlatformPolicyPage() {
                 <p>{str('financial', 'p1')}</p>
                 <BulletList items={list('financial', 'items')} />
                 <p className="text-sm text-gray-600">
-                    {str('financial', 'seeAlso')}{' '}
-                    <Link href="/routes/pricing" className="text-[#0000FF] font-medium hover:underline">
-                        {str('financial', 'pricingLink')}
-                    </Link>
-                    .
+                    {str('financial', 'comingSoon')}
                 </p>
             </LegalSection>
 

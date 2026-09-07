@@ -27,7 +27,7 @@ export function getLoggedInUserTypeLabel(
   return authRole.replace(/_/g, ' ');
 }
 
-/** Agent vs landlord label for a property owner (Managed By card, etc.). */
+/** Agent vs landlord label for a property owner (admin / internal use). */
 export function getPropertyOwnerRegistrationLabel(property: {
   landlordId?: unknown;
   agentId?: unknown;

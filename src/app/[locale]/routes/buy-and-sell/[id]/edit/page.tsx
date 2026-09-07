@@ -335,7 +335,7 @@ export default function EditBuySellPage() {
                 </svg>
                 {t("agentFeeOptional")}
             </h2>
-            <p className="text-sm text-amber-700 mb-4">As an agent or real estate agency, you can set an access fee for this listing.</p>
+            <p className="text-sm text-amber-700 mb-4">Optionally set an access fee for this listing.</p>
             <div className="relative max-w-xs">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
                     {CURRENCY_META[currency].symbol}

@@ -11,6 +11,7 @@ import BuySellCard from "@/components/domain/BuySellCard";
 import HeroVerifiedBadge from "@/components/ui/HeroVerifiedBadge";
 import VerifiedTrustedBanner from "@/components/ui/VerifiedTrustedBanner";
 import type { BuySellListing, BuySellCategory } from "@/types/buy-sell";
+import { isFeaturedListing, sortFeaturedFirst } from "@/lib/featured";
 import { useCurrency, useMoney } from "@/lib/currency/CurrencyProvider";
 import RequestServiceSection from "@/components/sections/RequestServiceSection";
 
@@ -158,7 +159,12 @@ export default function BuyAndSellPageContent() {
       const savedSet = new Set(saved.map((s) => s.listing._id));
 
       // Merge isBookmarked into each listing — same as how propertiesApi/servicesApi work
-      setListings(items.map((l) => ({ ...l, isBookmarked: savedSet.has(l._id) })));
+      setListings(
+        sortFeaturedFirst(
+          items.map((l) => ({ ...l, isBookmarked: savedSet.has(l._id) })),
+          (listing) => isFeaturedListing(listing),
+        ),
+      );
       setTotalPages(res.status === "fulfilled" ? (res.value.pagination?.totalPages ?? 1) : 1);
       if (res.status === "rejected") setError(tErr("form.loadListings"));
     } catch {

@@ -12,6 +12,7 @@ import Pagination from "@/components/ui/Pagination";
 import { servicesApi } from "@/services/api";
 import { Service as ApiService } from "@/types/dashboard";
 import { useErrorMessage } from "@/lib/error-messages";
+import { isFeaturedListing, sortFeaturedFirst } from "@/lib/featured";
 
 import { useRouter } from "@/i18n/navigation";
 import RequestServiceSection from "@/components/sections/RequestServiceSection";
@@ -53,6 +54,7 @@ const adaptServiceToCard = (apiService: ApiService): Service => {
         badge: apiService.category ? apiService.category.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : undefined,
         provider,
         isBookmarked: apiService.isBookmarked,
+        isPremium: isFeaturedListing(apiService),
         sourceLang: apiService.sourceLang,
         translations: apiService.translations,
         translationSource: apiService.translationSource,
@@ -144,7 +146,10 @@ function ServicesContent() {
             const servicesData = response.data?.data || response.data;
             const paginationData = response.pagination || response.data?.pagination;
 
-            const adaptedServices = servicesData.map(adaptServiceToCard);
+            const adaptedServices = sortFeaturedFirst(
+                servicesData.map(adaptServiceToCard),
+                (service) => Boolean(service.isPremium),
+            );
             setServices(adaptedServices);
 
             // Set total pages from pagination data

@@ -21,7 +21,7 @@ export interface SubmitIdVerificationDto {
     idNumber: string;
     idFrontImage: string;
     idBackImage?: string;
-    selfieImage?: string;
+    selfieImage: string;
     fullName?: string;
     dateOfBirth?: string;
     address?: string;

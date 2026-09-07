@@ -20,3 +20,13 @@ export function getUserDisplayName(
     const email = typeof u.email === 'string' ? u.email.trim() : '';
     return email || emailFallback || 'Member';
 }
+
+/** Best-effort phone from API user objects. */
+export function getUserPhone(user: Record<string, unknown> | null | undefined): string {
+    if (!user || typeof user !== 'object') return '';
+    for (const key of ['phone', 'phoneNumber', 'whatsapp', 'whatsappNumber'] as const) {
+        const value = user[key];
+        if (typeof value === 'string' && value.trim()) return value.trim();
+    }
+    return '';
+}

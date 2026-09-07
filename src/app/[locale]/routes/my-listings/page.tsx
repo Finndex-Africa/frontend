@@ -228,10 +228,6 @@ function EditPropertyModal({
       return;
     }
 
-    if (canSetAgentFee && (formData.agentFee === undefined || formData.agentFee === null)) {
-      showToast.error(t("agentFeeRequired"));
-      return;
-    }
 
     setLoading(true);
     try {
@@ -560,7 +556,7 @@ function EditPropertyModal({
                 {t("agentFeeHelp")}
               </p>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Your Agent Fee ({CURRENCY_META[formData.currency as Currency] ?.label ?? DEFAULT_CURRENCY}) <span className="text-red-500">*</span>
+                {t("agentFee")} ({CURRENCY_META[(formData.currency as Currency) ?? DEFAULT_CURRENCY].label}) <span className="text-gray-400 font-normal">({t("optional")})</span>
               </label>
               <div className="flex items-center max-w-xs">
                 <span className="text-gray-500 mr-2">
@@ -575,7 +571,6 @@ function EditPropertyModal({
                   placeholder="0"
                   min="0"
                   step="0.01"
-                  required
                 />
               </div>
             </div>

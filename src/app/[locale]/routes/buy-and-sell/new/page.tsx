@@ -160,11 +160,6 @@ export default function NewBuySellPage() {
             return;
         }
 
-        // Agent fee is mandatory for agents / real estate agencies
-        if (canSetAgentFee && !agentFee) {
-            showToast.error(t("agentFeeRequiredLong"));
-            return;
-        }
 
         setLoading(true);
         setFormError(null);
@@ -266,18 +261,17 @@ export default function NewBuySellPage() {
     // ── Shared: image section ───────────────────────────────────────────────
     const agentFeeJsx = canSetAgentFee ? (
         <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/50 p-4 mb-8">
-            <h3 className="text-sm font-semibold text-gray-900 mb-1">Agent Fee</h3>
+            <h3 className="text-sm font-semibold text-gray-900 mb-1">{t("agentFeeOptional")}</h3>
             <p className="text-xs text-gray-600 mb-3">
                 {t("agentFeeHelpBuyers")}
             </p>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-                Your Agent Fee ({CURRENCY_META[currency].label}) <span className="text-red-500">*</span>
+                {t("agentFeeOptional")} ({CURRENCY_META[currency].label})
             </label>
             <input
                 type="number"
                 value={agentFee}
                 onChange={e => setAgentFee(e.target.value)}
-                required
                 min="0"
                 step="0.01"
                 className="w-full max-w-xs px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
