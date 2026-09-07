@@ -1,7 +1,6 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import Link from 'next/link';
 import { Collapse } from 'antd';
 import type { CollapseProps } from 'antd';
 import { LegalContactCard, LegalDocLayout } from '@/components/legal/LegalDocLayout';
@@ -139,20 +138,13 @@ const FAQ_SECTIONS: FaqSection[] = [
                 key: 'pay1',
                 question: 'Does FindAfriq handle payments?',
                 answer:
-                    'Payments made through our platform cover only platform-related usage fees. Fees by agents for property access or by service providers for their services are handled directly between users and those providers. Please confirm all agent or service provider payment terms with them before proceeding.',
+                    'Payments made through our platform cover only platform-related usage fees. Access fees or service provider fees are handled directly between users and those providers. Please confirm all payment terms with them before proceeding.',
             },
             {
                 key: 'pay2',
                 question: 'Are there any hidden fees?',
-                answer: (
-                    <>
-                        No. All applicable fees are clearly stated on the{' '}
-                        <Link href="/routes/pricing" className="text-[#0000FF] font-medium hover:underline">
-                            pricing page
-                        </Link>
-                        .
-                    </>
-                ),
+                answer:
+                    'No. All applicable fees are clearly stated on each listing. Platform pricing will be published once it is finalized.',
             },
         ],
     },

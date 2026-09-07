@@ -22,6 +22,7 @@ export type Property = {
     propertyType?: string;
     /** Initial bookmark state from the API listing response */
     isBookmarked?: boolean;
+    isPremium?: boolean;
 };
 
 function PropertyImageCarousel({
@@ -264,18 +265,25 @@ export default function PropertyCard({
                     {p.amenities.slice(0, 3).join(" · ")}
                 </div>
 
-                <div className="pt-0.5">
-                    <span
-                        className={`font-semibold text-gray-900 ${compact ? "text-[12px] sm:text-[15px]" : "text-[15px]"}`}
-                    >
-                        {formatPrice(p.price)}
-                    </span>
-                    <span
-                        className={`text-gray-500 font-normal ${compact ? "text-[10px] sm:text-[13px]" : "text-[13px]"}`}
-                    >
-                        {" "}
-                        / month
-                    </span>
+                <div className="pt-0.5 flex items-center justify-between gap-2">
+                    <div>
+                        <span
+                            className={`font-semibold text-gray-900 ${compact ? "text-[12px] sm:text-[15px]" : "text-[15px]"}`}
+                        >
+                            {formatPrice(p.price)}
+                        </span>
+                        <span
+                            className={`text-gray-500 font-normal ${compact ? "text-[10px] sm:text-[13px]" : "text-[13px]"}`}
+                        >
+                            {" "}
+                            / month
+                        </span>
+                    </div>
+                    {p.isPremium && (
+                        <span className="text-xs font-semibold text-yellow-700 bg-yellow-50 border border-yellow-200 px-2 py-0.5 rounded-full shrink-0">
+                            Featured
+                        </span>
+                    )}
                 </div>
             </div>
         </Link>

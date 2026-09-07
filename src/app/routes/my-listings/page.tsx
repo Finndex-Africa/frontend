@@ -218,11 +218,6 @@ function EditPropertyModal({
       return;
     }
 
-    if (canSetAgentFee && (formData.agentFee === undefined || formData.agentFee === null)) {
-      showToast.error("Please enter your agent fee.");
-      return;
-    }
-
     setLoading(true);
     try {
       // Upload new images if any
@@ -539,12 +534,12 @@ function EditPropertyModal({
 
           {canSetAgentFee && (
             <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-4">
-              <h3 className="text-sm font-semibold text-gray-900 mb-1">Agent Fee</h3>
+              <h3 className="text-sm font-semibold text-gray-900 mb-1">Access Fee</h3>
               <p className="text-xs text-gray-600 mb-3">
-                Set the fee you charge for this listing. It will be shown to seekers on the property page.
+                Optionally set an access fee for this listing. It will be shown to seekers on the property page.
               </p>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Your Agent Fee (USD) <span className="text-red-500">*</span>
+                Access Fee (USD) <span className="text-gray-400 font-normal">(optional)</span>
               </label>
               <div className="flex items-center max-w-xs">
                 <span className="text-gray-500 mr-2">$</span>
@@ -557,7 +552,6 @@ function EditPropertyModal({
                   placeholder="0"
                   min="0"
                   step="0.01"
-                  required
                 />
               </div>
             </div>

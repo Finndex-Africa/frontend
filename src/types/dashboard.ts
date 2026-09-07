@@ -35,6 +35,9 @@ export interface Service {
     agentId?: string | { _id: string; name: string; email: string };
     landlordId?: string | { _id: string; name: string; email: string };
     isBookmarked?: boolean;
+    isPremium?: boolean;
+    isFeatured?: boolean;
+    featured?: boolean;
     createdAt: string;
     updatedAt: string;
 }
@@ -61,6 +64,8 @@ export interface Property {
     views?: number;
     inquiries?: number;
     isPremium?: boolean;
+    isFeatured?: boolean;
+    featured?: boolean;
     rating?: number;
     reviewCount?: number;
     furnished?: boolean;

@@ -14,7 +14,7 @@ import { messagesApi } from "@/services/api";
 import { apiClient } from "@/lib/api-client";
 import { BuySellListing, BuySellSeller } from "@/types/buy-sell";
 import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
-import { getUserDisplayName } from "@/lib/display-name";
+import { getUserDisplayName, getUserPhone } from "@/lib/display-name";
 import { isUserVerifiedByAdmin } from "@/lib/user-verification";
 import { buildGoogleMapsEmbedUrlAsync } from "@/lib/google-maps";
 
@@ -389,6 +389,8 @@ export default function BuySellDetailClient() {
   const isAdminSeller =
     seller &&
     (seller.userType === "admin" || (seller as unknown as Record<string, unknown>).role === "admin");
+  const sellerPhone =
+    getUserPhone(seller as unknown as Record<string, unknown>) || listing.sellerPhone || "";
 
   const categoryLabel = CATEGORY_LABEL[listing.category] || listing.category;
   const isApproved = listing.status === "approved";
@@ -567,7 +569,7 @@ export default function BuySellDetailClient() {
           </section>
 
 
-          {/* Seller / Managed By */}
+          {/* Listed By */}
           {seller && (
             <section>
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Listed By</h2>
@@ -598,11 +600,14 @@ export default function BuySellDetailClient() {
                       <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full font-medium shrink-0">Not Verified</span>
                     )}
                   </div>
-                  <p className="text-gray-500 text-xs">
-                    {isAdminSeller ? "FindAfriq Admin" : "Registered seller on FindAfriq"}
-                  </p>
+                  {isAdminSeller ? (
+                    <p className="text-gray-500 text-xs">FindAfriq Admin</p>
+                  ) : null}
                   {seller.email && (
                     <p className="text-gray-500 text-xs mt-1 truncate">{seller.email}</p>
+                  )}
+                  {sellerPhone && (
+                    <p className="text-gray-500 text-xs mt-1 truncate">{sellerPhone}</p>
                   )}
                   <div className="flex items-center gap-1 mt-2 text-xs text-blue-600 font-medium">
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -660,9 +665,9 @@ export default function BuySellDetailClient() {
                           </svg>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span className="text-sm font-semibold text-gray-900">Agent Fee</span>
-                          <p className="text-xs text-gray-500 mt-0.5">Fee set by the listing agent or real estate agency.</p>
-                          <p className="text-xs text-gray-400 mt-0.5">This fee is paid directly to the agent.</p>
+                          <span className="text-sm font-semibold text-gray-900">Access Fee</span>
+                          <p className="text-xs text-gray-500 mt-0.5">Optional fee set by the lister.</p>
+                          <p className="text-xs text-gray-400 mt-0.5">This fee is paid directly to the lister.</p>
                         </div>
                         <span className="shrink-0 text-base font-bold text-green-600">${(listing as any).agentFee.toLocaleString()}</span>
                       </div>
@@ -672,7 +677,7 @@ export default function BuySellDetailClient() {
                         </div>
                         <div>
                           <p className="text-xs font-bold text-amber-800">Payment Integration Coming Soon!</p>
-                          <p className="text-xs text-amber-700 mt-0.5">Please contact the agent for payment instructions.</p>
+                          <p className="text-xs text-amber-700 mt-0.5">Please contact the lister for payment instructions.</p>
                         </div>
                       </div>
                       <div className="flex items-center justify-between px-1">
@@ -680,7 +685,7 @@ export default function BuySellDetailClient() {
                           <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                           </svg>
-                          <span className="text-sm font-semibold text-gray-700">Total Amount to Pay Agent</span>
+                          <span className="text-sm font-semibold text-gray-700">Total Amount to Pay Lister</span>
                         </div>
                         <span className="text-base font-bold text-gray-900">${(listing as any).agentFee.toLocaleString()}</span>
                       </div>
@@ -707,7 +712,7 @@ export default function BuySellDetailClient() {
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                     </svg>
-                    <span>{currentUser ? "WhatsApp Seller" : "Sign in to WhatsApp"}</span>
+                    <span>{currentUser ? "WhatsApp" : "Sign in to WhatsApp"}</span>
                     {!currentUser && <Lock className="w-3.5 h-3.5" />}
                   </button>
 
@@ -739,7 +744,7 @@ export default function BuySellDetailClient() {
                   <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-linear-to-br from-gray-200 to-gray-300 flex items-center justify-center">
                     <MessageCircle className="w-7 h-7 text-gray-500" />
                   </div>
-                  <p className="text-sm font-medium text-gray-900 mb-2">Message the Seller</p>
+                  <p className="text-sm font-medium text-gray-900 mb-2">Message the lister</p>
                   <p className="text-xs text-gray-500 mb-4">Sign in to start a conversation</p>
                   <button
                     onClick={() => (window.location.href = "/routes/login")}
@@ -754,7 +759,7 @@ export default function BuySellDetailClient() {
                     <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center">
                       <MessageCircle className="w-4 h-4 text-blue-600" />
                     </div>
-                    <span className="text-sm font-semibold text-gray-900">Message Seller</span>
+                    <span className="text-sm font-semibold text-gray-900">Message</span>
                   </div>
                   <ChatBox
                     userId={currentUser.id}

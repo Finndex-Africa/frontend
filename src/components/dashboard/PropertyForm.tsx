@@ -177,8 +177,7 @@ export function PropertyForm({
                         <Col xs={24} sm={12}>
                             <Form.Item
                                 name="agentFee"
-                                label="Agent Fee (USD)"
-                                rules={[{ required: true, message: 'Please enter your agent fee' }]}
+                                label="Access Fee (USD, optional)"
                             >
                                 <InputNumber
                                     size="large"

@@ -10,6 +10,7 @@ import BuySellCard from "@/components/domain/BuySellCard";
 import HeroVerifiedBadge from "@/components/ui/HeroVerifiedBadge";
 import VerifiedTrustedBanner from "@/components/ui/VerifiedTrustedBanner";
 import type { BuySellListing, BuySellCategory } from "@/types/buy-sell";
+import { isFeaturedListing, sortFeaturedFirst } from "@/lib/featured";
 
 // ─── Category config ────────────────────────────────────────────────────────
 
@@ -149,7 +150,12 @@ export default function BuyAndSellPageContent() {
       const savedSet = new Set(saved.map((s) => s.listing._id));
 
       // Merge isBookmarked into each listing — same as how propertiesApi/servicesApi work
-      setListings(items.map((l) => ({ ...l, isBookmarked: savedSet.has(l._id) })));
+      setListings(
+        sortFeaturedFirst(
+          items.map((l) => ({ ...l, isBookmarked: savedSet.has(l._id) })),
+          (listing) => isFeaturedListing(listing),
+        ),
+      );
       setTotalPages(res.status === "fulfilled" ? (res.value.pagination?.totalPages ?? 1) : 1);
       if (res.status === "rejected") setError("Failed to load listings. Please try again.");
     } catch {
@@ -193,7 +199,7 @@ export default function BuyAndSellPageContent() {
               Buy &amp; Sell on FindAfriq
             </h1>
             <p className="text-white/85 text-lg sm:text-xl mb-6 max-w-xl">
-              Land, houses, and fairly used household items.
+              Land, houses, and household items.
             </p>
 
             {/* Desktop search (in hero) */}

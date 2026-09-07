@@ -65,7 +65,6 @@ export default function Footer() {
                         <li><a href="/routes/privacy" className="hover:text-gray-900 transition-colors">Privacy Policy</a></li>
                         <li><a href="/routes/platform-policy" className="hover:text-gray-900 transition-colors">Platform Policy</a></li>
                         <li><a href="/routes/terms" className="hover:text-gray-900 transition-colors">Terms &amp; Conditions</a></li>
-                        <li><a href="/routes/pricing" className="hover:text-gray-900 transition-colors">Pricing</a></li>
                     </ul>
                 </div>
             </div>

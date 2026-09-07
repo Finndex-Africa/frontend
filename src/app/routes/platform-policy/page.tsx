@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import {
     BulletList,
     LegalContactCard,
@@ -155,11 +154,7 @@ export default function PlatformPolicyPage() {
                     ]}
                 />
                 <p className="text-sm text-gray-600">
-                    See also:{' '}
-                    <Link href="/routes/pricing" className="text-[#0000FF] font-medium hover:underline">
-                        Pricing model
-                    </Link>
-                    .
+                    Detailed pricing will be published once the structure is finalized.
                 </p>
             </LegalSection>
 

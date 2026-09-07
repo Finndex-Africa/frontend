@@ -18,6 +18,7 @@ export type Service = {
     badge?: string;
     /** Initial bookmark state from the API listing response */
     isBookmarked?: boolean;
+    isPremium?: boolean;
     provider?: {
         name: string;
         photo?: string;
@@ -194,11 +195,15 @@ export default function ServiceCard({
                                 </span>
                             )}
                         </div>
-                        {!compact && (
+                        {service.isPremium ? (
+                            <span className="text-xs font-semibold text-yellow-700 bg-yellow-50 border border-yellow-200 px-2 py-0.5 rounded-full shrink-0">
+                                Featured
+                            </span>
+                        ) : !compact ? (
                         <span className="text-brand-blue hover:text-brand-blue font-medium text-[13px]">
                             View Details →
                         </span>
-                        )}
+                        ) : null}
                     </div>
                 </div>
             </div>

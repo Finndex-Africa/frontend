@@ -11,6 +11,7 @@ import Pagination from "../../../components/ui/Pagination";
 import { servicesApi } from "@/services/api";
 import { Service as ApiService } from "@/types/dashboard";
 import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
+import { isFeaturedListing, sortFeaturedFirst } from "@/lib/featured";
 
 // Adapter function to convert API data to component types
 const adaptServiceToCard = (apiService: ApiService): Service => {
@@ -50,6 +51,7 @@ const adaptServiceToCard = (apiService: ApiService): Service => {
         badge: apiService.category ? apiService.category.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : undefined,
         provider,
         isBookmarked: apiService.isBookmarked,
+        isPremium: isFeaturedListing(apiService),
     };
 };
 
@@ -135,7 +137,10 @@ function ServicesContent() {
             const servicesData = response.data?.data || response.data;
             const paginationData = response.pagination || response.data?.pagination;
 
-            const adaptedServices = servicesData.map(adaptServiceToCard);
+            const adaptedServices = sortFeaturedFirst(
+                servicesData.map(adaptServiceToCard),
+                (service) => Boolean(service.isPremium),
+            );
             setServices(adaptedServices);
 
             // Set total pages from pagination data

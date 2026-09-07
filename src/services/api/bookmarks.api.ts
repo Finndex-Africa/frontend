@@ -20,6 +20,9 @@ export interface SavedItem {
         reviewCount?: number;
         category?: string;
         status?: string;
+        isPremium?: boolean;
+        isFeatured?: boolean;
+        featured?: boolean;
     };
 }
 

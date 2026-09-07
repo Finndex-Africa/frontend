@@ -222,7 +222,7 @@ export default function HowItWorksPage() {
           {[
             {
               q: "Is FindAfriq free to use?",
-              a: "Browsing properties and services on FindAfriq is completely free. Listing fees may apply for landlords and service providers — check our Pricing page for details.",
+              a: "Browsing properties and services on FindAfriq is completely free. Listing fees may apply for landlords and service providers once pricing is published.",
             },
             {
               q: "How are listings verified?",

@@ -15,12 +15,9 @@ import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 import ChatBox from "@/components/dashboard/ChatBox";
 import ReviewsList from "@/components/reviews/ReviewsList";
 import { isUserVerifiedByAdmin } from "@/lib/user-verification";
-import { getUserDisplayName } from "@/lib/display-name";
-import {
-  getPropertyOwnerRegistrationLabel,
-  isAgentListedProperty,
-  shouldShowAgentFee,
-} from "@/lib/user-type-label";
+import { getUserDisplayName, getUserPhone } from "@/lib/display-name";
+import { shouldShowAgentFee } from "@/lib/user-type-label";
+import { isFeaturedListing } from "@/lib/featured";
 import { buildGoogleMapsEmbedUrlAsync } from "@/lib/google-maps";
 import {
   trackListingViewed,
@@ -339,7 +336,6 @@ export default function PropertyDetail() {
       console.log("Booking response:", response);
 
       if (response.success) {
-        const posterType = getPropertyOwnerRegistrationLabel(property).toLowerCase();
         trackBookingSubmitted({
           listingId: propertyId,
           listingType: "property",
@@ -347,7 +343,7 @@ export default function PropertyDetail() {
           scheduledDate: bookingData.moveInDate,
         });
         toast.success(
-          `Booking request submitted successfully! The ${posterType} will contact you soon.`,
+          "Booking request submitted successfully! The lister will contact you soon.",
         );
         setShowBookingModal(false);
         setBookingData({
@@ -410,7 +406,7 @@ export default function PropertyDetail() {
   const handleSendMessage = async (subject: string, message: string) => {
     if (!currentUser || !property || submitting) return;
 
-    // Resolve recipient: landlord first, then agent (same as "Managed By" section)
+    // Resolve recipient: landlord first, then agent (same as "Listed By" section)
     let recipientId = "";
     if (typeof property.landlordId === "string" && property.landlordId) {
       recipientId = property.landlordId;
@@ -462,9 +458,8 @@ export default function PropertyDetail() {
         text: fullMessage,
       });
 
-      const posterType = getPropertyOwnerRegistrationLabel(property).toLowerCase();
       toast.success(
-        `Message sent successfully! The ${posterType} will respond to you soon.`,
+        "Message sent successfully! The lister will respond to you soon.",
       );
       setShowContactModal(false);
     } catch (error: any) {
@@ -508,13 +503,6 @@ export default function PropertyDetail() {
     property.images && property.images.length > 0
       ? property.images
       : getDefaultImages(property.type);
-
-  const ownerLabel = getPropertyOwnerRegistrationLabel(property);
-  const ownerLabelLower = ownerLabel.toLowerCase();
-  const ownerLabelPlural =
-    ownerLabelLower === "agent" || ownerLabelLower === "real estate agency"
-      ? "agents"
-      : "landlords";
 
   const media = images.map((src) => ({ type: "image" as const, src }));
 
@@ -705,6 +693,7 @@ export default function PropertyDetail() {
                 let ownerName = "Property Owner";
                 let ownerInitial = "L";
                 let ownerEmail = "";
+                let ownerPhone = "";
                 let ownerAvatar = "";
                 let ownerForVerification: {
                   verificationStatus?: string;
@@ -721,6 +710,7 @@ export default function PropertyDetail() {
                   >;
                   ownerIdValue = String(ownerObj._id || ownerObj.id || "");
                   ownerEmail = String(ownerObj.email || "");
+                  ownerPhone = getUserPhone(ownerObj);
                   ownerName = getUserDisplayName(
                     ownerObj,
                     ownerEmail || "Property Owner",
@@ -746,9 +736,10 @@ export default function PropertyDetail() {
                     >;
                     ownerIdValue = String(agentObj._id || agentObj.id || "");
                     ownerEmail = String(agentObj.email || "");
+                    ownerPhone = getUserPhone(agentObj);
                     ownerName = getUserDisplayName(
                       agentObj,
-                      ownerEmail || "Agent",
+                      ownerEmail || "Lister",
                     );
                     ownerInitial = ownerName.charAt(0).toUpperCase();
                     ownerAvatar = String(agentObj.avatar || "");
@@ -772,7 +763,7 @@ export default function PropertyDetail() {
                 return (
                   <>
                     <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                      Managed By
+                      Listed By
                     </h2>
                     <button
                       type="button"
@@ -812,14 +803,19 @@ export default function PropertyDetail() {
                             </span>
                           )}
                         </div>
-                        <p className="text-gray-500 text-xs">
-                          {isAdminOwner
-                            ? "FindAfriq Admin"
-                            : `Registered ${getPropertyOwnerRegistrationLabel(property)} on FindAfriq`}
-                        </p>
+                        {isAdminOwner ? (
+                          <p className="text-gray-500 text-xs">
+                            FindAfriq Admin
+                          </p>
+                        ) : null}
                         {ownerEmail ? (
                           <p className="text-gray-500 text-xs mt-1 truncate">
                             {ownerEmail}
+                          </p>
+                        ) : null}
+                        {ownerPhone ? (
+                          <p className="text-gray-500 text-xs mt-1 truncate">
+                            {ownerPhone}
                           </p>
                         ) : null}
                         <div className="flex items-center gap-3 mt-2 text-xs text-gray-600">
@@ -863,10 +859,10 @@ export default function PropertyDetail() {
             <aside className="lg:sticky lg:top-[calc(4rem+0.75rem)] lg:z-30 shrink-0">
               <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
                 <div className="bg-gradient-to-br from-blue-50 to-white p-6">
-                  {property.isPremium && (
+                  {isFeaturedListing(property) && (
                     <div className="mb-3 inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-amber-500 text-white rounded-full text-xs font-bold shadow-sm">
                       <span>⭐</span>
-                      <span>Premium Listing</span>
+                      <span>Featured</span>
                     </div>
                   )}
 
@@ -884,12 +880,12 @@ export default function PropertyDetail() {
                     )}
                   </div>
 
-                  {/* Agent Fee Section */}
+                  {/* Access Fee Section */}
                   {shouldShowAgentFee(property) && (
                       <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4 space-y-3">
                         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Payment Details</p>
 
-                        {/* Agent Fee row */}
+                        {/* Access Fee row */}
                         <div className="flex items-start gap-3 p-3 rounded-lg border border-gray-100 bg-gray-50">
                           <div className="shrink-0 w-9 h-9 rounded-full bg-green-100 flex items-center justify-center">
                             <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -898,10 +894,10 @@ export default function PropertyDetail() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-sm font-semibold text-gray-900">Agent Fee</span>
+                              <span className="text-sm font-semibold text-gray-900">Access Fee</span>
                             </div>
-                            <p className="text-xs text-gray-500 mt-0.5">Fee set by the listing {ownerLabelLower}.</p>
-                            <p className="text-xs text-gray-400 mt-0.5">This fee is paid to the listing agent.</p>
+                            <p className="text-xs text-gray-500 mt-0.5">Optional fee set by the lister.</p>
+                            <p className="text-xs text-gray-400 mt-0.5">This fee is paid to the lister.</p>
                           </div>
                           <span className="shrink-0 text-base font-bold text-green-600">${(property.agentFee ?? 0).toLocaleString()}</span>
                         </div>
@@ -913,7 +909,7 @@ export default function PropertyDetail() {
                           </div>
                           <div>
                             <p className="text-xs font-bold text-amber-800">Payment Integration Coming Soon!</p>
-                            <p className="text-xs text-amber-700 mt-0.5">You&apos;ll pay the total amount directly to the agent. Please contact the agent for payment instructions.</p>
+                            <p className="text-xs text-amber-700 mt-0.5">You&apos;ll pay the total amount directly to the lister. Please contact them for payment instructions.</p>
                           </div>
                         </div>
 
@@ -923,7 +919,7 @@ export default function PropertyDetail() {
                             <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
-                            <span className="text-sm font-semibold text-gray-700">Total Amount to Pay Agent</span>
+                            <span className="text-sm font-semibold text-gray-700">Total Amount to Pay Lister</span>
                           </div>
                           <span className="text-base font-bold text-gray-900">${(property.agentFee ?? 0).toLocaleString()}</span>
                         </div>
@@ -981,7 +977,7 @@ export default function PropertyDetail() {
                     </svg>
                     <span>
                       {currentUser
-                        ? `WhatsApp ${ownerLabel}`
+                        ? "WhatsApp"
                         : "Sign in to WhatsApp"}
                     </span>
                     {!currentUser && <Lock className="w-3.5 h-3.5" />}
@@ -998,7 +994,7 @@ export default function PropertyDetail() {
                   <MessageCircle className="w-7 h-7 text-gray-500" />
                 </div>
                 <p className="text-sm font-medium text-gray-900 mb-2">
-                  Message the {ownerLabel}
+                  Message the lister
                 </p>
                 <p className="text-xs text-gray-500 mb-4">
                   Sign in to start a conversation
@@ -1047,7 +1043,7 @@ export default function PropertyDetail() {
                         <MessageCircle className="w-4.5 h-4.5 text-blue-600" />
                       </div>
                       <span className="text-sm font-semibold text-gray-900">
-                        Message {ownerLabel}
+                        Message
                       </span>
                     </div>
                     <ChatBox
@@ -1391,7 +1387,7 @@ export default function PropertyDetail() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-2xl font-bold text-gray-900">
-                  Contact {ownerLabel}
+                  Contact Lister
                 </h3>
                 <p className="text-sm text-gray-600 mt-1">
                   Send a direct message
@@ -1443,8 +1439,8 @@ export default function PropertyDetail() {
               </div>
               <div className="bg-green-50 border border-green-200 rounded-xl p-4">
                 <p className="text-sm text-green-900">
-                  ✅ <span className="font-semibold">Quick Response:</span> Most{" "}
-                  {ownerLabelPlural} respond within 24
+                  ✅ <span className="font-semibold">Quick Response:</span> Most
+                  listers respond within 24
                   hours
                 </p>
               </div>

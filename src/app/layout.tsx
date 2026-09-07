@@ -30,10 +30,12 @@ const SITE_NAME = "FindAfriq";
 const SITE_DESCRIPTION =
   "FindAfriq is a digital real estate and services platform that connects seekers with verified properties and trusted service providers seamlessly.";
 
+const DEFAULT_TITLE = "Findafriq | Find Verified Properties and Trusted Service Providers";
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: SITE_NAME,
+    default: DEFAULT_TITLE,
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
@@ -68,7 +70,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: SITE_NAME,
-    title: SITE_NAME,
+    title: DEFAULT_TITLE,
     description: SITE_DESCRIPTION,
     url: SITE_URL,
     images: [
@@ -84,7 +86,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: SITE_NAME,
+    title: DEFAULT_TITLE,
     description: SITE_DESCRIPTION,
     images: ["/icon-512.png"],
   },

@@ -25,7 +25,7 @@ type UserType = "HomeSeeker" | "Agent" | "RealEstateAgency" | "Landlord" | "Serv
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 const USER_TYPES: { value: UserType; label: string; description: string }[] = [
-  { value: "HomeSeeker", label: "Seeker", description: "Find properties & services" },
+  { value: "HomeSeeker", label: "Seeker", description: "A Seeker is a person looking for verified properties and trusted service providers." },
   { value: "Agent", label: "Agent", description: "List and manage properties" },
   { value: "RealEstateAgency", label: "Real Estate Agency", description: "List and manage properties as an agency" },
   { value: "Landlord", label: "Landlord", description: "Rent out your properties" },
@@ -58,6 +58,14 @@ export default function AuthPage() {
       router.push("/");
     }
   }, [role, router]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("mode") === "signup") {
+      setIsLogin(false);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -335,6 +343,11 @@ export default function AuthPage() {
                         </option>
                       ))}
                     </select>
+                    {userType === "HomeSeeker" && (
+                      <p className="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 leading-relaxed">
+                        A Seeker is a person looking for verified properties and trusted service providers.
+                      </p>
+                    )}
                     {userType === "ServiceProvider" && (
                       <p className="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 leading-relaxed">
                         Service providers should use their registered business name when creating an account.

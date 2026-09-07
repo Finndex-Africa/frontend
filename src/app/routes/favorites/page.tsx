@@ -7,6 +7,7 @@ import PropertyCard, { Property } from "@/components/domain/PropertyCard";
 import ServiceCard, { Service } from "@/components/domain/ServiceCard";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { bookmarksApi, SavedItem } from "@/services/api/bookmarks.api";
+import { isFeaturedListing } from "@/lib/featured";
 
 const defaultPropertyImage = '/images/properties/pexels-photo-323780.jpeg';
 
@@ -22,6 +23,7 @@ function adaptSavedPropertyToCard(item: SavedItem): Property {
         amenities: [],
         rating: l.rating ? Number(l.rating.toFixed(2)) : undefined,
         isBookmarked: true,
+        isPremium: isFeaturedListing(l),
     };
 }
 
@@ -39,6 +41,7 @@ function adaptSavedServiceToCard(item: SavedItem): Service {
         tags: [category.replace(/_/g, ' ')],
         badge: category.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
         isBookmarked: true,
+        isPremium: isFeaturedListing(l),
     };
 }
 

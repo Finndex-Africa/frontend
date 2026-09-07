@@ -181,17 +181,24 @@ export default function ProfilePage() {
                 firstName: string;
                 lastName: string;
                 phone: string;
-                avatar: string;
+                avatar?: string;
                 website?: string;
             } = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 phone: formData.phone,
-                avatar: formData.avatar,
             };
 
+            const avatarUrl = formData.avatar?.trim();
+            if (avatarUrl && /^https?:\/\//i.test(avatarUrl)) {
+                profilePayload.avatar = avatarUrl;
+            }
+
             if (user?.role === 'provider' || user?.userType === 'service_provider') {
-                profilePayload.website = formData.website;
+                const websiteUrl = formData.website?.trim();
+                if (websiteUrl) {
+                    profilePayload.website = websiteUrl;
+                }
             }
 
             const response = await usersApi.updateProfile(profilePayload);

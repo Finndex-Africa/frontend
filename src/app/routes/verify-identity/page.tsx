@@ -158,6 +158,10 @@ export default function VerifyIdentityPage() {
             setError("Please upload the front of your ID.");
             return;
         }
+        if (!form.selfieImage) {
+            setError("Please upload a clear Selfie with ID. This field is required.");
+            return;
+        }
         if (needsBusinessRegistration(AuthService.getInstance().getUser()?.role) && !form.businessRegistrationCertificate?.trim()) {
             setError("Please upload your business registration certificate.");
             return;
@@ -470,7 +474,10 @@ export default function VerifyIdentityPage() {
 
                             {/* Selfie */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Selfie with ID (optional)</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Selfie with ID <span className="text-red-500">*</span>
+                                    <span className="ml-1 text-xs font-normal text-red-600">Required</span>
+                                </label>
                                 <input
                                     ref={selfieRef}
                                     type="file"
@@ -485,21 +492,26 @@ export default function VerifyIdentityPage() {
                                     type="button"
                                     onClick={() => selfieRef.current?.click()}
                                     disabled={uploadingSelfie}
-                                    className="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors"
+                                    className={`w-full border-2 border-dashed rounded-lg p-6 text-center hover:border-blue-400 transition-colors ${
+                                        form.selfieImage ? "border-green-300" : "border-red-200 bg-red-50/40"
+                                    }`}
                                 >
                                     {uploadingSelfie ? (
                                         <span className="text-blue-600">Uploading...</span>
                                     ) : form.selfieImage ? (
-                                        <img src={form.selfieImage} alt="Selfie" className="max-h-40 mx-auto rounded" />
+                                        <img src={form.selfieImage} alt="Selfie with ID" className="max-h-40 mx-auto rounded" />
                                     ) : (
-                                        <span className="text-gray-500">Click to upload a selfie holding your ID</span>
+                                        <span className="text-gray-600">
+                                            Click to upload a clear selfie holding your ID
+                                            <span className="block mt-1 text-xs text-red-600 font-medium">This field is required</span>
+                                        </span>
                                     )}
                                 </button>
                             </div>
 
                             <button
                                 type="submit"
-                                disabled={submitting}
+                                disabled={submitting || uploadingSelfie || !form.selfieImage}
                                 className="w-full bg-[#0000FF] hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50"
                             >
                                 {submitting ? "Submitting..." : "Submit for Verification"}

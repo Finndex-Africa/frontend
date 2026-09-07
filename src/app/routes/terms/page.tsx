@@ -87,11 +87,7 @@ export default function TermsPage() {
                     ]}
                 />
                 <p className="text-sm text-gray-600">
-                    Details:{' '}
-                    <Link href="/routes/pricing" className="text-[#0000FF] font-medium hover:underline">
-                        Pricing model
-                    </Link>
-                    .
+                    Detailed pricing will be published once the structure is finalized.
                 </p>
             </LegalSection>
 

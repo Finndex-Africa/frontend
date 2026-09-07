@@ -24,6 +24,7 @@ import { useAuth } from "@/providers";
 import { normalizeApiEntityList } from "@/lib/normalize-api-entity";
 import { bookmarksApi } from "@/services/api/bookmarks.api";
 import BuySellCard from "@/components/domain/BuySellCard";
+import { isFeaturedListing, sortFeaturedFirst } from "@/lib/featured";
 
 
 const partnerLogos = [
@@ -81,6 +82,7 @@ const adaptPropertyToCard = (apiProperty: ApiProperty): Property => {
       : undefined,
     propertyType: propertyType || undefined,
     isBookmarked: apiProperty.isBookmarked,
+    isPremium: isFeaturedListing(apiProperty),
   };
 };
 
@@ -127,6 +129,7 @@ const adaptServiceToCard = (apiService: ApiService): Service => {
       : undefined,
     provider,
     isBookmarked: apiService.isBookmarked,
+    isPremium: isFeaturedListing(apiService),
   };
 };
 
@@ -200,7 +203,10 @@ export default function HomePage() {
         const propertiesData = normalizeApiEntityList<ApiProperty>(
           response.data?.data || response.data,
         );
-        const adaptedProperties = propertiesData.map(adaptPropertyToCard);
+        const adaptedProperties = sortFeaturedFirst(
+          propertiesData.map(adaptPropertyToCard),
+          (property) => Boolean(property.isPremium),
+        );
         setProperties(adaptedProperties);
         setPropertiesError(null);
       } catch (error: any) {
@@ -233,7 +239,10 @@ export default function HomePage() {
         });
         // Handle both response structures: response.data.data or response.data
         const servicesData = response.data?.data || response.data;
-        const adaptedServices = servicesData.map(adaptServiceToCard);
+        const adaptedServices = sortFeaturedFirst(
+          servicesData.map(adaptServiceToCard),
+          (service) => Boolean(service.isPremium),
+        );
         setServices(adaptedServices);
         setServicesError(null);
       } catch (error) {
@@ -267,7 +276,12 @@ export default function HomePage() {
         const saved = savedItems.status === "fulfilled" ? savedItems.value : [];
         const savedSet = new Set(saved.map((s) => s.listing._id));
 
-        setBuySellListings(items.map((l) => ({ ...l, isBookmarked: savedSet.has(l._id) })));
+        setBuySellListings(
+          sortFeaturedFirst(
+            items.map((l) => ({ ...l, isBookmarked: savedSet.has(l._id) })),
+            (listing) => isFeaturedListing(listing),
+          ),
+        );
 
         const buySellTotal = res.status === "fulfilled" ? (res.value.pagination?.totalItems ?? 0) : 0;
         setListingCounts(prev => prev ? { ...prev, buySell: buySellTotal } : { properties: 0, services: 0, buySell: buySellTotal });
