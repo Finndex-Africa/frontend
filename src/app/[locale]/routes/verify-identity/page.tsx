@@ -1,0 +1,434 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+import { useEffect, useState, useRef } from "react";
+
+import { verificationApi, type IdVerification, type SubmitIdVerificationDto } from "@/services/api/verification.api";
+import { mediaApi } from "@/services/api/media.api";
+import { AuthService } from "@/services/auth.service";
+import { useErrorMessage } from "@/lib/error-messages";
+import { trackIdentityVerificationStarted, trackIdentityVerificationSubmitted } from "@/lib/analytics";
+
+import { useRouter } from "@/i18n/navigation";
+function isServiceProviderRole(role: string | undefined): boolean {
+    const r = (role || "").toLowerCase();
+    return r === "service_provider" || r === "provider" || r === "vendor";
+}
+
+function isRealEstateAgencyRole(role: string | undefined): boolean {
+    return (role || "").toLowerCase() === "real_estate_agency";
+}
+
+function needsBusinessRegistration(role: string | undefined): boolean {
+    return isServiceProviderRole(role) || isRealEstateAgencyRole(role);
+}
+
+const ID_TYPES = [
+    { value: "passport", label: "Passport" },
+    { value: "national_id", label: "National ID" },
+    { value: "drivers_license", label: "Driver's License" },
+    { value: "voters_card", label: "Voter's Card" },
+];
+
+export default function VerifyIdentityPage() {
+  const tErr = useTranslations("errors");
+  const errorMessage = useErrorMessage();
+  const t = useTranslations("verifyIdentity");
+    const router = useRouter();
+    const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
+    const [existing, setExisting] = useState<IdVerification | null>(null);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+    const [isServiceProvider, setIsServiceProvider] = useState(false);
+    const [isRealEstateAgency, setIsRealEstateAgency] = useState(false);
+    const [businessCertIsPdf, setBusinessCertIsPdf] = useState(false);
+
+    const [form, setForm] = useState<SubmitIdVerificationDto>({
+        idType: "national_id",
+        idNumber: "",
+        idFrontImage: "",
+        idBackImage: "",
+        selfieImage: "",
+        fullName: "",
+        businessRegistrationCertificate: "",
+    });
+
+    const [uploadingFront, setUploadingFront] = useState(false);
+    const [uploadingBack, setUploadingBack] = useState(false);
+    const [uploadingSelfie, setUploadingSelfie] = useState(false);
+    const [uploadingBusinessCert, setUploadingBusinessCert] = useState(false);
+
+    const frontRef = useRef<HTMLInputElement>(null);
+    const backRef = useRef<HTMLInputElement>(null);
+    const selfieRef = useRef<HTMLInputElement>(null);
+    const businessCertRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+        if (!token) {
+            router.replace("/routes/login");
+            return;
+        }
+        const user = AuthService.getInstance().getUser();
+        const accountRole = user?.role;
+        setIsServiceProvider(isServiceProviderRole(accountRole));
+        setIsRealEstateAgency(isRealEstateAgencyRole(accountRole));
+        trackIdentityVerificationStarted(accountRole);
+        loadExisting();
+    }, [router]);
+
+    useEffect(() => {
+        if (
+            existing?.businessRegistrationCertificate &&
+            (existing.status === "rejected" || existing.status === "expired")
+        ) {
+            setForm((p) => ({
+                ...p,
+                businessRegistrationCertificate: existing.businessRegistrationCertificate,
+            }));
+            setBusinessCertIsPdf(/\.pdf(\?|#|$)/i.test(existing.businessRegistrationCertificate));
+        }
+    }, [existing]);
+
+    const loadExisting = async () => {
+        try {
+            const res = await verificationApi.getMyStatus();
+            const data = (res.data as any)?.data ?? res.data;
+            if (data) setExisting(data);
+        } catch {
+            // No existing verification
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleUpload = async (
+        file: File,
+        field: "idFrontImage" | "idBackImage" | "selfieImage" | "businessRegistrationCertificate",
+        setUploading: (v: boolean) => void,
+    ) => {
+        setUploading(true);
+        setError("");
+        try {
+            const result = await mediaApi.upload(file, "users");
+            setForm((prev) => ({ ...prev, [field]: result.url }));
+            if (field === "businessRegistrationCertificate") {
+                setBusinessCertIsPdf(file.type === "application/pdf");
+            }
+        } catch (err: any) {
+            const fallback =
+                field === "businessRegistrationCertificate"
+                    ? "Failed to upload document. Please check that the file is under 10MB and is JPG, PNG, GIF, WebP, or PDF, then try again."
+                    : "Failed to upload image. Please check that the file is under 10MB and is JPG, PNG, GIF, or WebP, then try again.";
+            setError(errorMessage(err));
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError("");
+        setSuccess("");
+
+        if (!form.idNumber.trim()) {
+            setError(tErr("form.idNumberRequired"));
+            return;
+        }
+        if (!form.idFrontImage) {
+            setError(tErr("form.idFrontRequired"));
+            return;
+        }
+        if (!form.selfieImage) {
+            setError("Please upload a clear Selfie with ID. This field is required.");
+            return;
+        }
+        if (needsBusinessRegistration(AuthService.getInstance().getUser()?.role) && !form.businessRegistrationCertificate?.trim()) {
+            setError(tErr("form.businessCertRequired"));
+            return;
+        }
+
+        setSubmitting(true);
+        try {
+            const payload: SubmitIdVerificationDto = { ...form };
+            const accountRole = AuthService.getInstance().getUser()?.role;
+            if (!needsBusinessRegistration(accountRole)) {
+                delete payload.businessRegistrationCertificate;
+            }
+            await verificationApi.submit(payload);
+            trackIdentityVerificationSubmitted({
+                role: AuthService.getInstance().getUser()?.role,
+                idType: form.idType,
+            });
+            setSuccess("Your ID has been submitted for verification. You will be notified once it's reviewed.");
+            loadExisting();
+        } catch (err: any) {
+            setError(errorMessage(err, "submitGeneric"));
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const statusColor: Record<string, string> = {
+        pending: "bg-yellow-100 text-yellow-800",
+        approved: "bg-green-100 text-green-800",
+        rejected: "bg-red-100 text-red-800",
+        expired: "bg-gray-100 text-gray-800",
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center pt-20">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" />
+            </div>
+        );
+    }
+
+    return (
+        <main className="min-h-screen bg-gray-50 pt-8 pb-16 px-4">
+                <div className="max-w-2xl mx-auto">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Identity Verification</h1>
+                    <p className="text-gray-600 mb-8">
+                        {t("uploadGovId")}
+                        {isServiceProvider &&
+                            " Service providers must also submit a business registration certificate."}
+                        {isRealEstateAgency &&
+                            " Real estate agencies must also submit a business registration certificate."}
+                    </p>
+
+                    {/* Existing verification status */}
+                    {existing && (
+                        <div className={`rounded-xl p-5 mb-8 ${statusColor[existing.status] || "bg-gray-100"}`}>
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="font-semibold text-lg capitalize">{existing.status}</p>
+                                    <p className="text-sm mt-1">
+                                        {existing.status === "pending" && "Your ID is being reviewed. We'll notify you shortly."}
+                                        {existing.status === "approved" && "Your identity has been verified!"}
+                                        {existing.status === "rejected" && (existing.rejectionReason || "Your ID was rejected. Please resubmit.")}
+                                        {existing.status === "expired" && "Your verification has expired. Please resubmit."}
+                                    </p>
+                                </div>
+                                <span className="text-xs opacity-70">
+                                    {new Date(existing.createdAt).toLocaleDateString()}
+                                </span>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Show form if no pending/approved verification */}
+                    {(!existing || existing.status === "rejected" || existing.status === "expired") && (
+                        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-md p-6 space-y-6">
+                            {error && (
+                                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                                    {error}
+                                </div>
+                            )}
+                            {success && (
+                                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
+                                    {success}
+                                </div>
+                            )}
+
+                            {/* Full name */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name (as on ID)</label>
+                                <input
+                                    type="text"
+                                    value={form.fullName || ""}
+                                    onChange={(e) => setForm((p) => ({ ...p, fullName: e.target.value }))}
+                                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                                    placeholder={t("fullLegalName")}
+                                />
+                            </div>
+
+                            {/* ID type */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">ID Type</label>
+                                <select
+                                    value={form.idType}
+                                    onChange={(e) => setForm((p) => ({ ...p, idType: e.target.value }))}
+                                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                                >
+                                    {ID_TYPES.map((t) => (
+                                        <option key={t.value} value={t.value}>{t.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* ID number */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">ID Number</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={form.idNumber}
+                                    onChange={(e) => setForm((p) => ({ ...p, idNumber: e.target.value }))}
+                                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                                    placeholder={t("idNumber")}
+                                />
+                            </div>
+
+                            {/* Front of ID */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Front of ID <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    ref={frontRef}
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                        const f = e.target.files?.[0];
+                                        if (f) handleUpload(f, "idFrontImage", setUploadingFront);
+                                    }}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => frontRef.current?.click()}
+                                    disabled={uploadingFront}
+                                    className="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors"
+                                >
+                                    {uploadingFront ? (
+                                        <span className="text-blue-600">Uploading...</span>
+                                    ) : form.idFrontImage ? (
+                                        <img src={form.idFrontImage} alt={t("front")} className="max-h-40 mx-auto rounded" />
+                                    ) : (
+                                        <span className="text-gray-500">Click to upload front of ID</span>
+                                    )}
+                                </button>
+                            </div>
+
+                            {/* Back of ID */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Back of ID (optional)</label>
+                                <input
+                                    ref={backRef}
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                        const f = e.target.files?.[0];
+                                        if (f) handleUpload(f, "idBackImage", setUploadingBack);
+                                    }}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => backRef.current?.click()}
+                                    disabled={uploadingBack}
+                                    className="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors"
+                                >
+                                    {uploadingBack ? (
+                                        <span className="text-blue-600">Uploading...</span>
+                                    ) : form.idBackImage ? (
+                                        <img src={form.idBackImage} alt={t("back")} className="max-h-40 mx-auto rounded" />
+                                    ) : (
+                                        <span className="text-gray-500">Click to upload back of ID</span>
+                                    )}
+                                </button>
+                            </div>
+
+                            {/* Business registration certificate (service providers & real estate agencies) */}
+                            {(isServiceProvider || isRealEstateAgency) && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Business Registration Certificate <span className="text-red-500">*</span>
+                                    </label>
+                                    <p className="text-xs text-gray-500 mb-2">
+                                        {t("uploadBusinessDoc")}
+                                    </p>
+                                    <input
+                                        ref={businessCertRef}
+                                        type="file"
+                                        accept="image/*,.pdf,application/pdf"
+                                        className="hidden"
+                                        onChange={(e) => {
+                                            const f = e.target.files?.[0];
+                                            if (f) handleUpload(f, "businessRegistrationCertificate", setUploadingBusinessCert);
+                                        }}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => businessCertRef.current?.click()}
+                                        disabled={uploadingBusinessCert}
+                                        className="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors"
+                                    >
+                                        {uploadingBusinessCert ? (
+                                            <span className="text-blue-600">Uploading...</span>
+                                        ) : form.businessRegistrationCertificate ? (
+                                            businessCertIsPdf ? (
+                                                <a
+                                                    href={form.businessRegistrationCertificate}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-600 font-medium hover:underline"
+                                                    onClick={(ev) => ev.stopPropagation()}
+                                                >
+                                                    PDF uploaded — click to open
+                                                </a>
+                                            ) : (
+                                                <img
+                                                    src={form.businessRegistrationCertificate}
+                                                    alt={t("businessRegistration")}
+                                                    className="max-h-40 mx-auto rounded"
+                                                />
+                                            )
+                                        ) : (
+                                            <span className="text-gray-500">Click to upload business registration certificate</span>
+                                        )}
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Selfie */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Selfie with ID <span className="text-red-500">*</span>
+                                    <span className="ml-1 text-xs font-normal text-red-600">Required</span>
+                                </label>
+                                <input
+                                    ref={selfieRef}
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                        const f = e.target.files?.[0];
+                                        if (f) handleUpload(f, "selfieImage", setUploadingSelfie);
+                                    }}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => selfieRef.current?.click()}
+                                    disabled={uploadingSelfie}
+                                    className={`w-full border-2 border-dashed rounded-lg p-6 text-center hover:border-blue-400 transition-colors ${
+                                        form.selfieImage ? "border-green-300" : "border-red-200 bg-red-50/40"
+                                    }`}
+                                >
+                                    {uploadingSelfie ? (
+                                        <span className="text-blue-600">Uploading...</span>
+                                    ) : form.selfieImage ? (
+                                        <img src={form.selfieImage} alt={t("selfie")} className="max-h-40 mx-auto rounded" />
+                                    ) : (
+                                        <span className="text-gray-600">
+                                            Click to upload a clear selfie holding your ID
+                                            <span className="block mt-1 text-xs text-red-600 font-medium">This field is required</span>
+                                        </span>
+                                    )}
+                                </button>
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={submitting || uploadingSelfie || !form.selfieImage}
+                                className="w-full bg-[#0000FF] hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50"
+                            >
+                                {submitting ? "Submitting..." : "Submit for Verification"}
+                            </button>
+                        </form>
+                    )}
+                </div>
+            </main>
+    );
+}

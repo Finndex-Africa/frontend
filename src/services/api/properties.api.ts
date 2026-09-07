@@ -1,5 +1,6 @@
 import { apiClient, PaginatedResponse } from '@/lib/api-client';
 import { Property } from '@/types/dashboard';
+import type { Currency } from '@/lib/currency/config';
 
 export interface PropertyFilters {
     page?: number;
@@ -8,6 +9,8 @@ export interface PropertyFilters {
     status?: string;
     minPrice?: number;
     maxPrice?: number;
+    /** Currency min/maxPrice are expressed in; the backend converts before filtering. */
+    currency?: Currency;
     location?: string;
     sort?: string;
 }
@@ -47,6 +50,9 @@ export const propertiesApi = {
         if (filters?.status) params.append('status', filters.status);
         if (filters?.minPrice) params.append('minPrice', filters.minPrice.toString());
         if (filters?.maxPrice) params.append('maxPrice', filters.maxPrice.toString());
+        // Without this the backend reads the budget as USD, so an RWF budget
+        // filters out every listing.
+        if (filters?.currency) params.append('currency', filters.currency);
         if (filters?.location) params.append('location', filters.location);
         if (filters?.sort) params.append('sort', filters.sort);
 

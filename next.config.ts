@@ -1,8 +1,23 @@
 import {withSentryConfig} from "@sentry/nextjs";
+import createNextIntlPlugin from "next-intl/plugin";
 import type { NextConfig } from "next";
 
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+
 const nextConfig: NextConfig = {
+  // Lets a build run into its own directory so it can't clobber a running
+  // `next dev`, which shares `.next` by default:
+  //   NEXT_DIST_DIR=.next-verify npx next build
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   images: {
+    /*
+      Netlify's Next runtime serves /_next/image through its own function, so
+      the Cache-Control in netlify.toml does not apply — the optimiser's own
+      header wins, and it defaulted to 1h. Lighthouse flagged ~3 MB being
+      re-fetched. Optimised output is keyed by url+width+quality, so a long TTL
+      is safe: changing any of those changes the URL.
+    */
+    minimumCacheTTL: 31536000,
     remotePatterns: [
       { protocol: "http", hostname: "localhost" }, // Local development server
       { protocol: "https", hostname: "images.unsplash.com" },
@@ -19,7 +34,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
 };
 
-export default withSentryConfig(nextConfig, {
+export default withSentryConfig(withNextIntl(nextConfig), {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
@@ -44,6 +59,26 @@ export default withSentryConfig(nextConfig, {
 
   // Automatically tree-shake Sentry logger statements to reduce bundle size
   disableLogger: true,
+
+  // Strips code paths this app never exercises. Sentry accounted for ~47% of
+  // the JS chunk shared by every page, so anything that can be dropped is worth
+  // dropping.
+  bundleSizeOptimizations: {
+    excludeDebugStatements: true,
+    excludeReplayShadowDom: true,
+    excludeReplayIframe: true,
+
+    /*
+      Strips Sentry's performance/tracing instrumentation. Safe here because
+      instrumentation-client.ts runs with tracesSampleRate 0 — the code was
+      being shipped on every page and never used.
+
+      NOTE: if you ever want tracing, set SENTRY_TRACES_SAMPLE_RATE *and*
+      remove this flag. The flag wins; leaving it set would make a non-zero
+      sample rate silently do nothing.
+    */
+    excludeTracing: true,
+  },
 
   // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
   // See the following for more information:

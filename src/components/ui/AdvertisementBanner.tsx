@@ -1,9 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { SafeImage } from "@/components/ui/SafeImage";
+import LiteYouTube from "@/components/ui/LiteYouTube";
 import { advertisementsApi, propertiesApi } from "@/services/api";
 
+import { Link } from "@/i18n/navigation";
 interface Advertisement {
     _id: string;
     title: string;
@@ -19,9 +21,11 @@ interface PlatformStats {
     totalBuySell: number;
 }
 
-const FINDAFRIQ_INTRO_EMBED_SRC = 'https://www.youtube.com/embed/W7e_E5S_YKA';
+// Visit Rwanda showcase: https://youtu.be/-kerFdxWG-w
+const DISCOVER_VIDEO_ID = '-kerFdxWG-w';
 
 export default function AdvertisementBanner() {
+    const t = useTranslations("advertBanner");
     const [advertisements, setAdvertisements] = useState<Advertisement[]>([]);
     const [currentAdIndex, setCurrentAdIndex] = useState(0);
     const [loading, setLoading] = useState(true);
@@ -132,39 +136,39 @@ export default function AdvertisementBanner() {
                             {/* Left Content */}
                             <div className="text-white space-y-6">
                                 <h2 className="text-3xl md:text-4xl font-bold">
-                                    Connecting you Seamlessly
+                                    {t("heading")}
                                 </h2>
                                 <p className="text-lg text-white/95">
-                                    The smarter way to find verified properties and trusted service providers seamlessly.
+                                    {t("body")}
                                 </p>
                                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
                                     <Link
                                         href="/routes/login"
                                         className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors text-center"
                                     >
-                                        Get Started
+                                        {t("getStarted")}
                                     </Link>
-                                    <a
+                                    <Link
                                         href="/routes/how-it-works"
                                         className="inline-block border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors text-center"
                                     >
-                                        How It Works
-                                    </a>
+                                        {t("howItWorks")}
+                                    </Link>
                                 </div>
 
                             {/* Stats */}
                             <div className="flex flex-wrap gap-8 pt-8 border-t border-white/20">
                                 <div>
                                     <div className="text-3xl font-extrabold">{formatNumber(stats.totalProperties)}</div>
-                                    <div className="text-sm text-white/90">Properties Listed</div>
+                                    <div className="text-sm text-white/90">{t("propertiesListed")}</div>
                                 </div>
                                 <div>
                                     <div className="text-3xl font-extrabold">{formatNumber(stats.totalServices)}</div>
-                                    <div className="text-sm text-white/90">Services Listed</div>
+                                    <div className="text-sm text-white/90">{t("servicesListed")}</div>
                                 </div>
                                 <div>
                                     <div className="text-3xl font-extrabold">{formatNumber(stats.totalBuySell)}</div>
-                                    <div className="text-sm text-white/90">Buy &amp; Sell Listed</div>
+                                    <div className="text-sm text-white/90">{t("buySellListed")}</div>
                                 </div>
                             </div>
                         </div>
@@ -172,24 +176,21 @@ export default function AdvertisementBanner() {
                         {/* Introduction video */}
                         <div className="flex flex-col gap-2 w-full">
                             <div className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-2xl bg-black ring-2 ring-white/20">
-                                <iframe
-                                    src={FINDAFRIQ_INTRO_EMBED_SRC}
-                                    title="Introduction to FindAfriq"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                    referrerPolicy="strict-origin-when-cross-origin"
-                                    allowFullScreen
-                                    className="absolute inset-0 h-full w-full border-0"
+                                <LiteYouTube
+                                    videoId={DISCOVER_VIDEO_ID}
+                                    title={t("introVideoTitle")}
+                                    playLabel={t("playVideo")}
                                 />
                             </div>
                             <p className="text-xs text-white/85 text-center sm:text-right">
-                                Watch our introduction — FindAfriq on{' '}
+                                {t("watchIntro")}{' '}
                                 <a
                                     href="https://www.youtube.com/@Findafriq"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="underline font-medium hover:text-white"
                                 >
-                                    YouTube
+                                    {t("youtube")}
                                 </a>
                             </p>
                         </div>
@@ -220,7 +221,7 @@ export default function AdvertisementBanner() {
                                     onClick={() => handleAdClick(currentAd)}
                                     className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors text-center"
                                 >
-                                    Learn More
+                                    {t("learnMore")}
                                 </button>
                             )}
                         </div>

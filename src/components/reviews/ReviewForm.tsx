@@ -1,12 +1,13 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import React, { useState, useEffect } from 'react';
 import { Star } from 'lucide-react';
 import { reviewsApi, CreateReviewDto } from '@/services/api/reviews.api';
 import { AuthService } from '@/services/auth.service';
 import Modal from '@/components/ui/Modal';
 import { showToast } from '@/lib/toast';
-import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
+import { useErrorMessage } from "@/lib/error-messages";
 import { trackReviewSubmitted } from '@/lib/analytics';
 
 interface ReviewFormProps {
@@ -17,6 +18,8 @@ interface ReviewFormProps {
 }
 
 export default function ReviewForm({ itemType, itemId, itemTitle, onSuccess }: ReviewFormProps) {
+  const errorMessage = useErrorMessage();
+    const t = useTranslations('reviews');
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [loading, setLoading] = useState(false);
     const [rating, setRating] = useState(0);
@@ -45,13 +48,13 @@ export default function ReviewForm({ itemType, itemId, itemTitle, onSuccess }: R
         const newErrors: { rating?: string; text?: string } = {};
 
         if (!rating) {
-            newErrors.rating = 'Please select a rating';
+            newErrors.rating = t('selectRating');
         }
 
         if (!text.trim()) {
-            newErrors.text = 'Please write your review';
+            newErrors.text = t('writeYourReview');
         } else if (text.trim().length < 10) {
-            newErrors.text = 'Review must be at least 10 characters';
+            newErrors.text = t('minLength');
         }
 
         setErrors(newErrors);
@@ -62,7 +65,7 @@ export default function ReviewForm({ itemType, itemId, itemTitle, onSuccess }: R
         e.preventDefault();
 
         if (!isAuthenticated || !user) {
-            showToast.warning('Please log in to leave a review');
+            showToast.warning(t('loginToLeaveReview'));
             return;
         }
 
@@ -81,7 +84,7 @@ export default function ReviewForm({ itemType, itemId, itemTitle, onSuccess }: R
 
             await reviewsApi.create(reviewData);
             trackReviewSubmitted({ type: itemType, rating });
-            showToast.success('Review submitted successfully!');
+            showToast.success(t('submitSuccess'));
 
             // Reset form
             setRating(0);
@@ -94,7 +97,7 @@ export default function ReviewForm({ itemType, itemId, itemTitle, onSuccess }: R
             }
         } catch (error: any) {
             console.error('Review submission error:', error);
-            showToast.error(getUserFriendlyErrorMessage(error, 'Failed to submit review. Please try again.'));
+            showToast.error(errorMessage(error));
         } finally {
             setLoading(false);
         }
@@ -113,7 +116,7 @@ export default function ReviewForm({ itemType, itemId, itemTitle, onSuccess }: R
     if (!isAuthenticated) {
         return (
             <div className="p-6 text-center bg-gray-50 rounded-lg border border-gray-200">
-                <p className="text-gray-600">Please log in to leave a review</p>
+                <p className="text-gray-600">{t('loginToLeaveReview')}</p>
             </div>
         );
     }
@@ -125,19 +128,25 @@ export default function ReviewForm({ itemType, itemId, itemTitle, onSuccess }: R
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
             >
                 <Star className="w-5 h-5" />
-                Write a Review
+                {t('writeAReview')}
             </button>
 
             <Modal
                 open={isModalVisible}
                 onClose={handleCancel}
-                title={`Review ${itemTitle || (itemType === 'property' ? 'Property' : 'Service')}`}
+                title={t('reviewModalTitle', {
+                    item:
+                        itemTitle ||
+                        (itemType === 'property'
+                            ? t('fallbackProperty')
+                            : t('fallbackService')),
+                })}
             >
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Rating */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Rating <span className="text-red-500">*</span>
+                            {t('ratingLabel')} <span className="text-red-500">*</span>
                         </label>
                         <div className="flex gap-2">
                             {[1, 2, 3, 4, 5].map((star) => (
@@ -167,12 +176,12 @@ export default function ReviewForm({ itemType, itemId, itemTitle, onSuccess }: R
                     {/* Review Text */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Your Review <span className="text-red-500">*</span>
+                            {t('yourReview')} <span className="text-red-500">*</span>
                         </label>
                         <textarea
                             value={text}
                             onChange={(e) => setText(e.target.value)}
-                            placeholder="Share your experience with this property/service..."
+                            placeholder={t('reviewPlaceholder')}
                             maxLength={1000}
                             rows={6}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
@@ -194,7 +203,7 @@ export default function ReviewForm({ itemType, itemId, itemTitle, onSuccess }: R
                             onClick={handleCancel}
                             className="px-6 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
                         >
-                            Cancel
+                            {t('cancel')}
                         </button>
                         <button
                             type="submit"
@@ -204,12 +213,12 @@ export default function ReviewForm({ itemType, itemId, itemTitle, onSuccess }: R
                             {loading ? (
                                 <>
                                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                    Submitting...
+                                    {t('submittingReview')}
                                 </>
                             ) : (
                                 <>
                                     <Star className="w-4 h-4" />
-                                    Submit Review
+                                    {t('submitReview')}
                                 </>
                             )}
                         </button>

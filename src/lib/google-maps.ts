@@ -6,6 +6,11 @@ export type MapCoordinates = {
 export type MapLocationInput = {
   location?: string | null;
   mapCoordinates?: MapCoordinates | null;
+  /**
+   * BCP-47 language for the embed. Google localizes its own map chrome
+   * ("Keyboard shortcuts", "Terms", "Map data") from this.
+   */
+  language?: string | null;
 };
 
 const COORDINATE_PATTERN =
@@ -57,19 +62,21 @@ export function resolveMapCoordinates(
 }
 
 export function buildGoogleMapsEmbedUrl(input: MapLocationInput): string {
+  const lang = input.language?.trim();
+  const hl = lang ? `&hl=${encodeURIComponent(lang)}` : "";
   const coordinates = resolveMapCoordinates(input);
 
   if (coordinates) {
     const { lat, lng } = coordinates;
-    return `https://www.google.com/maps?q=${lat},${lng}&z=15&output=embed`;
+    return `https://www.google.com/maps?q=${lat},${lng}&z=15${hl}&output=embed`;
   }
 
   const location = input.location?.trim();
   if (location) {
-    return `https://www.google.com/maps?q=${encodeURIComponent(location)}&output=embed`;
+    return `https://www.google.com/maps?q=${encodeURIComponent(location)}${hl}&output=embed`;
   }
 
-  return "https://www.google.com/maps?output=embed";
+  return `https://www.google.com/maps?output=embed${hl}`;
 }
 
 export async function geocodeAddress(
@@ -107,13 +114,19 @@ export async function buildGoogleMapsEmbedUrlAsync(
 ): Promise<string> {
   const existing = resolveMapCoordinates(input);
   if (existing) {
-    return buildGoogleMapsEmbedUrl({ mapCoordinates: existing });
+    return buildGoogleMapsEmbedUrl({
+      mapCoordinates: existing,
+      language: input.language,
+    });
   }
 
   if (input.location?.trim()) {
     const geocoded = await geocodeAddress(input.location);
     if (geocoded) {
-      return buildGoogleMapsEmbedUrl({ mapCoordinates: geocoded });
+      return buildGoogleMapsEmbedUrl({
+        mapCoordinates: geocoded,
+        language: input.language,
+      });
     }
   }
 

@@ -1,8 +1,10 @@
 "use client";
-import Link from "next/link";
 import Image from "next/image";
 import Button from "../ui/Button";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link, useRouter } from "@/i18n/navigation";
+import LanguageSwitcher from "./LanguageSwitcher";
+import CurrencySwitcher from "./CurrencySwitcher";
 import { useState, useEffect, useRef } from "react";
 import AdvertiseModal from "../modals/AdvertiseModal";
 import UserReportModal from "../modals/UserReportModal";
@@ -24,6 +26,7 @@ interface Notification {
 }
 
 export default function Navbar() {
+  const t = useTranslations("nav");
   const [showAdvertiseModal, setShowAdvertiseModal] = useState(false);
   const [showUserReportModal, setShowUserReportModal] =
     useState(false);
@@ -46,10 +49,10 @@ export default function Navbar() {
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
   const links = [
-    { href: "/", label: "Discover" },
-    { href: "/routes/properties", label: "Properties" },
-    { href: "/routes/services", label: "Services" },
-    { href: "/routes/buy-and-sell", label: "Buy & Sell", isNew: true },
+    { href: "/", label: t("discover") },
+    { href: "/routes/properties", label: t("properties") },
+    { href: "/routes/services", label: t("services") },
+    { href: "/routes/buy-and-sell", label: t("buyAndSell"), isNew: true },
   ];
   const router = useRouter();
 
@@ -314,7 +317,7 @@ export default function Navbar() {
                 {l.label}
                 {l.isNew && (
                   <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-600 text-white leading-none">
-                    New
+                    {t("new")}
                   </span>
                 )}
               </Link>
@@ -322,19 +325,21 @@ export default function Navbar() {
           </nav>
           {/* Desktop Action Buttons */}
           <div className="hidden md:flex items-center gap-2">
+            <LanguageSwitcher />
+            <CurrencySwitcher />
             <button
               type="button"
               className="btn bg-transparent text-gray-700 hover:bg-gray-100 px-4 text-sm font-semibold"
               onClick={() => setShowUserReportModal(true)}
             >
-              Report
+              {t("report")}
             </button>
             <Button
               variant="ghost"
               className="px-4"
               onClick={() => setShowAdvertiseModal(true)}
             >
-              Advertise
+              {t("advertise")}
             </Button>
             {isMounted && isLoggedIn && (
               <div className="relative" ref={notifRef}>
@@ -365,7 +370,7 @@ export default function Navbar() {
                   <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 max-h-96 overflow-y-auto">
                     <div className="px-4 py-2 border-b border-gray-200">
                       <h3 className="font-semibold text-gray-900">
-                        Notifications
+                        {t("notifications")}
                       </h3>
                     </div>
                     {!notifications || notifications.length === 0 ? (
@@ -383,7 +388,7 @@ export default function Navbar() {
                             d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
                           />
                         </svg>
-                        <p className="text-sm">No notifications yet</p>
+                        <p className="text-sm">{t("noNotifications")}</p>
                       </div>
                     ) : (
                       <>
@@ -421,7 +426,7 @@ export default function Navbar() {
                           onClick={handleViewAllNotifications}
                           className="w-full px-4 py-2 text-sm text-center text-blue-600 hover:bg-blue-50 font-medium"
                         >
-                          View All Notifications
+                          {t("viewAllNotifications")}
                         </button>
                       </>
                     )}
@@ -436,14 +441,14 @@ export default function Navbar() {
                   className="px-4"
                   onClick={() => router.push("/routes/login")}
                 >
-                  Sign In
+                  {t("signIn")}
                 </Button>
                 <Button
                   variant="primary"
                   className="px-4"
                   onClick={() => router.push("/routes/login?mode=signup")}
                 >
-                  Sign Up
+                  {t("signUp")}
                 </Button>
               </div>
             ) : isLoggedIn ? (
@@ -534,7 +539,7 @@ export default function Navbar() {
                               d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
                             />
                           </svg>
-                          Dashboard
+                          {t("dashboard")}
                         </button>
                       )}
 
@@ -561,7 +566,7 @@ export default function Navbar() {
                                 d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                               />
                             </svg>
-                            My Listings
+                            {t("myListings")}
                           </button>
                           <button
                             onClick={() => {
@@ -583,7 +588,7 @@ export default function Navbar() {
                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                               />
                             </svg>
-                            My Bookings
+                            {t("myBookings")}
                           </button>
                           <button
                             onClick={() => {
@@ -605,7 +610,7 @@ export default function Navbar() {
                                 d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
                               />
                             </svg>
-                            Messages
+                            {t("messages")}
                           </button>
                           <button
                             onClick={() => {
@@ -627,7 +632,7 @@ export default function Navbar() {
                                 d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
                               />
                             </svg>
-                            Notifications
+                            {t("notifications")}
                           </button>
                           <button
                             onClick={() => {
@@ -649,7 +654,7 @@ export default function Navbar() {
                                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                               />
                             </svg>
-                            Favorites
+                            {t("favorites")}
                           </button>
                           <button
                             onClick={() => {
@@ -671,7 +676,7 @@ export default function Navbar() {
                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                               />
                             </svg>
-                            Profile
+                            {t("profile")}
                           </button>
                         </>
                       )}
@@ -699,7 +704,7 @@ export default function Navbar() {
                                 d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                               />
                             </svg>
-                            My Listings
+                            {t("myListings")}
                           </button>
                           <button
                             onClick={() => {
@@ -721,7 +726,7 @@ export default function Navbar() {
                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                               />
                             </svg>
-                            Bookings
+                            {t("bookings")}
                           </button>
                           <button
                             onClick={() => {
@@ -743,7 +748,7 @@ export default function Navbar() {
                                 d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
                               />
                             </svg>
-                            Messages
+                            {t("messages")}
                           </button>
                           <button
                             onClick={() => {
@@ -765,7 +770,7 @@ export default function Navbar() {
                                 d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
                               />
                             </svg>
-                            Notifications
+                            {t("notifications")}
                           </button>
                           <button
                             onClick={() => {
@@ -787,7 +792,7 @@ export default function Navbar() {
                                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                               />
                             </svg>
-                            Favorites
+                            {t("favorites")}
                           </button>
                           <button
                             onClick={() => {
@@ -809,7 +814,7 @@ export default function Navbar() {
                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                               />
                             </svg>
-                            Profile
+                            {t("profile")}
                           </button>
                         </>
                       )}
@@ -837,7 +842,7 @@ export default function Navbar() {
                                 d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                               />
                             </svg>
-                            My Services
+                            {t("myServices")}
                           </button>
                           <button
                             onClick={() => {
@@ -859,7 +864,7 @@ export default function Navbar() {
                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                               />
                             </svg>
-                            Bookings
+                            {t("bookings")}
                           </button>
                           <button
                             onClick={() => {
@@ -881,7 +886,7 @@ export default function Navbar() {
                                 d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
                               />
                             </svg>
-                            Messages
+                            {t("messages")}
                           </button>
                           <button
                             onClick={() => {
@@ -903,7 +908,7 @@ export default function Navbar() {
                                 d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
                               />
                             </svg>
-                            Notifications
+                            {t("notifications")}
                           </button>
                           <button
                             onClick={() => {
@@ -925,7 +930,7 @@ export default function Navbar() {
                                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                               />
                             </svg>
-                            Favorites
+                            {t("favorites")}
                           </button>
                           <button
                             onClick={() => {
@@ -947,7 +952,7 @@ export default function Navbar() {
                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                               />
                             </svg>
-                            Profile
+                            {t("profile")}
                           </button>
                         </>
                       )}
@@ -975,7 +980,7 @@ export default function Navbar() {
                                 d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                               />
                             </svg>
-                            Verify Identity
+                            {t("verifyIdentity")}
                           </button>
                         </>
                       )}
@@ -1000,7 +1005,7 @@ export default function Navbar() {
                             d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                           />
                         </svg>
-                        Log out
+                        {t("logOut")}
                       </button>
                     </div>
                   </div>
@@ -1013,14 +1018,14 @@ export default function Navbar() {
                   className="px-4"
                   onClick={() => router.push("/routes/login")}
                 >
-                  Sign In
+                  {t("signIn")}
                 </Button>
                 <Button
                   variant="primary"
                   className="px-4"
                   onClick={() => router.push("/routes/login?mode=signup")}
                 >
-                  Sign Up
+                  {t("signUp")}
                 </Button>
               </div>
             )}
@@ -1057,7 +1062,7 @@ export default function Navbar() {
               ref={mobileMenuButtonRef}
               onClick={() => setShowMobileMenu(!showMobileMenu)}
               className="p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-              aria-label="Toggle menu"
+              aria-label={t("toggleMenu")}
             >
               <svg
                 className="w-6 h-6"
@@ -1104,7 +1109,7 @@ export default function Navbar() {
                   {l.label}
                   {l.isNew && (
                     <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-600 text-white leading-none">
-                      New
+                      {t("new")}
                     </span>
                   )}
                 </Link>
@@ -1112,6 +1117,8 @@ export default function Navbar() {
 
               {/* Mobile Actions */}
               <div className="pt-3 border-t border-gray-200 space-y-2">
+                <LanguageSwitcher variant="inline" className="px-3 pb-1" />
+                <CurrencySwitcher variant="inline" className="px-3 pb-3" />
                 <button
                   type="button"
                   className="btn bg-transparent text-gray-700 hover:bg-gray-100 px-4 text-sm font-semibold w-full justify-start!"
@@ -1120,7 +1127,7 @@ export default function Navbar() {
                     setShowMobileMenu(false);
                   }}
                 >
-                  Report
+                  {t("report")}
                 </button>
                 <Button
                   variant="ghost"
@@ -1130,7 +1137,7 @@ export default function Navbar() {
                     setShowMobileMenu(false);
                   }}
                 >
-                  Advertise
+                  {t("advertise")}
                 </Button>
 
                 {isMounted && isLoggedIn ? (
@@ -1183,7 +1190,7 @@ export default function Navbar() {
                             d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
                           />
                         </svg>
-                        Dashboard
+                        {t("dashboard")}
                       </Button>
                     )}
 
@@ -1211,7 +1218,7 @@ export default function Navbar() {
                               d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                             />
                           </svg>
-                          My Listings
+                          {t("myListings")}
                         </Button>
                         <Button
                           variant="ghost"
@@ -1234,7 +1241,7 @@ export default function Navbar() {
                               d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                             />
                           </svg>
-                          My Bookings
+                          {t("myBookings")}
                         </Button>
                         <Button
                           variant="ghost"
@@ -1257,7 +1264,7 @@ export default function Navbar() {
                               d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
                             />
                           </svg>
-                          Messages
+                          {t("messages")}
                         </Button>
                         <Button
                           variant="ghost"
@@ -1280,7 +1287,7 @@ export default function Navbar() {
                               d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
                             />
                           </svg>
-                          Notifications
+                          {t("notifications")}
                         </Button>
                         <Button
                           variant="ghost"
@@ -1303,7 +1310,7 @@ export default function Navbar() {
                               d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                             />
                           </svg>
-                          Favorites
+                          {t("favorites")}
                         </Button>
                         <Button
                           variant="ghost"
@@ -1326,7 +1333,7 @@ export default function Navbar() {
                               d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                             />
                           </svg>
-                          Profile
+                          {t("profile")}
                         </Button>
                       </>
                     )}
@@ -1355,7 +1362,7 @@ export default function Navbar() {
                               d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                             />
                           </svg>
-                          My Listings
+                          {t("myListings")}
                         </Button>
                         <Button
                           variant="ghost"
@@ -1378,7 +1385,7 @@ export default function Navbar() {
                               d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                             />
                           </svg>
-                          Bookings
+                          {t("bookings")}
                         </Button>
                         <Button
                           variant="ghost"
@@ -1401,7 +1408,7 @@ export default function Navbar() {
                               d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
                             />
                           </svg>
-                          Messages
+                          {t("messages")}
                         </Button>
                         <Button
                           variant="ghost"
@@ -1424,7 +1431,7 @@ export default function Navbar() {
                               d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
                             />
                           </svg>
-                          Notifications
+                          {t("notifications")}
                         </Button>
                         <Button
                           variant="ghost"
@@ -1447,7 +1454,7 @@ export default function Navbar() {
                               d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                             />
                           </svg>
-                          Favorites
+                          {t("favorites")}
                         </Button>
                         <Button
                           variant="ghost"
@@ -1470,7 +1477,7 @@ export default function Navbar() {
                               d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                             />
                           </svg>
-                          Profile
+                          {t("profile")}
                         </Button>
                       </>
                     )}
@@ -1499,7 +1506,7 @@ export default function Navbar() {
                               d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                             />
                           </svg>
-                          My Services
+                          {t("myServices")}
                         </Button>
                         <Button
                           variant="ghost"
@@ -1522,7 +1529,7 @@ export default function Navbar() {
                               d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                             />
                           </svg>
-                          Bookings
+                          {t("bookings")}
                         </Button>
                         <Button
                           variant="ghost"
@@ -1545,7 +1552,7 @@ export default function Navbar() {
                               d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
                             />
                           </svg>
-                          Messages
+                          {t("messages")}
                         </Button>
                         <Button
                           variant="ghost"
@@ -1568,7 +1575,7 @@ export default function Navbar() {
                               d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
                             />
                           </svg>
-                          Notifications
+                          {t("notifications")}
                         </Button>
                         <Button
                           variant="ghost"
@@ -1591,7 +1598,7 @@ export default function Navbar() {
                               d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                             />
                           </svg>
-                          Favorites
+                          {t("favorites")}
                         </Button>
                         <Button
                           variant="ghost"
@@ -1614,7 +1621,7 @@ export default function Navbar() {
                               d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                             />
                           </svg>
-                          Profile
+                          {t("profile")}
                         </Button>
                       </>
                     )}
@@ -1641,7 +1648,7 @@ export default function Navbar() {
                           d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                         />
                       </svg>
-                      Verify Identity
+                      {t("verifyIdentity")}
                     </Button>
 
                     {/* Logout */}
@@ -1666,7 +1673,7 @@ export default function Navbar() {
                           d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                         />
                       </svg>
-                      Logout
+                      {t("logOut")}
                     </Button>
                   </>
                 ) : (
@@ -1679,7 +1686,7 @@ export default function Navbar() {
                         setShowMobileMenu(false);
                       }}
                     >
-                      Sign In
+                      {t("signIn")}
                     </Button>
                     <Button
                       variant="primary"
@@ -1689,7 +1696,7 @@ export default function Navbar() {
                         setShowMobileMenu(false);
                       }}
                     >
-                      Sign Up
+                      {t("signUp")}
                     </Button>
                   </div>
                 )}
@@ -1702,7 +1709,7 @@ export default function Navbar() {
         {isMounted && isLoggedIn && showNotifications && (
           <div className="md:hidden fixed inset-x-0 top-16 mx-4 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-[70vh] overflow-y-auto">
             <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
-              <h3 className="font-semibold text-gray-900">Notifications</h3>
+              <h3 className="font-semibold text-gray-900">{t("notifications")}</h3>
               <button
                 onClick={() => setShowNotifications(false)}
                 className="p-1 hover:bg-gray-100 rounded"
@@ -1737,7 +1744,7 @@ export default function Navbar() {
                     d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
                   />
                 </svg>
-                <p className="text-sm">No notifications yet</p>
+                <p className="text-sm">{t("noNotifications")}</p>
               </div>
             ) : (
               <>
@@ -1769,7 +1776,7 @@ export default function Navbar() {
                   onClick={handleViewAllNotifications}
                   className="w-full px-4 py-3 text-sm text-center text-blue-600 hover:bg-blue-50 font-medium"
                 >
-                  View All Notifications
+                  {t("viewAllNotifications")}
                 </button>
               </>
             )}
@@ -1854,7 +1861,7 @@ export default function Navbar() {
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-gray-500">
-                    Type:
+                    {t("type")}
                   </span>
                   <span
                     className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
@@ -1880,7 +1887,7 @@ export default function Navbar() {
                 onClick={closeNotificationModal}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
               >
-                Close
+                {t("close")}
               </button>
             </div>
           </div>

@@ -1,14 +1,22 @@
 'use client';
 
 import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { useTranslatedContent } from "@/lib/translated-content";
 import { SafeImage } from "@/components/ui/SafeImage";
 import ShareButton from "@/components/ui/ShareButton";
 import { bookmarksApi } from "@/services/api/bookmarks.api";
 import type { BuySellListing } from "@/types/buy-sell";
 import { getUserDisplayName } from "@/lib/display-name";
+import { useMoney } from "@/lib/currency/CurrencyProvider";
+import type { Currency } from "@/lib/currency/config";
 
+import { Link } from "@/i18n/navigation";
 export default function BuySellCard({ listing }: { listing: BuySellListing }) {
+  const t = useTranslations("buySellCard");
+  const money = useMoney();
+  const priceParts = money.forListing(listing.price, listing.currency as Currency);
+  const translated = useTranslatedContent(listing);
   const seller = typeof listing.sellerId === "object" ? listing.sellerId : null;
   const sellerName = seller
     ? getUserDisplayName(seller as unknown as Record<string, unknown>, "Seller")
@@ -44,8 +52,8 @@ export default function BuySellCard({ listing }: { listing: BuySellListing }) {
   // ─────────────────────────────────────────────────────────────────────────
 
   const categoryLabel =
-    listing.category === "land" ? "Land for Sale" :
-    listing.category === "house" ? "House for Sale" : "Item for Sale";
+    listing.category === "land" ? t("landForSale") :
+    listing.category === "house" ? t("houseForSale") : t("itemForSale");
 
   const categoryColor =
     listing.category === "land" ? "bg-green-100 text-green-700" :
@@ -55,14 +63,19 @@ export default function BuySellCard({ listing }: { listing: BuySellListing }) {
   const subtitle =
     listing.category === "land"
       ? listing.landSize != null && listing.unit
-        ? `${listing.landSize} ${listing.unit.replace("_", " ")}`
+        ? t("landSize", {
+            size: listing.landSize,
+            unit: t.has(`units.${listing.unit}`)
+              ? t(`units.${listing.unit}`, { count: listing.landSize })
+              : listing.unit.replace(/_/g, " "),
+          })
         : null
       : listing.category === "house"
         ? listing.bedrooms != null && listing.bathrooms != null
-          ? `${listing.bedrooms} bed · ${listing.bathrooms} bath`
+          ? t("bedBath", { bedrooms: listing.bedrooms, bathrooms: listing.bathrooms })
           : null
         : listing.condition
-          ? listing.condition === "fairly_used" ? "Fairly Used" : "New"
+          ? listing.condition === "fairly_used" ? t("fairlyUsed") : t("new")
           : null;
 
   return (
@@ -126,7 +139,7 @@ export default function BuySellCard({ listing }: { listing: BuySellListing }) {
       {/* Info — agent fee intentionally omitted (shown only on detail page) */}
       <div className="p-4">
         <h3 className="font-semibold text-gray-900 text-sm leading-snug line-clamp-2 mb-1">
-          {listing.title}
+          {translated.title.value}
         </h3>
         <p className="text-xs text-gray-500 line-clamp-1 mb-1">📍 {listing.location}</p>
         {subtitle && (
@@ -134,15 +147,15 @@ export default function BuySellCard({ listing }: { listing: BuySellListing }) {
         )}
         <div className="flex items-center justify-between mt-2">
           <span className="text-base font-bold text-gray-900">
-            ${listing.price.toLocaleString()}
+            {priceParts.display}
           </span>
           {listing.isPremium && (
             <span className="text-xs font-semibold text-yellow-700 bg-yellow-50 border border-yellow-200 px-2 py-0.5 rounded-full">
-              Featured
+              {t("featured")}
             </span>
           )}
         </div>
-        <p className="text-xs text-gray-400 mt-2 truncate">By {sellerName}</p>
+        <p className="text-xs text-gray-400 mt-2 truncate">{t("bySeller", { seller: sellerName })}</p>
       </div>
     </Link>
   );

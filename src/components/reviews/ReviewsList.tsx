@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import React, { useState, useEffect } from 'react';
 import { Star } from 'lucide-react';
 import ReviewCard from './ReviewCard';
@@ -14,6 +15,7 @@ interface ReviewsListProps {
 }
 
 export default function ReviewsList({ itemType, itemId, itemTitle }: ReviewsListProps) {
+    const t = useTranslations('reviews');
     const [reviews, setReviews] = useState<Review[]>([]);
     const [loading, setLoading] = useState(true);
     const [averageRating, setAverageRating] = useState(0);
@@ -38,7 +40,7 @@ export default function ReviewsList({ itemType, itemId, itemTitle }: ReviewsList
             setTotalPages(response.pagination?.totalPages || 1);
         } catch (error) {
             console.error('Error fetching reviews:', error);
-            showToast.error('Failed to load reviews');
+            showToast.error(t('loadFailed'));
         } finally {
             setLoading(false);
         }
@@ -80,7 +82,7 @@ export default function ReviewsList({ itemType, itemId, itemTitle }: ReviewsList
         <div className="space-y-6">
             {/* Rating Summary Card */}
             <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">Reviews & Ratings</h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('title')}</h2>
 
                 {/* Rating Summary */}
                 <div className="grid md:grid-cols-2 gap-8 mb-6">
@@ -100,7 +102,7 @@ export default function ReviewsList({ itemType, itemId, itemTitle }: ReviewsList
                                 />
                             ))}
                         </div>
-                        <p className="text-gray-600">{reviewCount} review{reviewCount !== 1 ? 's' : ''}</p>
+                        <p className="text-gray-600">{t('reviewCount', { count: reviewCount })}</p>
                     </div>
 
                     {/* Rating Distribution */}
@@ -144,33 +146,33 @@ export default function ReviewsList({ itemType, itemId, itemTitle }: ReviewsList
             {/* Filters and Sort */}
             <div className="flex gap-4 flex-wrap">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Sort by</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('sortBy')}</label>
                     <select
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest' | 'highest' | 'lowest' | 'helpful')}
                         className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                        <option value="newest">Most Recent</option>
-                        <option value="helpful">Most Helpful</option>
-                        <option value="highest">Highest Rating</option>
-                        <option value="lowest">Lowest Rating</option>
-                        <option value="oldest">Oldest First</option>
+                        <option value="newest">{t('sortNewest')}</option>
+                        <option value="helpful">{t('sortHelpful')}</option>
+                        <option value="highest">{t('sortHighest')}</option>
+                        <option value="lowest">{t('sortLowest')}</option>
+                        <option value="oldest">{t('sortOldest')}</option>
                     </select>
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Filter by rating</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('filterByRating')}</label>
                     <select
                         value={filterRating || ''}
                         onChange={(e) => setFilterRating(e.target.value ? Number(e.target.value) : undefined)}
                         className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                        <option value="">All Ratings</option>
-                        <option value="5">5 Stars</option>
-                        <option value="4">4 Stars</option>
-                        <option value="3">3 Stars</option>
-                        <option value="2">2 Stars</option>
-                        <option value="1">1 Star</option>
+                        <option value="">{t('allRatings')}</option>
+                        <option value="5">{t('starsFilter', { count: 5 })}</option>
+                        <option value="4">{t('starsFilter', { count: 4 })}</option>
+                        <option value="3">{t('starsFilter', { count: 3 })}</option>
+                        <option value="2">{t('starsFilter', { count: 2 })}</option>
+                        <option value="1">{t('starsFilter', { count: 1 })}</option>
                     </select>
                 </div>
             </div>
@@ -183,7 +185,7 @@ export default function ReviewsList({ itemType, itemId, itemTitle }: ReviewsList
                 </div>
             ) : reviews.length === 0 ? (
                 <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
-                    <p className="text-gray-600">No reviews yet. Be the first to review!</p>
+                    <p className="text-gray-600">{t('noReviewsYet')}</p>
                 </div>
             ) : (
                 <>
@@ -207,7 +209,7 @@ export default function ReviewsList({ itemType, itemId, itemTitle }: ReviewsList
                                 disabled={currentPage === 1}
                                 className="px-4 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
-                                Previous
+                                {t("previous")}
                             </button>
 
                             <div className="flex gap-1">

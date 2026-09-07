@@ -1,17 +1,24 @@
 "use client";
-import Link from "next/link";
 import { useRef, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useEnumLabel } from "@/lib/enum-labels";
+import { useTranslatedContent } from "@/lib/translated-content";
+
 import { SafeImage } from "@/components/ui/SafeImage";
 import ShareButton from "@/components/ui/ShareButton";
 import { trackListingBookmarked } from "@/lib/analytics";
 import { bookmarksApi } from "@/services/api/bookmarks.api";
 
+import { Link, useRouter } from "@/i18n/navigation";
+import { useMoney } from "@/lib/currency/CurrencyProvider";
+import type { Currency } from "@/lib/currency/config";
 export type Property = {
     id: string;
     title: string;
     location: string;
     price: string;
+    /** Currency the seller priced in. Defaults to USD for pre-multi-currency listings. */
+    currency?: Currency;
     imageUrl: string;
     imageUrls?: string[];
     amenities: string[];
@@ -23,6 +30,10 @@ export type Property = {
     /** Initial bookmark state from the API listing response */
     isBookmarked?: boolean;
     isPremium?: boolean;
+    /** i18n passthrough — resolved by the card, see lib/translated-content. */
+    sourceLang?: string;
+    translations?: Record<string, { title?: string; description?: string }>;
+    translationSource?: 'machine' | 'human';
 };
 
 function PropertyImageCarousel({
@@ -131,18 +142,27 @@ export default function PropertyCard({
     /** Called after the item is successfully unbookmarked — useful for removing from a saved list */
     onUnbookmark?: () => void;
 }) {
+    const t = useTranslations("propertyCard");
+    const propertyTypeLabel = useEnumLabel("propertyTypes");
+    // Search cards show the translation silently; the disclosure lives on the
+    // detail page (same split Airbnb uses).
+    const translated = useTranslatedContent(p);
     const router = useRouter();
     const [saved, setSaved] = useState(p.isBookmarked ?? false);
     const [toggling, setToggling] = useState(false);
     const displayBadge = badge ?? p.propertyType;
     const images = p.imageUrls?.length ? p.imageUrls : [p.imageUrl];
 
-    const formatPrice = (price: string) => {
-        const numericPrice = price.replace(/[^0-9]/g, "");
-        const value = parseInt(numericPrice, 10);
-        if (!Number.isFinite(value)) return "Price unavailable";
-        return "$" + value.toLocaleString();
-    };
+    const money = useMoney();
+
+    // `price` arrives as a display string from several different call sites, so
+    // strip formatting before treating it as a number.
+    const priceValue = (() => {
+        const digits = String(p.price).replace(/[^0-9.]/g, "");
+        const value = Number.parseFloat(digits);
+        return Number.isFinite(value) ? value : null;
+    })();
+    const priceParts = money.forListing(priceValue, p.currency);
 
     const imageContainerClass = compact
         ? "relative w-full rounded-2xl overflow-hidden shadow-sm aspect-[5/4] sm:aspect-[4/3] md:aspect-square mb-2"
@@ -171,9 +191,15 @@ export default function PropertyCard({
                                 : "top-3 left-3 px-2.5 py-1 text-[11px]"
                         }`}
                     >
-                        {displayBadge.toLowerCase().includes("for rent") || displayBadge.toLowerCase().includes("for sale")
-                            ? displayBadge
-                            : `${displayBadge} for Rent`}
+                        {(() => {
+                            const lower = displayBadge.toLowerCase();
+                            // Some records already carry the phrase in the type string.
+                            const forSale = lower.includes("for sale");
+                            const bare = displayBadge.replace(/\s*for\s+(rent|sale)\s*$/i, "");
+                            return t(forSale ? "forSale" : "forRent", {
+                                type: propertyTypeLabel(bare),
+                            });
+                        })()}
                     </div>
                 )}
                 <div
@@ -184,10 +210,10 @@ export default function PropertyCard({
                         dropdownRight
                         url={`/routes/property/${p.id}`}
                         title={p.title}
-                        text={`Check out this property: ${p.title} in ${p.location}`}
+                        text={t("shareText", { title: p.title, location: p.location })}
                     />
                     <button
-                        aria-label={saved ? "Remove from favorites" : "Save to favorites"}
+                        aria-label={saved ? t("removeFromFavorites") : t("saveToFavorites")}
                         disabled={toggling}
                         onClick={async (e) => {
                             e.preventDefault();
@@ -234,7 +260,7 @@ export default function PropertyCard({
                             compact ? "text-[12px] sm:text-[15px]" : "text-[15px]"
                         }`}
                     >
-                        {p.title}
+                        {translated.title.value}
                     </h3>
                     {p.rating && (
                         <div className="flex items-center gap-0.5 shrink-0">
@@ -270,18 +296,18 @@ export default function PropertyCard({
                         <span
                             className={`font-semibold text-gray-900 ${compact ? "text-[12px] sm:text-[15px]" : "text-[15px]"}`}
                         >
-                            {formatPrice(p.price)}
+                            {priceParts.display || t("priceUnavailable")}
                         </span>
                         <span
                             className={`text-gray-500 font-normal ${compact ? "text-[10px] sm:text-[13px]" : "text-[13px]"}`}
                         >
                             {" "}
-                            / month
+                            {t("perMonth")}
                         </span>
                     </div>
                     {p.isPremium && (
                         <span className="text-xs font-semibold text-yellow-700 bg-yellow-50 border border-yellow-200 px-2 py-0.5 rounded-full shrink-0">
-                            Featured
+                            {t("featured")}
                         </span>
                     )}
                 </div>

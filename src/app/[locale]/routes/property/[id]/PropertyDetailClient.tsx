@@ -1,0 +1,1581 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { useEnumLabel, useOptionalEnumLabel } from "@/lib/enum-labels";
+import { useTranslatedContent } from "@/lib/translated-content";
+import TranslatedText from "@/components/ui/TranslatedText";
+import { useParams } from "next/navigation";
+import toast, { Toaster } from "react-hot-toast";
+import MediaCarousel from "@/components/domain/MediaCarousel";
+import Button from "@/components/ui/Button";
+import { MessageCircle, Calendar, Mail, Lock } from "lucide-react";
+import ShareButton from "@/components/ui/ShareButton";
+import { propertiesApi, messagesApi } from "@/services/api";
+import { Property as ApiProperty } from "@/types/dashboard";
+import { bookmarksApi } from "@/services/api/bookmarks.api";
+import { apiClient } from "@/lib/api-client";
+import { useErrorMessage } from "@/lib/error-messages";
+import ChatBox from "@/components/dashboard/ChatBox";
+import ReviewsList from "@/components/reviews/ReviewsList";
+import { isUserVerifiedByAdmin } from "@/lib/user-verification";
+import { getUserDisplayName, getUserPhone } from "@/lib/display-name";
+import { shouldShowAgentFee } from "@/lib/user-type-label";
+import { isFeaturedListing } from "@/lib/featured";
+import { buildGoogleMapsEmbedUrlAsync } from "@/lib/google-maps";
+import {
+  trackListingViewed,
+  trackBookingModalOpened,
+  trackBookingSubmitted,
+  trackWhatsAppClick,
+  trackContactModalOpened,
+  trackChatStarted,
+} from "@/lib/analytics";
+import { useScrollDepth } from "@/lib/hooks/useScrollDepth";
+import { useMoney } from "@/lib/currency/CurrencyProvider";
+import type { Currency } from "@/lib/currency/config";
+
+const LOCAL_PROPERTY_IMAGE = "/images/properties/pexels-photo-323780.jpeg";
+
+const getDefaultImages = (type: string) => [LOCAL_PROPERTY_IMAGE];
+
+const AMENITY_ICON_BY_LABEL: Record<string, string> = {
+  water: "💧",
+  electricity: "⚡",
+  wifi: "📶",
+  parking: "🚗",
+  security: "🔒",
+  "swimming pool": "🏊",
+  gym: "💪",
+  "living room": "🛋️",
+  porch: "🌿",
+  "air conditioning": "❄️",
+  "dining room": "🍽️",
+  laundry: "🧺",
+  kitchen: "🍳",
+  generator: "⚙️",
+  cctv: "📹",
+  gate: "🚪",
+};
+
+function isIconUrl(s: string): boolean {
+  const t = s.trim();
+  return /^https?:\/\//i.test(t) || t.startsWith("/");
+}
+
+const getAmenityIcon = (label?: string, iconHint?: string) => {
+  if (iconHint && iconHint.trim() && iconHint !== "•" && !isIconUrl(iconHint)) {
+    return iconHint.trim();
+  }
+  const key = (label || "").trim().toLowerCase();
+  return AMENITY_ICON_BY_LABEL[key] || "🏷️";
+};
+
+function normalizeAmenityEntry(
+  raw: unknown,
+): { label: string; desc: string; icon: string } | null {
+  if (typeof raw === "string") {
+    const label = raw.trim();
+    if (!label) return null;
+    return { label, desc: "", icon: getAmenityIcon(label) };
+  }
+  if (raw && typeof raw === "object") {
+    const o = raw as Record<string, unknown>;
+    const labelRaw =
+      o.label ?? o.name ?? o.title ?? o.amenity ?? o.value ?? o.key;
+    const label = typeof labelRaw === "string" ? labelRaw.trim() : "";
+    if (!label) return null;
+    const iconRaw = o.icon;
+    const iconStr = typeof iconRaw === "string" ? iconRaw.trim() : "";
+    let icon: string;
+    if (iconStr && isIconUrl(iconStr)) {
+      icon = iconStr;
+    } else if (iconStr && iconStr !== "•") {
+      icon = getAmenityIcon(label, iconStr);
+    } else {
+      icon = getAmenityIcon(label);
+    }
+    const desc =
+      typeof o.description === "string" && o.description.trim()
+        ? (o.description as string).trim()
+        : "";
+    return { label, desc, icon };
+  }
+  return null;
+}
+
+function AmenityIconDisplay({ icon }: { icon: string }) {
+  if (isIconUrl(icon)) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return (
+      <img src={icon} alt="" className="w-6 h-6 object-contain shrink-0" />
+    );
+  }
+  return <span className="text-xl leading-none">{icon}</span>;
+}
+
+export default function PropertyDetail() {
+  const money = useMoney();
+  const tCurrency = useTranslations("currencySwitcher");
+  const errorMessage = useErrorMessage();
+  const t = useTranslations("propertyDetail");
+  const tStatus = useTranslations("propertyStatus");
+  // Amenity labels arrive from the DB as free text ("Water", "electricity"),
+  // so normalize + look up, falling back to the raw value.
+  const amenityLabel = useEnumLabel("amenities");
+  // Strict: a miss falls through to the description stored on the listing.
+  const amenityDescription = useOptionalEnumLabel("amenityDescriptions");
+  const locale = useLocale();
+  const params = useParams();
+  const propertyId = params?.id as string;
+
+  useScrollDepth();
+
+  const [property, setProperty] = useState<ApiProperty | null>(null);
+  // Airbnb-style: show the translation, keep the original one click away.
+  const translated = useTranslatedContent(property);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<{
+    id: string;
+    firstName?: string;
+    email?: string;
+    phone?: string;
+  } | null>(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [bookingData, setBookingData] = useState({
+    moveInDate: "",
+    rentalPeriod: "",
+    contactPhone: "",
+    message: "",
+  });
+  const [mapEmbedUrl, setMapEmbedUrl] = useState<string | null>(null);
+
+  // Bookmark state — checked on mount so it persists across refreshes
+  const [isSaved, setIsSaved] = useState(false);
+  const [savingBookmark, setSavingBookmark] = useState(false);
+
+  const handleToggleSave = async () => {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    if (!token) { window.location.href = "/routes/login"; return; }
+    setSavingBookmark(true);
+    const prev = isSaved;
+    setIsSaved(!prev);
+    try {
+      const result = await bookmarksApi.toggle("property", propertyId);
+      setIsSaved(result.bookmarked);
+      toast.success(result.bookmarked ? t("savedToast") : t("removedToast"));
+    } catch {
+      setIsSaved(prev);
+      toast.error(t("saveFailed"));
+    } finally {
+      setSavingBookmark(false);
+    }
+  };
+
+  useEffect(() => {
+    // Get current user from storage
+    const userStr =
+      localStorage.getItem("user") || sessionStorage.getItem("user");
+    if (userStr) {
+      try {
+        const userData = JSON.parse(userStr);
+        setCurrentUser({
+          id: userData._id || userData.id,
+          firstName: userData.firstName,
+          email: userData.email,
+          phone: userData.phone,
+        });
+        // Pre-fill phone if available
+        if (userData.phone) {
+          setBookingData((prev) => ({ ...prev, contactPhone: userData.phone }));
+        }
+      } catch (e) {
+        console.error("Failed to parse user data:", e);
+      }
+    }
+
+    if (propertyId) {
+      fetchProperty();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [propertyId]);
+
+  // Check bookmark status on mount so heart state persists across refreshes
+  useEffect(() => {
+    if (!propertyId) return;
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    if (!token) return;
+    bookmarksApi.check("property", propertyId)
+      .then(res => setIsSaved(res.isSaved ?? false))
+      .catch(() => {});
+  }, [propertyId]);
+
+  useEffect(() => {
+    if (!property) {
+      setMapEmbedUrl(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    buildGoogleMapsEmbedUrlAsync({
+      location: property.location,
+      mapCoordinates: property.mapCoordinates,
+      language: locale,
+    }).then((url) => {
+      if (!cancelled) setMapEmbedUrl(url);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [property, locale]);
+
+  const fetchProperty = async () => {
+    try {
+      setLoading(true);
+      const { data } = await propertiesApi.getById(propertyId);
+      setProperty(data);
+      // Seed bookmark state from listing response so it persists immediately on load
+      if (data?.isBookmarked !== undefined) setIsSaved(data.isBookmarked);
+      setError(null);
+      trackListingViewed({
+        id: propertyId,
+        type: "property",
+        title: data.title,
+        location: data.location,
+        price: data.price,
+        category: data.type,
+      });
+    } catch (error) {
+      console.error("Error fetching property:", error);
+      setError(t("loadPropertyFailed"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRequestViewing = () => {
+    if (!currentUser) {
+      window.location.href = "/routes/login";
+      return;
+    }
+    trackBookingModalOpened({ listingId: propertyId, listingType: "property" });
+    setShowBookingModal(true);
+  };
+
+  const handleContactLandlord = () => {
+    if (!currentUser) {
+      window.location.href = "/routes/login";
+      return;
+    }
+    trackContactModalOpened({ listingId: propertyId, listingType: "property" });
+    setShowContactModal(true);
+  };
+
+  const getWhatsAppUrl = () => {
+    if (!property) return "https://wa.me/";
+    let phone = "";
+    const owner = property.landlordId || property.agentId;
+    if (owner && typeof owner === "object") {
+      phone = (owner as { phone?: string }).phone || "";
+    }
+    const cleanPhone = phone.replace(/[^0-9+]/g, "");
+    const msg = encodeURIComponent(
+      `Hi, I'm interested in your property "${property.title}" on FindAfriq.`,
+    );
+    return cleanPhone
+      ? `https://wa.me/${cleanPhone.replace("+", "")}?text=${msg}`
+      : `https://wa.me/?text=${msg}`;
+  };
+
+  const handleWhatsApp = () => {
+    if (!currentUser) {
+      window.location.href = "/routes/login";
+      return;
+    }
+    trackWhatsAppClick({ listingId: propertyId, listingType: "property" });
+    window.open(getWhatsAppUrl(), "_blank", "noopener,noreferrer");
+  };
+
+  const handleSubmitBooking = async () => {
+    if (!currentUser || !property || submitting) return;
+
+    // Validate required fields
+    if (!bookingData.contactPhone.trim()) {
+      toast.error(t("phoneRequired"));
+      return;
+    }
+
+    if (!bookingData.moveInDate) {
+      toast.error(t("moveInDateRequired"));
+      return;
+    }
+
+    // Validate date is in the future
+    const moveInDate = new Date(bookingData.moveInDate);
+    if (moveInDate <= new Date()) {
+      toast.error(t("moveInDateFuture"));
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+
+      // Resolve the property owner ID so the booking goes directly to the landlord/agent
+      const resolveId = (
+        ref: string | { _id?: string; id?: string } | undefined,
+      ): string => {
+        if (!ref) return "";
+        if (typeof ref === "string") return ref;
+        return ref._id || ref.id || "";
+      };
+      const ownerId =
+        resolveId(property.landlordId as any) ||
+        resolveId(property.agentId as any);
+
+      const bookingPayload: Record<string, unknown> = {
+        serviceId: property._id,
+        scheduledDate: new Date(bookingData.moveInDate).toISOString(),
+        duration: parseInt(bookingData.rentalPeriod),
+        contactPhone: bookingData.contactPhone,
+        notes:
+          bookingData.message ||
+          `Property rental booking for ${property.title}. Rental period: ${bookingData.rentalPeriod} months.`,
+        serviceLocation: property.location,
+        serviceAddress: property.location,
+        paymentMethod: "pending",
+      };
+      if (ownerId) bookingPayload.providerId = ownerId;
+
+      console.log("Submitting booking:", bookingPayload);
+      const response = await apiClient.post("/bookings", bookingPayload);
+      console.log("Booking response:", response);
+
+      if (response.success) {
+        trackBookingSubmitted({
+          listingId: propertyId,
+          listingType: "property",
+          rentalPeriod: bookingData.rentalPeriod,
+          scheduledDate: bookingData.moveInDate,
+        });
+        toast.success(
+          "Booking request submitted successfully! The lister will contact you soon.",
+        );
+        setShowBookingModal(false);
+        setBookingData({
+          moveInDate: "",
+          rentalPeriod: "6",
+          contactPhone: currentUser.phone || "",
+          message: "",
+        });
+      } else {
+        throw new Error(response.message || t("bookingFailed"));
+      }
+    } catch (error: any) {
+      console.error("Booking error:", error);
+      toast.error(errorMessage(error, "submitBooking"));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+  const statusConfig = {
+    pending: {
+      icon: "⏳",
+      text: tStatus("pending"),
+      bg: "bg-amber-50",
+      border: "border-amber-200",
+      text_color: "text-amber-800",
+    },
+    rejected: {
+      icon: "❌",
+      text: tStatus("rejected"),
+      bg: "bg-red-50",
+      border: "border-red-200",
+      text_color: "text-red-800",
+    },
+    rented: {
+      icon: "🏠",
+      text: tStatus("rented"),
+      bg: "bg-gray-50",
+      border: "border-gray-200",
+      text_color: "text-gray-800",
+    },
+    archived: {
+      icon: "📦",
+      text: "Archived",
+      bg: "bg-gray-50",
+      border: "border-gray-200",
+      text_color: "text-gray-800",
+    },
+    suspended: {
+      icon: "⛔",
+      text: "Temporarily Unavailable",
+      bg: "bg-orange-50",
+      border: "border-orange-200",
+      text_color: "text-orange-800",
+    },
+  };
+  const handleSendMessage = async (subject: string, message: string) => {
+    if (!currentUser || !property || submitting) return;
+
+    // Resolve recipient: landlord first, then agent (same as "Listed By" section)
+    let recipientId = "";
+    if (typeof property.landlordId === "string" && property.landlordId) {
+      recipientId = property.landlordId;
+    } else if (property.landlordId && typeof property.landlordId === "object") {
+      recipientId = (property.landlordId as any)._id || "";
+    }
+    if (!recipientId && property.agentId) {
+      if (typeof property.agentId === "string") {
+        recipientId = property.agentId;
+      } else if (typeof property.agentId === "object" && property.agentId) {
+        recipientId =
+          (property.agentId as any)._id || (property.agentId as any).id || "";
+      }
+    }
+
+    if (!recipientId) {
+      toast.error(t("noContact"));
+      return;
+    }
+
+    // Backend expects only participants (array of user ID strings) and optional relatedItem
+    const participants: string[] = [recipientId];
+
+    try {
+      setSubmitting(true);
+
+      const threadPayload = {
+        participants,
+        relatedItem: {
+          type: "property",
+          id: property._id,
+          title: property.title || "Property",
+        },
+      };
+
+      const threadResponse = await messagesApi.createThread(threadPayload);
+      const threadId = threadResponse.data?._id;
+
+      if (!threadId) {
+        toast.error(t("conversationFailed"));
+        return;
+      }
+
+      trackChatStarted({ sourcePage: "property_detail" });
+
+      const fullMessage = `${subject ? `[${subject}] ` : ""}${message}\n\nFrom: ${currentUser.firstName || "User"}${currentUser.email ? ` (${currentUser.email})` : ""}`;
+      await apiClient.post("/messages/send", {
+        threadId,
+        text: fullMessage,
+      });
+
+      toast.success(
+        "Message sent successfully! The lister will respond to you soon.",
+      );
+      setShowContactModal(false);
+    } catch (error: any) {
+      toast.error(
+        errorMessage(error, "sendMessage"),
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error || !property) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center max-w-md">
+          <p className="text-red-600 mb-4">{error || "Property not found"}</p>
+          <button
+            onClick={() => (window.location.href = "/routes/properties")}
+            className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors"
+          >
+            {t("backToProperties")}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Prepare images - use property images or defaults
+  const images =
+    property.images && property.images.length > 0
+      ? property.images
+      : getDefaultImages(property.type);
+
+  const media = images.map((src) => ({ type: "image" as const, src }));
+
+  // Amenities: normalize API shapes ({ label } | { name } | string | URL icons)
+  const features: {
+    label: string;
+    desc: string;
+    icon: string;
+    /** Already localized via t(); skip the raw-DB-value lookup on render. */
+    localized?: boolean;
+  }[] = [];
+  if (property.amenities && property.amenities.length > 0) {
+    property.amenities.forEach((a: unknown) => {
+      const row = normalizeAmenityEntry(a);
+      if (row) features.push(row);
+    });
+  }
+  const bedroomCount =
+    property.bedrooms != null ? property.bedrooms : property.rooms;
+  features.push({
+    label: t("bedrooms"),
+    desc:
+      bedroomCount != null
+        ? t("bedroomCount", { count: bedroomCount })
+        : t("notSpecified"),
+    icon: "🛏️",
+    localized: true,
+  });
+  if (property.bathrooms)
+    features.push({
+      label: t("bathrooms"),
+      desc: t("bathroomCount", { count: property.bathrooms }),
+      icon: "🚿",
+      localized: true,
+    });
+  if (property.area != null) {
+    features.push({
+      label: t("distance"),
+      desc: t("minFromMainRoad", { minutes: property.area }),
+      icon: "🚗",
+      localized: true,
+    });
+  }
+  if (property.furnished !== undefined) {
+    features.push({
+      label: property.furnished ? t("furnished") : t("unfurnished"),
+      desc: property.furnished ? t("includesFurniture") : t("noFurniture"),
+      icon: "🪑",
+      localized: true,
+    });
+  }
+
+  // Add default highlights only when the listing has no custom amenities
+  const priceParts = money.forListing(
+    property.price,
+    property.currency as Currency,
+  );
+
+  // The agent fee is denominated in the same currency the owner priced in, so
+  // it converts on the same rate as the rent. Formatting it separately from
+  // `price` is what previously left it stuck in USD.
+  const agentFeeParts = money.forListing(
+    property.agentFee ?? 0,
+    property.currency as Currency,
+  );
+
+  if (!property.amenities?.length && features.length < 4) {
+    const defaults = [
+      {
+        label: amenityLabel("wifi"),
+        desc: t("highSpeedInternet"),
+        icon: "📶",
+        localized: true,
+      },
+      {
+        label: amenityLabel("security"),
+        desc: t("security247"),
+        icon: "🔒",
+        localized: true,
+      },
+      {
+        label: amenityLabel("parking"),
+        desc: t("secureParking"),
+        icon: "🚗",
+        localized: true,
+      },
+    ];
+    features.push(...defaults.slice(0, 6 - features.length));
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      <Toaster position="top-center" />
+      {/* HERO SECTION */}
+      <section className="relative w-full max-w-6xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6">
+        <MediaCarousel media={media} />
+      </section>
+
+      {/* MAIN CONTENT */}
+      <section className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 px-6 py-8">
+        {/* LEFT SIDE */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* TITLE & BASIC INFO */}
+          <header>
+            <div className="text-xs uppercase font-semibold tracking-wide text-[#ffcc00] bg-[#ffcc00]/10 px-2 py-1 rounded inline-block">
+              {property.status === "approved"
+                ? t("forRent")
+                : tStatus.has(property.status ?? "")
+                  ? tStatus(property.status as string)
+                  : tStatus("available")}
+            </div>
+            <TranslatedText
+              text={translated.title}
+              as="h1"
+              className="text-2xl md:text-3xl font-bold text-gray-900 mt-2"
+            />
+            <p className="text-gray-600 text-base mt-1">{property.location}</p>
+
+            {typeof property.rating === "number" && property.rating > 0 && (
+              <div className="flex items-center gap-2 mt-3">
+                <svg
+                  className="w-4 h-4 text-amber-400 fill-current"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg>
+                <span className="text-gray-900 font-semibold text-base">
+                  {property.rating.toFixed(1)}
+                </span>
+                {property.reviewCount && (
+                  <span className="text-gray-600 text-sm">
+                    {t("reviews", { count: property.reviewCount })}
+                  </span>
+                )}
+              </div>
+            )}
+            <div className="mt-4 flex items-center gap-3 flex-wrap">
+              <ShareButton
+                title={property.title}
+                text={t("shareText", { title: property.title, location: property.location })}
+              />
+              <button
+                type="button"
+                disabled={savingBookmark}
+                aria-label={isSaved ? t("removeFromFavorites") : t("saveToFavorites")}
+                onClick={handleToggleSave}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all text-sm font-medium disabled:opacity-60 ${
+                  isSaved
+                    ? "border-red-300 bg-red-50 text-red-600"
+                    : "border-gray-200 bg-white text-gray-600 hover:bg-red-50 hover:border-red-300 hover:text-red-600"
+                }`}
+              >
+                <svg
+                  className={`w-4 h-4 ${isSaved ? "fill-red-500 stroke-red-500" : "fill-none stroke-current"}`}
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                {savingBookmark ? "..." : isSaved ? t("saved") : t("save")}
+              </button>
+            </div>
+          </header>
+
+          {/* ABOUT */}
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">
+              {t("aboutThisPlace")}
+            </h2>
+            {property.description ? (
+              <TranslatedText
+                text={translated.description}
+                className="text-gray-600 text-sm leading-relaxed"
+              />
+            ) : (
+              <p className="text-gray-600 text-sm leading-relaxed">
+                {t("descriptionFallback")}
+              </p>
+            )}
+            {property.availableFrom && (
+              <p className="text-gray-600 text-sm mt-3">
+                <span className="font-semibold">{t("availableFrom")}</span>{" "}
+                {new Date(property.availableFrom).toLocaleDateString(locale)}
+              </p>
+            )}
+          </section>
+
+          {/* WHAT THIS PLACE OFFERS */}
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              {t("whatThisPlaceOffers")}
+            </h2>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {features.map((f, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-[#ffcc00]/40 transition-all border-l-4 border-l-[#ffcc00]"
+                >
+                  <AmenityIconDisplay icon={f.icon} />
+                  <div>
+                    <div className="font-medium text-gray-900 text-sm">
+                      {f.localized ? f.label : amenityLabel(f.label)}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {f.localized
+                        ? f.desc
+                        : amenityDescription(f.label) ||
+                          f.desc ||
+                          t("amenityAvailable")}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* MAP SECTION */}
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              {t("whereYoullBe")}
+            </h2>
+            <div className="w-full h-56 rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
+              {mapEmbedUrl ? (
+                <iframe
+                  src={mapEmbedUrl}
+                  width="100%"
+                  height="100%"
+                  loading="lazy"
+                  className="border-0"
+                  title={t("mapTitle", { location: property.location })}
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                  {t("loadingMap")}
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* LANDLORD/AGENT INFO */}
+          {property.landlordId && (
+            <section>
+              {(() => {
+                let ownerIdValue = "";
+                let ownerName = "Property Owner";
+                let ownerInitial = "L";
+                let ownerEmail = "";
+                let ownerPhone = "";
+                let ownerAvatar = "";
+                let ownerForVerification: {
+                  verificationStatus?: string;
+                  verified?: boolean;
+                } | null = null;
+
+                if (
+                  typeof property.landlordId === "object" &&
+                  property.landlordId
+                ) {
+                  const ownerObj = property.landlordId as Record<
+                    string,
+                    unknown
+                  >;
+                  ownerIdValue = String(ownerObj._id || ownerObj.id || "");
+                  ownerEmail = String(ownerObj.email || "");
+                  ownerPhone = getUserPhone(ownerObj);
+                  ownerName = getUserDisplayName(
+                    ownerObj,
+                    ownerEmail || "Property Owner",
+                  );
+                  ownerInitial = ownerName.charAt(0).toUpperCase();
+                  ownerAvatar = String(ownerObj.avatar || "");
+                  ownerForVerification = ownerObj as {
+                    verificationStatus?: string;
+                    verified?: boolean;
+                  };
+                } else if (typeof property.landlordId === "string") {
+                  ownerIdValue = property.landlordId;
+                }
+
+                if (!ownerIdValue && property.agentId) {
+                  if (
+                    typeof property.agentId === "object" &&
+                    property.agentId
+                  ) {
+                    const agentObj = property.agentId as Record<
+                      string,
+                      unknown
+                    >;
+                    ownerIdValue = String(agentObj._id || agentObj.id || "");
+                    ownerEmail = String(agentObj.email || "");
+                    ownerPhone = getUserPhone(agentObj);
+                    ownerName = getUserDisplayName(
+                      agentObj,
+                      ownerEmail || "Lister",
+                    );
+                    ownerInitial = ownerName.charAt(0).toUpperCase();
+                    ownerAvatar = String(agentObj.avatar || "");
+                    ownerForVerification = agentObj as {
+                      verificationStatus?: string;
+                      verified?: boolean;
+                    };
+                  } else if (typeof property.agentId === "string") {
+                    ownerIdValue = property.agentId;
+                  }
+                }
+
+                const showVerifiedBadge =
+                  isUserVerifiedByAdmin(ownerForVerification);
+
+                const isAdminOwner =
+                  ownerForVerification &&
+                  ((ownerForVerification as Record<string, unknown>).userType === 'admin' ||
+                    (ownerForVerification as Record<string, unknown>).role === 'admin');
+
+                return (
+                  <>
+                    <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                      {t("managedBy")}
+                    </h2>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (ownerIdValue) {
+                          window.location.href = `/routes/profile-view/${ownerIdValue}`;
+                        }
+                      }}
+                      className="w-full flex items-start gap-3 border border-gray-200 p-4 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all cursor-pointer text-left"
+                    >
+                      <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 flex-shrink-0">
+                        {ownerAvatar ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={ownerAvatar}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-lg font-bold text-white">
+                            {ownerInitial}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-1">
+                          <p className="font-semibold text-gray-900 text-sm">
+                            {ownerName}
+                          </p>
+                          {showVerifiedBadge ? (
+                            <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium shrink-0">
+                              {t("verified")}
+                            </span>
+                          ) : (
+                            <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full font-medium shrink-0">
+                              {t("notVerified")}
+                            </span>
+                          )}
+                        </div>
+                        {isAdminOwner ? (
+                          <p className="text-gray-500 text-xs">
+                            {t("findafriqAdmin")}
+                          </p>
+                        ) : null}
+                        {ownerEmail ? (
+                          <p className="text-gray-500 text-xs mt-1 truncate">
+                            {ownerEmail}
+                          </p>
+                        ) : null}
+                        {ownerPhone ? (
+                          <p className="text-gray-500 text-xs mt-1 truncate">
+                            {ownerPhone}
+                          </p>
+                        ) : null}
+                        <div className="flex items-center gap-3 mt-2 text-xs text-gray-600">
+                          <span className="flex items-center gap-1 text-blue-600 font-medium">
+                            <svg
+                              className="w-3 h-3"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 5l7 7-7 7"
+                              />
+                            </svg>
+                            {t("viewProfile")}
+                          </span>
+                        </div>
+                      </div>
+                    </button>
+                  </>
+                );
+              })()}
+            </section>
+          )}
+
+          <section>
+            <ReviewsList
+              itemType="property"
+              itemId={propertyId}
+              itemTitle={property?.title}
+            />
+          </section>
+        </div>
+
+        {/* RIGHT SIDE */}
+        <div className="lg:col-span-1">
+          <div className="mx-auto max-w-sm lg:flex lg:flex-col lg:h-full">
+            <aside className="lg:sticky lg:top-[calc(4rem+0.75rem)] lg:z-30 shrink-0">
+              <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
+                <div className="bg-gradient-to-br from-blue-50 to-white p-6">
+                  {isFeaturedListing(property) && (
+                    <div className="mb-3 inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-amber-500 text-white rounded-full text-xs font-bold shadow-sm">
+                      <span>⭐</span>
+                      <span>{t("premiumListing")}</span>
+                    </div>
+                  )}
+
+                  <div>
+                    <div className="flex items-baseline gap-1.5">
+                      <div className="text-4xl font-bold text-gray-900">
+                        {property.price ? priceParts.display : t("contact")}
+                      </div>
+                      {property.price && (
+                        <span className="text-gray-500 text-base font-medium">
+                          {t("perMonth")}
+                        </span>
+                      )}
+                    </div>
+                    {/*
+                      Unlike the cards, the detail page shows the owner's own
+                      figure when it differs. This is the last screen before a
+                      seeker contacts them, and FindAfriq does not process the
+                      payment — so the number the owner will actually quote has
+                      to be visible here or the seeker gets a surprise.
+                    */}
+                    {priceParts.isConverted && (
+                      <p className="mt-1 text-sm text-gray-500">
+                        {tCurrency("listedBy", { price: priceParts.original })}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Access Fee Section */}
+                  {shouldShowAgentFee(property) && (
+                      <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4 space-y-3">
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{t("paymentDetails")}</p>
+
+                        {/* Access Fee row */}
+                        <div className="flex items-start gap-3 p-3 rounded-lg border border-gray-100 bg-gray-50">
+                          <div className="shrink-0 w-9 h-9 rounded-full bg-green-100 flex items-center justify-center">
+                            <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-sm font-semibold text-gray-900">{t("agentFee")}</span>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-0.5">{t("feeSetByLister")}</p>
+                            <p className="text-xs text-gray-400 mt-0.5">{t("feePaidToAgent")}</p>
+                          </div>
+                          <span className="shrink-0 text-base font-bold text-green-600">{agentFeeParts.display}</span>
+                        </div>
+
+                        {/* Payment coming soon notice */}
+                        <div className="flex items-start gap-3 p-3 rounded-lg border border-amber-200 bg-amber-50">
+                          <div className="shrink-0 w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center">
+                            <span className="text-white text-sm font-bold">!</span>
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-amber-800">{t("paymentComingSoonTitle")}</p>
+                            <p className="text-xs text-amber-700 mt-0.5">{t("paymentComingSoonBody")}</p>
+                          </div>
+                        </div>
+
+                        {/* Total */}
+                        <div className="flex items-center justify-between px-1">
+                          <div className="flex items-center gap-2">
+                            <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            <span className="text-sm font-semibold text-gray-700">{t("totalToPayAgent")}</span>
+                          </div>
+                          <span className="text-base font-bold text-gray-900">{agentFeeParts.display}</span>
+                        </div>
+
+                        {/*
+                          The seeker pays this straight to the agent, so when the
+                          figure has been converted they need the agent's own
+                          number too — otherwise they turn up with the wrong amount.
+                        */}
+                        {agentFeeParts.isConverted && (
+                          <p className="px-1 text-xs text-gray-500">
+                            {tCurrency("listedBy", { price: agentFeeParts.original })}
+                          </p>
+                        )}
+                      </div>
+                  )}
+
+                  {/* Status Badge */}
+                  {property.status !== "approved" &&
+                    statusConfig[property.status] && (
+                      <div
+                        className={`mt-4 px-3 py-2.5 ${statusConfig[property.status].bg} border ${statusConfig[property.status].border} rounded-lg`}
+                      >
+                        <p
+                          className={`text-xs font-semibold ${statusConfig[property.status].text_color} flex items-center gap-2`}
+                        >
+                          <span className="text-base">
+                            {statusConfig[property.status].icon}
+                          </span>
+                          {statusConfig[property.status].text}
+                        </p>
+                      </div>
+                    )}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="p-6 space-y-3 border-t border-gray-100">
+                  {property.status === "approved" ? (
+                    <button
+                      className="w-full group relative overflow-hidden h-12 text-sm font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
+                      onClick={() => handleRequestViewing()}
+                    >
+                      <Calendar className="w-4 h-4" />
+                      <span>
+                        {currentUser ? t("bookViewingNow") : t("signInToBook")}
+                      </span>
+                      {!currentUser && <Lock className="w-3.5 h-3.5" />}
+                    </button>
+                  ) : (
+                    <div className="w-full h-12 flex items-center justify-center text-sm font-medium text-gray-500 bg-gray-100 rounded-lg border border-gray-200">
+                      {t("bookingNotAvailable")}
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={handleWhatsApp}
+                    className="w-full h-12 text-sm font-semibold bg-[#25D366] hover:bg-[#1fb855] text-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                    </svg>
+                    <span>
+                      {currentUser
+                        ? t("whatsappOwner")
+                        : t("signInToWhatsApp")}
+                    </span>
+                    {!currentUser && <Lock className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </div>
+            </aside>
+
+            <div className="mt-4 space-y-4 lg:flex-1">
+            {/* Message Section - outside sticky card */}
+            {!currentUser ? (
+              <div className="rounded-xl border border-gray-200 bg-white p-6 text-center shadow-lg">
+                <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                  <MessageCircle className="w-7 h-7 text-gray-500" />
+                </div>
+                <p className="text-sm font-medium text-gray-900 mb-2">
+                  {t("messageTheAgent")}
+                </p>
+                <p className="text-xs text-gray-500 mb-4">
+                  {t("signInToStartConversation")}
+                </p>
+                <button className="h-10 w-full rounded-lg bg-gray-900 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-gray-800">
+                  {t("signInToChat")}
+                </button>
+              </div>
+            ) : currentUser ? (
+              (() => {
+                // Use landlordId if available, otherwise fall back to agentId
+                // Handle both populated objects (with _id) and direct string IDs
+                let landlordIdValue = "";
+                if (typeof property.landlordId === "string") {
+                  landlordIdValue = property.landlordId;
+                } else if (
+                  property.landlordId &&
+                  typeof property.landlordId === "object" &&
+                  (property.landlordId as any)._id
+                ) {
+                  landlordIdValue = String((property.landlordId as any)._id);
+                }
+
+                let agentIdValue = "";
+                if (typeof property.agentId === "string") {
+                  agentIdValue = property.agentId;
+                } else if (
+                  property.agentId &&
+                  typeof property.agentId === "object" &&
+                  (property.agentId as any)._id
+                ) {
+                  agentIdValue = String((property.agentId as any)._id);
+                }
+
+                const landlordId = landlordIdValue || agentIdValue;
+                const isOwnProperty = landlordId === currentUser.id;
+                // Don't show chat if it's the user's own property
+                if (isOwnProperty || !landlordId) {
+                  return null;
+                }
+
+                return (
+                  <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-lg">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center">
+                        <MessageCircle className="w-4.5 h-4.5 text-blue-600" />
+                      </div>
+                      <span className="text-sm font-semibold text-gray-900">
+                        Message
+                      </span>
+                    </div>
+                    <ChatBox
+                      userId={currentUser.id}
+                      landlordId={landlordId}
+                      propertyId={propertyId}
+                    />
+                  </div>
+                );
+              })()
+            ) : null}
+
+            <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+              <p className="text-xs font-medium text-blue-900">
+                💡 <span className="font-semibold">{t("tipLabel")}</span>{" "}
+                {t("bookingTip")}
+              </p>
+            </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Booking Modal */}
+      {showBookingModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-xl sm:rounded-2xl max-w-lg w-full shadow-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+            {/* Header with gradient */}
+            <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 px-4 sm:px-6 py-4 sm:py-5 rounded-t-xl sm:rounded-t-2xl">
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0 pr-2">
+                  <h3 className="text-lg sm:text-2xl font-bold text-white truncate">
+                    {t("bookThisProperty")}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-blue-100 mt-1">
+                    {t("bookingFormSubtitle")}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowBookingModal(false)}
+                  className="text-white/80 hover:text-white hover:bg-white/10 rounded-full p-2 transition-all ml-4"
+                  disabled={submitting}
+                  aria-label={t("closeModal")}
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Form Content */}
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-5">
+              {/* Property Summary Card */}
+              <div className="bg-gradient-to-br from-gray-50 to-blue-50 border border-blue-100 rounded-xl p-3 sm:p-4">
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-lg flex items-center justify-center shrink-0">
+                    <svg
+                      className="w-5 h-5 sm:w-6 sm:h-6 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-gray-900 text-sm truncate">
+                      {property?.title}
+                    </h4>
+                    <p className="text-xs text-gray-600 mt-1 truncate">
+                      {property?.location}
+                    </p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-base sm:text-lg font-bold text-blue-600">
+                        {money.forListing(property?.price, property?.currency as Currency).display}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        /{property?.priceUnit || "month"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Form Fields */}
+              <div className="space-y-4">
+                {/* Move-in Date */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-2">
+                    <svg
+                      className="w-4 h-4 text-blue-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    {t("preferredMoveInDate")}
+                    <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={bookingData.moveInDate}
+                    onChange={(e) =>
+                      setBookingData({
+                        ...bookingData,
+                        moveInDate: e.target.value,
+                      })
+                    }
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:border-gray-300"
+                    min={new Date().toISOString().split("T")[0]}
+                    required
+                  />
+                </div>
+
+                {/* Rental Period */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-2">
+                    <svg
+                      className="w-4 h-4 text-blue-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    {t("desiredRentalPeriod")}
+                  </label>
+                  <select
+                    value={bookingData.rentalPeriod}
+                    onChange={(e) =>
+                      setBookingData({
+                        ...bookingData,
+                        rentalPeriod: e.target.value,
+                      })
+                    }
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:border-gray-300 cursor-pointer"
+                  >
+                    <option value="1">{t("rentalMonths", { count: 1 })}</option>
+                    <option value="3">{t("rentalMonths", { count: 3 })}</option>
+                    <option value="6">{t("rentalMonths", { count: 6 })}</option>
+                    <option value="12">
+                      {t("rentalYears", { months: 12, years: 1 })}
+                    </option>
+                    <option value="24">
+                      {t("rentalYears", { months: 24, years: 2 })}
+                    </option>
+                  </select>
+                </div>
+
+                {/* Contact Phone */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-2">
+                    <svg
+                      className="w-4 h-4 text-blue-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                      />
+                    </svg>
+                    {t("contactPhone")}
+                    <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    value={bookingData.contactPhone}
+                    onChange={(e) =>
+                      setBookingData({
+                        ...bookingData,
+                        contactPhone: e.target.value,
+                      })
+                    }
+                    placeholder={t("phonePlaceholder")}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:border-gray-300"
+                    required
+                  />
+                  <p className="text-xs text-gray-500 mt-1.5">
+                    We&apos;ll use this number to confirm your booking
+                  </p>
+                </div>
+
+                {/* Additional Message */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-2">
+                    <svg
+                      className="w-4 h-4 text-blue-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
+                      />
+                    </svg>
+                    {t("additionalMessage")}
+                    <span className="text-xs font-normal text-gray-500">
+                      (Optional)
+                    </span>
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={bookingData.message}
+                    onChange={(e) =>
+                      setBookingData({
+                        ...bookingData,
+                        message: e.target.value,
+                      })
+                    }
+                    placeholder={t("bookingMessagePlaceholder")}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:border-gray-300 resize-none"
+                  />
+                </div>
+              </div>
+
+              {/* Info Alert */}
+              <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <svg
+                    className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-blue-900">
+                      {t("whatHappensNext")}
+                    </p>
+                    <p className="text-sm text-blue-800 mt-1">
+                      {t("whatHappensNextBody")}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Actions */}
+            <div className="sticky bottom-0 bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 rounded-b-xl sm:rounded-b-2xl border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <button
+                  className="w-full sm:flex-1 h-11 sm:h-12 text-sm font-semibold bg-white hover:bg-gray-100 text-gray-700 rounded-lg sm:rounded-xl border-2 border-gray-300 transition-all order-2 sm:order-1"
+                  onClick={() => setShowBookingModal(false)}
+                  disabled={submitting}
+                >
+                  {t("cancel")}
+                </button>
+                <button
+                  className="w-full sm:flex-[2] h-11 sm:h-12 text-sm font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg sm:rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 order-1 sm:order-2"
+                  onClick={handleSubmitBooking}
+                  disabled={submitting}
+                >
+                  {submitting ? (
+                    <>
+                      <svg
+                        className="animate-spin h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      <span>{t("submitting")}</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      <span>{t("submitBookingRequest")}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Contact Modal */}
+      {showContactModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">
+                  Contact Lister
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  {t("sendDirectMessage")}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowContactModal(false)}
+                className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1 transition-colors"
+                disabled={submitting}
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  📋 Subject
+                </label>
+                <input
+                  type="text"
+                  id="contact-subject"
+                  placeholder={t("subjectPlaceholder")}
+                  defaultValue={`Inquiry about ${property?.title || "your property"}`}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  💬 Your Message
+                </label>
+                <textarea
+                  id="contact-message"
+                  rows={6}
+                  placeholder={t("messagePlaceholder")}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
+                />
+              </div>
+              <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                <p className="text-sm text-green-900">
+                  ✅ <span className="font-semibold">Quick Response:</span> Most
+                  listers respond within 24
+                  hours
+                </p>
+              </div>
+              <div className="flex gap-3 pt-4">
+                <Button
+                  className="flex-1 h-12 text-sm font-semibold bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-xl transition-all"
+                  onClick={() => setShowContactModal(false)}
+                  disabled={submitting}
+                >
+                  {t("cancel")}
+                </Button>
+                <Button
+                  className="flex-1 h-12 text-sm font-semibold bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl shadow-lg transition-all disabled:opacity-50"
+                  onClick={() => {
+                    const subject =
+                      (
+                        document.getElementById(
+                          "contact-subject",
+                        ) as HTMLInputElement
+                      )?.value || "";
+                    const message =
+                      (
+                        document.getElementById(
+                          "contact-message",
+                        ) as HTMLTextAreaElement
+                      )?.value || "";
+                    if (message.trim()) {
+                      handleSendMessage(subject, message);
+                    } else {
+                      toast.error(t("messageRequired"));
+                    }
+                  }}
+                  disabled={submitting}
+                >
+                  {submitting ? "Sending..." : "Send Message ✉️"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

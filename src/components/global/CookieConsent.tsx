@@ -1,19 +1,12 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Link from 'next/link';
 import { X, Cookie, ChevronDown, ChevronUp } from 'lucide-react';
 
-type ConsentState = {
-    necessary: true;
-    analytics: boolean;
-    marketing: boolean;
-    preferences: boolean;
-};
-
-const CONSENT_KEY = 'findafriq_cookie_consent';
-const CONSENT_VERSION = '1';
+import { Link } from '@/i18n/navigation';
+import { readConsent, writeConsent, type ConsentState } from '@/lib/consent';
 
 function updateGAConsent(consentData: ConsentState) {
     if (typeof window === 'undefined' || typeof window.gtag !== 'function') return;
@@ -34,32 +27,23 @@ export default function CookieConsent() {
     });
 
     useEffect(() => {
-        const stored = localStorage.getItem(CONSENT_KEY);
+        const stored = readConsent();
         if (!stored) {
-            // Slight delay so it doesn't flash immediately on load
+            // No choice yet, or a stale consent version — ask. Slight delay so
+            // the banner doesn't flash immediately on load.
             const timer = setTimeout(() => setVisible(true), 800);
             return () => clearTimeout(timer);
         }
-        try {
-            const parsed = JSON.parse(stored);
-            if (parsed.version !== CONSENT_VERSION) {
-                // Consent version changed — re-ask
-                const timer = setTimeout(() => setVisible(true), 800);
-                return () => clearTimeout(timer);
-            }
-            // Restore GA consent state on page load
-            updateGAConsent(parsed as ConsentState);
-        } catch {
-            const timer = setTimeout(() => setVisible(true), 800);
-            return () => clearTimeout(timer);
-        }
+        // Re-assert the stored choice with gtag, for the case where analytics
+        // was consented to and ConsentedAnalytics has now loaded the script.
+        updateGAConsent(stored);
     }, []);
 
     const saveConsent = (consentData: ConsentState) => {
-        localStorage.setItem(
-            CONSENT_KEY,
-            JSON.stringify({ ...consentData, version: CONSENT_VERSION, timestamp: Date.now() })
-        );
+        // Persists and fires CONSENT_CHANGED_EVENT, which is what lets
+        // ConsentedAnalytics mount gtag.js straight away on "Accept all"
+        // instead of waiting for the next navigation.
+        writeConsent(consentData);
         updateGAConsent(consentData);
         setVisible(false);
     };
@@ -80,29 +64,31 @@ export default function CookieConsent() {
         saveConsent(consent);
     };
 
+    const t = useTranslations('cookies');
+
     const cookieCategories = [
         {
             key: 'necessary' as const,
-            label: 'Strictly Necessary',
-            description: 'Required for the platform to function. These cannot be disabled.',
+            label: t('necessaryLabel'),
+            description: t('necessaryDesc'),
             required: true,
         },
         {
             key: 'analytics' as const,
-            label: 'Analytics',
-            description: 'Help us understand how visitors use our site so we can improve it.',
+            label: t('analyticsLabel'),
+            description: t('analyticsDesc'),
             required: false,
         },
         {
             key: 'preferences' as const,
-            label: 'Preferences',
-            description: 'Remember your settings and personalize your experience.',
+            label: t('preferencesLabel'),
+            description: t('preferencesDesc'),
             required: false,
         },
         {
             key: 'marketing' as const,
-            label: 'Marketing',
-            description: 'Used to show you relevant ads and measure their effectiveness.',
+            label: t('marketingLabel'),
+            description: t('marketingDesc'),
             required: false,
         },
     ];
@@ -117,7 +103,7 @@ export default function CookieConsent() {
                     transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                     className="fixed bottom-0 left-0 right-0 z-9999 p-4 md:p-6"
                     role="dialog"
-                    aria-label="Cookie consent"
+                    aria-label={t('consentAria')}
                     aria-modal="false"
                 >
                     {/* Backdrop blur strip */}
@@ -131,23 +117,32 @@ export default function CookieConsent() {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <h3 className="text-base font-semibold text-gray-900 mb-1">
-                                            We use cookies
+                                            {t('title')}
                                         </h3>
                                         <p className="text-sm text-gray-600 leading-relaxed">
-                                            We use cookies to enhance your browsing experience, analyse site traffic, and personalise
-                                            content. By clicking &ldquo;Accept All&rdquo;, you consent to our use of cookies.{' '}
+                                            {t('body')}{' '}
+                                            {/*
+                                              The visible text has to be
+                                              descriptive on its own: Lighthouse's
+                                              link-text audit reads textContent,
+                                              not the accessible name, so an
+                                              aria-label does not satisfy it.
+                                              "Learn more" is on its blocklist and
+                                              tells neither a crawler nor a screen
+                                              reader where the link goes.
+                                            */}
                                             <Link
                                                 href="/routes/privacy"
                                                 className="text-blue-600 hover:underline font-medium"
                                             >
-                                                Learn more
+                                                {t('learnMore')}
                                             </Link>
                                         </p>
                                     </div>
                                     <button
                                         onClick={handleRejectAll}
                                         className="shrink-0 p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
-                                        aria-label="Dismiss"
+                                        aria-label={t('rejectAll')}
                                     >
                                         <X className="w-4 h-4" />
                                     </button>
@@ -159,19 +154,19 @@ export default function CookieConsent() {
                                         onClick={handleAcceptAll}
                                         className="px-5 py-2 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm"
                                     >
-                                        Accept All
+                                        {t('acceptAll')}
                                     </button>
                                     <button
                                         onClick={handleRejectAll}
                                         className="px-5 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-200 transition-colors"
                                     >
-                                        Reject All
+                                        {t('rejectAll')}
                                     </button>
                                     <button
                                         onClick={() => setShowDetails(!showDetails)}
                                         className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1.5 rounded-xl hover:bg-blue-50 transition-colors"
                                     >
-                                        Manage Preferences
+                                        {t('managePreferences')}
                                         {showDetails ? (
                                             <ChevronUp className="w-4 h-4" />
                                         ) : (
@@ -193,7 +188,7 @@ export default function CookieConsent() {
                                     >
                                         <div className="p-5 md:p-6 space-y-3">
                                             <p className="text-xs text-gray-500 mb-4">
-                                                Manage your cookie preferences below. Changes take effect after saving.
+                                                {t('manageIntro')}
                                             </p>
                                             {cookieCategories.map((cat) => (
                                                 <div
@@ -207,7 +202,7 @@ export default function CookieConsent() {
                                                             </span>
                                                             {cat.required && (
                                                                 <span className="text-[10px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-md border border-blue-100">
-                                                                    Always on
+                                                                    {t("alwaysOn")}
                                                                 </span>
                                                             )}
                                                         </div>
@@ -238,7 +233,7 @@ export default function CookieConsent() {
                                                 onClick={handleSavePreferences}
                                                 className="mt-2 w-full md:w-auto px-6 py-2 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors"
                                             >
-                                                Save Preferences
+                                                {t('savePreferences')}
                                             </button>
                                         </div>
                                     </motion.div>

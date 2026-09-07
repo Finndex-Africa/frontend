@@ -20,6 +20,9 @@ export const buySellApi = {
       params.append("minPrice", filters.minPrice.toString());
     if (filters?.maxPrice)
       params.append("maxPrice", filters.maxPrice.toString());
+    // Without this the backend reads the budget as USD, so an RWF budget
+    // filters out every listing.
+    if (filters?.currency) params.append("currency", filters.currency);
     if (filters?.location) params.append("location", filters.location);
     if (filters?.q) params.append("q", filters.q);
     if (filters?.sort) params.append("sort", filters.sort);

@@ -1,8 +1,9 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useToast } from '../ui/Toast';
-import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
+import { useErrorMessage } from "@/lib/error-messages";
 
 interface AdvertiseModalProps {
     open: boolean;
@@ -18,6 +19,8 @@ interface AdvertiseFormData {
 }
 
 export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
+  const errorMessage = useErrorMessage();
+    const t = useTranslations('advertise');
     const { push: showToast } = useToast();
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -33,17 +36,17 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
         const newErrors: Record<string, string> = {};
 
         if (!formData.name.trim()) {
-            newErrors.name = 'Please enter your name';
+            newErrors.name = t('nameRequired');
         }
 
         if (!formData.email.trim()) {
-            newErrors.email = 'Please enter your email';
+            newErrors.email = t('emailRequired');
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-            newErrors.email = 'Please enter a valid email';
+            newErrors.email = t('emailInvalid');
         }
 
         if (!formData.phone.trim()) {
-            newErrors.phone = 'Please enter your phone number';
+            newErrors.phone = t('phoneRequired');
         }
 
         setErrors(newErrors);
@@ -55,8 +58,8 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
 
         if (!validateForm()) {
             showToast({
-                title: 'Validation Error',
-                description: 'Please fill in all required fields',
+                title: t('validationError'),
+                description: t('fillRequired'),
                 variant: 'error'
             });
             return;
@@ -76,13 +79,13 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to submit request');
+                throw new Error(errorData.message || t('submitFailed'));
             }
 
             // Success
             showToast({
-                title: '🎉 Request Submitted!',
-                description: 'Thank you! We will contact you soon.',
+                title: t('successTitle'),
+                description: t('successBody'),
                 variant: 'success'
             });
 
@@ -98,8 +101,8 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
         } catch (error: any) {
             console.error('Failed to submit request:', error);
             showToast({
-                title: 'Submission Failed',
-                description: getUserFriendlyErrorMessage(error, 'Failed to submit request. Please try again.'),
+                title: t('failedTitle'),
+                description: errorMessage(error),
                 variant: 'error'
             });
         } finally {
@@ -132,7 +135,7 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
                     <button
                         onClick={onClose}
                         className="absolute top-4 right-4 text-white/80 hover:text-white transition-colors"
-                        aria-label="Close modal"
+                        aria-label={t('closeModal')}
                     >
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -145,9 +148,9 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
                             </svg>
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold">Advertise With Us</h2>
+                            <h2 className="text-2xl font-bold">{t('title')}</h2>
                             <p className="text-white/90 text-sm mt-1">
-                                Reach thousands of potential customers
+                                {t('subtitle')}
                             </p>
                         </div>
                     </div>
@@ -159,7 +162,7 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
                         {/* Name Field */}
                         <div>
                             <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
-                                Full Name <span className="text-red-500">*</span>
+                                {t('fullName')} <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="text"
@@ -167,7 +170,7 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
                                 name="name"
                                 value={formData.name}
                                 onChange={handleChange}
-                                placeholder="Enter your full name"
+                                placeholder={t('fullNamePlaceholder')}
                                 className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
                                     errors.name ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300'
                                 }`}
@@ -185,7 +188,7 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
                         {/* Email Field */}
                         <div>
                             <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                                Email Address <span className="text-red-500">*</span>
+                                {t('emailAddress')} <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="email"
@@ -193,7 +196,7 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
                                 name="email"
                                 value={formData.email}
                                 onChange={handleChange}
-                                placeholder="you@example.com"
+                                placeholder={t('emailPlaceholder')}
                                 className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
                                     errors.email ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300'
                                 }`}
@@ -211,7 +214,7 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
                         {/* Phone Field */}
                         <div>
                             <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-2">
-                                Phone Number <span className="text-red-500">*</span>
+                                {t('phoneNumber')} <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="tel"
@@ -219,7 +222,7 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
                                 name="phone"
                                 value={formData.phone}
                                 onChange={handleChange}
-                                placeholder="+250 700 000 000"
+                                placeholder={t('phonePlaceholder')}
                                 className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
                                     errors.phone ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300'
                                 }`}
@@ -237,7 +240,7 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
                         {/* Company Field */}
                         <div>
                             <label htmlFor="company" className="block text-sm font-semibold text-gray-700 mb-2">
-                                Company Name <span className="text-gray-400 text-xs font-normal">(Optional)</span>
+                                {t('companyName')} <span className="text-gray-400 text-xs font-normal">{t('optional')}</span>
                             </label>
                             <input
                                 type="text"
@@ -245,7 +248,7 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
                                 name="company"
                                 value={formData.company}
                                 onChange={handleChange}
-                                placeholder="Your company or organization"
+                                placeholder={t('companyPlaceholder')}
                                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-gray-300 transition-all"
                             />
                         </div>
@@ -253,14 +256,14 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
                         {/* Message Field */}
                         <div>
                             <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-2">
-                                Message <span className="text-gray-400 text-xs font-normal">(Optional)</span>
+                                {t('message')} <span className="text-gray-400 text-xs font-normal">{t('optional')}</span>
                             </label>
                             <textarea
                                 id="message"
                                 name="message"
                                 value={formData.message}
                                 onChange={handleChange}
-                                placeholder="Tell us about your advertising needs, budget, and target audience..."
+                                placeholder={t('messagePlaceholder')}
                                 rows={4}
                                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-gray-300 transition-all resize-none"
                             />
@@ -275,7 +278,7 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
                             className="px-6 py-3 border-2 border-gray-200 rounded-xl text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all"
                             disabled={loading}
                         >
-                            Cancel
+                            {t('cancel')}
                         </button>
                         <button
                             type="submit"
@@ -288,14 +291,14 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    Submitting...
+                                    {t('submitting')}
                                 </>
                             ) : (
                                 <>
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                                     </svg>
-                                    Submit Request
+                                    {t('submitRequest')}
                                 </>
                             )}
                         </button>

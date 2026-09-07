@@ -7,10 +7,13 @@ import * as Sentry from "@sentry/nextjs";
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN || "https://2e3e4b134d30468303131ad7e75c515b@o4510249917808640.ingest.us.sentry.io/4510249918857216",
 
-  // Add optional integrations for additional features
-  integrations: [
-    Sentry.replayIntegration(),
-  ],
+  /*
+    Replay is deliberately NOT listed here. Including it pulls the Session
+    Replay recorder into the shared chunk that loads on every page — Sentry was
+    47% of that bundle, and Replay is the bulk of it. It is attached below,
+    lazily, so the 90% of sessions that are never sampled don't download it.
+  */
+  integrations: [],
 
   // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
   tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE || 0),
@@ -31,3 +34,38 @@ Sentry.init({
 });
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
+
+/*
+  Attach Session Replay after the page is idle, fetched on demand rather than
+  bundled. Behaviour is unchanged (same sample rates); it simply stops competing
+  with first paint for bandwidth and main-thread time.
+*/
+if (typeof window !== "undefined") {
+  const attachReplay = () => {
+    Sentry.lazyLoadIntegration("replayIntegration")
+      .then((replayIntegration) => {
+        Sentry.addIntegration(replayIntegration());
+      })
+      // Never let telemetry break the page: if the CDN is blocked or offline,
+      // error reporting still works, just without replays.
+      .catch(() => {});
+  };
+
+  // Read it off first rather than using `in`, which narrows window to never
+  // in the else branch when requestIdleCallback isn't in the DOM lib types.
+  const idle = (
+    window as Window &
+      typeof globalThis & {
+        requestIdleCallback?: (
+          cb: () => void,
+          opts?: { timeout: number },
+        ) => number;
+      }
+  ).requestIdleCallback;
+
+  if (typeof idle === "function") {
+    idle(attachReplay, { timeout: 5000 });
+  } else {
+    window.setTimeout(attachReplay, 3000);
+  }
+}

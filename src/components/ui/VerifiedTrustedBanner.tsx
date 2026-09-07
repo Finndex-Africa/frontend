@@ -1,4 +1,5 @@
 import { ShieldCheck } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 function BannerIllustration() {
     return (
@@ -47,6 +48,8 @@ function BannerIllustration() {
 }
 
 export default function VerifiedTrustedBanner() {
+    const t = useTranslations("banner");
+
     return (
         <section className="container-app px-4 max-w-5xl mx-auto">
             <div className="flex items-center justify-between gap-4 rounded-2xl bg-[#eef2fb] px-4 py-4 sm:gap-6 sm:px-6 sm:py-5">
@@ -56,10 +59,10 @@ export default function VerifiedTrustedBanner() {
                     </div>
                     <div className="min-w-0">
                         <h2 className="text-sm font-bold text-gray-900 sm:text-base">
-                            Verified &amp; Trusted
+                            {t("verifiedTrusted")}
                         </h2>
                         <p className="mt-0.5 text-xs leading-snug text-gray-700 sm:text-sm">
-                            All listings are verified and trusted for your peace of mind.
+                            {t("verifiedTrustedBody")}
                         </p>
                     </div>
                 </div>

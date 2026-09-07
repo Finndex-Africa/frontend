@@ -1,9 +1,12 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { Search, MapPin, Home, Briefcase, DollarSign, X, SlidersHorizontal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { trackSearch, trackFilterCleared } from "@/lib/analytics";
+import { useCurrency, useMoney } from "@/lib/currency/CurrencyProvider";
+import { CURRENCY_META } from "@/lib/currency/config";
 
 const PROPERTY_TYPES = [
   { value: "Apartment", label: "Apartment" },
@@ -50,6 +53,15 @@ export default function SearchBar({
   initialBudget = "",
   initialServiceName = "",
 }: SearchBarProps) {
+  const t = useTranslations("searchBar");
+  const tCurrency = useTranslations("currencySwitcher");
+  const { currency } = useCurrency();
+  const money = useMoney();
+  /* Raw input digits render as "RWF6500000"; group them in the active currency. */
+  const formattedBudget = (value: string) =>
+    value && Number.isFinite(Number(value))
+      ? money.format(Number(value), currency)
+      : `${CURRENCY_META[currency].symbol}${value}`;
   const router = useRouter();
   const isBuySell = variant === "buy-sell";
   const isServices = variant === "services";
@@ -105,13 +117,19 @@ export default function SearchBar({
 
     if (isBuySell) {
       if (type) params.append("category", type);
-      if (budget) params.append("maxBudget", budget);
+      if (budget) {
+        params.append("maxBudget", budget);
+        params.append("currency", currency);
+      }
     } else {
       if (type) {
         const paramName = resolvedTab === "homes" ? "type" : "category";
         params.append(paramName, type);
       }
-      if (resolvedTab === "homes" && budget) params.append("maxPrice", budget);
+      if (resolvedTab === "homes" && budget) {
+        params.append("maxPrice", budget);
+        params.append("currency", currency);
+      }
       if (resolvedTab === "services" && serviceName.trim()) params.append("q", serviceName.trim());
     }
 
@@ -163,19 +181,19 @@ export default function SearchBar({
         );
       }
     }
-    if (budget) parts.push(`Max $${budget}`);
+    if (budget) parts.push(`Max ${formattedBudget(budget)}`);
     if (!isBuySell && resolvedTab === "services" && serviceName.trim()) parts.push(serviceName.trim());
     return parts.join(" · ");
   };
 
   const placeholder =
     variant === "buy-sell"
-      ? "Search listings, locations..."
+      ? t("placeholderListings")
       : variant === "properties"
-        ? "Search properties, locations..."
+        ? t("placeholderHomes")
         : variant === "services"
-          ? "Search services, locations..."
-          : "Search properties, locations or services...";
+          ? t("placeholderServices")
+          : t("placeholderAll");
 
   const hasFilters = location || type || budget || (!isBuySell && serviceName);
 
@@ -210,7 +228,7 @@ export default function SearchBar({
               <button
                 onClick={clearAll}
                 className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 sm:p-1.5"
-                aria-label="Clear filters"
+                aria-label={t("clearFilters")}
               >
                 <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </button>
@@ -223,7 +241,7 @@ export default function SearchBar({
               }}
               className="h-8 rounded-lg bg-blue-600 px-3 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 sm:h-9 sm:px-4 sm:text-sm"
             >
-              Search
+              {t("search")}
             </button>
           </div>
         </div>
@@ -260,7 +278,7 @@ export default function SearchBar({
             )}
             {budget && (
               <span className="rounded-full border border-blue-100 bg-blue-50 px-2 py-0.5 text-xs text-blue-700">
-                Max ${budget}
+                Max {formattedBudget(budget)}
               </span>
             )}
             {!isBuySell && resolvedTab === "services" && serviceName && (
@@ -294,7 +312,7 @@ export default function SearchBar({
                     }`}
                   >
                     <Home className="h-4 w-4" />
-                    Properties
+                    {t("properties")}
                   </button>
                   <button
                     type="button"
@@ -306,7 +324,7 @@ export default function SearchBar({
                     }`}
                   >
                     <Briefcase className="h-4 w-4" />
-                    Services
+                    {t("services")}
                   </button>
                 </div>
               )}
@@ -315,13 +333,13 @@ export default function SearchBar({
                 <div>
                   <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-gray-600">
                     <MapPin className="h-3.5 w-3.5" />
-                    Location
+                    {t("location")}
                   </label>
                   <input
                     type="text"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    placeholder="City or area…"
+                    placeholder={t("cityOrArea")}
                     className="h-10 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-700 placeholder-gray-400 transition-colors focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100"
                     autoFocus
                   />
@@ -341,7 +359,7 @@ export default function SearchBar({
                     onChange={(e) => setType(e.target.value)}
                     className="h-10 w-full cursor-pointer appearance-none rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-700 transition-colors focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100"
                   >
-                    <option value="">All types</option>
+                    <option value="">{t("allTypes")}</option>
                     {(isBuySell ? BUY_SELL_CATEGORIES : resolvedTab === "homes" ? PROPERTY_TYPES : SERVICE_CATEGORIES).map((opt) => (
                       <option key={opt.value} value={opt.value}>
                         {opt.label}
@@ -355,18 +373,20 @@ export default function SearchBar({
                     <>
                       <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-gray-600">
                         <DollarSign className="h-3.5 w-3.5" />
-                        Max Budget (USD)
+                        {tCurrency("budgetIn")} {CURRENCY_META[currency].label}
                       </label>
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-400">
-                          $
+                          {CURRENCY_META[currency].symbol}
                         </span>
                         <input
                           type="number"
                           value={budget}
                           onChange={(e) => setBudget(e.target.value)}
-                          placeholder="Any price"
-                          className="h-10 w-full rounded-lg border border-gray-200 bg-gray-50 pl-6 pr-3 text-sm text-gray-700 placeholder-gray-400 transition-colors focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100"
+                          placeholder={t("anyPrice")}
+                          className={`h-10 w-full rounded-lg border border-gray-200 bg-gray-50 pr-3 text-sm text-gray-700 placeholder-gray-400 transition-colors focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 ${
+                            CURRENCY_META[currency].symbol.length > 1 ? "pl-12" : "pl-6"
+                          }`}
                         />
                       </div>
                     </>
@@ -374,13 +394,13 @@ export default function SearchBar({
                     <>
                       <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-gray-600">
                         <Search className="h-3.5 w-3.5" />
-                        Service Name
+                        {t("serviceName")}
                       </label>
                       <input
                         type="text"
                         value={serviceName}
                         onChange={(e) => setServiceName(e.target.value)}
-                        placeholder="Search by name…"
+                        placeholder={t("searchByName")}
                         className="h-10 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-700 placeholder-gray-400 transition-colors focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100"
                       />
                     </>
@@ -394,14 +414,14 @@ export default function SearchBar({
                   onClick={clearAll}
                   className="text-sm font-medium text-gray-500 underline underline-offset-2 hover:text-gray-700"
                 >
-                  Clear all
+                  {t("clearAll")}
                 </button>
                 <button
                   type="submit"
                   className="flex h-10 items-center gap-2 rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white shadow-md transition-colors hover:bg-blue-700"
                 >
                   <Search className="h-4 w-4" />
-                  {isBuySell ? "Search Listings" : resolvedTab === "homes" ? "Search Properties" : "Search Services"}
+                  {isBuySell ? t("searchListings") : resolvedTab === "homes" ? t("searchProperties") : t("searchServices")}
                 </button>
               </div>
             </form>

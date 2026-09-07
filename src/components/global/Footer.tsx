@@ -1,8 +1,14 @@
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 
-const PATTERN_URL = '/images/patterns/rwanda-cultural-pattern.png';
+// WebP: 63.5 KiB -> 23.6 KiB. It is a CSS background, so next/image never sees
+// it and the format has to be chosen here.
+const PATTERN_URL = '/images/patterns/rwanda-cultural-pattern.webp';
 
 export default function Footer() {
+    const t = useTranslations('footer');
+
     return (
         <footer className="bg-gray-100">
             {/* Rwanda cultural pattern – full-width divider above footer content */}
@@ -16,22 +22,47 @@ export default function Footer() {
                     <div className="mb-4 relative overflow-hidden rounded-2xl" style={{ width: '300px', height: '72px' }}>
                         <Image
                             src="/images/logos/Footer%20Logo-Findafriq.png"
-                            alt="FindAfriq - Connecting you Seamlessly"
+                            alt={t('logoAlt')}
                             fill
                             className="object-contain object-left"
                         />
                     </div>
-                    <p className="text-gray-600 mt-2">A digital real estate and services platform that connects seekers with verified properties and trusted service providers seamlessly.</p>
+                    <p className="text-gray-600 mt-2">{t('tagline')}</p>
+
+                    {/* Contact details */}
+                    <address className="not-italic mt-4 space-y-2 text-gray-600">
+                        <div className="flex items-start gap-2">
+                            <svg className="w-4 h-4 mt-0.5 shrink-0 text-gray-500" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
+                                <path d="M12 2a7 7 0 00-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 00-7-7zm0 9.5A2.5 2.5 0 1112 6.5a2.5 2.5 0 010 5z" />
+                            </svg>
+                            <span>
+                                <span className="sr-only">{t('addressLabel')}: </span>
+                                {t('address')}
+                            </span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                            <svg className="w-4 h-4 mt-0.5 shrink-0 text-gray-500" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
+                                <path d="M6.6 10.8a15.1 15.1 0 006.6 6.6l2.2-2.2a1 1 0 011-.24 11.4 11.4 0 003.6.58 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.46.58 3.6a1 1 0 01-.25 1l-2.23 2.2z" />
+                            </svg>
+                            <span>
+                                <span className="sr-only">{t('phoneLabel')}: </span>
+                                {/* tel: needs the digits unspaced, the label stays readable */}
+                                <a href="tel:+250795784530" className="hover:text-gray-900 transition-colors">
+                                    {t('phone')}
+                                </a>
+                            </span>
+                        </div>
+                    </address>
 
                     {/* Social Media Icons */}
                     <div className="flex gap-4 mt-6">
-                        <a href="https://www.facebook.com/profile.php?id=61577745584378" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-blue-600 transition-colors">
-                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <a href="https://www.facebook.com/profile.php?id=61577745584378" target="_blank" rel="noopener noreferrer" aria-label="FindAfriq on Facebook" className="text-gray-600 hover:text-blue-600 transition-colors">
+                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
                                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                             </svg>
                         </a>
-                        <a href="https://www.linkedin.com/company/findafriq/" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-blue-700 transition-colors">
-                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <a href="https://www.linkedin.com/company/findafriq/" target="_blank" rel="noopener noreferrer" aria-label="FindAfriq on LinkedIn" className="text-gray-600 hover:text-blue-700 transition-colors">
+                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
                                 <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                             </svg>
                         </a>
@@ -43,37 +74,36 @@ export default function Footer() {
                     </div>
                 </div>
                 <div>
-                    <div className="font-semibold mb-3 text-gray-900">Explore</div>
+                    <div className="font-semibold mb-3 text-gray-900">{t('explore')}</div>
                     <ul className="space-y-2 text-gray-600">
-                        <li><a href="/routes/properties" className="hover:text-gray-900 transition-colors">Properties</a></li>
-                        <li><a href="/routes/services" className="hover:text-gray-900 transition-colors">Services</a></li>
-                        <li><a href="/routes/how-it-works" className="hover:text-gray-900 transition-colors">How It Works</a></li>
+                        <li><Link href="/routes/properties" className="hover:text-gray-900 transition-colors">{t('properties')}</Link></li>
+                        <li><Link href="/routes/services" className="hover:text-gray-900 transition-colors">{t('services')}</Link></li>
+                        <li><Link href="/routes/how-it-works" className="hover:text-gray-900 transition-colors">{t('howItWorks')}</Link></li>
                     </ul>
                 </div>
                 <div>
-                    <div className="font-semibold mb-3 text-gray-900">For Partners</div>
+                    <div className="font-semibold mb-3 text-gray-900">{t('forPartners')}</div>
                     <ul className="space-y-2 text-gray-600">
-                        <li><a href="/routes/login" className="hover:text-gray-900 transition-colors">List your property</a></li>
-                        <li><a href="/routes/login" className="hover:text-gray-900 transition-colors">Become a provider</a></li>
+                        <li><Link href="/routes/login" className="hover:text-gray-900 transition-colors">{t('listYourProperty')}</Link></li>
+                        <li><Link href="/routes/login" className="hover:text-gray-900 transition-colors">{t('becomeAProvider')}</Link></li>
                     </ul>
                 </div>
                 <div>
-                    <div className="font-semibold mb-3 text-gray-900">Company</div>
+                    <div className="font-semibold mb-3 text-gray-900">{t('company')}</div>
                     <ul className="space-y-2 text-gray-600">
-                        <li><a href="/routes/about" className="hover:text-gray-900 transition-colors">About</a></li>
-                        <li><a href="/routes/help" className="hover:text-gray-900 transition-colors">Help Center</a></li>
-                        <li><a href="/routes/privacy" className="hover:text-gray-900 transition-colors">Privacy Policy</a></li>
-                        <li><a href="/routes/platform-policy" className="hover:text-gray-900 transition-colors">Platform Policy</a></li>
-                        <li><a href="/routes/terms" className="hover:text-gray-900 transition-colors">Terms &amp; Conditions</a></li>
+                        <li><Link href="/routes/about" className="hover:text-gray-900 transition-colors">{t('about')}</Link></li>
+                        <li><Link href="/routes/help" className="hover:text-gray-900 transition-colors">{t('helpCenter')}</Link></li>
+                        <li><Link href="/routes/privacy" className="hover:text-gray-900 transition-colors">{t('privacyPolicy')}</Link></li>
+                        <li><Link href="/routes/platform-policy" className="hover:text-gray-900 transition-colors">{t('platformPolicy')}</Link></li>
+                        <li><Link href="/routes/terms" className="hover:text-gray-900 transition-colors">{t('termsAndConditions')}</Link></li>
                     </ul>
                 </div>
             </div>
-            <div className="container-app py-4 border-t border-gray-300 text-xs text-gray-500">
-                © 2026 FindAfriq, Inc. All rights reserved.
+            {/* gray-600, not gray-500: on bg-gray-100 that is 6.87:1 vs 4.39:1, which fails WCAG AA. */}
+            <div className="container-app py-4 border-t border-gray-300 text-xs text-gray-600">
+                {/* year passed as a string so ICU doesn't group it as "2 026" in fr */}
+                {t('copyright', { year: String(new Date().getFullYear()) })}
             </div>
         </footer>
     );
 }
-
-
-

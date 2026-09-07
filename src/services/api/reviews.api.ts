@@ -28,6 +28,11 @@ export interface Review {
     hidden: boolean;
     createdAt: string;
     updatedAt: string;
+
+    /** i18n — populated by the backend translation module. */
+    sourceLang?: string;
+    translations?: Record<string, { text?: string; ownerReply?: string }>;
+    translationSource?: 'machine' | 'human';
 }
 
 export interface CreateReviewDto {

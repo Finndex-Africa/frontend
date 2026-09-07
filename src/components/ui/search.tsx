@@ -1,6 +1,9 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 export default function Search() {
+    const t = useTranslations("searchBar");
 
     return (
         <div className="w-full max-w-4xl mx-auto">
@@ -10,7 +13,7 @@ export default function Search() {
                         <div className="text-xs font-semibold text-gray-900">Where</div>
                         <input
                             type="text"
-                            placeholder="Search destinations"
+                            placeholder={t("searchDestinations")}
                             className="w-full text-sm text-gray-600 bg-transparent border-none outline-none placeholder-gray-400"
                         />
                     </div>

@@ -45,7 +45,7 @@ export const userReportsApi = {
     },
 };
 
-/** E.164-style phone validation (+231886149241) */
+/** E.164-style phone validation (+250795784530) */
 export function isE164Phone(value: string): boolean {
     return /^\+[1-9]\d{6,14}$/.test(value.trim());
 }

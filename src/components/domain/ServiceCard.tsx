@@ -1,12 +1,18 @@
 "use client";
-import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useEnumLabel } from "@/lib/enum-labels";
+import {
+    useTranslatedContent,
+    type TranslatableEntity,
+} from "@/lib/translated-content";
+
 import { SafeImage } from "@/components/ui/SafeImage";
 import ShareButton from "@/components/ui/ShareButton";
 import { trackListingBookmarked } from "@/lib/analytics";
 import { bookmarksApi } from "@/services/api/bookmarks.api";
 
+import { Link, useRouter } from "@/i18n/navigation";
 export type Service = {
     id: string;
     name: string;
@@ -23,6 +29,10 @@ export type Service = {
         name: string;
         photo?: string;
     };
+    /** i18n passthrough — resolved by the card, see lib/translated-content. */
+    sourceLang?: string;
+    translations?: Record<string, { title?: string; description?: string }>;
+    translationSource?: 'machine' | 'human';
 };
 
 export default function ServiceCard({
@@ -35,6 +45,16 @@ export default function ServiceCard({
     /** Called after the item is successfully unbookmarked — useful for removing from a saved list */
     onUnbookmark?: () => void;
 }) {
+    // Badge/tags are built from the backend `category` by several page-level
+    // adapters, so translate here at render time to cover all of them.
+    const tCommon = useTranslations("common");
+    const categoryLabel = useEnumLabel("serviceCategories");
+    // ServiceCard's view-model calls the title `name`, but the backend
+    // translates it under the `title` key — remap for the lookup.
+    const translated = useTranslatedContent({
+        ...service,
+        title: service.name,
+    } as TranslatableEntity);
     const router = useRouter();
     const [saved, setSaved] = useState(service.isBookmarked ?? false);
     const [toggling, setToggling] = useState(false);
@@ -62,7 +82,7 @@ export default function ServiceCard({
                                     : 'top-3 left-3 px-2.5 py-1 text-[11px]'
                             }`}
                         >
-                            {service.badge}
+                            {categoryLabel(service.badge)}
                         </div>
                     )}
                     <div className={`absolute flex items-center gap-0.5 sm:gap-1 ${compact ? 'top-1.5 right-1.5' : 'top-3 right-3'}`}>
@@ -123,7 +143,7 @@ export default function ServiceCard({
                                     compact ? 'text-[12px] sm:text-[15px]' : 'text-[15px]'
                                 }`}
                             >
-                                {service.name}
+                                {translated.title.value}
                             </h3>
                             <p
                                 className={`text-gray-600 flex items-center gap-1 mt-0.5 ${
@@ -167,7 +187,7 @@ export default function ServiceCard({
                                     key={index}
                                     className="text-[11px] bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md font-normal"
                                 >
-                                    {tag}
+                                    {categoryLabel(tag)}
                                 </span>
                             ))}
                         </div>
@@ -197,11 +217,11 @@ export default function ServiceCard({
                         </div>
                         {service.isPremium ? (
                             <span className="text-xs font-semibold text-yellow-700 bg-yellow-50 border border-yellow-200 px-2 py-0.5 rounded-full shrink-0">
-                                Featured
+                                {tCommon("featured")}
                             </span>
                         ) : !compact ? (
                         <span className="text-brand-blue hover:text-brand-blue font-medium text-[13px]">
-                            View Details →
+                            {tCommon("viewDetails")} →
                         </span>
                         ) : null}
                     </div>
