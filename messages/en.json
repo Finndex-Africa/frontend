@@ -434,8 +434,8 @@
     "perMonth": "/month",
     "paymentDetails": "Payment Details",
     "agentFee": "Access Fee",
-    "feeSetBy": "Optional fee set by the lister.",
-    "feeSetByLister": "Optional fee set by the lister.",
+    "feeSetBy": "Fee set by the lister.",
+    "feeSetByLister": "Fee set by the lister.",
     "feePaidToAgent": "This fee is paid to the lister.",
     "paymentComingSoonTitle": "Payment Integration Coming Soon!",
     "paymentComingSoonBody": "You'll pay the total amount directly to the lister. Please contact them for payment instructions.",
@@ -692,7 +692,7 @@
     "premiumListing": "Premium Listing",
     "listedPrice": "Listed price",
     "agentFee": "Access Fee",
-    "feeSetByLister": "Optional fee set by the lister.",
+    "feeSetByLister": "Fee set by the lister.",
     "feePaidToLister": "This fee is paid directly to the lister.",
     "totalToPayAgent": "Total Amount to Pay Lister",
     "whatsappSeller": "WhatsApp",
@@ -1186,10 +1186,7 @@
     "connectWithUs": "Connect with us",
     "connectBody": "Questions, partnerships, listings, or onboarding support we're here to help.",
     "getStarted": "Get Started",
-    "propertyTags": [
-      "Apartments",
-      "Office spaces"
-    ],
+    "propertyTags": ["Apartments", "Office spaces"],
     "serviceTags": [
       "Electrical",
       "Plumbing",
@@ -1762,106 +1759,46 @@
       "enforcement": {
         "t": "5. Enforcement structure",
         "p1": "Violations are categorized into three levels based on severity:",
-        "headers": [
-          "Level",
-          "Description"
-        ],
+        "headers": ["Level", "Description"],
         "rows": [
-          [
-            "Level 1",
-            "Minor violations (warnings applicable)"
-          ],
-          [
-            "Level 2",
-            "Moderate violations (temporary restrictions)"
-          ],
-          [
-            "Level 3",
-            "Severe violations (permanent removal)"
-          ]
+          ["Level 1", "Minor violations (warnings applicable)"],
+          ["Level 2", "Moderate violations (temporary restrictions)"],
+          ["Level 3", "Severe violations (permanent removal)"]
         ]
       },
       "penalties": {
         "t": "6. Penalty framework",
-        "headers": [
-          "Violation",
-          "Penalty"
-        ],
+        "headers": ["Violation", "Penalty"],
         "h1": "6.1 Landlords & agents",
         "r1": [
-          [
-            "First-time inaccurate listing",
-            "Warning + listing removal"
-          ],
-          [
-            "Repeated misleading listings",
-            "Account suspension (7–14 days)"
-          ],
-          [
-            "Fake or fraudulent property",
-            "Immediate account termination"
-          ],
+          ["First-time inaccurate listing", "Warning + listing removal"],
+          ["Repeated misleading listings", "Account suspension (7–14 days)"],
+          ["Fake or fraudulent property", "Immediate account termination"],
           [
             "Refusal to update unavailable listing",
             "Listing removal + warning"
           ],
-          [
-            "Scam involvement",
-            "Permanent ban + blacklisting"
-          ]
+          ["Scam involvement", "Permanent ban + blacklisting"]
         ],
         "h2": "6.2 Service providers",
         "r2": [
-          [
-            "False business information",
-            "Warning + profile correction"
-          ],
-          [
-            "Poor service complaints (verified)",
-            "Temporary suspension"
-          ],
-          [
-            "Repeated misconduct",
-            "Subscription termination (no refund)"
-          ],
-          [
-            "Fraud or scam activity",
-            "Permanent ban"
-          ]
+          ["False business information", "Warning + profile correction"],
+          ["Poor service complaints (verified)", "Temporary suspension"],
+          ["Repeated misconduct", "Subscription termination (no refund)"],
+          ["Fraud or scam activity", "Permanent ban"]
         ],
         "h3": "6.3 Seekers",
         "r3": [
-          [
-            "Misuse of agent contact access",
-            "Warning"
-          ],
-          [
-            "Harassment of agents/providers",
-            "Account suspension"
-          ],
-          [
-            "Fraudulent behavior",
-            "Permanent account ban"
-          ]
+          ["Misuse of agent contact access", "Warning"],
+          ["Harassment of agents/providers", "Account suspension"],
+          ["Fraudulent behavior", "Permanent account ban"]
         ],
         "h4": "6.4 General platform violations (all users)",
         "r4": [
-          [
-            "Spam or abuse",
-            "Warning or suspension"
-          ],
-          [
-            "Multiple fake accounts",
-            "Account termination"
-          ],
-          [
-            "Unauthorized commercial activity",
-            "Account suspension or removal"
-          ],
-          [
-            "Platform manipulation",
-            "Immediate restriction or ban"
-          ]
+          ["Spam or abuse", "Warning or suspension"],
+          ["Multiple fake accounts", "Account termination"],
+          ["Unauthorized commercial activity", "Account suspension or removal"],
+          ["Platform manipulation", "Immediate restriction or ban"]
         ]
       },
       "financial": {
@@ -1889,11 +1826,7 @@
       "reporting": {
         "t": "9. Reporting & dispute handling",
         "p1": "Users are encouraged to report:",
-        "items": [
-          "Fake listings",
-          "Fraudulent users",
-          "Misconduct or abuse"
-        ],
+        "items": ["Fake listings", "Fraudulent users", "Misconduct or abuse"],
         "p2": "Process:",
         "steps": [
           "Complaint submission",
