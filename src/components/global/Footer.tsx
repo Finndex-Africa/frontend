@@ -47,7 +47,7 @@ export default function Footer() {
                             <span>
                                 <span className="sr-only">{t('phoneLabel')}: </span>
                                 {/* tel: needs the digits unspaced, the label stays readable */}
-                                <a href="tel:+250795784530" className="hover:text-gray-900 transition-colors">
+                                <a href="tel:+250799640408" className="hover:text-gray-900 transition-colors">
                                     {t('phone')}
                                 </a>
                             </span>
