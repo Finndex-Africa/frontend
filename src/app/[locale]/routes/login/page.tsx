@@ -48,6 +48,7 @@ export default function AuthPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [userType, setUserType] = useState<UserType>("HomeSeeker");
   const [website, setWebsite] = useState("");
   const [loading, setLoading] = useState(false);
@@ -78,6 +79,14 @@ export default function AuthPage() {
     try {
       if (!isLogin && password !== confirmPassword) {
         setError(t("passwordsDoNotMatch"));
+        setLoading(false);
+        return;
+      }
+
+      // Agreement is what forms the contract and records the privacy consent,
+      // so it is checked before the account is created, not after.
+      if (!isLogin && !acceptedTerms) {
+        setError(t("mustAcceptTerms"));
         setLoading(false);
         return;
       }
@@ -434,7 +443,7 @@ export default function AuthPage() {
                       />
                       <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                     </div>
-                    <p className="mt-1.5 text-xs text-gray-400">
+                    <p className="mt-1.5 text-xs text-gray-600">
                       {t("phoneHint")}
                     </p>
                   </div>
@@ -443,7 +452,7 @@ export default function AuthPage() {
                 {!isLogin && userType === "ServiceProvider" && (
                   <div>
                     <label htmlFor="website" className="block text-sm font-medium text-gray-700 mb-1.5">
-                      {t("website")} <span className="text-gray-400 font-normal">({tCommon("optional")})</span>
+                      {t("website")} <span className="text-gray-600 font-normal">({tCommon("optional")})</span>
                     </label>
                     <input
                       id="website"
@@ -484,7 +493,7 @@ export default function AuthPage() {
                     </button>
                   </div>
                   {!isLogin && (
-                    <p className="mt-1.5 text-xs text-gray-400">{t("passwordHint")}</p>
+                    <p className="mt-1.5 text-xs text-gray-600">{t("passwordHint")}</p>
                   )}
                 </div>
 
@@ -543,6 +552,39 @@ export default function AuthPage() {
                   </div>
                 )}
 
+                {!isLogin && (
+                  <div className="pt-1">
+                    <label htmlFor="accept-terms" className="flex items-start gap-2.5 cursor-pointer">
+                      <input
+                        id="accept-terms"
+                        name="accept-terms"
+                        type="checkbox"
+                        required
+                        checked={acceptedTerms}
+                        onChange={(e) => setAcceptedTerms(e.target.checked)}
+                        className="mt-0.5 h-4 w-4 shrink-0 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                      />
+                      <span className="text-sm text-gray-600 leading-relaxed">
+                        {t("acceptTermsPre")}{" "}
+                        <Link
+                          href="/routes/terms"
+                          className="text-blue-600 hover:text-blue-700 font-medium underline underline-offset-2"
+                        >
+                          {t("acceptTermsTerms")}
+                        </Link>{" "}
+                        {t("acceptTermsAnd")}{" "}
+                        <Link
+                          href="/routes/privacy"
+                          className="text-blue-600 hover:text-blue-700 font-medium underline underline-offset-2"
+                        >
+                          {t("acceptTermsPrivacy")}
+                        </Link>
+                        {t("acceptTermsPost")}
+                      </span>
+                    </label>
+                  </div>
+                )}
+
                 <motion.button
                   whileHover={{ scale: loading ? 1 : 1.01 }}
                   whileTap={{ scale: loading ? 1 : 0.99 }}
@@ -555,7 +597,7 @@ export default function AuthPage() {
               </form>
             </div>
 
-            <p className="text-center text-xs text-gray-400 mt-6">
+            <p className="text-center text-xs text-gray-600 mt-6">
               {t("legalPrefix")}{" "}
               <Link href="/routes/terms" className="text-blue-600 hover:underline">
                 {t("legalTerms")}

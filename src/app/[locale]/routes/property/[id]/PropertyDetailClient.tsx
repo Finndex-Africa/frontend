@@ -978,7 +978,7 @@ export default function PropertyDetail() {
                               <span className="text-sm font-semibold text-gray-900">{t("agentFee")}</span>
                             </div>
                             <p className="text-xs text-gray-500 mt-0.5">{t("feeSetByLister")}</p>
-                            <p className="text-xs text-gray-400 mt-0.5">{t("feePaidToAgent")}</p>
+                            <p className="text-xs text-gray-600 mt-0.5">{t("feePaidToAgent")}</p>
                           </div>
                           <span className="shrink-0 text-base font-bold text-green-600">{agentFeeParts.display}</span>
                         </div>

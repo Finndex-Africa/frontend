@@ -67,7 +67,7 @@ function StatCard({
             </div>
             <div className="text-3xl font-bold text-gray-900 mb-1 min-h-9 flex items-center justify-center">
                 {loading ? (
-                    <span className="text-gray-400 text-base font-medium">Loading...</span>
+                    <span className="text-gray-600 text-base font-medium">Loading...</span>
                 ) : (
                     formatNum(displayValue)
                 )}

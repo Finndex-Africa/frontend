@@ -7,6 +7,7 @@ import type { CollapseProps } from 'antd';
 import { LegalContactCard, LegalDocLayout } from '@/components/legal/LegalDocLayout';
 
 import { Link } from '@/i18n/navigation';
+import FormPrivacyNotice from '@/components/global/FormPrivacyNotice';
 type FaqItem = { key: string; question: string; answer: ReactNode };
 
 type FaqSection = { id: string; title: string; items: FaqItem[] };
@@ -93,6 +94,8 @@ export default function HelpFaqPage() {
                             className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#0000FF]/30 focus:border-[#0000FF] outline-none resize-y min-h-[100px]"
                         />
                     </div>
+                    <FormPrivacyNotice />
+
                     <button
                         type="submit"
                         className="w-full sm:w-auto bg-[#0000FF] text-white py-3 px-8 rounded-lg font-semibold text-sm hover:opacity-95 transition-opacity"

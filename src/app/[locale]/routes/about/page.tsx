@@ -225,7 +225,7 @@ export default function About() {
             {/* PARTNERS */}
             <section className="container-app px-4 pb-12 sm:pb-16">
                 <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 px-7 py-10 sm:px-12 sm:py-14">
-                    <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 text-center mb-4">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-gray-600 text-center mb-4">
                         {t("partnersLine1")}
                     </p>
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center leading-snug">

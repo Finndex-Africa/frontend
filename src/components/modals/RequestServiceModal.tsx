@@ -9,6 +9,7 @@ import {
 } from '@/services/api/service-requests.api';
 import { isE164Phone } from '@/services/api/user-reports.api';
 import { useErrorMessage } from "@/lib/error-messages";
+import FormPrivacyNotice from '@/components/global/FormPrivacyNotice';
 
 interface RequestServiceModalProps {
     open: boolean;
@@ -340,6 +341,8 @@ export default function RequestServiceModal({ open, onClose, category }: Request
                                     />
                                 </div>
                             </div>
+
+                            <FormPrivacyNotice />
 
                             <button
                                 type="submit"

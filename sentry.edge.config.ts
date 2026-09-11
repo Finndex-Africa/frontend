@@ -14,9 +14,13 @@ Sentry.init({
   // Enable logs to be sent to Sentry
   enableLogs: true,
 
-  // Enable sending user PII (Personally Identifiable Information)
+  // Off deliberately. With this on, Sentry attaches the requesting IP address,
+  // request headers and cookies to every event and stores them in the US. That
+  // is personal data of Rwandan and Liberian users leaving the country for a
+  // purpose (crash triage) that does not need it. Stack traces and request
+  // paths are enough to debug with.
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#sendDefaultPii
-  sendDefaultPii: true,
+  sendDefaultPii: false,
 
   environment: process.env.SENTRY_ENVIRONMENT,
   release: process.env.SENTRY_RELEASE,

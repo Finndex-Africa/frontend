@@ -73,7 +73,7 @@ function Pagination({ page, totalPages, onPage }: { page: number; totalPages: nu
       </button>
       {pages.map((p, i) =>
         p === "…" ? (
-          <span key={`ellipsis-${i}`} className="px-2 text-gray-400 text-sm">…</span>
+          <span key={`ellipsis-${i}`} className="px-2 text-gray-600 text-sm">…</span>
         ) : (
           <button
             key={p}

@@ -366,7 +366,7 @@ export default function VerifyIdentityPage() {
                                                     className="text-blue-600 font-medium hover:underline"
                                                     onClick={(ev) => ev.stopPropagation()}
                                                 >
-                                                    PDF uploaded — click to open
+                                                    PDF uploaded. Click to open
                                                 </a>
                                             ) : (
                                                 <img

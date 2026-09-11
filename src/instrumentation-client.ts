@@ -4,6 +4,8 @@
 
 import * as Sentry from "@sentry/nextjs";
 
+import { CONSENT_CHANGED_EVENT, hasAnalyticsConsent } from "@/lib/consent";
+
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN || "https://2e3e4b134d30468303131ad7e75c515b@o4510249917808640.ingest.us.sentry.io/4510249918857216",
 
@@ -41,15 +43,42 @@ export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
   with first paint for bandwidth and main-thread time.
 */
 if (typeof window !== "undefined") {
+  let replayAttached = false;
+
   const attachReplay = () => {
+    // Session Replay records a reconstruction of the page and what the visitor
+    // did on it. That is a tracking technology, not error reporting, so it
+    // waits for the same analytics consent that gates gtag.js. Without this it
+    // recorded 10% of every visitor's session before they answered the banner,
+    // which contradicted what the cookie notice told them.
+    if (!hasAnalyticsConsent()) return;
+    if (replayAttached) return;
+    replayAttached = true;
+
     Sentry.lazyLoadIntegration("replayIntegration")
       .then((replayIntegration) => {
-        Sentry.addIntegration(replayIntegration());
+        Sentry.addIntegration(
+          replayIntegration({
+            // Defaults already mask text and inputs; set them explicitly so a
+            // future SDK default flip cannot start leaking listing enquiries,
+            // ID-verification fields or chat messages into replays.
+            maskAllText: true,
+            maskAllInputs: true,
+            blockAllMedia: true,
+          }),
+        );
       })
       // Never let telemetry break the page: if the CDN is blocked or offline,
       // error reporting still works, just without replays.
-      .catch(() => {});
+      .catch(() => {
+        replayAttached = false;
+      });
   };
+
+  // Accepting analytics in the banner should start replay in this tab without
+  // waiting for a reload; a choice made in another tab counts too.
+  window.addEventListener(CONSENT_CHANGED_EVENT, attachReplay);
+  window.addEventListener("storage", attachReplay);
 
   // Read it off first rather than using `in`, which narrows window to never
   // in the else branch when requestIdleCallback isn't in the DOM lib types.

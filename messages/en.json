@@ -3,13 +3,13 @@
     "description": "FindAfriq is a digital real estate and services platform that connects seekers with verified properties and trusted service providers seamlessly.",
     "keywords": "FindAfriq, real estate Africa, rentals Africa, landlords, agents, service providers, Liberia rentals, find a home Africa",
     "howItWorksTitle": "How It Works",
-    "howItWorksDesc": "Learn how FindAfriq connects seekers with verified properties and trusted service providers — in just a few simple steps.",
+    "howItWorksDesc": "Learn how FindAfriq connects seekers with verified properties and trusted service providers in just a few simple steps.",
     "buySellTitle": "Buy & Sell",
-    "buySellDesc": "Buy and sell land, houses, and household items — all in one trusted marketplace on FindAfriq.",
+    "buySellDesc": "Buy and sell land, houses, and household items, all in one trusted marketplace on FindAfriq.",
     "pricingTitle": "Pricing Model",
-    "pricingDesc": "Seeker packages, landlord/agent listing tiers, and service provider subscriptions — transparent USD pricing.",
+    "pricingDesc": "Seeker packages, landlord/agent listing tiers, and service provider subscriptions, with transparent USD pricing.",
     "helpTitle": "Help & FAQ",
-    "helpDesc": "Frequently asked questions about FindAfriq — properties, services, accounts, safety, and support.",
+    "helpDesc": "Frequently asked questions about FindAfriq: properties, services, accounts, safety, and support.",
     "propertyFallback": "Property",
     "serviceFallback": "Service"
   },
@@ -88,6 +88,9 @@
     "privacyPolicy": "Privacy Policy",
     "platformPolicy": "Platform Policy",
     "termsAndConditions": "Terms & Conditions",
+    "cookiePolicy": "Cookie Policy",
+    "refundPolicy": "Refund Policy",
+    "cookieSettings": "Cookie settings",
     "pricing": "Pricing",
     "address": "Kigali, Rwanda",
     "phone": "+250 795 784 530",
@@ -98,7 +101,7 @@
   "home": {
     "heroTitleLine1": "Find Verified Properties and",
     "heroTitleLine2": "Trusted Service Providers",
-    "heroImageAlt": "Hero",
+    "heroImageAlt": "Two people sitting on a sofa looking at a property listing on a phone",
     "trustedByHeading": "Trusted by Leading Organizations and Service Providers",
     "exploreProperties": "Explore available properties",
     "continueExploringProperties": "Continue exploring properties",
@@ -172,6 +175,12 @@
     "showPassword": "Show password",
     "hidePassword": "Hide password",
     "rememberMe": "Remember me",
+    "mustAcceptTerms": "Please accept the Terms & Conditions and Privacy Policy to create an account.",
+    "acceptTermsPre": "I agree to the",
+    "acceptTermsTerms": "Terms & Conditions",
+    "acceptTermsAnd": "and the",
+    "acceptTermsPrivacy": "Privacy Policy",
+    "acceptTermsPost": ", and I consent to FindAfriq processing my personal data as described there.",
     "forgotPassword": "Forgot password?",
     "loginFailed": "Login failed",
     "serviceProviderNameNotice": "Service providers should use their registered business name when creating an account.",
@@ -303,7 +312,7 @@
     "buySellListed": "Buy & Sell Listed",
     "youtube": "YouTube",
     "learnMore": "Learn More",
-    "watchIntro": "Discover Rwanda — more from FindAfriq on",
+    "watchIntro": "Discover Rwanda. More from FindAfriq on",
     "introVideoTitle": "Visit Rwanda",
     "playVideo": "Play video"
   },
@@ -603,7 +612,7 @@
   },
   "advertise": {
     "title": "Advertise With Us",
-    "subtitle": "Reach thousands of potential customers",
+    "subtitle": "Put your brand in front of people actively searching for homes and services",
     "closeModal": "Close modal",
     "fullName": "Full Name",
     "fullNamePlaceholder": "Enter your full name",
@@ -1000,6 +1009,9 @@
     "goToHomepage": "Go to Homepage"
   },
   "forms": {
+    "privacyNoticePre": "We use the details you enter here only to respond to this request, and we do not sell them. See our",
+    "privacyNoticeLink": "Privacy Policy",
+    "privacyNoticePost": " for how long we keep them and how to ask us to delete them.",
     "maxImages": "You can only upload up to 10 images",
     "maxImagesTotal": "You can upload a maximum of 10 images total.",
     "minOneImage": "Please keep at least 1 image on the listing.",
@@ -1062,7 +1074,7 @@
     },
     "faqHeading": "Frequently Asked Questions",
     "cta": {
-      "body": "Join thousands of people already using FindAfriq to find homes, services, and connect with trusted providers across Africa.",
+      "body": "Use FindAfriq to find homes, services, and connect with verified providers across Africa.",
       "button": "Create Your Free Account",
       "heading": "Ready to get started?"
     },
@@ -1073,7 +1085,7 @@
       },
       {
         "title": "Browse Listings",
-        "description": "Explore detailed listings with photos, pricing, amenities, and verified badges — so you always know exactly what you're getting."
+        "description": "Explore detailed listings with photos, pricing, amenities, and verified badges, so you always know exactly what you're getting."
       },
       {
         "title": "Connect & Book",
@@ -1098,8 +1110,8 @@
         "description": "Our team reviews your listing to ensure quality and trustworthiness. Verified listings get more visibility."
       },
       {
-        "title": "Reach Thousands of Seekers",
-        "description": "Once live, your listing is visible to thousands of potential clients actively searching for what you offer."
+        "title": "Get Your Listing Seen",
+        "description": "Once live, your listing is visible to people browsing and searching for what you offer."
       }
     ],
     "trustFeatures": [
@@ -1109,7 +1121,7 @@
       },
       {
         "title": "Secure Messaging",
-        "description": "Communicate safely within the platform — your personal contact info stays private until you choose to share it."
+        "description": "Communicate safely within the platform. Your personal contact info stays private until you choose to share it."
       },
       {
         "title": "Community Reviews",
@@ -1207,7 +1219,7 @@
     "whatsappValue": "+231 886 149 219"
   },
   "helpPage": {
-    "pageTitle": "FindAfriq — Frequently Asked Questions (FAQ)",
+    "pageTitle": "FindAfriq: Frequently Asked Questions (FAQ)",
     "stillNeedHelp": "Still need help? Send us a message and we'll get back to you.",
     "yourName": "Your name",
     "howCanWeHelp": "How can we help you?",
@@ -1362,7 +1374,7 @@
         ]
       }
     ],
-    "subtitle": "Connecting you seamlessly — Find verified properties and trusted service providers across Africa.",
+    "subtitle": "Connecting you seamlessly. Find verified properties and trusted service providers across Africa.",
     "contactUs": "Contact us"
   },
   "pricingPage": {
@@ -1992,14 +2004,13 @@
     "headingPre": "What Our",
     "headingHighlight": "Community",
     "headingPost": "Says",
-    "subtitle": "Join thousands of satisfied users who have found their perfect homes and trusted service providers",
+    "subtitle": "What verified agents and service providers say about working with FindAfriq",
     "roles": {
       "propertyOwner": "Property Owner",
       "serviceProvider": "Service Provider",
       "agent": "FindAfriq Agent"
     },
     "quotes": {
-      "diallo": "FindAfriq made it incredibly easy to list my property. Within weeks, I had multiple interested tenants. The platform is user-friendly and the support team is excellent!",
       "fineLiving": "Using FindAfriq has been smooth and easy. From creating our profile to listing our services, the platform made everything simple to navigate. We're excited about the visibility and opportunities it brings to our business.",
       "kromah": "My experience with FindAfriq has been great. The platform has helped me connect landlords with people searching for apartments and rooms while improving my communication and networking skills. I'm proud to be part of the team and excited to continue growing with FindAfriq.",
       "daywhea": "Being a verified agent has shown me the opportunities digital platforms create. I'm grateful to be part of FindAfriq and committed to supporting its mission of connecting people with verified properties including apartments and offices."
@@ -2094,7 +2105,7 @@
     "phonePlaceholder": "+250 795 784 530",
     "phoneHint": "International format, e.g. +250795784530",
     "details": "What are you looking for?",
-    "detailsPlaceholder": "Describe the property, service, or item you need — the more detail, the better we can help.",
+    "detailsPlaceholder": "Describe the property, service, or item you need. The more detail, the better we can help.",
     "location": "Preferred location (optional)",
     "locationPlaceholder": "e.g. Kacyiru, Kigali",
     "budget": "Budget (optional)",
@@ -2102,7 +2113,7 @@
     "submit": "Send request",
     "submitting": "Sending…",
     "successTitle": "Request received",
-    "successBody": "Thanks — our team will review your request and get back to you shortly.",
+    "successBody": "Thanks. Our team will review your request and get back to you shortly.",
     "fixFields": "Please correct the highlighted fields.",
     "errors": {
       "fullNameMin": "Please enter your full name.",
@@ -2111,5 +2122,193 @@
       "phoneInvalid": "Use international format, e.g. +250795784530.",
       "detailsMin": "Please tell us a little more about what you need (at least 10 characters)."
     }
-  }
+  },
+    "cookiePolicyPage": {
+      "title": "Cookie Policy",
+      "subtitle": "What FindAfriq stores on your device, why, and how to change your choice.",
+      "lastUpdated": "Last updated: 11 September 2026",
+      "s": {
+        "intro": {
+          "t": "1. About this policy",
+          "p1": "This policy explains the cookies and similar storage technologies FindAfriq uses, what each one does, and how long it lasts. It sits alongside our",
+          "link": "Privacy Policy",
+          "p2": ", which explains how we handle personal data more generally."
+        },
+        "what": {
+          "t": "2. What these technologies are",
+          "p1": "A cookie is a small text file a site stores in your browser. We also use localStorage and sessionStorage, which work similarly but are read only by this site and are not sent with every request. Where this policy says \"cookies\", it covers all three."
+        },
+        "necessary": {
+          "t": "3. Strictly necessary",
+          "p1": "These keep the site working and cannot be switched off. They are set whether or not you accept anything in the banner, because the site cannot function without them.",
+          "headers": [
+            "Name",
+            "Purpose",
+            "Type",
+            "Duration"
+          ],
+          "rows": [
+            [
+              "token",
+              "Keeps you signed in between pages.",
+              "Cookie",
+              "Until you sign out"
+            ],
+            [
+              "token, user",
+              "Holds your session and account details in the browser so you are not signed out on refresh.",
+              "Local/session storage",
+              "Until you sign out"
+            ],
+            [
+              "findafriq_cookie_consent",
+              "Records the cookie choice you made here, so we stop asking.",
+              "Local storage",
+              "Until cleared"
+            ]
+          ]
+        },
+        "preferences": {
+          "t": "4. Preferences",
+          "p1": "These remember display choices you made. Turning them off means the site forgets those choices between visits.",
+          "headers": [
+            "Name",
+            "Purpose",
+            "Type",
+            "Duration"
+          ],
+          "rows": [
+            [
+              "NEXT_LOCALE",
+              "Remembers whether you are reading the site in English or French.",
+              "Cookie",
+              "1 year"
+            ],
+            [
+              "findafriq_currency",
+              "Remembers whether prices show in USD or RWF.",
+              "Cookie",
+              "1 year"
+            ],
+            [
+              "testing-disclaimer-dismissed",
+              "Remembers that you closed the platform notice.",
+              "Local storage",
+              "Until cleared"
+            ]
+          ]
+        },
+        "analytics": {
+          "t": "5. Analytics",
+          "p1": "These only load if you accept analytics in the cookie banner. Decline, and the scripts below are never downloaded at all.",
+          "headers": [
+            "Name",
+            "Provider",
+            "Purpose",
+            "Duration"
+          ],
+          "rows": [
+            [
+              "_ga, _ga_*",
+              "Google Analytics 4 (Google LLC, United States)",
+              "Counts visits and tells us which pages and searches people use, so we can prioritise what to improve.",
+              "Up to 2 years"
+            ],
+            [
+              "Session Replay",
+              "Sentry (Functional Software, Inc., United States)",
+              "Records a masked reconstruction of a small sample of sessions to help us diagnose bugs. Text, form inputs and images are masked before anything leaves your browser.",
+              "Session"
+            ]
+          ]
+        },
+        "marketing": {
+          "t": "6. Marketing",
+          "p1": "The banner includes a marketing category for advertising cookies. We do not currently set any. The toggle is there so that if we ever add them, they stay off until you turn them on."
+        },
+        "errors": {
+          "t": "7. Error reporting",
+          "p1": "Separately from Session Replay, we use Sentry to record crashes so we can fix them. Crash reports are sent whatever your cookie choice, because a site that cannot report its own failures cannot be kept secure. These reports contain the error and the page it happened on. We have turned off the option that would attach your IP address, headers and cookies to them."
+        },
+        "embeds": {
+          "t": "8. Embedded third-party content",
+          "p1": "Some pages include content served by other companies. Loading that content reveals your IP address to them:",
+          "items": [
+            "YouTube videos load through youtube-nocookie.com and only after you press play. The preview thumbnail is served by Google before that.",
+            "Listing photos are served from DigitalOcean Spaces.",
+            "In-platform messaging is operated by Stream Chat, which sets its own storage once you are signed in and using messages.",
+            "The AI assistant sends the text of your conversation to OpenAI to generate a reply. Do not put sensitive personal details into it.",
+            "Map address lookups are proxied through our own server, so OpenStreetMap does not receive your IP address.",
+            "Fonts are served from our own domain. No font provider receives your data."
+          ]
+        },
+        "changing": {
+          "t": "9. Changing your mind",
+          "p1": "You can reopen the cookie banner at any time from the link in the footer and change or withdraw your choice. Withdrawing analytics consent stops further collection immediately. You can also clear cookies and site data through your browser settings, though this will sign you out and reset your language and currency preferences."
+        },
+        "changes": {
+          "t": "10. Changes to this policy",
+          "p1": "If we add or remove a cookie, we will update the tables above. If the change involves a new non-essential cookie, we will ask for your consent again before setting it."
+        },
+        "contact": {
+          "t": "11. Contact",
+          "p1": "Questions about this policy can go to"
+        }
+      }
+    },
+    "refundPolicyPage": {
+      "title": "Refund Policy",
+      "subtitle": "How paid plans, cancellations and refunds work on FindAfriq.",
+      "lastUpdated": "Last updated: 11 September 2026",
+      "s": {
+        "status": {
+          "t": "1. Current status",
+          "p1": "FindAfriq is not taking payments yet. Listing packages and provider subscriptions are shown on the pricing page, but payment processing is not live and no one has been charged. The terms below will apply from the day billing opens. Until then, every feature you can reach is free to use."
+        },
+        "scope": {
+          "t": "2. What this policy covers",
+          "p1": "This policy covers money you pay to FindAfriq: listing packages, provider subscriptions, promotional placements and advertising. It does not cover money that changes hands between users.",
+          "p2": "FindAfriq is a marketplace. Rent, deposits, purchase prices and payments for services are agreed directly between you and the other person, and are settled directly between you. We are not a party to those transactions and cannot refund them. If a listing or a provider turns out to be fraudulent, report it to us and we will act on the account, but the money itself has to be recovered from the person you paid."
+        },
+        "billing": {
+          "t": "3. Subscriptions and billing",
+          "items": [
+            "Paid plans are billed in advance for the period you select.",
+            "Prices are shown in USD on the pricing page. Your bank may apply its own conversion rate and fees, which we do not control and cannot refund.",
+            "Unless you cancel, a subscription renews automatically at the end of each period.",
+            "We will email you a receipt for every charge."
+          ]
+        },
+        "cooling": {
+          "t": "4. Refund window",
+          "p1": "You can request a full refund of a subscription or package within 14 days of the charge, provided you have not used the paid benefit it bought. Using the benefit means, for example, publishing a listing under a paid tier, taking a featured placement, or running an advertisement.",
+          "p2": "If you have used the paid benefit, the charge is not refundable for that period, but you can still cancel to prevent the next renewal."
+        },
+        "renewals": {
+          "t": "5. Renewals charged by mistake",
+          "p1": "If a renewal is charged after you cancelled, or you were charged twice for the same period, tell us and we will refund it in full. This is not limited to 14 days."
+        },
+        "cancel": {
+          "t": "6. Cancelling",
+          "p1": "You can cancel a subscription at any time from your account. Cancelling stops the next renewal. Your plan stays active until the end of the period you have already paid for, and we do not pro-rate the unused part of that period."
+        },
+        "ours": {
+          "t": "7. When we cancel or suspend",
+          "p1": "If we suspend or remove your account for breaching our Terms or Platform Policy, paid fees are not refunded. If we withdraw a paid feature you were relying on, or we are at fault for it not working, we will refund the affected period."
+        },
+        "how": {
+          "t": "8. How to request a refund",
+          "p1": "Email us from the address on your account with the receipt or transaction reference and a short description of the problem. We will acknowledge within 3 business days and decide within 14 days.",
+          "p2": "Approved refunds go back to the original payment method. How long the money takes to appear depends on your bank or mobile money provider and is usually 5 to 10 business days."
+        },
+        "disputes": {
+          "t": "9. If you disagree with our decision",
+          "p1": "Contact us first so we can look at it again. Raising a chargeback with your bank before contacting us may cause your account to be suspended while the dispute is open. Nothing in this policy takes away rights you have under Rwandan or Liberian consumer law."
+        },
+        "contact": {
+          "t": "10. Contact",
+          "p1": "Refund requests and questions about this policy can go to"
+        }
+      }
+    }
 }

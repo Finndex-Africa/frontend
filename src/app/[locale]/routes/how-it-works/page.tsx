@@ -20,7 +20,7 @@ const seekerSteps = [
     icon: "🏷️",
     title: "Browse Listings",
     description:
-      "Explore detailed listings with photos, pricing, amenities, and verified badges — so you always know exactly what you're getting.",
+      "Explore detailed listings with photos, pricing, amenities, and verified badges, so you always know exactly what you're getting.",
   },
   {
     step: "3",
@@ -80,7 +80,7 @@ const trustFeatures = [
     icon: "🔒",
     title: "Secure Messaging",
     description:
-      "Communicate safely within the platform — your personal contact info stays private until you choose to share it.",
+      "Communicate safely within the platform. Your personal contact info stays private until you choose to share it.",
   },
   {
     icon: "⭐",

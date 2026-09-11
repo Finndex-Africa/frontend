@@ -469,3 +469,23 @@ body:has(.auth-page-shell) main {
   padding-top: 0;
   padding-bottom: 0;
 }
+
+/*
+  Honour the OS "reduce motion" setting.
+
+  The app leans on framer-motion for banner slides, modal transitions and the
+  stats count-up. Vestibular disorders make that kind of movement genuinely
+  unpleasant, and WCAG 2.1 expects motion to be suppressible. Near-zero rather
+  than 0s so animation/transition `end` events still fire and components that
+  wait on them do not hang mid-state.
+*/
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

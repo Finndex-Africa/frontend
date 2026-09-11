@@ -155,7 +155,7 @@ export default function BuySellCard({ listing }: { listing: BuySellListing }) {
             </span>
           )}
         </div>
-        <p className="text-xs text-gray-400 mt-2 truncate">{t("bySeller", { seller: sellerName })}</p>
+        <p className="text-xs text-gray-600 mt-2 truncate">{t("bySeller", { seller: sellerName })}</p>
       </div>
     </Link>
   );

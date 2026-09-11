@@ -6,7 +6,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Cookie, ChevronDown, ChevronUp } from 'lucide-react';
 
 import { Link } from '@/i18n/navigation';
-import { readConsent, writeConsent, type ConsentState } from '@/lib/consent';
+import {
+    CONSENT_REOPEN_EVENT,
+    readConsent,
+    writeConsent,
+    type ConsentState,
+} from '@/lib/consent';
 
 function updateGAConsent(consentData: ConsentState) {
     if (typeof window === 'undefined' || typeof window.gtag !== 'function') return;
@@ -27,16 +32,38 @@ export default function CookieConsent() {
     });
 
     useEffect(() => {
+        // Re-opening from the footer shows the banner with the stored choice
+        // already filled in, so the panel reflects what is actually set rather
+        // than the all-off default.
+        const reopen = () => {
+            const current = readConsent();
+            if (current) {
+                setConsent({
+                    necessary: true,
+                    analytics: current.analytics,
+                    marketing: current.marketing,
+                    preferences: current.preferences,
+                });
+            }
+            setShowDetails(true);
+            setVisible(true);
+        };
+        window.addEventListener(CONSENT_REOPEN_EVENT, reopen);
+
         const stored = readConsent();
         if (!stored) {
             // No choice yet, or a stale consent version — ask. Slight delay so
             // the banner doesn't flash immediately on load.
             const timer = setTimeout(() => setVisible(true), 800);
-            return () => clearTimeout(timer);
+            return () => {
+                clearTimeout(timer);
+                window.removeEventListener(CONSENT_REOPEN_EVENT, reopen);
+            };
         }
         // Re-assert the stored choice with gtag, for the case where analytics
         // was consented to and ConsentedAnalytics has now loaded the script.
         updateGAConsent(stored);
+        return () => window.removeEventListener(CONSENT_REOPEN_EVENT, reopen);
     }, []);
 
     const saveConsent = (consentData: ConsentState) => {

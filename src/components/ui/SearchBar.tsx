@@ -221,7 +221,7 @@ export default function SearchBar({
             }}
             onFocus={() => setIsOpen(true)}
             placeholder={placeholder}
-            className="min-w-0 flex-1 bg-transparent text-xs text-gray-700 placeholder-gray-400 focus:outline-none sm:text-sm"
+            className="min-w-0 flex-1 bg-transparent text-xs text-gray-700 placeholder-gray-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded-sm sm:text-sm"
           />
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             {hasFilters && !isOpen && (
@@ -376,7 +376,7 @@ export default function SearchBar({
                         {tCurrency("budgetIn")} {CURRENCY_META[currency].label}
                       </label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-400">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-600">
                           {CURRENCY_META[currency].symbol}
                         </span>
                         <input

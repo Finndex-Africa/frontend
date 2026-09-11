@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useToast } from '../ui/Toast';
 import { useErrorMessage } from "@/lib/error-messages";
+import FormPrivacyNotice from '@/components/global/FormPrivacyNotice';
 
 interface AdvertiseModalProps {
     open: boolean;
@@ -240,7 +241,7 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
                         {/* Company Field */}
                         <div>
                             <label htmlFor="company" className="block text-sm font-semibold text-gray-700 mb-2">
-                                {t('companyName')} <span className="text-gray-400 text-xs font-normal">{t('optional')}</span>
+                                {t('companyName')} <span className="text-gray-600 text-xs font-normal">{t('optional')}</span>
                             </label>
                             <input
                                 type="text"
@@ -256,7 +257,7 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
                         {/* Message Field */}
                         <div>
                             <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-2">
-                                {t('message')} <span className="text-gray-400 text-xs font-normal">{t('optional')}</span>
+                                {t('message')} <span className="text-gray-600 text-xs font-normal">{t('optional')}</span>
                             </label>
                             <textarea
                                 id="message"
@@ -269,6 +270,8 @@ export default function AdvertiseModal({ open, onClose }: AdvertiseModalProps) {
                             />
                         </div>
                     </div>
+
+                    <FormPrivacyNotice className="mt-2" />
 
                     {/* Action Buttons */}
                     <div className="flex gap-3 justify-end mt-8 pt-6 border-t border-gray-100">

@@ -9,13 +9,6 @@ import TestimonialCard from "./TestimonialCard";
  */
 const testimonials = [
     {
-        name: "Aïssatou Diallo",
-        roleKey: "propertyOwner",
-        quoteKey: "diallo",
-        rating: 5,
-        avatarUrl: "https://images.unsplash.com/photo-1769636930016-5d9f0ca653aa?auto=format&fit=crop&w=200&h=200&q=80",
-    },
-    {
         name: "Fine Living Cleaning Service",
         roleKey: "serviceProvider",
         quoteKey: "fineLiving",
@@ -55,7 +48,7 @@ export default function TestimonialsSection() {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {testimonials.map((testimonial) => (
                         <TestimonialCard
                             key={testimonial.name}

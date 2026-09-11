@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
+import CookieSettingsButton from './CookieSettingsButton';
 
 // WebP: 63.5 KiB -> 23.6 KiB. It is a CSS background, so next/image never sees
 // it and the format has to be chosen here.
@@ -96,6 +97,9 @@ export default function Footer() {
                         <li><Link href="/routes/privacy" className="hover:text-gray-900 transition-colors">{t('privacyPolicy')}</Link></li>
                         <li><Link href="/routes/platform-policy" className="hover:text-gray-900 transition-colors">{t('platformPolicy')}</Link></li>
                         <li><Link href="/routes/terms" className="hover:text-gray-900 transition-colors">{t('termsAndConditions')}</Link></li>
+                        <li><Link href="/routes/cookie-policy" className="hover:text-gray-900 transition-colors">{t('cookiePolicy')}</Link></li>
+                        <li><Link href="/routes/refund-policy" className="hover:text-gray-900 transition-colors">{t('refundPolicy')}</Link></li>
+                        <li><CookieSettingsButton /></li>
                     </ul>
                 </div>
             </div>

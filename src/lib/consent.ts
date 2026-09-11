@@ -13,6 +13,19 @@ export const CONSENT_VERSION = "1";
 /** Dispatched on `window` when the visitor saves a consent choice. */
 export const CONSENT_CHANGED_EVENT = "findafriq:consent-changed";
 
+/**
+ * Dispatched on `window` to re-open the consent banner after a choice has
+ * already been made. The Cookie Policy promises a way back in, so withdrawing
+ * consent has to be as reachable as giving it.
+ */
+export const CONSENT_REOPEN_EVENT = "findafriq:consent-reopen";
+
+/** Re-opens the consent banner with the visitor's current choice pre-filled. */
+export function openConsentPreferences(): void {
+    if (typeof window === "undefined") return;
+    window.dispatchEvent(new Event(CONSENT_REOPEN_EVENT));
+}
+
 export type ConsentState = {
     necessary: true;
     analytics: boolean;

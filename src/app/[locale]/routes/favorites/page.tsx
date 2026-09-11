@@ -178,7 +178,7 @@ export default function FavoritesPage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">Favorites</h1>
                 <p className="text-gray-500 text-sm mb-6">
-                    Listings you&apos;ve saved with the heart button — across properties, services and buy &amp; sell.
+                    Listings you&apos;ve saved with the heart button, across properties, services and buy &amp; sell.
                 </p>
 
                 {/* Tabs */}
@@ -223,7 +223,7 @@ export default function FavoritesPage() {
                     <div className="text-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100">
                         <div className="text-4xl mb-3">🤍</div>
                         <p className="text-gray-700 font-medium mb-1">No saved items yet</p>
-                        <p className="text-sm text-gray-400 mb-6">
+                        <p className="text-sm text-gray-600 mb-6">
                             {activeTab === 'all'
                                 ? "Tap the heart on any listing to save it here."
                                 : `You haven't saved any ${activeTab === 'buy-sell' ? 'buy & sell' : activeTab} listings yet.`}

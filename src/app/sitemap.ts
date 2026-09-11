@@ -123,6 +123,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         { path: "/routes/terms", changeFrequency: "yearly", priority: 0.3 },
         { path: "/routes/privacy", changeFrequency: "yearly", priority: 0.3 },
         { path: "/routes/platform-policy", changeFrequency: "yearly", priority: 0.3 },
+        { path: "/routes/cookie-policy", changeFrequency: "yearly", priority: 0.3 },
+        { path: "/routes/refund-policy", changeFrequency: "yearly", priority: 0.3 },
     ];
 
     // Only published listings: pending or rejected ones render a status notice

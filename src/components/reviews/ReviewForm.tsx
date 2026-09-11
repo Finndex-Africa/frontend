@@ -156,7 +156,7 @@ export default function ReviewForm({ itemType, itemId, itemTitle, onSuccess }: R
                                     onClick={() => setRating(star)}
                                     onMouseEnter={() => setHoverRating(star)}
                                     onMouseLeave={() => setHoverRating(0)}
-                                    className="focus:outline-none transition-transform hover:scale-110"
+                                    className="rounded-sm transition-transform hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                                 >
                                     <Star
                                         className={`w-8 h-8 ${

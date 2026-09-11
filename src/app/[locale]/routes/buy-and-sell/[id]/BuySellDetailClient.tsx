@@ -692,7 +692,7 @@ export default function BuySellDetailClient() {
                         <div className="flex-1 min-w-0">
                           <span className="text-sm font-semibold text-gray-900">{t("agentFee")}</span>
                           <p className="text-xs text-gray-500 mt-0.5">{t("feeSetByLister")}</p>
-                          <p className="text-xs text-gray-400 mt-0.5">{t("feePaidToLister")}</p>
+                          <p className="text-xs text-gray-600 mt-0.5">{t("feePaidToLister")}</p>
                         </div>
                         <span className="shrink-0 text-base font-bold text-green-600">{agentFeeParts.display}</span>
                       </div>

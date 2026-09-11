@@ -5,11 +5,11 @@
     "howItWorksTitle": "Comment ça marche",
     "howItWorksDesc": "Découvrez comment FindAfriq met en relation les chercheurs avec des biens vérifiés et des prestataires de confiance, en quelques étapes simples.",
     "buySellTitle": "Acheter & Vendre",
-    "buySellDesc": "Achetez et vendez des terrains, des maisons et des articles ménagers — le tout sur une place de marché de confiance.",
+    "buySellDesc": "Achetez et vendez des terrains, des maisons et des articles ménagers, le tout sur une place de marché de confiance.",
     "pricingTitle": "Grille tarifaire",
-    "pricingDesc": "Formules pour les chercheurs, niveaux de publication pour propriétaires et agents, abonnements prestataires — des tarifs transparents en USD.",
+    "pricingDesc": "Formules pour les chercheurs, niveaux de publication pour propriétaires et agents, abonnements prestataires, avec des tarifs transparents en USD.",
     "helpTitle": "Aide et FAQ",
-    "helpDesc": "Questions fréquentes sur FindAfriq — biens, services, comptes, sécurité et assistance.",
+    "helpDesc": "Questions fréquentes sur FindAfriq : biens, services, comptes, sécurité et assistance.",
     "propertyFallback": "Bien",
     "serviceFallback": "Service"
   },
@@ -88,6 +88,9 @@
     "privacyPolicy": "Politique de confidentialité",
     "platformPolicy": "Règles de la plateforme",
     "termsAndConditions": "Conditions générales",
+    "cookiePolicy": "Politique relative aux cookies",
+    "refundPolicy": "Politique de remboursement",
+    "cookieSettings": "Paramètres des cookies",
     "pricing": "Tarifs",
     "address": "Kigali, Rwanda",
     "phone": "+250 795 784 530",
@@ -98,7 +101,7 @@
   "home": {
     "heroTitleLine1": "Trouvez des biens vérifiés et",
     "heroTitleLine2": "des prestataires de confiance",
-    "heroImageAlt": "Image d'accueil",
+    "heroImageAlt": "Deux personnes assises sur un canapé regardant une annonce immobilière sur un téléphone",
     "trustedByHeading": "Ils nous font confiance : organisations et prestataires de premier plan",
     "exploreProperties": "Découvrez les biens disponibles",
     "continueExploringProperties": "Poursuivez votre recherche de biens",
@@ -172,6 +175,12 @@
     "showPassword": "Afficher le mot de passe",
     "hidePassword": "Masquer le mot de passe",
     "rememberMe": "Se souvenir de moi",
+    "mustAcceptTerms": "Veuillez accepter les conditions générales et la politique de confidentialité pour créer un compte.",
+    "acceptTermsPre": "J'accepte les",
+    "acceptTermsTerms": "conditions générales",
+    "acceptTermsAnd": "et la",
+    "acceptTermsPrivacy": "politique de confidentialité",
+    "acceptTermsPost": ", et je consens au traitement de mes données personnelles par FindAfriq tel qu'il y est décrit.",
     "forgotPassword": "Mot de passe oublié ?",
     "loginFailed": "Échec de la connexion",
     "serviceProviderNameNotice": "Les prestataires de services doivent utiliser leur raison sociale enregistrée lors de la création du compte.",
@@ -303,7 +312,7 @@
     "buySellListed": "Annonces Acheter & Vendre",
     "youtube": "YouTube",
     "learnMore": "En savoir plus",
-    "watchIntro": "Découvrez le Rwanda — plus de contenu FindAfriq sur",
+    "watchIntro": "Découvrez le Rwanda. Plus de contenu FindAfriq sur",
     "introVideoTitle": "Visit Rwanda",
     "playVideo": "Lire la vidéo"
   },
@@ -603,7 +612,7 @@
   },
   "advertise": {
     "title": "Annoncez avec nous",
-    "subtitle": "Touchez des milliers de clients potentiels",
+    "subtitle": "Présentez votre marque aux personnes qui recherchent activement logements et services",
     "closeModal": "Fermer la fenêtre",
     "fullName": "Nom complet",
     "fullNamePlaceholder": "Saisissez votre nom complet",
@@ -1000,6 +1009,9 @@
     "goToHomepage": "Aller à l'accueil"
   },
   "forms": {
+    "privacyNoticePre": "Les informations saisies ici servent uniquement à répondre à votre demande et ne sont pas revendues. Consultez notre",
+    "privacyNoticeLink": "politique de confidentialité",
+    "privacyNoticePost": " pour la durée de conservation et la marche à suivre pour demander leur suppression.",
     "maxImages": "Vous ne pouvez téléverser que 10 photos maximum",
     "maxImagesTotal": "Vous pouvez téléverser 10 photos au maximum.",
     "minOneImage": "Veuillez conserver au moins 1 photo sur l'annonce.",
@@ -1062,7 +1074,7 @@
     },
     "faqHeading": "Questions fréquentes",
     "cta": {
-      "body": "Rejoignez les milliers de personnes qui utilisent déjà FindAfriq pour trouver un logement, des services et des prestataires de confiance partout en Afrique.",
+      "body": "Utilisez FindAfriq pour trouver un logement, des services et des prestataires vérifiés partout en Afrique.",
       "button": "Créer un compte gratuit",
       "heading": "Prêt à commencer ?"
     },
@@ -1073,7 +1085,7 @@
       },
       {
         "title": "Parcourir les annonces",
-        "description": "Explorez des annonces détaillées avec photos, tarifs, équipements et badges de vérification — pour savoir exactement ce que vous obtenez."
+        "description": "Explorez des annonces détaillées avec photos, tarifs, équipements et badges de vérification, pour savoir exactement ce que vous obtenez."
       },
       {
         "title": "Contacter et réserver",
@@ -1098,8 +1110,8 @@
         "description": "Notre équipe examine votre annonce pour garantir sa qualité et sa fiabilité. Les annonces vérifiées gagnent en visibilité."
       },
       {
-        "title": "Toucher des milliers de chercheurs",
-        "description": "Une fois en ligne, votre annonce est visible par des milliers de clients potentiels à la recherche de ce que vous proposez."
+        "title": "Rendez votre annonce visible",
+        "description": "Une fois en ligne, votre annonce est visible par les personnes qui recherchent ce que vous proposez."
       }
     ],
     "trustFeatures": [
@@ -1109,7 +1121,7 @@
       },
       {
         "title": "Messagerie sécurisée",
-        "description": "Échangez en toute sécurité sur la plateforme — vos coordonnées personnelles restent privées jusqu'à ce que vous choisissiez de les partager."
+        "description": "Échangez en toute sécurité sur la plateforme. Vos coordonnées personnelles restent privées jusqu'à ce que vous choisissiez de les partager."
       },
       {
         "title": "Avis de la communauté",
@@ -1210,7 +1222,7 @@
     "whatsappValue": "+231 886 149 219"
   },
   "helpPage": {
-    "pageTitle": "FindAfriq — Questions fréquentes (FAQ)",
+    "pageTitle": "FindAfriq : Questions fréquentes (FAQ)",
     "stillNeedHelp": "Besoin d'aide supplémentaire ? Envoyez-nous un message et nous vous répondrons.",
     "yourName": "Votre nom",
     "howCanWeHelp": "Comment pouvons-nous vous aider ?",
@@ -1365,7 +1377,7 @@
         ]
       }
     ],
-    "subtitle": "Vous connecter en toute simplicité — Trouvez des biens vérifiés et des prestataires de confiance partout en Afrique.",
+    "subtitle": "Vous connecter en toute simplicité. Trouvez des biens vérifiés et des prestataires de confiance partout en Afrique.",
     "contactUs": "Nous contacter"
   },
   "pricingPage": {
@@ -2059,14 +2071,13 @@
     "headingPre": "Ce que dit",
     "headingHighlight": "notre communauté",
     "headingPost": "",
-    "subtitle": "Rejoignez les milliers d'utilisateurs satisfaits qui ont trouvé leur logement idéal et des prestataires de confiance",
+    "subtitle": "Ce que les agents vérifiés et les prestataires disent de FindAfriq",
     "roles": {
       "propertyOwner": "Propriétaire",
       "serviceProvider": "Prestataire de services",
       "agent": "Agent FindAfriq"
     },
     "quotes": {
-      "diallo": "FindAfriq m'a permis de publier mon bien très facilement. En quelques semaines, plusieurs locataires étaient intéressés. La plateforme est simple à utiliser et l'équipe d'assistance est excellente !",
       "fineLiving": "Utiliser FindAfriq a été simple et fluide. De la création de notre profil à la publication de nos services, tout a été facile à prendre en main. Nous sommes enthousiastes quant à la visibilité et aux opportunités que cela apporte à notre entreprise.",
       "kromah": "Mon expérience avec FindAfriq a été excellente. La plateforme m'a aidé à mettre en relation des propriétaires avec des personnes à la recherche d'appartements et de chambres, tout en améliorant mes compétences en communication et en réseautage. Je suis fier de faire partie de l'équipe et impatient de continuer à grandir avec FindAfriq.",
       "daywhea": "Être agent vérifié m'a montré les opportunités que créent les plateformes numériques. Je suis reconnaissant de faire partie de FindAfriq et déterminé à soutenir sa mission : mettre les gens en relation avec des biens vérifiés, appartements comme bureaux."
@@ -2161,7 +2172,7 @@
     "phonePlaceholder": "+250 795 784 530",
     "phoneHint": "Format international, par ex. +250795784530",
     "details": "Que recherchez-vous ?",
-    "detailsPlaceholder": "Décrivez le bien, le service ou l'article dont vous avez besoin — plus c'est précis, mieux nous pourrons vous aider.",
+    "detailsPlaceholder": "Décrivez le bien, le service ou l'article dont vous avez besoin. Plus c'est précis, mieux nous pourrons vous aider.",
     "location": "Localisation souhaitée (facultatif)",
     "locationPlaceholder": "par ex. Kacyiru, Kigali",
     "budget": "Budget (facultatif)",
@@ -2169,7 +2180,7 @@
     "submit": "Envoyer la demande",
     "submitting": "Envoi…",
     "successTitle": "Demande reçue",
-    "successBody": "Merci — notre équipe examinera votre demande et vous recontactera sous peu.",
+    "successBody": "Merci. Notre équipe examinera votre demande et vous recontactera sous peu.",
     "fixFields": "Veuillez corriger les champs signalés.",
     "errors": {
       "fullNameMin": "Veuillez saisir votre nom complet.",
@@ -2178,5 +2189,193 @@
       "phoneInvalid": "Utilisez le format international, par ex. +250795784530.",
       "detailsMin": "Merci de préciser un peu plus votre besoin (au moins 10 caractères)."
     }
-  }
+  },
+    "cookiePolicyPage": {
+      "title": "Politique relative aux cookies",
+      "subtitle": "Ce que FindAfriq enregistre sur votre appareil, pourquoi, et comment modifier votre choix.",
+      "lastUpdated": "Dernière mise à jour : 11 septembre 2026",
+      "s": {
+        "intro": {
+          "t": "1. À propos de cette politique",
+          "p1": "Cette politique explique les cookies et technologies de stockage similaires utilisés par FindAfriq, le rôle de chacun et leur durée. Elle complète notre",
+          "link": "politique de confidentialité",
+          "p2": ", qui décrit plus largement le traitement des données personnelles."
+        },
+        "what": {
+          "t": "2. De quoi s'agit-il",
+          "p1": "Un cookie est un petit fichier texte que le site enregistre dans votre navigateur. Nous utilisons aussi le localStorage et le sessionStorage, qui fonctionnent de façon comparable mais ne sont lus que par ce site. Le mot « cookies » désigne ici ces trois technologies."
+        },
+        "necessary": {
+          "t": "3. Strictement nécessaires",
+          "p1": "Ils font fonctionner le site et ne peuvent pas être désactivés. Ils sont déposés indépendamment de votre choix dans la bannière, car le site ne peut pas fonctionner sans eux.",
+          "headers": [
+            "Nom",
+            "Finalité",
+            "Type",
+            "Durée"
+          ],
+          "rows": [
+            [
+              "token",
+              "Vous maintient connecté d'une page à l'autre.",
+              "Cookie",
+              "Jusqu'à la déconnexion"
+            ],
+            [
+              "token, user",
+              "Conserve votre session et vos informations de compte dans le navigateur.",
+              "Stockage local/session",
+              "Jusqu'à la déconnexion"
+            ],
+            [
+              "findafriq_cookie_consent",
+              "Enregistre le choix que vous avez fait ici, pour ne plus vous le redemander.",
+              "Stockage local",
+              "Jusqu'à effacement"
+            ]
+          ]
+        },
+        "preferences": {
+          "t": "4. Préférences",
+          "p1": "Ils mémorisent vos choix d'affichage. Désactivés, le site les oublie d'une visite à l'autre.",
+          "headers": [
+            "Nom",
+            "Finalité",
+            "Type",
+            "Durée"
+          ],
+          "rows": [
+            [
+              "NEXT_LOCALE",
+              "Mémorise si vous lisez le site en français ou en anglais.",
+              "Cookie",
+              "1 an"
+            ],
+            [
+              "findafriq_currency",
+              "Mémorise si les prix s'affichent en USD ou en RWF.",
+              "Cookie",
+              "1 an"
+            ],
+            [
+              "testing-disclaimer-dismissed",
+              "Mémorise que vous avez fermé l'avis de plateforme.",
+              "Stockage local",
+              "Jusqu'à effacement"
+            ]
+          ]
+        },
+        "analytics": {
+          "t": "5. Mesure d'audience",
+          "p1": "Ils ne se chargent que si vous acceptez la mesure d'audience dans la bannière. Si vous refusez, les scripts ci-dessous ne sont jamais téléchargés.",
+          "headers": [
+            "Nom",
+            "Fournisseur",
+            "Finalité",
+            "Durée"
+          ],
+          "rows": [
+            [
+              "_ga, _ga_*",
+              "Google Analytics 4 (Google LLC, États-Unis)",
+              "Compte les visites et indique quelles pages et recherches sont utilisées, afin de prioriser les améliorations.",
+              "Jusqu'à 2 ans"
+            ],
+            [
+              "Session Replay",
+              "Sentry (Functional Software, Inc., États-Unis)",
+              "Enregistre une reconstitution masquée d'un faible échantillon de sessions pour diagnostiquer les anomalies. Textes, champs de formulaire et images sont masqués avant tout envoi.",
+              "Session"
+            ]
+          ]
+        },
+        "marketing": {
+          "t": "6. Marketing",
+          "p1": "La bannière comporte une catégorie marketing pour les cookies publicitaires. Nous n'en déposons aucun actuellement. Le réglage existe pour que, si nous en ajoutions, ils restent désactivés tant que vous ne les activez pas."
+        },
+        "errors": {
+          "t": "7. Rapports d'erreur",
+          "p1": "Indépendamment du Session Replay, nous utilisons Sentry pour enregistrer les plantages et les corriger. Ces rapports sont envoyés quel que soit votre choix de cookies, car un site incapable de signaler ses propres défaillances ne peut pas être sécurisé. Ils contiennent l'erreur et la page concernée. Nous avons désactivé l'option qui y joindrait votre adresse IP, vos en-têtes et vos cookies."
+        },
+        "embeds": {
+          "t": "8. Contenus tiers intégrés",
+          "p1": "Certaines pages intègrent des contenus servis par d'autres sociétés. Leur chargement leur révèle votre adresse IP :",
+          "items": [
+            "Les vidéos YouTube passent par youtube-nocookie.com et ne se chargent qu'après un clic sur lecture. La vignette d'aperçu est servie par Google avant cela.",
+            "Les photos d'annonces sont servies depuis DigitalOcean Spaces.",
+            "La messagerie interne est opérée par Stream Chat, qui dépose son propre stockage une fois connecté.",
+            "L'assistant IA transmet le texte de votre conversation à OpenAI pour générer une réponse. N'y indiquez pas de données sensibles.",
+            "Les recherches d'adresses transitent par notre serveur : OpenStreetMap ne reçoit pas votre adresse IP.",
+            "Les polices sont servies depuis notre domaine. Aucun fournisseur de polices ne reçoit vos données."
+          ]
+        },
+        "changing": {
+          "t": "9. Modifier votre choix",
+          "p1": "Vous pouvez rouvrir la bannière à tout moment depuis le lien en pied de page et modifier ou retirer votre consentement. Le retrait du consentement à la mesure d'audience arrête immédiatement toute collecte. Vous pouvez aussi effacer les cookies via votre navigateur, ce qui vous déconnectera et réinitialisera vos préférences de langue et de devise."
+        },
+        "changes": {
+          "t": "10. Modifications",
+          "p1": "Si nous ajoutons ou retirons un cookie, les tableaux ci-dessus seront mis à jour. Si le changement introduit un nouveau cookie non essentiel, votre consentement sera de nouveau demandé avant son dépôt."
+        },
+        "contact": {
+          "t": "11. Contact",
+          "p1": "Pour toute question sur cette politique, écrivez à"
+        }
+      }
+    },
+    "refundPolicyPage": {
+      "title": "Politique de remboursement",
+      "subtitle": "Fonctionnement des formules payantes, des annulations et des remboursements.",
+      "lastUpdated": "Dernière mise à jour : 11 septembre 2026",
+      "s": {
+        "status": {
+          "t": "1. Situation actuelle",
+          "p1": "FindAfriq n'encaisse pas encore de paiements. Les formules de publication et les abonnements prestataires figurent sur la page tarifs, mais le paiement n'est pas actif et personne n'a été débité. Les conditions ci-dessous s'appliqueront dès l'ouverture de la facturation. D'ici là, toutes les fonctionnalités accessibles sont gratuites."
+        },
+        "scope": {
+          "t": "2. Champ d'application",
+          "p1": "Cette politique couvre les sommes versées à FindAfriq : formules de publication, abonnements prestataires, mises en avant et publicité. Elle ne couvre pas les sommes échangées entre utilisateurs.",
+          "p2": "FindAfriq est une place de marché. Loyers, cautions, prix de vente et paiements de services sont convenus et réglés directement entre vous et l'autre personne. Nous ne sommes pas partie à ces transactions et ne pouvons pas les rembourser. Si une annonce ou un prestataire se révèle frauduleux, signalez-le : nous agirons sur le compte, mais les sommes doivent être récupérées auprès de la personne payée."
+        },
+        "billing": {
+          "t": "3. Abonnements et facturation",
+          "items": [
+            "Les formules payantes sont facturées d'avance pour la période choisie.",
+            "Les prix sont affichés en USD. Votre banque peut appliquer son propre taux de change et ses frais, que nous ne contrôlons pas et ne pouvons pas rembourser.",
+            "Sauf annulation, un abonnement se renouvelle automatiquement à la fin de chaque période.",
+            "Un reçu vous est envoyé par e-mail pour chaque débit."
+          ]
+        },
+        "cooling": {
+          "t": "4. Délai de remboursement",
+          "p1": "Vous pouvez demander le remboursement intégral d'un abonnement ou d'une formule dans les 14 jours suivant le débit, à condition de ne pas avoir utilisé l'avantage payant correspondant. Utiliser l'avantage signifie par exemple publier une annonce sous une formule payante, bénéficier d'une mise en avant ou diffuser une publicité.",
+          "p2": "Si l'avantage a été utilisé, la somme n'est pas remboursable pour cette période, mais vous pouvez annuler pour empêcher le renouvellement suivant."
+        },
+        "renewals": {
+          "t": "5. Renouvellements débités par erreur",
+          "p1": "Si un renouvellement est débité après votre annulation, ou si vous êtes débité deux fois pour la même période, signalez-le : nous remboursons intégralement. Ce cas n'est pas limité à 14 jours."
+        },
+        "cancel": {
+          "t": "6. Annulation",
+          "p1": "Vous pouvez annuler un abonnement à tout moment depuis votre compte. L'annulation empêche le renouvellement suivant. Votre formule reste active jusqu'à la fin de la période déjà payée, et la part non utilisée de cette période n'est pas remboursée au prorata."
+        },
+        "ours": {
+          "t": "7. Suspension de notre fait",
+          "p1": "Si nous suspendons ou supprimons votre compte pour manquement à nos conditions ou à la politique de plateforme, les sommes versées ne sont pas remboursées. Si nous retirons une fonctionnalité payante dont vous dépendiez, ou si son dysfonctionnement nous est imputable, nous remboursons la période concernée."
+        },
+        "how": {
+          "t": "8. Demander un remboursement",
+          "p1": "Écrivez-nous depuis l'adresse e-mail de votre compte, avec le reçu ou la référence de transaction et une brève description du problème. Nous accusons réception sous 3 jours ouvrés et décidons sous 14 jours.",
+          "p2": "Les remboursements accordés sont effectués sur le moyen de paiement d'origine. Le délai d'apparition des fonds dépend de votre banque ou opérateur de mobile money, généralement 5 à 10 jours ouvrés."
+        },
+        "disputes": {
+          "t": "9. En cas de désaccord",
+          "p1": "Contactez-nous d'abord afin que nous réexaminions le dossier. Engager une opposition bancaire avant de nous contacter peut entraîner la suspension de votre compte pendant la durée du litige. Rien dans cette politique ne retire les droits que vous tenez du droit de la consommation rwandais ou libérien."
+        },
+        "contact": {
+          "t": "10. Contact",
+          "p1": "Les demandes de remboursement et questions sur cette politique peuvent être adressées à"
+        }
+      }
+    }
 }

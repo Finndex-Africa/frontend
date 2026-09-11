@@ -556,7 +556,7 @@ function EditPropertyModal({
                 {t("agentFeeHelp")}
               </p>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                {t("agentFee")} ({CURRENCY_META[(formData.currency as Currency) ?? DEFAULT_CURRENCY].label}) <span className="text-gray-400 font-normal">({t("optional")})</span>
+                {t("agentFee")} ({CURRENCY_META[(formData.currency as Currency) ?? DEFAULT_CURRENCY].label}) <span className="text-gray-600 font-normal">({t("optional")})</span>
               </label>
               <div className="flex items-center max-w-xs">
                 <span className="text-gray-500 mr-2">
@@ -807,7 +807,7 @@ function PropertyModal({
                     {/* eslint-disable-next-line @next/next/no-img-element -- remote Space URLs; avoid Image domain config gaps */}
                     <img
                       src={src}
-                      alt={`${property.title} — photo ${i + 1}`}
+                      alt={`${property.title}, photo ${i + 1}`}
                       className="h-full w-full object-cover"
                     />
                   </a>
