@@ -5,6 +5,7 @@ import { useEffect, useState, useRef } from "react";
 
 import { verificationApi, type IdVerification, type SubmitIdVerificationDto } from "@/services/api/verification.api";
 import { mediaApi } from "@/services/api/media.api";
+import { prepareUpload } from "@/lib/image-upload";
 import { AuthService } from "@/services/auth.service";
 import { useErrorMessage } from "@/lib/error-messages";
 import { trackIdentityVerificationStarted, trackIdentityVerificationSubmitted } from "@/lib/analytics";
@@ -111,17 +112,22 @@ export default function VerifyIdentityPage() {
         setUploading(true);
         setError("");
         try {
-            const result = await mediaApi.upload(file, "users");
+            // Camera photos are 2-8MB; shrink them before sending so the upload
+            // survives a slow connection and stays under any request-size cap.
+            const isDocumentField = field === "businessRegistrationCertificate";
+            const prepared = await prepareUpload(file, { allowPdf: isDocumentField });
+            if (!prepared.ok) {
+                setError(tErr(`upload.${prepared.reason}`));
+                return;
+            }
+
+            const result = await mediaApi.upload(prepared.file, "users");
             setForm((prev) => ({ ...prev, [field]: result.url }));
-            if (field === "businessRegistrationCertificate") {
-                setBusinessCertIsPdf(file.type === "application/pdf");
+            if (isDocumentField) {
+                setBusinessCertIsPdf(prepared.file.type === "application/pdf");
             }
         } catch (err: any) {
-            const fallback =
-                field === "businessRegistrationCertificate"
-                    ? "Failed to upload document. Please check that the file is under 10MB and is JPG, PNG, GIF, WebP, or PDF, then try again."
-                    : "Failed to upload image. Please check that the file is under 10MB and is JPG, PNG, GIF, or WebP, then try again.";
-            setError(errorMessage(err));
+            setError(errorMessage(err, "uploadImage"));
         } finally {
             setUploading(false);
         }
