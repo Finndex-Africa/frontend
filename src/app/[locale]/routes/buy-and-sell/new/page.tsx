@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 
 import Image from 'next/image';
 import { buySellApi } from '@/services/api';
-import { mediaApi } from '@/services/api/media.api';
+import { uploadImages } from '@/lib/upload-media';
 import { MIN_PROPERTY_LISTING_IMAGES } from '@/lib/property-images';
 import { showToast } from '@/lib/toast';
 import { useErrorMessage } from "@/lib/error-messages";
@@ -165,14 +165,8 @@ export default function NewBuySellPage() {
         setFormError(null);
 
         try {
-            // Upload images
-            let imageUrls: string[] = [];
-            if (imageFiles.length > 0) {
-                const uploaded = await Promise.all(
-                    imageFiles.map(file => mediaApi.upload(file, 'buy-sell')),
-                );
-                imageUrls = uploaded.map(r => r.url);
-            }
+            // Upload images (compressed below the request-size cap first)
+            const imageUrls = await uploadImages(imageFiles, 'buy-sell');
 
             if (selectedCategory === 'land') {
                 if (!landData.landSize || !landData.ownershipStatus || !landData.sellerPhone) {

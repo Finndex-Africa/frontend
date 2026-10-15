@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from 'react';
 
 import { servicesApi } from '@/services/api';
-import { mediaApi } from '@/services/api/media.api';
+import { uploadImages } from '@/lib/upload-media';
 import { Service as ApiService } from '@/types/dashboard';
 import Image from 'next/image';
 import { ServiceForm } from '@/components/dashboard/ServiceForm';
@@ -71,25 +71,9 @@ export default function MyServicesPage() {
             console.log('📸 Frontend page - files to upload:', files.length);
 
             // Step 1: Upload images to Digital Ocean FIRST
-            const uploadedUrls: string[] = [];
-            if (files.length > 0) {
-                console.log('📤 Uploading', files.length, 'images to Digital Ocean...');
-
-                for (const file of files) {
-                    try {
-                        const uploadResponse = await mediaApi.upload(file, 'services');
-                        uploadedUrls.push(uploadResponse.url);
-                        console.log('✅ Uploaded:', uploadResponse.url);
-                    } catch (error: any) {
-                        console.error('❌ Failed to upload image:', error);
-                        showToast({
-                            title: 'Upload failed',
-                            description: errorMessage(error, "uploadImages"),
-                            variant: 'error'
-                        });
-                    }
-                }
-            }
+            // Stop on the first failure rather than publishing a service with
+            // images silently missing; the thrown error names the file.
+            const uploadedUrls = await uploadImages(files, 'services');
 
             // Step 2: Build clean data (no existingImages!)
             const cleanData: any = {
@@ -173,22 +157,9 @@ export default function MyServicesPage() {
             setSubmitError(null);
 
             // Upload new images if any
-            const newImageUrls: string[] = [];
-            if (files.length > 0) {
-                for (const file of files) {
-                    try {
-                        const uploadResponse = await mediaApi.upload(file, 'services', selectedService._id);
-                        newImageUrls.push(uploadResponse.url);
-                    } catch (error: any) {
-                        console.error('Failed to upload image:', error);
-                        showToast({
-                            title: 'Upload failed',
-                            description: errorMessage(error, "uploadImages"),
-                            variant: 'error'
-                        });
-                    }
-                }
-            }
+            const newImageUrls = await uploadImages(files, 'services', {
+                entityId: selectedService._id,
+            });
 
             // Combine existing images (from form) with newly uploaded ones
             const existingImages = values.existingImages || [];

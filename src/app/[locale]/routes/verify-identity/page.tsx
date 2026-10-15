@@ -4,8 +4,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState, useRef } from "react";
 
 import { verificationApi, type IdVerification, type SubmitIdVerificationDto } from "@/services/api/verification.api";
-import { mediaApi } from "@/services/api/media.api";
-import { prepareUpload } from "@/lib/image-upload";
+import { uploadImage } from "@/lib/upload-media";
 import { AuthService } from "@/services/auth.service";
 import { useErrorMessage } from "@/lib/error-messages";
 import { trackIdentityVerificationStarted, trackIdentityVerificationSubmitted } from "@/lib/analytics";
@@ -112,19 +111,17 @@ export default function VerifyIdentityPage() {
         setUploading(true);
         setError("");
         try {
-            // Camera photos are 2-8MB; shrink them before sending so the upload
-            // survives a slow connection and stays under any request-size cap.
+            // Camera photos are 2-8MB; uploadImage shrinks them before sending
+            // so the upload survives a slow connection and stays under the
+            // request-size cap.
             const isDocumentField = field === "businessRegistrationCertificate";
-            const prepared = await prepareUpload(file, { allowPdf: isDocumentField });
-            if (!prepared.ok) {
-                setError(tErr(`upload.${prepared.reason}`));
-                return;
-            }
-
-            const result = await mediaApi.upload(prepared.file, "users");
-            setForm((prev) => ({ ...prev, [field]: result.url }));
+            const url = await uploadImage(file, "users", {
+                allowPdf: isDocumentField,
+            });
+            setForm((prev) => ({ ...prev, [field]: url }));
             if (isDocumentField) {
-                setBusinessCertIsPdf(prepared.file.type === "application/pdf");
+                // PDFs pass through untouched; images come back as JPEG.
+                setBusinessCertIsPdf(file.type === "application/pdf");
             }
         } catch (err: any) {
             setError(errorMessage(err, "uploadImage"));

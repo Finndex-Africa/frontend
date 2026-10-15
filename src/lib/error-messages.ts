@@ -17,6 +17,9 @@ export type AnyError = unknown;
 type ErrorShape = {
   message?: unknown;
   code?: unknown;
+  /** Set by UploadFailedError: a catalog path we should show verbatim. */
+  i18nKey?: unknown;
+  i18nValues?: unknown;
   response?: { status?: number; data?: { message?: unknown; error?: unknown } };
 };
 
@@ -82,19 +85,39 @@ function isTimeout(raw: AnyError): boolean {
 export type ResolvedError =
   /** Matched a known message or status — translate `key` in namespace `ns`. */
   | { kind: "key"; ns: "server" | "upload" | "status" | "fallback"; key: string }
+  /** The thrower named its own catalog entry (e.g. UploadFailedError). */
+  | { kind: "path"; path: string; values: Record<string, string> }
   /** Server sent something we don't recognise; show it verbatim. */
   | { kind: "raw"; text: string };
+
+/** Pulls the catalog path off an error that named one itself. */
+function taggedPath(raw: AnyError): ResolvedError | null {
+  const error = asError(raw);
+  if (typeof error.i18nKey !== "string" || !error.i18nKey) return null;
+  const values =
+    error.i18nValues && typeof error.i18nValues === "object"
+      ? (error.i18nValues as Record<string, string>)
+      : {};
+  return { kind: "path", path: error.i18nKey, values };
+}
 
 /**
  * Decides which message to show, without translating.
  *
- * Order: network/timeout → known upload alias → known backend message →
- * unrecognised backend text (verbatim) → HTTP status → caller's fallback.
+ * Order: self-described error → network/timeout → known upload alias → known
+ * backend message → unrecognised backend text (verbatim) → HTTP status →
+ * caller's fallback.
+ *
+ * The self-described case comes first on purpose: an upload that was refused
+ * for a concrete reason must not be re-labelled as a generic network blip.
  */
 export function resolveError(
   error: AnyError,
   fallbackKey = "generic",
 ): ResolvedError {
+  const tagged = taggedPath(error);
+  if (tagged) return tagged;
+
   if (isTimeout(error)) return { kind: "key", ns: "fallback", key: "timeout" };
   if (isNetworkError(error)) return { kind: "key", ns: "fallback", key: "network" };
 
@@ -123,6 +146,11 @@ export function useErrorMessage() {
   return useCallback(
     (error: AnyError, fallbackKey = "generic"): string => {
       const resolved = resolveError(error, fallbackKey);
+
+      if (resolved.kind === "path") {
+        if (t.has(resolved.path)) return t(resolved.path, resolved.values);
+        return t(`fallback.${fallbackKey}`) as string;
+      }
 
       if (resolved.kind === "key") {
         const path = `${resolved.ns}.${resolved.key}`;

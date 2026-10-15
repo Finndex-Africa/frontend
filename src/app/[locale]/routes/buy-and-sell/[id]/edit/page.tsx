@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { buySellApi } from '@/services/api';
-import { mediaApi } from '@/services/api/media.api';
+import { uploadImages } from '@/lib/upload-media';
 import { showToast } from '@/lib/toast';
 import { useErrorMessage } from "@/lib/error-messages";
 import { geocodeAddress } from '@/lib/google-maps';
@@ -231,14 +231,8 @@ export default function EditBuySellPage() {
         setFormError(null);
 
         try {
-            // Upload only new files
-            let newUrls: string[] = [];
-            if (newImageFiles.length > 0) {
-                const uploaded = await Promise.all(
-                    newImageFiles.map(file => mediaApi.upload(file, 'buy-sell')),
-                );
-                newUrls = uploaded.map(r => r.url);
-            }
+            // Upload only new files (compressed below the request-size cap first)
+            const newUrls = await uploadImages(newImageFiles, 'buy-sell');
 
             const allImages = [...existingImages, ...newUrls];
 

@@ -1,22 +1,35 @@
 /**
- * Prepare a user-picked file for `mediaApi.upload`: validate it, and shrink
- * camera photos before they go over the wire.
+ * Validate a user-picked file and shrink camera photos before they go over
+ * the wire. Most callers want `uploadImages` from `@/lib/upload-media`, which
+ * wraps this and the upload itself; reach for `prepareUpload` directly only
+ * when you need the prepared File without sending it.
  *
  *   const prepared = await prepareUpload(file);
  *   if (!prepared.ok) return setError(tErr(`upload.${prepared.reason}`));
- *   await mediaApi.upload(prepared.file, "users");
  *
- * Why downscale at all, when the API accepts 10MB? A phone camera produces
- * 2-8MB JPEGs — far more detail than an ID review needs, and slow to push over
- * mobile data. It also keeps us clear of request-size limits in the proxy in
- * front of the API: those reject the request before any CORS headers are
- * added, so the browser can only report them as a connection failure ("Can't
- * reach the server"), never as "file too large". Small uploads avoid the whole
- * class of problem.
+ * Why downscale at all, when the API accepts 10MB? Two reasons.
+ *
+ * A phone camera produces 2-8MB JPEGs — far more detail than a listing photo
+ * or an ID review needs, and slow to push over mobile data.
+ *
+ * More importantly, nginx in front of the API enforces
+ * `client_max_body_size 1m`, well below the API's own 10MB limit. nginx
+ * rejects an oversized request with a 413 that carries no CORS headers, so the
+ * browser cannot show it to JavaScript at all: axios sees no response and
+ * reports ERR_NETWORK, which we can only phrase as "Can't reach the server".
+ * Keeping every request under MAX_REQUEST_BYTES is what stops a size problem
+ * from surfacing as a bogus connection problem.
  */
 
 /** Matches MAX_UPLOAD_SIZE_BYTES in the API — keep the two in step. */
 export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+
+/**
+ * The real ceiling on a request: nginx's `client_max_body_size` for
+ * api.findafriq.com. Anything larger never reaches the API, and comes back as
+ * an opaque network failure. Raise this only together with the nginx config.
+ */
+export const MAX_REQUEST_BYTES = 1024 * 1024;
 
 /** The image types the API's media service accepts. */
 const ALLOWED_IMAGE_TYPES = [
@@ -30,15 +43,21 @@ const ALLOWED_IMAGE_TYPES = [
 /** Longest edge we keep. ~2000px still resolves the fine print on an ID. */
 const MAX_EDGE = 2000;
 
-/** What we aim to land under, chosen to clear a 1MB proxy cap with headroom. */
+/** What we aim to land under: MAX_REQUEST_BYTES with headroom for multipart overhead. */
 const TARGET_BYTES = 800 * 1024;
 
 /** Tried in order; we stop at the first that meets TARGET_BYTES. */
 const QUALITY_STEPS = [0.85, 0.75, 0.6];
 
+/**
+ * `fileTooLarge` — over the API's own 10MB limit.
+ * `tooLargeToSend` — under 10MB but still over MAX_REQUEST_BYTES after
+ *   compression, so nginx would drop it. Happens with formats this browser
+ *   can't decode to a canvas (HEIC on some desktops) and with large PDFs.
+ */
 export type PreparedUpload =
   | { ok: true; file: File }
-  | { ok: false; reason: "badFileType" | "fileTooLarge" };
+  | { ok: false; reason: "badFileType" | "fileTooLarge" | "tooLargeToSend" };
 
 /**
  * Decode via createImageBitmap so EXIF orientation is honoured — phone photos
@@ -134,8 +153,11 @@ export async function prepareUpload(
 ): Promise<PreparedUpload> {
   if (file.type === "application/pdf") {
     if (!allowPdf) return { ok: false, reason: "badFileType" };
-    return file.size > MAX_UPLOAD_BYTES
-      ? { ok: false, reason: "fileTooLarge" }
+    if (file.size > MAX_UPLOAD_BYTES) return { ok: false, reason: "fileTooLarge" };
+    // A PDF can't be compressed here, so an oversized one has to be refused
+    // rather than sent into a 413.
+    return file.size > MAX_REQUEST_BYTES
+      ? { ok: false, reason: "tooLargeToSend" }
       : { ok: true, file };
   }
 
@@ -149,6 +171,12 @@ export async function prepareUpload(
   const prepared = await compressImage(file);
   if (prepared.size > MAX_UPLOAD_BYTES) {
     return { ok: false, reason: "fileTooLarge" };
+  }
+  // Compression is best-effort: it returns the original when the browser can't
+  // decode the image. Catch that here, where we can say why, instead of
+  // letting nginx turn it into "Can't reach the server".
+  if (prepared.size > MAX_REQUEST_BYTES) {
+    return { ok: false, reason: "tooLargeToSend" };
   }
 
   return { ok: true, file: prepared };

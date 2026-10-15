@@ -37,7 +37,7 @@ const ROUTE_MAP = `
 const SUPPORT_CONTACTS = `
 - Email: findafriq@gmail.com
 - Phone: +250 799 640 408
-- WhatsApp: +231 886 149 219
+- WhatsApp: +250 799 640 408
 - Address: Kigali, Rwanda
 `.trim();
 
