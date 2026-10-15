@@ -93,7 +93,7 @@
     "cookieSettings": "Paramètres des cookies",
     "pricing": "Tarifs",
     "address": "Kigali, Rwanda",
-    "phone": "+250 795 784 530",
+    "phone": "+250 799 640 408",
     "addressLabel": "Notre adresse",
     "phoneLabel": "Appelez-nous",
     "copyright": "© {year} FindAfriq, Inc. Tous droits réservés."
@@ -1217,9 +1217,9 @@
     "contactPlatform": "Plateforme",
     "contactEmail": "E-mail",
     "addressValue": "Kigali, Rwanda",
-    "phoneValue": "+250 795 784 530",
+    "phoneValue": "+250 799 640 408",
     "contactWhatsapp": "WhatsApp",
-    "whatsappValue": "+231 886 149 219"
+    "whatsappValue": "+250 799 640 408"
   },
   "helpPage": {
     "pageTitle": "FindAfriq : Questions fréquentes (FAQ)",
@@ -1605,7 +1605,7 @@
         "p1": "Pour toute question ou assistance, contactez :",
         "email": "E-mail :",
         "website": "Site web :",
-        "phone": "Téléphone : +250 795 784 530 | WhatsApp : +231 886 149 219"
+        "phone": "Téléphone : +250 799 640 408 | WhatsApp : +250 799 640 408"
       },
       "acceptance": {
         "t": "17. Acceptation",
@@ -1620,7 +1620,7 @@
     "contact": "Contact",
     "address": "Kigali, Rwanda",
     "website": "Site web :",
-    "tel": "Tél. : +250 795 784 530 · WhatsApp : +231 886 149 219",
+    "tel": "Tél. : +250 799 640 408 · WhatsApp : +250 799 640 408",
     "email": "E-mail :"
   },
   "privacyPage": {
@@ -1961,7 +1961,7 @@
       "401": "Veuillez vous reconnecter pour continuer.",
       "403": "Vous n'avez pas l'autorisation d'effectuer cette action.",
       "404": "Élément introuvable. Il a peut-être été supprimé.",
-      "413": "Le fichier est trop volumineux. La taille maximale est de 10 Mo par fichier. Choisissez une image plus petite.",
+      "413": "Ce fichier est trop volumineux pour le serveur. Choisissez une image plus petite (moins de 1 Mo) et réessayez.",
       "422": "Les informations saisies sont invalides. Vérifiez-les et réessayez.",
       "500": "Une erreur est survenue de notre côté. Veuillez réessayer dans un instant."
     },
@@ -2007,7 +2007,11 @@
       "fileTooLarge": "Cette image est trop volumineuse. La taille maximale est de 10 Mo par fichier. Choisissez une image plus petite ou compressez-la.",
       "badFileType": "Ce type de fichier n'est pas autorisé. Utilisez JPG, PNG, GIF, WebP ou PDF.",
       "noFile": "Veuillez sélectionner un fichier à téléverser.",
-      "noFiles": "Veuillez sélectionner au moins un fichier à téléverser."
+      "noFiles": "Veuillez sélectionner au moins un fichier à téléverser.",
+      "fileRejectedType": "{name} n'est pas une image prise en charge. Utilisez un fichier JPG, PNG, GIF ou WebP.",
+      "fileTooLargeNamed": "{name} est trop volumineux. La taille maximale est de 10 Mo par fichier.",
+      "tooLargeToSend": "{name} dépasse encore 1 Mo après compression, et le serveur refuse un fichier de cette taille. Choisissez une photo plus petite, ou enregistrez-la en résolution inférieure, puis réessayez.",
+      "uploadBlocked": "{name} n'a jamais atteint le serveur. Cela signifie généralement que le fichier dépassait la limite de 1 Mo, ou que la connexion a été interrompue pendant l'envoi. Réessayez avec une meilleure connexion ou une photo plus petite."
     },
     "fallback": {
       "generic": "Une erreur s'est produite. Veuillez réessayer.",
@@ -2040,7 +2044,7 @@
       "updateBusinessInfo": "Impossible de mettre à jour les informations de l'entreprise. Veuillez réessayer.",
       "changePassword": "Impossible de modifier le mot de passe. Veuillez réessayer.",
       "uploadImage": "Impossible de téléverser l'image. Veuillez réessayer.",
-      "uploadImages": "Une ou plusieurs images n'ont pas pu être téléversées. Vérifiez que chaque fichier fait moins de 10 Mo et est au format JPG, PNG, GIF ou WebP.",
+      "uploadImages": "Une ou plusieurs images n'ont pas pu être téléversées. Chaque fichier doit être au format JPG, PNG, GIF ou WebP et rester sous 1 Mo après compression.",
       "submitServiceRequest": "Échec de l'envoi de votre demande. Veuillez réessayer."
     },
     "form": {

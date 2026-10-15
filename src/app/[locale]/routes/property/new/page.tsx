@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 
 import Image from 'next/image';
 import { propertiesApi } from '@/services/api';
-import { mediaApi } from '@/services/api/media.api';
+import { uploadImages } from '@/lib/upload-media';
 import { MIN_PROPERTY_LISTING_IMAGES } from '@/lib/property-images';
 import { isAgentLikeUserType } from '@/lib/agent-user-types';
 import { showToast } from '@/lib/toast';
@@ -139,14 +139,9 @@ export default function NewPropertyPage() {
         setFormError(null);
 
         try {
-            // Upload images first
-            let imageUrls: string[] = [];
-            if (imageFiles.length > 0) {
-                const uploadedResponses = await Promise.all(
-                    imageFiles.map(file => mediaApi.upload(file, 'properties'))
-                );
-                imageUrls = uploadedResponses.map(response => response.url);
-            }
+            // Upload images first. uploadImages shrinks each photo below the
+            // request-size cap and names the file when one can't be sent.
+            const imageUrls = await uploadImages(imageFiles, 'properties');
 
             // Create property (backend expects amenities as { icon, label }[])
             const amenitiesPayload = amenities.length > 0

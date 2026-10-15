@@ -5,7 +5,7 @@ import React from 'react';
 
 const WhatsAppFloat = () => {
     const t = useTranslations("whatsapp");
-    const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+231886149219';
+    const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+250799640408';
     const defaultMessage = encodeURIComponent('Hi, I found you through FindAfriq and would like to get in touch.');
     const whatsappUrl = `https://wa.me/${phoneNumber.replace(/[^0-9+]/g, '').replace(/^\+/, '')}?text=${defaultMessage}`;
 

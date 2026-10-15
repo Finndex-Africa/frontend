@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState, useRef } from "react";
 
 import { verificationApi, type IdVerification, type SubmitIdVerificationDto } from "@/services/api/verification.api";
-import { mediaApi } from "@/services/api/media.api";
+import { uploadImage } from "@/lib/upload-media";
 import { AuthService } from "@/services/auth.service";
 import { useErrorMessage } from "@/lib/error-messages";
 import { trackIdentityVerificationStarted, trackIdentityVerificationSubmitted } from "@/lib/analytics";
@@ -111,17 +111,20 @@ export default function VerifyIdentityPage() {
         setUploading(true);
         setError("");
         try {
-            const result = await mediaApi.upload(file, "users");
-            setForm((prev) => ({ ...prev, [field]: result.url }));
-            if (field === "businessRegistrationCertificate") {
+            // Camera photos are 2-8MB; uploadImage shrinks them before sending
+            // so the upload survives a slow connection and stays under the
+            // request-size cap.
+            const isDocumentField = field === "businessRegistrationCertificate";
+            const url = await uploadImage(file, "users", {
+                allowPdf: isDocumentField,
+            });
+            setForm((prev) => ({ ...prev, [field]: url }));
+            if (isDocumentField) {
+                // PDFs pass through untouched; images come back as JPEG.
                 setBusinessCertIsPdf(file.type === "application/pdf");
             }
         } catch (err: any) {
-            const fallback =
-                field === "businessRegistrationCertificate"
-                    ? "Failed to upload document. Please check that the file is under 10MB and is JPG, PNG, GIF, WebP, or PDF, then try again."
-                    : "Failed to upload image. Please check that the file is under 10MB and is JPG, PNG, GIF, or WebP, then try again.";
-            setError(errorMessage(err));
+            setError(errorMessage(err, "uploadImage"));
         } finally {
             setUploading(false);
         }

@@ -11,6 +11,7 @@ import { SafeImage } from "@/components/ui/SafeImage";
 import { MIN_PROPERTY_LISTING_IMAGES } from "@/lib/property-images";
 import { showToast } from "@/lib/toast";
 import { useErrorMessage } from "@/lib/error-messages";
+import { uploadImages } from "@/lib/upload-media";
 import { trackListingEdited, trackListingUnpublished } from "@/lib/analytics";
 import { geocodeAddress } from "@/lib/google-maps";
 import { isAgentLikeUserType } from "@/lib/agent-user-types";
@@ -234,13 +235,7 @@ function EditPropertyModal({
       // Upload new images if any
       let finalImages = [...images];
       if (newImageFiles.length > 0) {
-        // Import mediaApi for image upload
-        const { mediaApi } = await import("@/services/api/media.api");
-
-        const uploadedResponses = await Promise.all(
-          newImageFiles.map((file) => mediaApi.upload(file, "properties")),
-        );
-        const uploadedUrls = uploadedResponses.map((response) => response.url);
+        const uploadedUrls = await uploadImages(newImageFiles, "properties");
         finalImages = [...finalImages, ...uploadedUrls];
       }
 

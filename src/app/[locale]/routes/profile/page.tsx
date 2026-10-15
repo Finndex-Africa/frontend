@@ -5,7 +5,7 @@ import { useEffect, useState, useRef } from 'react';
 
 import Image from 'next/image';
 import { usersApi } from '@/services/api/users.api';
-import { mediaApi } from '@/services/api/media.api';
+import { uploadImage } from '@/lib/upload-media';
 import { useErrorMessage } from "@/lib/error-messages";
 import { getProviderProfileUser, isUserIdVerified } from '@/lib/user-verification';
 import { serviceProvidersApi, type ServiceProviderProfile, type UpdateProviderDto } from '@/services/api/service-providers.api';
@@ -132,15 +132,8 @@ export default function ProfilePage() {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Validate file type
         if (!file.type.startsWith('image/')) {
             setError(tErr("form.selectImageFile"));
-            return;
-        }
-
-        // Validate file size (5MB max)
-        if (file.size > 5 * 1024 * 1024) {
-            setError(tErr("form.imageTooLarge5mb"));
             return;
         }
 
@@ -148,8 +141,11 @@ export default function ProfilePage() {
             setUploadingImage(true);
             setError('');
 
-            const uploadedMedia = await mediaApi.upload(file, 'users', user._id);
-            const avatarUrl = uploadedMedia.url;
+            // No size gate here: uploadImage compresses a camera photo down to
+            // the request-size cap, and says so plainly when it can't.
+            const avatarUrl = await uploadImage(file, 'users', {
+                entityId: user._id,
+            });
 
             // Update form data
             setFormData(prev => ({ ...prev, avatar: avatarUrl }));

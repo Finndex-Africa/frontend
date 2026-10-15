@@ -93,7 +93,7 @@
     "cookieSettings": "Cookie settings",
     "pricing": "Pricing",
     "address": "Kigali, Rwanda",
-    "phone": "+250 795 784 530",
+    "phone": "+250 799 640 408",
     "addressLabel": "Our address",
     "phoneLabel": "Call us",
     "copyright": "© {year} FindAfriq, Inc. All rights reserved."
@@ -1214,9 +1214,9 @@
     "contactPlatform": "Platform",
     "contactEmail": "Email",
     "addressValue": "Kigali, Rwanda",
-    "phoneValue": "+250 795 784 530",
+    "phoneValue": "+250 799 640 408",
     "contactWhatsapp": "WhatsApp",
-    "whatsappValue": "+231 886 149 219"
+    "whatsappValue": "+250 799 640 408"
   },
   "helpPage": {
     "pageTitle": "FindAfriq: Frequently Asked Questions (FAQ)",
@@ -1602,7 +1602,7 @@
         "p1": "For questions or support, contact:",
         "email": "Email:",
         "website": "Website:",
-        "phone": "Phone: +250 795 784 530 | WhatsApp: +231 886 149 219"
+        "phone": "Phone: +250 799 640 408 | WhatsApp: +250 799 640 408"
       },
       "acceptance": {
         "t": "17. Acceptance",
@@ -1617,7 +1617,7 @@
     "contact": "Contact",
     "address": "Kigali, Rwanda",
     "website": "Website:",
-    "tel": "Tel: +250 795 784 530 · WhatsApp: +231 886 149 219",
+    "tel": "Tel: +250 799 640 408 · WhatsApp: +250 799 640 408",
     "email": "Email:"
   },
   "privacyPage": {
@@ -1894,7 +1894,7 @@
       "401": "Please sign in again to continue.",
       "403": "You don't have permission to do this.",
       "404": "The item was not found. It may have been removed.",
-      "413": "The file is too large. Maximum size is 10MB per file. Please choose a smaller image.",
+      "413": "That file is too large for the server to accept. Please choose a smaller image (under 1MB) and try again.",
       "422": "The information you entered is invalid. Please check and try again.",
       "500": "Something went wrong on our end. Please try again in a moment."
     },
@@ -1940,7 +1940,11 @@
       "fileTooLarge": "This image is too large. Maximum size is 10MB per file. Please choose a smaller image or compress it.",
       "badFileType": "This file type is not allowed. Please use JPG, PNG, GIF, WebP, or PDF.",
       "noFile": "Please select a file to upload.",
-      "noFiles": "Please select at least one file to upload."
+      "noFiles": "Please select at least one file to upload.",
+      "fileRejectedType": "{name} isn't a supported image. Please use a JPG, PNG, GIF or WebP file.",
+      "fileTooLargeNamed": "{name} is too large. The maximum is 10MB per file.",
+      "tooLargeToSend": "{name} is still over 1MB after we compressed it, and the server won't accept a file that big. Please pick a smaller photo, or save it at a lower resolution and try again.",
+      "uploadBlocked": "{name} never reached the server. That usually means the file was over the 1MB upload limit, or the connection dropped mid-upload. Try again on a stronger connection, or with a smaller photo."
     },
     "fallback": {
       "generic": "Something went wrong. Please try again.",
@@ -1973,7 +1977,7 @@
       "updateBusinessInfo": "Failed to update business information. Please try again.",
       "changePassword": "Failed to change password. Please try again.",
       "uploadImage": "Failed to upload image. Please try again.",
-      "uploadImages": "One or more images could not be uploaded. Check that each file is under 10MB and is JPG, PNG, GIF, or WebP.",
+      "uploadImages": "One or more images could not be uploaded. Each file must be a JPG, PNG, GIF or WebP, and must stay under 1MB once compressed.",
       "submitServiceRequest": "Failed to send your request. Please try again."
     },
     "form": {
